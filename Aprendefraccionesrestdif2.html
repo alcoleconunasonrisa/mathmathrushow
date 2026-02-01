@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AprendeResta - MCM y Fracciones</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+
+        .container {
+            width: 98%; max-width: 1000px; height: 95vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        .instruccion {
+            background: #007bff; color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+            min-height: 50px; display: flex; align-items: center; justify-content: center;
+        }
+
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+
+        .zona-operacion {
+            flex: 2; overflow-y: auto; padding: 15px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px;
+        }
+
+        .zona-teclado {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        .fila-operacion { display: flex; align-items: center; gap: 10px; font-size: 1.8rem; font-weight: bold; margin-bottom: 20px; }
+        .fraccion { display: flex; flex-direction: column; align-items: center; min-width: 60px; }
+        .linea-fraccion { width: 100%; height: 3px; background: #333; margin: 4px 0; }
+
+        .celda {
+            min-width: 55px; height: 55px; border: 2px solid #ccc; border-radius: 8px;
+            background: #fff; line-height: 51px; text-align: center; font-size: 1.6rem;
+            transition: all 0.2s;
+        }
+        .celda.activa { border: 3px solid #007bff; background: #e7f3ff; transform: scale(1.05); }
+        .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        .mcm-box { font-size: 1.3rem; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; background: #eee; padding: 10px; border-radius: 10px; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-3px);} 75% {transform: translateX(3px);} }
+
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 220px; }
+        .tecla { padding: 12px 0; font-size: 1.3rem; border: none; border-radius: 10px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; }
+        .tecla:active { box-shadow: 0 2px #ccc; transform: translateY(2px); }
+
+        .pantalla { display: none; height: 100%; width: 100%; }
+        .pantalla.active { display: flex; flex-direction: column; }
+
+        .btn-nivel { width: 100%; max-width: 350px; padding: 12px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
+
+        #modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; }
+            .zona-teclado { border-left: none; border-top: 2px solid #eee; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#007bff; margin-bottom:15px;">Resta de Fracciones</h1>
+            <p style="text-align:center; margin-bottom: 20px;">Diferente denominador (Paso a paso)</p>
+            <button class="btn-nivel" style="background:#43a047" onclick="iniciar(1)">Nivel 1: MCM sencillo</button>
+            <button class="btn-nivel" style="background:#fb8c00" onclick="iniciar(2)">Nivel 2: Denominadores hasta 15</button>
+            <button class="btn-nivel" style="background:#e53935" onclick="iniciar(3)">Nivel 3: Restas complejas</button>
+            <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="window.location.href='main-index.html'">🏠 Volver a Inicio</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="instruccion" class="instruccion">Cargando...</div>
+            <div class="contenido-juego">
+                <div class="zona-operacion" id="interfaz-juego"></div>
+                <div class="zona-teclado">
+                    <div class="teclado">
+                        <button class="tecla" onclick="entrada(1)">1</button>
+                        <button class="tecla" onclick="entrada(2)">2</button>
+                        <button class="tecla" onclick="entrada(3)">3</button>
+                        <button class="tecla" onclick="entrada(4)">4</button>
+                        <button class="tecla" onclick="entrada(5)">5</button>
+                        <button class="tecla" onclick="entrada(6)">6</button>
+                        <button class="tecla" onclick="entrada(7)">7</button>
+                        <button class="tecla" onclick="entrada(8)">8</button>
+                        <button class="tecla" onclick="entrada(9)">9</button>
+                        <button class="tecla" style="background:#ffcdd2" onclick="borrar()">C</button>
+                        <button class="tecla" onclick="entrada(0)">0</button>
+                        <button class="tecla" style="background:#eee" onclick="window.location.href='main-index.html'">🏠</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <h2 style="font-size: 2.5rem; color: #007bff;">¡Restado con éxito! ❄️</h2>
+            <p id="resumen-final" style="margin: 15px; font-weight: bold;"></p>
+            <button class="btn-nivel" style="background:#43a047; max-width: 250px; margin-top:20px;" onclick="iniciar(nivelActual)">Siguiente resta</button>
+            <button class="btn-nivel" style="background:#555; max-width: 250px;" onclick="window.location.href='main-index.html'">🏠 Volver a Inicio</button>
+        </div>
+    </div>
+
+    <script>
+        let n1, d1, n2, d2, mcmReal, numEquiv1, numEquiv2, resultadoFinal;
+        let nivelActual = 1;
+        let pasoActual = 1; 
+        let inputActual = "";
+
+        function getMCM(a, b) {
+            let max = Math.max(a, b);
+            while (true) {
+                if (max % a === 0 && max % b === 0) return max;
+                max++;
+            }
+        }
+
+        function iniciar(n) {
+            nivelActual = n;
+            pasoActual = 1;
+            inputActual = "";
+
+            const dens = n === 1 ? [2,3,4,6] : n === 2 ? [4,6,8,10,12] : [6,9,12,14,15,18];
+            d1 = dens[Math.floor(Math.random() * dens.length)];
+            do {
+                d2 = dens[Math.floor(Math.random() * dens.length)];
+            } while (d1 === d2);
+
+            mcmReal = getMCM(d1, d2);
+            const f1 = mcmReal / d1;
+            const f2 = mcmReal / d2;
+
+            // Lógica para asegurar que la resta sea posible y positiva
+            n1 = Math.floor(Math.random() * 4) + 3; 
+            n2 = Math.floor(Math.random() * (n1 - 1)) + 1;
+
+            // Ajuste de numeradores para que n1/d1 > n2/d2
+            if ((n1 * f1) <= (n2 * f2)) {
+                n1 += 3;
+            }
+
+            numEquiv1 = n1 * f1;
+            numEquiv2 = n2 * f2;
+            resultadoFinal = numEquiv1 - numEquiv2;
+
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+            document.getElementById('modal-victoria').style.display = 'none';
+
+            actualizarInterfaz();
+        }
+
+        function actualizarInterfaz() {
+            const zona = document.getElementById('interfaz-juego');
+            const inst = document.getElementById('instruccion');
+
+            let html = `
+                <div class="fila-operacion">
+                    <div class="fraccion"><div class="num-f">${n1}</div><div class="linea-fraccion"></div><div class="den-f">${d1}</div></div>
+                    <div style="color:red">-</div>
+                    <div class="fraccion"><div class="num-f">${n2}</div><div class="linea-fraccion"></div><div class="den-f">${d2}</div></div>
+                </div>
+            `;
+
+            if (pasoActual === 1) {
+                inst.textContent = `Paso 1: Busca el MCM de ${d1} y ${d2}`;
+                html += `<div class="mcm-box">MCM (${d1}, ${d2}) = <div id="target" class="celda activa">${inputActual}</div></div>`;
+            } else {
+                html += `
+                    <div class="fila-operacion">
+                        <div class="fraccion">
+                            <div class="celda ${pasoActual===2?'activa':''} ${pasoActual>2?'correcta':''}">${pasoActual===2?inputActual:(pasoActual>2?numEquiv1:'')}</div>
+                            <div class="linea-fraccion"></div>
+                            <div class="den-f" style="color:#007bff">${mcmReal}</div>
+                        </div>
+                        <div style="color:red">-</div>
+                        <div class="fraccion">
+                            <div class="celda ${pasoActual===3?'activa':''} ${pasoActual>3?'correcta':''}">${pasoActual===3?inputActual:(pasoActual>3?numEquiv2:'')}</div>
+                            <div class="linea-fraccion"></div>
+                            <div class="den-f" style="color:#007bff">${mcmReal}</div>
+                        </div>
+                        <div>=</div>
+                        <div class="fraccion">
+                            <div class="celda ${pasoActual===4?'activa':''}">${pasoActual===4?inputActual:''}</div>
+                            <div class="linea-fraccion"></div>
+                            <div class="den-f" style="color:#007bff">${mcmReal}</div>
+                        </div>
+                    </div>
+                `;
+
+                if (pasoActual === 2) inst.textContent = `Paso 2: ¿Cuál es el nuevo numerador para ${n1}/${d1}?`;
+                if (pasoActual === 3) inst.textContent = `Paso 3: ¿Cuál es el nuevo numerador para ${n2}/${d2}?`;
+                if (pasoActual === 4) inst.textContent = `Paso 4: ¡Resta los numeradores!`;
+            }
+            zona.innerHTML = html;
+        }
+
+        function entrada(num) {
+            inputActual += num.toString();
+            let objetivo = "";
+
+            if (pasoActual === 1) objetivo = mcmReal.toString();
+            else if (pasoActual === 2) objetivo = numEquiv1.toString();
+            else if (pasoActual === 3) objetivo = numEquiv2.toString();
+            else if (pasoActual === 4) objetivo = resultadoFinal.toString();
+
+            actualizarInterfaz();
+
+            if (objetivo.startsWith(inputActual)) {
+                if (inputActual === objetivo) {
+                    pasoActual++;
+                    inputActual = "";
+                    if (pasoActual > 4) setTimeout(finalizar, 500);
+                    else setTimeout(actualizarInterfaz, 400);
+                }
+            } else {
+                document.querySelector('.celda.activa').classList.add('incorrecta');
+                setTimeout(() => {
+                    inputActual = "";
+                    actualizarInterfaz();
+                }, 500);
+            }
+        }
+
+        function borrar() {
+            inputActual = "";
+            actualizarInterfaz();
+        }
+
+        function finalizar() {
+            document.getElementById('modal-victoria').style.display = 'flex';
+            document.getElementById('resumen-final').textContent = `${n1}/${d1} - ${n2}/${d2} = ${numEquiv1}/${mcmReal} - ${numEquiv2}/${mcmReal} = ${resultadoFinal}/${mcmReal}`;
+        }
+    </script>
+</body>
+</html>

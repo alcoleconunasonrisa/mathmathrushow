@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Resta Decimal - Paso a Paso</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+
+        .container {
+            width: 98%; max-width: 950px; height: 95vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column;
+        }
+
+        .instruccion {
+            background: #1a2a6c; color: white; padding: 15px;
+            border-radius: 12px; text-align: center; margin-bottom: 15px;
+            font-weight: bold; font-size: 1.2rem;
+        }
+
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+
+        .zona-operacion {
+            flex: 1.8; overflow-y: auto; padding: 20px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .zona-teclado {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        .tablero { font-family: 'Courier New', monospace; display: inline-block; }
+        .fila { display: flex; justify-content: flex-end; align-items: center; height: 55px; }
+        .fila-resta { border-bottom: 4px solid #333; margin-bottom: 10px; position: relative; }
+        
+        .num, .celda { width: 50px; height: 50px; line-height: 50px; text-align: center; font-size: 2.2rem; font-weight: bold; }
+
+        .celda { border: 2px solid #ccc; border-radius: 8px; background: #fff; line-height: 46px; }
+        .celda.activa { border: 3px solid #1a2a6c; background: #e8eaf6; }
+        .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-3px);} 75% {transform: translateX(3px);} }
+
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 250px; }
+        .tecla { padding: 15px 0; font-size: 1.4rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; }
+        .tecla:active { box-shadow: 0 2px #ccc; transform: translateY(2px); }
+
+        .pantalla { display: none; height: 100%; width: 100%; }
+        .pantalla.active { display: flex; flex-direction: column; }
+
+        .btn-nivel { width: 100%; max-width: 350px; padding: 12px; margin: 8px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
+
+        #modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; }
+            .zona-teclado { border-left: none; border-top: 2px solid #eee; }
+            .num, .celda { width: 40px; height: 45px; font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#1a2a6c; margin-bottom:15px;">Resta de Decimales</h1>
+            <button class="btn-nivel" style="background:#43a047" onclick="iniciarConNivel(1)">Nivel 1: Sencillo</button>
+            <button class="btn-nivel" style="background:#fb8c00" onclick="iniciarConNivel(2)">Nivel 2: Intermedio</button>
+            <button class="btn-nivel" style="background:#e53935" onclick="iniciarConNivel(3)">Nivel 3: Avanzado</button>
+            <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="window.location.href='main-index.html'">🏠 Volver a Inicio</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="instruccion" class="instruccion">¡A resta decimal!</div>
+            <div class="contenido-juego">
+                <div class="zona-operacion">
+                    <div class="tablero" id="area-resta"></div>
+                </div>
+                <div class="zona-teclado">
+                    <div class="teclado">
+                        <button class="tecla" onclick="entrada(1)">1</button>
+                        <button class="tecla" onclick="entrada(2)">2</button>
+                        <button class="tecla" onclick="entrada(3)">3</button>
+                        <button class="tecla" onclick="entrada(4)">4</button>
+                        <button class="tecla" onclick="entrada(5)">5</button>
+                        <button class="tecla" onclick="entrada(6)">6</button>
+                        <button class="tecla" onclick="entrada(7)">7</button>
+                        <button class="tecla" onclick="entrada(8)">8</button>
+                        <button class="tecla" onclick="entrada(9)">9</button>
+                        <button class="tecla" style="background:#cfd8dc" onclick="entrada(',')">,</button>
+                        <button class="tecla" onclick="entrada(0)">0</button>
+                        <button class="tecla" style="background:#ffcdd2" onclick="borrar()">C</button>
+                        <button class="tecla" style="background:#eee; grid-column: span 3;" onclick="window.location.href='main-index.html'">🏠 Volver al Inicio</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <h2 style="font-size: 2.5rem; color: #4CAF50;">¡Excelente Resta! 🎯</h2>
+            <p id="mensaje-final" style="margin: 15px; font-size: 1.2rem; font-weight: bold;"></p>
+            <button class="btn-nivel" style="background:#43a047; max-width: 250px;" onclick="iniciarConNivel(nivelActual)">Siguiente Resta</button>
+            <button class="btn-nivel" style="background:#1a2a6c; max-width: 250px;" onclick="volverAlMenu()">Cambiar Nivel</button>
+            <button class="btn-nivel" style="background:#555; max-width: 250px;" onclick="window.location.href='main-index.html'">🏠 Salir al Inicio</button>
+        </div>
+    </div>
+
+    <script>
+        let nivelActual = 1, minuendo, sustraendo, resultado, resStr;
+        let celdasInput = [], indexActual = 0, audioCtx = null;
+
+        function iniciarConNivel(n) {
+            nivelActual = n;
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            let decMin = n === 1 ? 1 : 2;
+            let decSus = n === 1 ? 1 : (n === 2 ? 1 : 2);
+            
+            let m = (Math.random() * 50 + 50).toFixed(decMin);
+            let s = (Math.random() * 40 + 5).toFixed(decSus);
+            
+            if(parseFloat(s) > parseFloat(m)) [m, s] = [s, m];
+
+            minuendo = m.replace('.', ',');
+            sustraendo = s.replace('.', ',');
+            resultado = (parseFloat(m) - parseFloat(s)).toFixed(Math.max(decMin, decSus));
+            resStr = resultado.replace('.', ',');
+
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('instruccion').textContent = "Resta de derecha a izquierda. ¡Cuidado con las llevadas!";
+            
+            dibujarTablero();
+        }
+
+        function dibujarTablero() {
+            const area = document.getElementById('area-resta');
+            area.innerHTML = "";
+            let maxW = Math.max(minuendo.length, sustraendo.length, resStr.length);
+            
+            // Fila Minuendo
+            let f1 = crearDiv("", "fila");
+            minuendo.padStart(maxW, " ").split("").forEach(char => f1.appendChild(crearDiv(char === " "?"":char, "num")));
+            area.appendChild(f1);
+
+            // Fila Sustraendo
+            let f2 = crearDiv("", "fila fila-resta");
+            f2.appendChild(crearDiv("-", "num"));
+            sustraendo.padStart(maxW, " ").split("").forEach(char => f2.appendChild(crearDiv(char === " "?"":char, "num")));
+            area.appendChild(f2);
+
+            // Fila Resultado (Celdas vacías)
+            let fRes = crearDiv("", "fila");
+            celdasInput = [];
+            resStr.padStart(maxW, " ").split("").forEach((char, i) => {
+                if(char === " " && i < maxW - resStr.length) fRes.appendChild(crearDiv("", "num"));
+                else {
+                    let c = crearDiv("", "celda");
+                    fRes.appendChild(c);
+                    celdasInput.push({el: c, val: char});
+                }
+            });
+            area.appendChild(fRes);
+            indexActual = celdasInput.length - 1;
+            actualizarFoco();
+        }
+
+        function actualizarFoco() {
+            celdasInput.forEach(c => c.el.classList.remove('activa'));
+            if(indexActual >= 0) {
+                celdasInput[indexActual].el.classList.add('activa');
+                if(celdasInput[indexActual].val === ",") setTimeout(() => entrada(","), 300);
+            } else {
+                terminar();
+            }
+        }
+
+        function entrada(n) {
+            if(indexActual < 0) return;
+            let celda = celdasInput[indexActual].el;
+            let esperado = celdasInput[indexActual].val;
+
+            if(n.toString() === esperado) {
+                playSound(800);
+                celda.textContent = n;
+                celda.className = 'celda correcta';
+                indexActual--;
+                actualizarFoco();
+            } else {
+                playSound(200);
+                celda.classList.add('incorrecta');
+                celda.textContent = n;
+                setTimeout(() => {
+                    celda.classList.remove('incorrecta');
+                    celda.textContent = '';
+                }, 400);
+            }
+        }
+
+        function crearDiv(t, c) {
+            let d = document.createElement('div');
+            d.className = c; d.textContent = t; return d;
+        }
+
+        function terminar() {
+            document.getElementById('mensaje-final').textContent = `${minuendo} - ${sustraendo} = ${resStr}`;
+            document.getElementById('modal-victoria').style.display = 'flex';
+            playSound(1000);
+        }
+
+        function playSound(f) {
+            if(!audioCtx) return;
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.connect(g); g.connect(audioCtx.destination);
+            o.frequency.value = f;
+            g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.2);
+            o.start(); o.stop(audioCtx.currentTime + 0.2);
+        }
+
+        function borrar() {
+            if(indexActual >= 0 && !celdasInput[indexActual].el.classList.contains('correcta')) {
+                celdasInput[indexActual].el.textContent = "";
+            }
+        }
+
+        function volverAlMenu() {
+            document.getElementById('juego').classList.remove('active');
+            document.getElementById('menu').classList.add('active');
+            document.getElementById('modal-victoria').style.display = 'none';
+        }
+
+        window.onload = () => { /* Esperar interacción para audio */ };
+    </script>
+</body>
+</html>

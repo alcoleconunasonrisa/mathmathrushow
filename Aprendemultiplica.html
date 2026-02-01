@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplicación con Manzanas - Aprendizaje Visual</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --grass: #9cdb43;
+            --sky: #87ceeb;
+            --apple: #ff4d4d;
+            --basket: #8b4513;
+            --error: #e74c3c;
+            --success: #2ecc71;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: var(--sky);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            color: #2c3e50;
+        }
+
+        .toolbar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            box-sizing: border-box;
+        }
+
+        .btn-home {
+            background: #2c3e50;
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 3px 0 #1a252f;
+        }
+
+        .header {
+            background: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .mission-text { font-weight: 900; font-size: 1.1rem; }
+        .target-hl { color: var(--apple); font-size: 1.4rem; }
+
+        .game-area {
+            display: flex;
+            flex-grow: 1;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            padding: 10px;
+        }
+
+        .basket-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .basket {
+            width: 130px;
+            height: 90px;
+            background: var(--basket);
+            border-radius: 10px 10px 60px 60px;
+            border: 4px solid #5d2e0a;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 8px;
+            gap: 4px;
+            justify-content: center;
+            align-content: flex-end;
+            cursor: pointer;
+        }
+
+        .apple {
+            width: 24px;
+            height: 24px;
+            background: var(--apple);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow: inset -3px -3px 0 rgba(0,0,0,0.1);
+        }
+
+        .apple::before {
+            content: '';
+            position: absolute;
+            top: -4px; left: 10px;
+            width: 3px; height: 6px;
+            background: #4a2c00;
+        }
+
+        .counter { font-size: 1.8rem; font-weight: 900; color: #5d2e0a; margin-top: 5px; }
+
+        .controls { margin-bottom: 10px; text-align: center; }
+
+        #check-btn {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #1a252f;
+        }
+
+        #feedback-msg {
+            margin-top: 5px;
+            padding: 5px 15px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        .ground-area {
+            background: var(--grass);
+            width: 100%;
+            height: 22%;
+            border-top: 5px solid #86c038;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            overflow-y: auto;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .operation-box {
+            font-size: 3rem;
+            font-weight: 900;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border: 3px dashed #bdc3c7;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar">
+        <a href="main-index.html" class="btn-home">🏠 INICIO</a>
+        <div class="header">
+            <div class="mission-text" id="missionText">Cargando...</div>
+        </div>
+        <div style="width: 80px;"></div>
+    </div>
+
+    <div class="game-area" id="basketZone"></div>
+
+    <div class="controls">
+        <button id="check-btn" onclick="verify()">¡COMPROBAR MULTIPLICACIÓN!</button>
+        <div id="feedback-msg"></div>
+    </div>
+
+    <div class="ground-area" id="ground"></div>
+
+    <div class="modal" id="winModal">
+        <div class="modal-content">
+            <h2 style="color: var(--success)">¡RETRO COMPLETADO! 🌟</h2>
+            <div class="operation-box" id="opDisplay">0 x 0 = 0</div>
+            <p id="textDesc" style="font-weight: bold; color: #7f8c8d;"></p>
+            <button onclick="initGame()" style="background: var(--success); color: white; border: none; padding: 10px 25px; border-radius: 10px; cursor: pointer; font-size: 1.2rem; font-weight: bold;">SIGUIENTE NIVEL</button>
+        </div>
+    </div>
+
+<script>
+    let m = { groups: 0, perGroup: 0, total: 0 };
+    const ground = document.getElementById('ground');
+    const basketZone = document.getElementById('basketZone');
+    const feedback = document.getElementById('feedback-msg');
+
+    function initGame() {
+        document.getElementById('winModal').style.display = 'none';
+        feedback.style.display = 'none';
+        ground.innerHTML = '';
+        basketZone.innerHTML = '';
+
+        // Definir retos de multiplicación: (2 a 5 cestas) x (2 a 5 manzanas)
+        m.groups = Math.floor(Math.random() * 3) + 2; 
+        m.perGroup = Math.floor(Math.random() * 4) + 2; 
+        m.total = m.groups * m.perGroup;
+        
+        document.getElementById('missionText').innerHTML = 
+            `PON <span class="target-hl">${m.perGroup}</span> MANZANAS EN CADA UNA DE LAS <span class="target-hl">${m.groups}</span> CESTAS`;
+
+        // Crear Cestas
+        for(let i=0; i < m.groups; i++) {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'basket-group';
+            const b = document.createElement('div');
+            b.className = 'basket';
+            const c = document.createElement('div');
+            c.className = 'counter';
+            c.innerText = '0';
+            groupDiv.appendChild(b);
+            groupDiv.appendChild(c);
+            basketZone.appendChild(groupDiv);
+        }
+
+        // Crear manzanas en el suelo (con extras para que el niño deba contar)
+        const totalWithExtras = m.total + 5;
+        for(let i=0; i < totalWithExtras; i++) {
+            createApple();
+        }
+    }
+
+    function createApple() {
+        const apple = document.createElement('div');
+        apple.className = 'apple';
+        apple.onclick = (e) => {
+            e.stopPropagation();
+            handleAppleClick(apple);
+        };
+        ground.appendChild(apple);
+    }
+
+    function handleAppleClick(apple) {
+        feedback.style.display = 'none';
+        
+        // Si la manzana está en el suelo, va a la cesta que tenga hueco o la primera
+        if (apple.parentElement === ground) {
+            const baskets = Array.from(document.querySelectorAll('.basket'));
+            // Intentamos llenar de forma equilibrada para ayudar visualmente
+            const targetBasket = baskets.reduce((prev, curr) => 
+                prev.children.length <= curr.children.length ? prev : curr
+            );
+            targetBasket.appendChild(apple);
+        } 
+        // SIEMPRE vuelve al suelo si se toca dentro de una cesta
+        else {
+            ground.appendChild(apple);
+        }
+        updateCounters();
+    }
+
+    function updateCounters() {
+        document.querySelectorAll('.basket-group').forEach(group => {
+            group.querySelector('.counter').innerText = group.querySelector('.basket').children.length;
+        });
+    }
+
+    function verify() {
+        const baskets = Array.from(document.querySelectorAll('.basket'));
+        const counts = baskets.map(b => b.children.length);
+        const totalNow = counts.reduce((a, b) => a + b, 0);
+        
+        const allCorrect = counts.every(val => val === m.perGroup);
+        feedback.style.display = 'block';
+
+        if (allCorrect && totalNow === m.total) {
+            document.getElementById('opDisplay').innerText = `${m.groups} x ${m.perGroup} = ${m.total}`;
+            document.getElementById('textDesc').innerText = `${m.groups} veces ${m.perGroup} son ${m.total} manzanas.`;
+            document.getElementById('winModal').style.display = 'flex';
+        } else {
+            feedback.style.background = 'var(--error)';
+            if (totalNow !== m.total) {
+                feedback.innerText = `¡Revisa el total! Tienes ${totalNow} y el objetivo son ${m.total}.`;
+            } else {
+                feedback.innerText = `¡Cuidado! Cada cesta debe tener exactamente ${m.perGroup} manzanas.`;
+            }
+        }
+    }
+
+    window.onload = initGame;
+</script>
+</body>
+</html>

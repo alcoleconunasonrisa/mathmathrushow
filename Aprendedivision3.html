@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>División 2 Cifras - Resto con Ceros Obligatorios</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        
+        .container {
+            width: 98%; max-width: 950px; height: 95vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        .instruccion {
+            background: #1e3c72; color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+        }
+
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+
+        .zona-operacion {
+            flex: 1.8; overflow-y: auto; padding: 15px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+        }
+
+        .zona-teclado {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        .tablero { font-family: 'Courier New', monospace; }
+
+        .division-grid { display: grid; grid-template-columns: auto auto; align-items: start; }
+        .area-izquierda { display: flex; flex-direction: column; }
+        
+        .fila { display: flex; height: 45px; justify-content: flex-start; align-items: center; }
+
+        .divisor-box { 
+            border-left: 4px solid #333; border-bottom: 4px solid #333; 
+            padding: 5px 15px; font-size: 2rem; font-weight: bold; min-width: 100px; 
+        }
+
+        .cociente-box { padding: 5px 15px; font-size: 2rem; font-weight: bold; display: flex; }
+
+        .num, .celda {
+            width: 40px; height: 42px; line-height: 42px; text-align: center; 
+            font-size: 1.8rem; font-weight: bold;
+        }
+
+        .celda { border: 2px solid #ccc; border-radius: 6px; background: #fff; line-height: 38px; }
+        .celda.activa { border: 3px solid #FF9800; background: #FFF3E0; }
+        .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-3px);} 75% {transform: translateX(3px);} }
+
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 250px; }
+        .tecla { padding: 15px 0; font-size: 1.4rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; }
+        .tecla:active { box-shadow: 0 2px #ccc; transform: translateY(2px); }
+
+        .pantalla { display: none; height: 100%; width: 100%; }
+        .pantalla.active { display: flex; flex-direction: column; }
+        
+        .btn-nivel { width: 100%; max-width: 350px; padding: 12px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
+
+        #modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; }
+            .zona-teclado { border-left: none; border-top: 2px solid #eee; }
+            .num, .celda { width: 34px; height: 38px; font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#1e3c72; margin-bottom:15px;">División (Resto Unidades)</h1>
+            <button class="btn-nivel" style="background:#43a047" onclick="iniciar(1)">Nivel 1: Divisor 10-12</button>
+            <button class="btn-nivel" style="background:#fb8c00" onclick="iniciar(2)">Nivel 2: Intermedio</button>
+            <button class="btn-nivel" style="background:#e53935" onclick="iniciar(3)">Nivel 3: Experto</button>
+            <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="irAInicioFuera()">🏠 Volver a Inicio Web</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="instruccion" class="instruccion">¡A dividir!</div>
+            <div class="contenido-juego">
+                <div class="zona-operacion" id="scroll-area">
+                    <div class="tablero">
+                        <div class="division-grid">
+                            <div class="area-izquierda" id="bloque-izquierdo"></div>
+                            <div class="area-derecha">
+                                <div class="divisor-box" id="divisor-display"></div>
+                                <div class="cociente-box" id="cociente-display"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="zona-teclado">
+                    <div class="teclado">
+                        <button class="tecla" onclick="entrada(1)">1</button>
+                        <button class="tecla" onclick="entrada(2)">2</button>
+                        <button class="tecla" onclick="entrada(3)">3</button>
+                        <button class="tecla" onclick="entrada(4)">4</button>
+                        <button class="tecla" onclick="entrada(5)">5</button>
+                        <button class="tecla" onclick="entrada(6)">6</button>
+                        <button class="tecla" onclick="entrada(7)">7</button>
+                        <button class="tecla" onclick="entrada(8)">8</button>
+                        <button class="tecla" onclick="entrada(9)">9</button>
+                        <button class="tecla" style="background:#ffcdd2" onclick="borrar()">C</button>
+                        <button class="tecla" onclick="entrada(0)">0</button>
+                        <button class="tecla" style="background:#eee" onclick="volverAlMenuNiveles()">🏠</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <h2 style="font-size: 2.5rem; color: #43a047;">¡Muy bien! 🏆</h2>
+            <button class="btn-nivel" style="background:#43a047; max-width: 250px; margin-top:20px;" onclick="volverAJugarMismoNivel()">Jugar otra vez</button>
+            <button class="btn-nivel" style="background:#1e3c72; max-width: 250px;" onclick="volverAlMenuNiveles()">Volver al Menú</button>
+        </div>
+    </div>
+
+    <script>
+        let dividendo, divisor, cifras = [];
+        let cursorCifra = 0, restoActual = "", valorAdividir = "", fase = "", indexInput = 0, celdasActuales = [], valorObjetivo = "";
+        let nivelActual = 1;
+        let audioContext = null;
+
+        const nivelesConfig = {
+            1: { minDiv: 10, maxDiv: 12, minCoc: 10, maxCoc: 30 },
+            2: { minDiv: 13, maxDiv: 25, minCoc: 20, maxCoc: 50 },
+            3: { minDiv: 26, maxDiv: 45, minCoc: 30, maxCoc: 99 }
+        };
+
+        function generarDivision(n) {
+            const conf = nivelesConfig[n];
+            const diso = Math.floor(Math.random() * (conf.maxDiv - conf.minDiv + 1)) + conf.minDiv;
+            const cociente = Math.floor(Math.random() * (conf.maxCoc - conf.minCoc + 1)) + conf.minCoc;
+            const resto = Math.floor(Math.random() * diso);
+            const divi = (diso * cociente) + resto;
+            return [divi, diso];
+        }
+
+        function inicializarAudio() { if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
+        
+        function playSound(tipo) {
+            if (!audioContext) return;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain); gain.connect(audioContext.destination);
+            osc.frequency.setValueAtTime(tipo === 'acierto' ? 800 : 200, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            osc.start(); osc.stop(audioContext.currentTime + 0.1);
+        }
+
+        function iniciar(n) {
+            nivelActual = n;
+            inicializarAudio();
+            const [divi, diso] = generarDivision(n);
+            dividendo = divi.toString(); divisor = diso; cifras = dividendo.split('');
+            
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('divisor-display').textContent = divisor;
+            document.getElementById('cociente-display').innerHTML = '';
+            
+            const area = document.getElementById('bloque-izquierdo');
+            area.innerHTML = `<div class="fila" id="fila-principal"></div>`;
+            cifras.forEach((c, i) => area.firstChild.innerHTML += `<div class="num" id="d-${i}">${c}</div>`);
+            
+            cursorCifra = 0; restoActual = "";
+            siguienteTurno();
+        }
+
+        function siguienteTurno() {
+            if (cursorCifra >= cifras.length) {
+                setTimeout(() => { document.getElementById('modal-victoria').style.display = 'flex'; playSound('acierto'); }, 500);
+                return;
+            }
+            if (cursorCifra === 0) {
+                let tomado = cifras[0] + cifras[1];
+                if (parseInt(tomado) < divisor) {
+                    valorAdividir = tomado + (cifras[2] || "");
+                    marcar(0); marcar(1); if(cifras[2]) marcar(2); 
+                    cursorCifra = cifras[2] ? 3 : 2;
+                } else {
+                    valorAdividir = tomado;
+                    marcar(0); marcar(1); cursorCifra = 2;
+                }
+                prepararCociente();
+            } else {
+                fase = "BAJAR";
+                const cifra = cifras[cursorCifra]; marcar(cursorCifra);
+                document.getElementById('instruccion').textContent = `Baja el ${cifra}`;
+                const area = document.getElementById('bloque-izquierdo');
+                const filas = area.getElementsByClassName('fila');
+                const ultimaFila = filas[filas.length-1];
+                const c = crearCelda("", true);
+                ultimaFila.appendChild(c);
+                celdasActuales = [c]; valorObjetivo = cifra; indexInput = 0;
+                valorAdividir = (restoActual === "0" ? "" : restoActual) + cifra;
+                cursorCifra++;
+            }
+            autoScroll();
+        }
+
+        function prepararCociente() {
+            fase = "COCIENTE";
+            let q = Math.floor(parseInt(valorAdividir) / divisor);
+            valorObjetivo = q.toString();
+            document.getElementById('instruccion').textContent = `¿Cuántas veces cabe ${divisor} en ${valorAdividir}?`;
+            const c = crearCelda("", true);
+            document.getElementById('cociente-display').appendChild(c);
+            celdasActuales = [c]; indexInput = 0;
+        }
+
+        function prepararRestoFinal() {
+            fase = "RESTO";
+            const numAdividir = parseInt(valorAdividir);
+            const numCociente = Math.floor(numAdividir / divisor);
+            const restoNum = numAdividir % divisor;
+            
+            // LÓGICA CLAVE: Obligamos a que el resto tenga el mismo número de dígitos
+            // que el número que estábamos dividiendo (ej: si dividimos 23 entre 19,
+            // el resto debe tener 2 dígitos: "04").
+            let longitudObjetivo = valorAdividir.length;
+            let restoStr = restoNum.toString().padStart(longitudObjetivo, "0");
+            
+            restoActual = restoNum.toString(); // El resto real para la siguiente bajada
+            valorObjetivo = restoStr; // Lo que el alumno debe escribir (incluyendo el cero)
+            
+            document.getElementById('instruccion').textContent = `¿Cuánto sobra? Pon primero las unidades`;
+            const area = document.getElementById('bloque-izquierdo');
+            const filaResta = document.createElement('div');
+            filaResta.className = 'fila';
+            
+            const espaciosNecesarios = (cursorCifra) - restoStr.length;
+            for(let i=0; i<espaciosNecesarios; i++) filaResta.appendChild(crearEspacio());
+
+            celdasActuales = [];
+            for(let i=0; i<restoStr.length; i++) {
+                const c = crearCelda("");
+                filaResta.appendChild(c);
+                celdasActuales.push(c);
+            }
+            area.appendChild(filaResta);
+            
+            indexInput = celdasActuales.length - 1;
+            celdasActuales[indexInput].classList.add('activa');
+            autoScroll();
+        }
+
+        function entrada(n) {
+            if (indexInput < 0 || indexInput >= celdasActuales.length) return;
+            const celda = celdasActuales[indexInput];
+            
+            if (n.toString() === valorObjetivo[indexInput]) {
+                playSound('acierto');
+                celda.textContent = n;
+                celda.className = 'celda correcta';
+                
+                if (fase === "RESTO") {
+                    indexInput--; 
+                    if (indexInput >= 0) {
+                        celdasActuales[indexInput].classList.add('activa');
+                    } else {
+                        setTimeout(siguienteTurno, 500);
+                    }
+                } else {
+                    indexInput++; 
+                    if (indexInput < celdasActuales.length) {
+                        celdasActuales[indexInput].classList.add('activa');
+                    } else {
+                        if (fase === "COCIENTE") setTimeout(prepararRestoFinal, 500);
+                        else if (fase === "BAJAR") setTimeout(prepararCociente, 500);
+                    }
+                }
+            } else {
+                playSound('error');
+                celda.classList.add('incorrecta');
+                celda.textContent = n;
+                setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
+            }
+        }
+
+        function crearCelda(texto, activa=false) {
+            const c = document.createElement('div');
+            c.className = 'celda' + (activa ? ' activa' : '');
+            c.textContent = texto;
+            return c;
+        }
+
+        function crearEspacio() {
+            const e = document.createElement('div');
+            e.className = 'num'; return e;
+        }
+
+        function marcar(i) {
+            const el = document.getElementById(`d-${i}`);
+            if(el) { el.style.color = "#FF9800"; el.style.borderTop = "4px solid #FF9800"; }
+        }
+
+        function borrar() { const c = celdasActuales[indexInput]; if(c && !c.classList.contains('correcta')) c.textContent = ""; }
+        function autoScroll() { const s = document.getElementById('scroll-area'); s.scrollTop = s.scrollHeight; }
+        
+        function volverAlMenuNiveles() {
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('juego').classList.remove('active');
+            document.getElementById('menu').classList.add('active');
+        }
+
+        function volverAJugarMismoNivel() { iniciar(nivelActual); }
+        function irAInicioFuera() { window.location.href = 'main-index.html'; }
+    </script>
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suma de Manzanas - Aprendizaje Visual</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --grass: #9cdb43;
+            --sky: #87ceeb;
+            --apple: #ff4d4d;
+            --basket: #8b4513;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: var(--sky);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            overflow-x: hidden;
+            color: #2c3e50;
+        }
+
+        .header {
+            background: white;
+            padding: 15px 30px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .target-box {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .target-number {
+            font-size: 3rem;
+            color: var(--apple);
+            display: block;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .basket-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255,255,255,0.3);
+            padding: 20px;
+            border-radius: 20px;
+            min-width: 200px;
+        }
+
+        .basket {
+            width: 150px;
+            height: 120px;
+            background: var(--basket);
+            border-radius: 10px 10px 60px 60px;
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px;
+            gap: 5px;
+            justify-content: center;
+            align-content: flex-end;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 5px solid #5d2e0a;
+        }
+
+        .basket:hover { transform: scale(1.05); }
+
+        .apple {
+            width: 30px;
+            height: 30px;
+            background: var(--apple);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow: inset -5px -5px 0 rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .apple::before { /* El rabito de la manzana */
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 12px;
+            width: 4px;
+            height: 8px;
+            background: #4a2c00;
+            border-radius: 2px;
+        }
+
+        .counter {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-top: 10px;
+        }
+
+        .dots { /* Puntos visuales para conteo */
+            display: flex;
+            gap: 3px;
+            margin-top: 5px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #2c3e50;
+            border-radius: 50%;
+        }
+
+        .tree-area {
+            background: var(--grass);
+            width: 100%;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: auto;
+            border-top: 8px solid #86c038;
+            min-height: 200px;
+        }
+
+        .equation {
+            font-size: 3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+        }
+
+        .btn-next {
+            background: #4ade80;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .btn-home {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: white;
+    color: #2c3e50;
+    text-decoration: none;
+    border-radius: 15px;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.btn-home:hover {
+    transform: scale(1.1);
+    background-color: #f0f0f0;
+}
+    </style>
+</head>
+<body>
+<div style="position: absolute; top: 10px; left: 10px;">
+    <a href="main-index.html" class="btn-home">🏠 Inicio</a>
+</div>
+    <div class="header">
+        <div class="target-box">
+            ¿PUEDES SUMAR ESTE NÚMERO?
+            <span class="target-number" id="targetNum">5</span>
+        </div>
+    </div>
+
+    <div class="game-area">
+        <div class="basket-container">
+            <div class="basket" id="basket1" onclick="moveToTree('basket1')"></div>
+            <div class="counter" id="count1">0</div>
+            <div class="dots" id="dots1"></div>
+        </div>
+
+        <div class="equation">+</div>
+
+        <div class="basket-container">
+            <div class="basket" id="basket2" onclick="moveToTree('basket2')"></div>
+            <div class="counter" id="count2">0</div>
+            <div class="dots" id="dots2"></div>
+        </div>
+    </div>
+
+    <div style="font-size: 1.2rem; margin: 10px; font-weight: bold;">
+        TOTAL EN LAS CESTAS: <span id="currentTotal" style="font-size: 2rem; color: #d35400;">0</span>
+    </div>
+
+    <div class="tree-area" id="tree">
+        </div>
+
+    <div class="modal" id="winModal">
+        <div class="modal-content">
+            <h1>¡Excelente! 🌟</h1>
+            <p id="finalSum" style="font-size: 2rem;"></p>
+            <button class="btn-next" onclick="nextLevel()">OTRO RETO</button>
+        </div>
+    </div>
+
+<script>
+    let target = 0;
+    const tree = document.getElementById('tree');
+    const b1 = document.getElementById('basket1');
+    const b2 = document.getElementById('basket2');
+
+    function initGame() {
+        target = Math.floor(Math.random() * 7) + 3; // Números entre 3 y 10
+        document.getElementById('targetNum').innerText = target;
+        tree.innerHTML = '';
+        b1.innerHTML = '';
+        b2.innerHTML = '';
+
+        // Creamos manzanas en el suelo/árbol
+        for(let i=0; i < target; i++) {
+            createApple();
+        }
+        updateUI();
+    }
+
+    function createApple() {
+        const apple = document.createElement('div');
+        apple.className = 'apple';
+        apple.onclick = (e) => {
+            e.stopPropagation();
+            moveToBasket(apple);
+        };
+        tree.appendChild(apple);
+    }
+
+    function moveToBasket(apple) {
+        // Lógica simple: si la cesta 1 tiene menos o igual que la 2, va a la 1
+        if (b1.children.length <= b2.children.length) {
+            b1.appendChild(apple);
+        } else {
+            b2.appendChild(apple);
+        }
+        updateUI();
+        checkWin();
+    }
+
+    function moveToTree(basketId) {
+        const basket = document.getElementById(basketId);
+        if (basket.lastChild) {
+            tree.appendChild(basket.lastChild);
+            updateUI();
+        }
+    }
+
+    function updateUI() {
+        const n1 = b1.children.length;
+        const n2 = b2.children.length;
+
+        document.getElementById('count1').innerText = n1;
+        document.getElementById('count2').innerText = n2;
+        document.getElementById('currentTotal').innerText = n1 + n2;
+
+        // Actualizar puntos visuales
+        updateDots('dots1', n1);
+        updateDots('dots2', n2);
+    }
+
+    function updateDots(containerId, num) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        for(let i=0; i<num; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            container.appendChild(dot);
+        }
+    }
+
+    function checkWin() {
+        const n1 = b1.children.length;
+        const n2 = b2.children.length;
+
+        if (n1 + n2 === target) {
+            setTimeout(() => {
+                document.getElementById('finalSum').innerText = `${n1} + ${n2} = ${target}`;
+                document.getElementById('winModal').style.display = 'flex';
+            }, 500);
+        }
+    }
+
+    function nextLevel() {
+        document.getElementById('winModal').style.display = 'none';
+        initGame();
+    }
+
+    window.onload = initGame;
+</script>
+</body>
+</html>

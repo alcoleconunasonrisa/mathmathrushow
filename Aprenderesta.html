@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desactivador Numérico: El Laboratorio de la Resta</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #f43f5e;
+            --secondary: #38bdf8;
+            --accent: #fbbf24;
+            --success: #4ade80;
+            --error: #f43f5e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 100%);
+            min-height: 100vh;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .btn-home {
+            position: absolute; top: 20px; left: 20px;
+            background: rgba(255,255,255,0.1); color: white;
+            padding: 12px 20px; border-radius: 12px;
+            text-decoration: none; display: flex; align-items: center; gap: 10px;
+            font-weight: bold; border: 1px solid rgba(255,255,255,0.2); z-index: 100;
+        }
+
+        .hud {
+            display: flex; justify-content: center; gap: 40px;
+            width: 100%; max-width: 800px; margin-top: 50px; margin-bottom: 15px;
+            background: rgba(255,255,255,0.05); padding: 10px 30px;
+            border-radius: 50px; border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-value { font-size: 1.8rem; font-weight: 900; line-height: 1; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--primary); letter-spacing: 2px; }
+
+        #gameConsole {
+            width: 100%; max-width: 800px; height: 50px;
+            background: rgba(0,0,0,0.4); border-radius: 12px; margin-bottom: 15px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; border: 2px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+
+        /* Clase para el efecto de error incrustado */
+        #gameConsole.error-active {
+            border-color: var(--error);
+            background: rgba(244, 63, 94, 0.15);
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        .target-orb {
+            width: 100px; height: 100px;
+            background: radial-gradient(circle at 30% 30%, var(--success), #15803d);
+            border-radius: 50%; margin: 0 auto 5px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3rem; font-weight: 900; font-family: 'Orbitron', sans-serif;
+            box-shadow: 0 0 30px rgba(74, 222, 128, 0.4);
+        }
+
+        .lab-bench {
+            background: var(--card-bg); padding: 25px; border-radius: 30px;
+            display: flex; justify-content: space-around; align-items: center;
+            width: 100%; max-width: 850px; margin-bottom: 20px;
+        }
+
+        .tank, .drop-zone {
+            width: 170px; height: 210px;
+            border: 4px solid rgba(255,255,255,0.2);
+            border-radius: 15px 15px 50px 50px;
+            background: rgba(255,255,255,0.03);
+            display: flex; flex-wrap: wrap; padding: 10px;
+            align-content: flex-start; justify-content: center; gap: 5px;
+        }
+
+        .drop-zone { border-style: dashed; border-radius: 20px; }
+
+        .label-num {
+            margin-top: 10px; font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem; font-weight: 900; text-align: center;
+        }
+
+        .gem {
+            width: 28px; height: 28px;
+            background: var(--primary);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+
+        .gem.draggable { 
+            cursor: grab; 
+            touch-action: none; 
+            position: relative; 
+            z-index: 10;
+        }
+
+        .gem.dragging {
+            position: fixed; pointer-events: none;
+            z-index: 9999; transform: scale(1.3); opacity: 0.8;
+        }
+
+        .btn-action {
+            background: linear-gradient(180deg, var(--primary), #9f1239);
+            border: none; padding: 18px 50px; color: white; font-size: 1.5rem;
+            font-weight: 900; border-radius: 20px; cursor: pointer;
+            box-shadow: 0 6px 0 #4c0519;
+            transition: transform 0.1s;
+        }
+
+        .btn-action:active { transform: translateY(4px); box-shadow: 0 2px 0 #4c0519; }
+
+        .modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            background: white; color: black; padding: 35px; border-radius: 30px;
+            text-align: center; z-index: 1000; width: 90%; max-width: 500px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .modal.show { transform: translate(-50%, -50%) scale(1); }
+    </style>
+</head>
+<body>
+
+    <a href="main-index.html" class="btn-home"><i class="fas fa-home"></i> INICIO</a>
+
+    <div class="hud">
+        <div class="stat"><div class="stat-label">Nivel</div><div class="stat-value" id="lvlVal">1</div></div>
+        <div class="stat"><div class="stat-label">Racha</div><div class="stat-value" id="streakVal">0</div></div>
+    </div>
+
+    <div id="gameConsole">DESACTIVA LAS GEMAS SOBRANTES</div>
+
+    <div class="target-container">
+        <div class="target-orb" id="targetNum">0</div>
+        <p style="color: var(--success); text-align: center; font-weight: bold; font-size: 0.8rem;">OBJETIVO FINAL</p>
+    </div>
+
+    <div class="lab-bench">
+        <div><div class="tank" id="mainTank"></div><div class="label-num" id="valRemaining" style="color: var(--success);">0</div></div>
+        <div style="font-size: 3rem; color: var(--primary); font-weight: bold;">−</div>
+        <div><div class="drop-zone" id="dropZone"></div><div class="label-num" id="valRemoved" style="color: #64748b;">0</div></div>
+    </div>
+
+    <button class="btn-action" onclick="verifySubtraction()">¡COMPROBAR RESTA!</button>
+
+    <div class="modal" id="resultModal">
+        <h2 style="color: var(--success)">¡OPERACIÓN CORRECTA!</h2>
+        <div id="equationDisplay" style="font-size: 2.5rem; margin: 20px 0; font-family: 'Orbitron';"></div>
+        <button class="btn-action" style="background: var(--bg-color); box-shadow: 0 6px 0 #000;" onclick="nextLevel()">CONTINUAR</button>
+    </div>
+
+<script>
+    let state = { level: 1, streak: 0, target: 0, initial: 0 };
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.type = type === 'success' ? 'sine' : 'sawtooth';
+        osc.frequency.setValueAtTime(type === 'success' ? 523 : 100, audioCtx.currentTime);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+    }
+
+    function initLevel() {
+        state.target = Math.floor(Math.random() * 5) + 3 + state.level;
+        let toRemove = Math.floor(Math.random() * 6) + 2;
+        state.initial = state.target + toRemove;
+
+        document.getElementById('targetNum').innerText = state.target;
+        document.getElementById('lvlVal').innerText = state.level;
+        
+        const tank = document.getElementById('mainTank');
+        const dropZone = document.getElementById('dropZone');
+        tank.innerHTML = ''; dropZone.innerHTML = '';
+
+        for(let i=0; i < state.initial; i++) {
+            const gem = document.createElement('div');
+            gem.className = 'gem draggable';
+            setupUniversalDrag(gem);
+            tank.appendChild(gem);
+        }
+        updateStats();
+    }
+
+    function setupUniversalDrag(el) {
+        let offsetX, offsetY;
+
+        const startDrag = (e) => {
+            const point = e.touches ? e.touches[0] : e;
+            const rect = el.getBoundingClientRect();
+            offsetX = point.clientX - rect.left;
+            offsetY = point.clientY - rect.top;
+            el.classList.add('dragging');
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+        };
+
+        const drag = (e) => {
+            if (e.type === 'touchmove') e.preventDefault();
+            const point = e.touches ? e.touches[0] : e;
+            el.style.left = (point.clientX - offsetX) + 'px';
+            el.style.top = (point.clientY - offsetY) + 'px';
+        };
+
+        const endDrag = (e) => {
+            const point = e.changedTouches ? e.changedTouches[0] : e;
+            el.classList.remove('dragging');
+            el.style.left = ''; el.style.top = '';
+
+            const tank = document.getElementById('mainTank');
+            const dropZone = document.getElementById('dropZone');
+            
+            const rectT = tank.getBoundingClientRect();
+            const rectD = dropZone.getBoundingClientRect();
+
+            if (point.clientX > rectT.left && point.clientX < rectT.right &&
+                point.clientY > rectT.top && point.clientY < rectT.bottom) {
+                tank.appendChild(el);
+            } else if (point.clientX > rectD.left && point.clientX < rectD.right &&
+                       point.clientY > rectD.top && point.clientY < rectD.bottom) {
+                dropZone.appendChild(el);
+            }
+
+            updateStats();
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchend', endDrag);
+        };
+
+        el.addEventListener('mousedown', startDrag);
+        el.addEventListener('touchstart', startDrag);
+    }
+
+    function updateStats() {
+        const remaining = document.getElementById('mainTank').querySelectorAll('.gem').length;
+        const removed = document.getElementById('dropZone').querySelectorAll('.gem').length;
+        document.getElementById('valRemaining').innerText = remaining;
+        document.getElementById('valRemoved').innerText = removed;
+
+        const console = document.getElementById('gameConsole');
+        console.classList.remove('error-active'); // Limpiar estado de error al mover gemas
+
+        if (remaining > state.target) {
+            console.innerText = `FALTAN POR QUITAR ${remaining - state.target} GEMAS`;
+            console.style.color = "white";
+        } else if (remaining < state.target) {
+            console.innerText = `HAS QUITADO DEMASIADAS (${state.target - remaining} DE MÁS)`;
+            console.style.color = "var(--error)";
+        } else {
+            console.innerText = "¡CANTIDAD EXACTA! COMPRUEBA AHORA";
+            console.style.color = "var(--success)";
+        }
+    }
+
+    function verifySubtraction() {
+        const remaining = document.getElementById('mainTank').querySelectorAll('.gem').length;
+        const removed = document.getElementById('dropZone').querySelectorAll('.gem').length;
+        const console = document.getElementById('gameConsole');
+        
+        if (remaining === state.target) {
+            playSound('success');
+            state.streak++;
+            document.getElementById('streakVal').innerText = state.streak;
+            document.getElementById('equationDisplay').innerText = `${state.initial} − ${removed} = ${remaining}`;
+            document.getElementById('resultModal').classList.add('show');
+            console.style.color = "var(--success)";
+            console.innerText = "¡DESACTIVACIÓN COMPLETA!";
+        } else {
+            playSound('error');
+            state.streak = 0;
+            document.getElementById('streakVal').innerText = 0;
+            
+            // Efecto visual de error en la consola del juego
+            console.classList.add('error-active');
+            console.innerText = "REVISA LA MEZCLA: OBJETIVO NO CUMPLIDO";
+            console.style.color = "var(--error)";
+        }
+    }
+
+    function nextLevel() {
+        state.level++;
+        document.getElementById('resultModal').classList.remove('show');
+        initLevel();
+    }
+
+    window.onload = initLevel;
+</script>
+</body>
+</html>

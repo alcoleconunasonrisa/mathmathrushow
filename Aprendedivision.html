@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>División Pro - Niveles Infinitos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .container {
+            width: 98%;
+            max-width: 950px;
+            height: 95vh;
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .instruccion {
+            background: #1a2980;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .contenido-juego {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .zona-operacion {
+            flex: 1.6;
+            overflow-y: auto;
+            padding: 20px;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            background: #fafafa;
+        }
+
+        .zona-teclado {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #fff;
+            padding: 10px;
+            border-left: 2px solid #eee;
+        }
+
+        .tablero {
+            display: flex;
+            justify-content: flex-start;
+            font-family: 'Courier New', monospace;
+        }
+
+        .division-grid {
+            display: grid;
+            grid-template-columns: auto auto;
+            align-items: start;
+        }
+
+        .area-izquierda { display: flex; flex-direction: column; padding-right: 20px; }
+        .fila { display: flex; height: 52px; justify-content: flex-start; align-items: center; }
+        
+        .divisor-box { 
+            border-left: 5px solid #333; 
+            border-bottom: 5px solid #333; 
+            padding: 5px 20px; 
+            font-size: 2.2rem; 
+            font-weight: bold; 
+            min-width: 90px; 
+        }
+
+        .cociente-box { padding: 10px 20px; font-size: 2.2rem; font-weight: bold; display: flex; }
+
+        .num, .celda {
+            width: 42px; height: 50px; line-height: 50px; text-align: center; font-size: 2.2rem; font-weight: bold; margin: 0 1px;
+        }
+
+        .celda { border: 2px solid #ccc; border-radius: 8px; background: #fff; line-height: 44px; }
+        .celda.activa { border: 3px solid #FF9800; background: #FFF3E0; box-shadow: 0 0 8px rgba(255,152,0,0.4); }
+        .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+        .bajada { color: #ef6c00; border-color: #ef6c00; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-4px);} 75% {transform: translateX(4px);} }
+
+        .teclado {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 280px;
+        }
+        
+        .tecla {
+            padding: 20px 0;
+            font-size: 1.6rem;
+            border: none;
+            border-radius: 15px;
+            background: #f0f0f0;
+            font-weight: bold;
+            box-shadow: 0 5px #ccc;
+            cursor: pointer;
+        }
+        .tecla:active { box-shadow: 0 2px #ccc; transform: translateY(3px); }
+
+        .pantalla { display: none; height: 100%; width: 100%; }
+        .pantalla.active { display: flex; flex-direction: column; }
+        
+        .btn-nivel { 
+            width: 100%; 
+            max-width: 400px; 
+            padding: 12px; 
+            margin: 5px auto; 
+            border: none; 
+            border-radius: 16px; 
+            color: white; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 1.1rem;
+            transition: transform 0.2s;
+        }
+        .btn-nivel:hover { transform: scale(1.02); }
+
+        #modal-victoria {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95);
+            z-index: 100;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 24px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .mensaje-victoria { font-size: 3rem; color: #43a047; margin-bottom: 20px; }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; }
+            .zona-teclado { border-left: none; border-top: 2px solid #eee; }
+            .num, .celda { width: 36px; height: 44px; font-size: 1.8rem; }
+            .btn-nivel { font-size: 0.9rem; padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#1a2980; margin-bottom:15px; font-size: 2rem;">Elegir Nivel</h1>
+            <button class="btn-nivel" style="background:#43a047" onclick="iniciar(1)">Nivel 1: Iniciación (1 cifra)</button>
+            <button class="btn-nivel" style="background:#2e7d32" onclick="iniciar(2)">Nivel 2: Básico (2 cifras)</button>
+            <button class="btn-nivel" style="background:#fb8c00" onclick="iniciar(3)">Nivel 3: Intermedio (+ Resto)</button>
+            <button class="btn-nivel" style="background:#ef6c00" onclick="iniciar(4)">Nivel 4: Avanzado (3 cifras)</button>
+            <button class="btn-nivel" style="background:#e53935" onclick="iniciar(5)">Nivel 5: Experto (4 cifras)</button>
+            <button class="btn-nivel" style="background:#8e24aa" onclick="iniciar(6)">Nivel 6: Cero al Cociente</button>
+            <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="irAInicioFuera()">🏠 Salir al Inicio Web</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="instruccion" class="instruccion">¡Prepárate!</div>
+            <div class="contenido-juego">
+                <div class="zona-operacion" id="scroll-area">
+                    <div class="tablero">
+                        <div class="division-grid">
+                            <div class="area-izquierda" id="bloque-izquierdo"></div>
+                            <div class="area-derecha">
+                                <div class="divisor-box" id="divisor-display"></div>
+                                <div class="cociente-box" id="cociente-display"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="zona-teclado">
+                    <div class="teclado">
+                        <button class="tecla" onclick="entrada(1)">1</button>
+                        <button class="tecla" onclick="entrada(2)">2</button>
+                        <button class="tecla" onclick="entrada(3)">3</button>
+                        <button class="tecla" onclick="entrada(4)">4</button>
+                        <button class="tecla" onclick="entrada(5)">5</button>
+                        <button class="tecla" onclick="entrada(6)">6</button>
+                        <button class="tecla" onclick="entrada(7)">7</button>
+                        <button class="tecla" onclick="entrada(8)">8</button>
+                        <button class="tecla" onclick="entrada(9)">9</button>
+                        <button class="tecla" style="background:#ffcdd2" onclick="borrar()">C</button>
+                        <button class="tecla" onclick="entrada(0)">0</button>
+                        <button class="tecla" style="background:#eee" onclick="volverAlMenuNiveles()">🏠</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <div class="mensaje-victoria">¡Excelente! 🏆</div>
+            <p id="feedback-victoria" style="font-size: 1.2rem; color: #666; margin-bottom: 30px;">¡División completada!</p>
+            <button class="btn-nivel" style="background:#43a047; max-width: 300px;" onclick="volverAJugarMismoNivel()">🔄 Jugar otra vez</button>
+            <button class="btn-nivel" style="background:#1a2980; max-width: 300px;" onclick="volverAlMenuNiveles()">🏠 Volver al Menú</button>
+        </div>
+    </div>
+
+    <script>
+        let dividendo, divisor, cifras = [];
+        let cursorCifra = 0, restoActual = "", valorAdividir = "", fase = "", indexInput = 0, celdasActuales = [], valorObjetivo = "";
+        let nivelActual = 1;
+
+        // --- SISTEMA DE SONIDOS ---
+        let audioContext = null;
+        function inicializarAudio() {
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        function playSound(tipo) {
+            if (!audioContext) return;
+            if (audioContext.state === 'suspended') audioContext.resume();
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain); gain.connect(audioContext.destination);
+            if (tipo === 'acierto') {
+                osc.frequency.setValueAtTime(800, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                osc.start(); osc.stop(audioContext.currentTime + 0.15);
+            } else if (tipo === 'error') {
+                osc.frequency.setValueAtTime(200, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.25);
+                osc.start(); osc.stop(audioContext.currentTime + 0.25);
+            } else {
+                osc.frequency.setValueAtTime(600, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.08);
+                osc.start(); osc.stop(audioContext.currentTime + 0.08);
+            }
+        }
+
+        // --- GENERADOR DE DIVISIONES ---
+        const nivelesConfig = {
+            1: { min: 6, max: 20, divMin: 2, divMax: 5 }, 
+            2: { min: 21, max: 99, divMin: 2, divMax: 6 }, 
+            3: { min: 40, max: 99, divMin: 3, divMax: 9 }, 
+            4: { min: 100, max: 999, divMin: 3, divMax: 7 }, 
+            5: { min: 1000, max: 9999, divMin: 4, divMax: 9 },
+            6: { min: 400, max: 999, divMin: 3, divMax: 5 }
+        };
+
+        function generarDivision(n) {
+            const conf = nivelesConfig[n];
+            let diso = Math.floor(Math.random() * (conf.divMax - conf.divMin + 1)) + conf.divMin;
+            let divi;
+
+            if (n === 6) {
+                let c1 = Math.floor(Math.random() * 2) + 1;
+                let parte1 = diso * c1;
+                let parte3 = Math.floor(Math.random() * (diso - 1)) + 1;
+                divi = parseInt(parte1.toString() + "0" + parte3.toString());
+            } else if (n === 3) {
+                divi = Math.floor(Math.random() * (conf.max - conf.min + 1)) + conf.min;
+                if (divi % diso === 0) divi++;
+            } else {
+                let cocienteBase = Math.floor(Math.random() * (conf.max / diso)) + 2;
+                divi = cocienteBase * diso;
+                if (divi < conf.min) divi += (diso * Math.floor(conf.min/diso));
+            }
+            return [divi, diso];
+        }
+
+        function iniciar(n) {
+            nivelActual = n;
+            inicializarAudio();
+            const [divi, diso] = generarDivision(n);
+            dividendo = divi.toString();
+            divisor = diso;
+            cifras = dividendo.split('');
+            
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('divisor-display').textContent = divisor;
+            document.getElementById('cociente-display').innerHTML = '';
+            
+            const area = document.getElementById('bloque-izquierdo');
+            area.innerHTML = `<div class="fila" id="fila-principal"></div>`;
+            cifras.forEach((c, i) => area.firstChild.innerHTML += `<div class="num" id="d-${i}">${c}</div>`);
+            
+            cursorCifra = 0; restoActual = "";
+            siguienteTurno();
+        }
+
+        function siguienteTurno() {
+            if (cursorCifra >= cifras.length) {
+                setTimeout(() => {
+                    document.getElementById('feedback-victoria').textContent = `¡Has resuelto ${dividendo} ÷ ${divisor}!`;
+                    document.getElementById('modal-victoria').style.display = 'flex';
+                    playSound('acierto');
+                }, 500);
+                return;
+            }
+            if (cursorCifra === 0) {
+                if (parseInt(cifras[0]) < divisor && cifras.length > 1) {
+                    valorAdividir = cifras[0] + cifras[1];
+                    marcar(0); marcar(1); cursorCifra = 2;
+                } else {
+                    valorAdividir = cifras[0];
+                    marcar(0); cursorCifra = 1;
+                }
+                prepararCociente();
+            } else {
+                fase = "BAJAR";
+                const cifraABajar = cifras[cursorCifra];
+                marcar(cursorCifra);
+                document.getElementById('instruccion').textContent = `Baja el ${cifraABajar}`;
+                const filas = document.getElementsByClassName('fila');
+                const ultimaFilaResto = filas[filas.length - 1];
+                const c = document.createElement('div');
+                c.className = 'celda activa bajada';
+                c.textContent = "";
+                ultimaFilaResto.appendChild(c);
+                celdasActuales = [c];
+                valorObjetivo = cifraABajar;
+                indexInput = 0;
+                valorAdividir = (restoActual === "0" ? "" : restoActual) + cifraABajar;
+                cursorCifra++;
+            }
+            autoScroll();
+        }
+
+        function marcar(i) {
+            const el = document.getElementById(`d-${i}`);
+            if(el) {
+                el.style.color = "#FF9800";
+                el.style.borderTop = "5px solid #FF9800";
+            }
+        }
+
+        function prepararCociente() {
+            fase = "COCIENTE";
+            let num = parseInt(valorAdividir);
+            valorObjetivo = Math.floor(num / divisor).toString();
+            indexInput = 0; celdasActuales = [];
+            document.getElementById('instruccion').textContent = `¿Cuántas veces cabe ${divisor} en ${num}?`;
+            const caja = document.getElementById('cociente-display');
+            const c = document.createElement('div');
+            c.className = 'celda activa';
+            caja.appendChild(c);
+            celdasActuales.push(c);
+        }
+
+        function prepararResto() {
+            fase = "RESTO";
+            const resto = (parseInt(valorAdividir) % divisor).toString();
+            valorObjetivo = resto;
+            indexInput = 0; celdasActuales = [];
+            document.getElementById('instruccion').textContent = `¿Cuánto sobra?`;
+            const area = document.getElementById('bloque-izquierdo');
+            const filaResto = document.createElement('div');
+            filaResto.className = 'fila';
+            const posicionFinal = cursorCifra - 1;
+            const espacios = posicionFinal - (valorObjetivo.length - 1);
+            for(let i=0; i < espacios; i++) filaResto.innerHTML += `<div class="num"></div>`;
+            for(let i=0; i < valorObjetivo.length; i++) {
+                const c = document.createElement('div');
+                c.className = 'celda';
+                filaResto.appendChild(c);
+                celdasActuales.push(c);
+            }
+            area.appendChild(filaResto);
+            celdasActuales[0].classList.add('activa');
+            restoActual = resto;
+            autoScroll();
+        }
+
+        function entrada(n) {
+            if (indexInput >= celdasActuales.length) return;
+            const celda = celdasActuales[indexInput];
+            celda.textContent = n;
+            if (n.toString() === valorObjetivo[indexInput]) {
+                playSound('acierto');
+                celda.className = 'celda correcta';
+                indexInput++;
+                if (indexInput < celdasActuales.length) celdasActuales[indexInput].classList.add('activa');
+                else {
+                    if (fase === "COCIENTE") setTimeout(prepararResto, 500);
+                    else if (fase === "RESTO") setTimeout(siguienteTurno, 500);
+                    else if (fase === "BAJAR") setTimeout(prepararCociente, 500);
+                }
+            } else {
+                playSound('error');
+                celda.classList.add('incorrecta');
+                setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
+            }
+        }
+
+        function borrar() { playSound('tecla'); const c = celdasActuales[indexInput]; if(c && !c.classList.contains('correcta')) c.textContent = ""; }
+        function autoScroll() { const s = document.getElementById('scroll-area'); s.scrollTop = s.scrollHeight; }
+
+        // --- FUNCIONES DE NAVEGACIÓN ---
+        function volverAlMenuNiveles() {
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('juego').classList.remove('active');
+            document.getElementById('menu').classList.add('active');
+        }
+
+        function volverAJugarMismoNivel() {
+            iniciar(nivelActual);
+        }
+
+        function irAInicioFuera() {
+            window.location.href = 'main-index.html';
+        }
+    </script>
+</body>
+</html>

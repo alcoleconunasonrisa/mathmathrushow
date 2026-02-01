@@ -1,0 +1,41 @@
+{
+  "name": "Math Rush - Carrera Matemática",
+  "short_name": "Math Rush",
+  "description": "13 modos de cálculo mental para entrenar tu cerebro a máxima velocidad",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a2980",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "es",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["education", "games", "productivity"],
+  "id": "/index.html"
+}

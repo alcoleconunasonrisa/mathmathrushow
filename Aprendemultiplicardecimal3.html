@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Multiplicación Decimal - Paso a Paso</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        
+        .container {
+            width: 98%; max-width: 950px; height: 95vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        .instruccion {
+            background: #1e3c72; color: white; padding: 15px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+        }
+
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+
+        .zona-operacion {
+            flex: 1.8; overflow-y: auto; padding: 20px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .zona-teclado {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        .tablero { font-family: 'Courier New', monospace; display: inline-block; }
+        .fila { display: flex; justify-content: flex-end; align-items: center; min-height: 45px; }
+        .fila-multi { border-bottom: 3px solid #333; margin-bottom: 8px; position: relative; }
+        
+        .num, .celda { width: 40px; height: 40px; line-height: 40px; text-align: center; font-size: 1.8rem; font-weight: bold; }
+
+        .celda { border: 2px solid #ccc; border-radius: 6px; background: #fff; line-height: 36px; margin: 2px; }
+        .celda.activa { border: 3px solid #1e3c72; background: #e3f2fd; }
+        .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-3px);} 75% {transform: translateX(3px);} }
+
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 240px; }
+        .tecla { padding: 12px 0; font-size: 1.3rem; border: none; border-radius: 10px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; }
+        .tecla:active { box-shadow: 0 2px #ccc; transform: translateY(2px); }
+
+        .pantalla { display: none; height: 100%; width: 100%; }
+        .pantalla.active { display: flex; flex-direction: column; }
+
+        .btn-nivel { width: 100%; max-width: 350px; padding: 12px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
+
+        #modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; }
+            .zona-teclado { border-left: none; border-top: 2px solid #eee; padding-top: 10px; }
+            .num, .celda { width: 32px; height: 32px; font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#1e3c72; margin-bottom:15px;">Multiplicación Decimal</h1>
+            <button class="btn-nivel" style="background:#43a047" onclick="iniciar(1)">Nivel 1: Entero x Decimal</button>
+            <button class="btn-nivel" style="background:#fb8c00" onclick="iniciar(2)">Nivel 2: Decimal x Decimal (Sencillo)</button>
+            <button class="btn-nivel" style="background:#e53935" onclick="iniciar(3)">Nivel 3: Avanzado</button>
+            <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="window.location.href='main-index.html'">🏠 Volver a Inicio</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="instruccion" class="instruccion">¡Multiplica con cuidado!</div>
+            <div class="contenido-juego">
+                <div class="zona-operacion" id="scroll-area">
+                    <div class="tablero" id="tablero-op"></div>
+                </div>
+                <div class="zona-teclado">
+                    <div class="teclado">
+                        <button class="tecla" onclick="entrada(1)">1</button>
+                        <button class="tecla" onclick="entrada(2)">2</button>
+                        <button class="tecla" onclick="entrada(3)">3</button>
+                        <button class="tecla" onclick="entrada(4)">4</button>
+                        <button class="tecla" onclick="entrada(5)">5</button>
+                        <button class="tecla" onclick="entrada(6)">6</button>
+                        <button class="tecla" onclick="entrada(7)">7</button>
+                        <button class="tecla" onclick="entrada(8)">8</button>
+                        <button class="tecla" onclick="entrada(9)">9</button>
+                        <button class="tecla" style="background:#bbdefb" onclick="entrada(',')">,</button>
+                        <button class="tecla" onclick="entrada(0)">0</button>
+                        <button class="tecla" style="background:#ffcdd2" onclick="borrar()">C</button>
+                        <button class="tecla" style="background:#eee; grid-column: span 3;" onclick="window.location.href='main-index.html'">🏠 Volver al Inicio</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <h2 style="font-size: 2.5rem; color: #4CAF50;">¡Excelente! 🌟</h2>
+            <p id="res-final" style="margin: 15px; font-size: 1.2rem; font-weight: bold;"></p>
+            <button class="btn-nivel" style="background:#4CAF50; max-width: 250px;" onclick="iniciar(nivelActual)">Siguiente Multiplicación</button>
+            <button class="btn-nivel" style="background:#1e3c72; max-width: 250px;" onclick="volverAlMenuNiveles()">Cambiar Nivel</button>
+            <button class="btn-nivel" style="background:#555; max-width: 250px;" onclick="window.location.href='main-index.html'">🏠 Salir al Inicio</button>
+        </div>
+    </div>
+
+    <script>
+        let nivelActual = 1, num1, num2, resFinalStr;
+        let celdasActuales = [], indexInput = 0, paso = 0;
+        let parciales = [], totalSuma;
+
+        function iniciar(n) {
+            nivelActual = n;
+            paso = 1;
+            document.getElementById('tablero-op').innerHTML = "";
+            
+            // Generación de números corregida (Evita el error x.x)
+            if(n === 1) {
+                num1 = (Math.floor(Math.random() * 80) + 10).toString(); // Entero
+                num2 = (Math.random() * 8 + 1).toFixed(1).replace('.',','); // Decimal
+            } else if(n === 2) {
+                num1 = (Math.random() * 9 + 1).toFixed(1).replace('.',',');
+                num2 = (Math.random() * 5 + 1).toFixed(1).replace('.',',');
+            } else {
+                num1 = (Math.random() * 40 + 10).toFixed(1).replace('.',',');
+                num2 = (Math.random() * 8 + 1).toFixed(2).replace('.',',');
+            }
+
+            let v1 = parseFloat(num1.replace(',','.'));
+            let v2 = parseFloat(num2.replace(',','.'));
+            resFinalStr = (v1 * v2).toFixed((num1.split(',')[1]?.length || 0) + (num2.split(',')[1]?.length || 0)).replace('.',',');
+
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('instruccion').textContent = "Paso 1: Multiplica como si no hubiera comas.";
+            
+            dibujarBase();
+            prepararFilaResultado(resFinalStr.replace(',','').length);
+        }
+
+        function dibujarBase() {
+            const tab = document.getElementById('tablero-op');
+            let maxW = Math.max(num1.length, num2.length, resFinalStr.length);
+            
+            let f1 = crearFila(maxW);
+            num1.padStart(maxW, ' ').split('').forEach(c => f1.appendChild(crearDiv(c, "num")));
+            tab.appendChild(f1);
+
+            let f2 = crearFila(maxW + 1, "fila-multi");
+            f2.appendChild(crearDiv("x", "num"));
+            num2.padStart(maxW, ' ').split('').forEach(c => f2.appendChild(crearDiv(c, "num")));
+            tab.appendChild(f2);
+        }
+
+        function prepararFilaResultado(cant) {
+            const tab = document.getElementById('tablero-op');
+            const f = crearFila(0);
+            celdasActuales = [];
+            for(let i=0; i<cant; i++) {
+                let c = crearDiv("", "celda");
+                f.appendChild(c);
+                celdasActuales.push(c);
+            }
+            tab.appendChild(f);
+            indexInput = celdasActuales.length - 1;
+            celdasActuales[indexInput].classList.add('activa');
+        }
+
+        function entrada(v) {
+            if(indexInput < 0) return;
+            let target = celdasActuales[indexInput];
+            let esperado = resFinalStr.replace(',','')[indexInput];
+            
+            // Si el paso es colocar la coma
+            if(paso === 2) {
+                if(v === ',') {
+                    // Lógica simplificada para colocar la coma al final
+                    target.textContent = ',';
+                    target.className = "celda correcta";
+                    finalizar();
+                }
+                return;
+            }
+
+            if(v.toString() === esperado) {
+                target.textContent = v;
+                target.className = "celda correcta";
+                indexInput--;
+                if(indexInput < 0) {
+                    paso = 2;
+                    document.getElementById('instruccion').textContent = "Paso final: ¡Coloca la coma decimal!";
+                    prepararFilaComa();
+                } else {
+                    celdasActuales[indexInput].classList.add('activa');
+                }
+            } else {
+                target.classList.add('incorrecta');
+                setTimeout(() => target.classList.remove('incorrecta'), 400);
+            }
+        }
+
+        function prepararFilaComa() {
+            const tab = document.getElementById('tablero-op');
+            tab.lastChild.remove(); // Quitamos la fila sin coma
+            const f = crearFila(0);
+            celdasActuales = [];
+            resFinalStr.split('').forEach(char => {
+                let c = crearDiv(char === ',' ? "" : char, char === ',' ? "celda activa" : "num");
+                f.appendChild(c);
+                if(char === ',') celdasActuales = [c];
+            });
+            tab.appendChild(f);
+            indexInput = 0;
+        }
+
+        function finalizar() {
+            document.getElementById('res-final').textContent = `${num1} x ${num2} = ${resFinalStr}`;
+            document.getElementById('modal-victoria').style.display = 'flex';
+        }
+
+        function crearFila(w, extra = "") {
+            let f = document.createElement('div');
+            f.className = "fila " + extra;
+            return f;
+        }
+
+        function crearDiv(t, c) {
+            let d = document.createElement('div');
+            d.className = c; d.textContent = t; return d;
+        }
+
+        function borrar() { if(indexInput >= 0) celdasActuales[indexInput].textContent = ""; }
+
+        function volverAlMenuNiveles() {
+            document.getElementById('juego').classList.remove('active');
+            document.getElementById('menu').classList.add('active');
+        }
+    </script>
+</body>
+</html>

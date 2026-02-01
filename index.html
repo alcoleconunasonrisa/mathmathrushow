@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="application-name" content="Math Rush">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Math Rush">
+    <meta name="description" content="Entrena tu cerebro a máxima velocidad con Math Math Rush Ow">
+    <meta name="theme-color" content="#0f172a">
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/icon-192.png">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+
+    <title>Math Math Rush Ow - ¡Bienvenido!</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --text: #ffffff;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            /* DISEÑO IGUAL AL MAIN-INDEX (FONDO MARCA DE AGUA) */
+            background:
+                linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)),
+                url('iconkid.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .hero-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border-radius: 40px;
+            padding: 50px 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            max-width: 600px;
+            width: 100%;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            text-transform: uppercase;
+            text-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+            line-height: 1.1;
+        }
+
+        .highlight { color: var(--accent); }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: var(--secondary);
+            font-weight: 600;
+            margin-bottom: 40px;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(78, 205, 196, 0.2);
+            border-top: 5px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* BOTONES */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .play-button {
+            padding: 20px 60px;
+            background: var(--secondary);
+            color: #0f172a;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 0px #2d8d86;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+
+        .play-button:hover {
+            transform: scale(1.05) translateY(-3px);
+            background: var(--accent);
+            box-shadow: 0 8px 0px #d4af37;
+        }
+
+        .play-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0px transparent;
+        }
+
+        #installButton {
+            display: none;
+            padding: 12px 30px;
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        #installButton:hover {
+            background: white;
+            color: #0f172a;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.8rem;
+            opacity: 0.6;
+            width: 100%;
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 2.2rem; }
+            .play-button { width: 100%; font-size: 1.5rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hero-card">
+        <header>
+            <h1><span class="highlight">MATH</span> MATH RUSH OW</h1>
+            <p class="subtitle">¡Donde aprender matemáticas es una aventura!</p>
+        </header>
+
+        <div class="loading-spinner"></div>
+
+        <div class="btn-group">
+            <a href="main-index.html" class="play-button">
+                <i class="fas fa-rocket"></i> EMPEZAR
+            </a>
+
+            <button id="installButton">
+                <i class="fas fa-download"></i> INSTALAR APP
+            </button>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 Math Math Rush Ow - Academia de Aventuras</p>
+    </footer>
+
+    <script>
+        // Lógica del Service Worker y PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js?v=2.4')
+                    .then(reg => console.log('✅ SW registrado'))
+                    .catch(err => console.error('❌ Error SW:', err));
+            });
+        }
+
+        let deferredPrompt;
+        const installButton = document.getElementById('installButton');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.style.display = 'block';
+        });
+
+        installButton.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            installButton.style.display = 'none';
+        });
+
+        // Autoredirección si ya es PWA
+        window.addEventListener('load', () => {
+            if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+                installButton.style.display = 'none';
+                setTimeout(() => {
+                    window.location.href = 'main-index.html';
+                }, 1500);
+            }
+        });
+    </script>
+</body>
+</html>

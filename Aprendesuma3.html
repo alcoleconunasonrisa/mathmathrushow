@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aprendesuma - Sumas sin Llevadas</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #00b4db, #0083b0);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        
+        .container {
+            width: 98%; max-width: 950px; height: 95vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        .instruccion {
+            background: #0077b6; color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+        }
+
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+
+        .zona-operacion {
+            flex: 1.8; overflow-y: auto; padding: 15px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .zona-teclado {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        .tablero { font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: flex-end; }
+        
+        .fila { display: flex; height: 50px; justify-content: flex-end; align-items: center; }
+        .fila-linea { border-bottom: 4px solid #333; width: 100%; margin: 5px 0; }
+
+        .num, .celda {
+            width: 45px; height: 48px; line-height: 48px; text-align: center; 
+            font-size: 2rem; font-weight: bold;
+        }
+
+        .signo { font-size: 2rem; font-weight: bold; margin-right: 15px; }
+
+        .celda { border: 2px solid #ccc; border-radius: 6px; background: #fff; line-height: 44px; }
+        .celda.activa { border: 3px solid #00B4DB; background: #E0F7FA; }
+        .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-3px);} 75% {transform: translateX(3px);} }
+
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 250px; }
+        .tecla { padding: 15px 0; font-size: 1.4rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; }
+        .tecla:active { box-shadow: 0 2px #ccc; transform: translateY(2px); }
+
+        .pantalla { display: none; height: 100%; width: 100%; }
+        .pantalla.active { display: flex; flex-direction: column; }
+        
+        .btn-nivel { width: 100%; max-width: 350px; padding: 12px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
+
+        #modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; }
+            .zona-teclado { border-left: none; border-top: 2px solid #eee; }
+            .num, .celda { width: 38px; height: 42px; font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#0077b6; margin-bottom:15px;">Suma sin Llevadas</h1>
+            <p style="text-align:center; margin-bottom:20px; color:#666;">¡Suma columna por columna fácilmente!</p>
+            <button class="btn-nivel" style="background:#43a047" onclick="iniciar(1)">Nivel 1: 2 Cifras</button>
+            <button class="btn-nivel" style="background:#fb8c00" onclick="iniciar(2)">Nivel 2: 3 Cifras</button>
+            <button class="btn-nivel" style="background:#e53935" onclick="iniciar(3)">Nivel 3: 4 Cifras</button>
+            <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="irAInicioFuera()">🏠 Volver a Inicio Web</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="instruccion" class="instruccion">¡A sumar!</div>
+            <div class="contenido-juego">
+                <div class="zona-operacion" id="scroll-area">
+                    <div id="tablero" class="tablero"></div>
+                </div>
+                <div class="zona-teclado">
+                    <div class="teclado">
+                        <button class="tecla" onclick="entrada(1)">1</button>
+                        <button class="tecla" onclick="entrada(2)">2</button>
+                        <button class="tecla" onclick="entrada(3)">3</button>
+                        <button class="tecla" onclick="entrada(4)">4</button>
+                        <button class="tecla" onclick="entrada(5)">5</button>
+                        <button class="tecla" onclick="entrada(6)">6</button>
+                        <button class="tecla" onclick="entrada(7)">7</button>
+                        <button class="tecla" onclick="entrada(8)">8</button>
+                        <button class="tecla" onclick="entrada(9)">9</button>
+                        <button class="tecla" style="background:#ffcdd2" onclick="borrar()">C</button>
+                        <button class="tecla" onclick="entrada(0)">0</button>
+                        <button class="tecla" style="background:#eee" onclick="volverAlMenuNiveles()">🏠</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <h2 style="font-size: 2.5rem; color: #43a047;">¡Buen trabajo! 🌟</h2>
+            <p>Has resuelto la suma correctamente.</p>
+            <button class="btn-nivel" style="background:#43a047; max-width: 250px; margin-top:20px;" onclick="volverAJugarMismoNivel()">Jugar otra vez</button>
+            <button class="btn-nivel" style="background:#0077b6; max-width: 250px;" onclick="volverAlMenuNiveles()">Volver al Menú</button>
+        </div>
+    </div>
+
+    <script>
+        let n1Str, n2Str, nivelActual = 1;
+        let valorObjetivo = "", celdasActuales = [], indexInput = 0;
+        let audioContext = null;
+
+        function inicializarAudio() { if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
+        
+        function playSound(tipo) {
+            if (!audioContext) return;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain); gain.connect(audioContext.destination);
+            osc.frequency.setValueAtTime(tipo === 'acierto' ? 800 : 200, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            osc.start(); osc.stop(audioContext.currentTime + 0.1);
+        }
+
+        // Función clave: Generar números cuya suma de dígitos por columna sea <= 9
+        function generarNumerosSinLlevadas(cifras) {
+            let num1 = "";
+            let num2 = "";
+            for (let i = 0; i < cifras; i++) {
+                // Para la primera cifra (izquierda), evitar que sea 0
+                let minDigit = (i === 0) ? 1 : 0;
+                let d1 = Math.floor(Math.random() * (9 - minDigit + 1)) + minDigit;
+                let d2 = Math.floor(Math.random() * (9 - d1 + 1)); // d2 solo puede ser lo que falte para llegar a 9
+                
+                num1 += d1.toString();
+                num2 += d2.toString();
+            }
+            return [num1, num2];
+        }
+
+        function iniciar(n) {
+            nivelActual = n;
+            inicializarAudio();
+            
+            // Determinar cuántas cifras según nivel
+            const cifras = n + 1; // Nivel 1 = 2 cifras, Nivel 2 = 3 cifras...
+            const [num1, num2] = generarNumerosSinLlevadas(cifras);
+            
+            n1Str = num1;
+            n2Str = num2;
+            valorObjetivo = (parseInt(n1Str) + parseInt(n2Str)).toString().padStart(cifras, '0');
+            
+            // Si la suma total tiene más dígitos que los originales (no debería pasar en sin llevadas puro,
+            // pero por seguridad recalculamos el valor objetivo real)
+            valorObjetivo = (parseInt(n1Str) + parseInt(n2Str)).toString();
+
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('instruccion').textContent = "Suma columna por columna";
+            
+            const tablero = document.getElementById('tablero');
+            tablero.innerHTML = '';
+            
+            tablero.appendChild(crearFilaNumeros(n1Str));
+            const fila2 = crearFilaNumeros(n2Str);
+            const signo = document.createElement('span');
+            signo.className = 'signo'; signo.textContent = '+';
+            fila2.prepend(signo);
+            tablero.appendChild(fila2);
+            
+            const linea = document.createElement('div');
+            linea.className = 'fila-linea';
+            tablero.appendChild(linea);
+
+            const filaRes = document.createElement('div');
+            filaRes.className = 'fila';
+            celdasActuales = [];
+            for (let i = 0; i < valorObjetivo.length; i++) {
+                const c = document.createElement('div');
+                c.className = 'celda';
+                filaRes.appendChild(c);
+                celdasActuales.push(c);
+            }
+            tablero.appendChild(filaRes);
+            
+            indexInput = celdasActuales.length - 1;
+            celdasActuales[indexInput].classList.add('activa');
+        }
+
+        function crearFilaNumeros(numStr) {
+            const fila = document.createElement('div');
+            fila.className = 'fila';
+            for (let char of numStr) {
+                const n = document.createElement('div');
+                n.className = 'num'; n.textContent = char;
+                fila.appendChild(n);
+            }
+            return fila;
+        }
+
+        function entrada(n) {
+            if (indexInput < 0) return;
+            const celda = celdasActuales[indexInput];
+            
+            if (n.toString() === valorObjetivo[indexInput]) {
+                playSound('acierto');
+                celda.textContent = n;
+                celda.className = 'celda correcta';
+                indexInput--;
+                
+                if (indexInput >= 0) {
+                    celdasActuales[indexInput].classList.add('activa');
+                } else {
+                    setTimeout(() => { 
+                        document.getElementById('modal-victoria').style.display = 'flex'; 
+                        playSound('acierto'); 
+                    }, 500);
+                }
+            } else {
+                playSound('error');
+                celda.classList.add('incorrecta');
+                celda.textContent = n;
+                setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
+            }
+        }
+
+        function borrar() {
+            const c = celdasActuales[indexInput];
+            if(c && !c.classList.contains('correcta')) c.textContent = "";
+        }
+
+        function volverAlMenuNiveles() {
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('juego').classList.remove('active');
+            document.getElementById('menu').classList.add('active');
+        }
+
+        function volverAJugarMismoNivel() { iniciar(nivelActual); }
+        function irAInicioFuera() { window.location.href = 'main-index.html'; }
+    </script>
+</body>
+</html>

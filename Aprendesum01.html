@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suma de Manzanas - Reto de Precisión</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --grass: #9cdb43;
+            --sky: #87ceeb;
+            --apple: #ff4d4d;
+            --basket: #8b4513;
+            --warning: #f39c12;
+            --error: #e74c3c;
+            --success: #2ecc71;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: var(--sky);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            overflow-x: hidden;
+            color: #2c3e50;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: white;
+            padding: 15px 30px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .target-number {
+            font-size: 3.5rem;
+            color: var(--apple);
+            display: block;
+            font-weight: 900;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 10px;
+        }
+
+        .basket-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255,255,255,0.3);
+            padding: 20px;
+            border-radius: 20px;
+            min-width: 180px;
+        }
+
+        .basket {
+            width: 140px;
+            height: 110px;
+            background: var(--basket);
+            border-radius: 10px 10px 60px 60px;
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px;
+            gap: 5px;
+            justify-content: center;
+            align-content: flex-end;
+            border: 5px solid #5d2e0a;
+            min-height: 110px;
+        }
+
+        .apple {
+            width: 28px;
+            height: 28px;
+            background: var(--apple);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow: inset -4px -4px 0 rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .apple:hover { transform: scale(1.1); }
+
+        .apple::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 11px;
+            width: 3px;
+            height: 7px;
+            background: #4a2c00;
+        }
+
+        .counter {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-top: 5px;
+        }
+
+        .controls {
+            margin: 20px;
+            text-align: center;
+        }
+
+        #check-btn {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 5px 0 #1a252f;
+        }
+
+        #check-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #1a252f;
+        }
+
+        #feedback-msg {
+            margin-top: 15px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            display: none;
+            font-size: 1.2rem;
+        }
+
+        .tree-area {
+            background: var(--grass);
+            width: 100%;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: auto;
+            border-top: 8px solid #86c038;
+            min-height: 150px;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+        }
+        .btn-home {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: white;
+    color: #2c3e50;
+    text-decoration: none;
+    border-radius: 15px;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.btn-home:hover {
+    transform: scale(1.1);
+    background-color: #f0f0f0;
+}
+    </style>
+</head>
+<body>
+<div style="position: absolute; top: 10px; left: 10px;">
+    <a href="main-index.html" class="btn-home">🏠 Inicio</a>
+</div>
+    <div class="header">
+        <div style="font-weight: bold;">OBJETIVO:</div>
+        <span class="target-number" id="targetNum">0</span>
+    </div>
+
+    <div class="game-area">
+        <div class="basket-container">
+            <div class="basket" id="basket1"></div>
+            <div class="counter" id="count1">0</div>
+        </div>
+        <div style="font-size: 3rem; font-weight: bold; align-self: center;">+</div>
+        <div class="basket-container">
+            <div class="basket" id="basket2"></div>
+            <div class="counter" id="count2">0</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="check-btn" onclick="verifyAnswer()">¡COMPROBAR!</button>
+        <div id="feedback-msg"></div>
+    </div>
+
+    <div class="tree-area" id="tree"></div>
+
+    <div class="modal" id="winModal">
+        <div class="modal-content">
+            <h1 style="font-size: 3rem;">¡MUY BIEN! 🌟</h1>
+            <p id="finalSum" style="font-size: 2rem; color: #7f8c8d;"></p>
+            <button onclick="nextLevel()" style="background: var(--success); color: white; border: none; padding: 15px 30px; font-size: 1.5rem; border-radius: 15px; cursor: pointer; font-weight: bold;">OTRO RETO</button>
+        </div>
+    </div>
+
+<script>
+    let target = 0;
+    const tree = document.getElementById('tree');
+    const b1 = document.getElementById('basket1');
+    const b2 = document.getElementById('basket2');
+    const feedback = document.getElementById('feedback-msg');
+
+    function initGame() {
+        target = Math.floor(Math.random() * 7) + 3;
+        document.getElementById('targetNum').innerText = target;
+
+        tree.innerHTML = '';
+        b1.innerHTML = '';
+        b2.innerHTML = '';
+        hideFeedback();
+
+        // Creamos excedente de manzanas
+        const totalToCreate = target + Math.floor(Math.random() * 3) + 2;
+        for(let i=0; i < totalToCreate; i++) {
+            createApple();
+        }
+        updateCounters();
+    }
+
+    function createApple() {
+        const apple = document.createElement('div');
+        apple.className = 'apple';
+        apple.onclick = (e) => {
+            e.stopPropagation();
+            handleAppleClick(apple);
+        };
+        tree.appendChild(apple);
+    }
+
+    function handleAppleClick(apple) {
+        hideFeedback();
+
+        // Si la manzana está en el árbol (barra inferior), va a una cesta
+        if (apple.parentElement === tree) {
+            if (b1.children.length <= b2.children.length) {
+                b1.appendChild(apple);
+            } else {
+                b2.appendChild(apple);
+            }
+        }
+        // Si ya está en una cesta, vuelve al árbol (barra inferior)
+        else {
+            tree.appendChild(apple);
+        }
+
+        updateCounters();
+    }
+
+    function updateCounters() {
+        document.getElementById('count1').innerText = b1.children.length;
+        document.getElementById('count2').innerText = b2.children.length;
+    }
+
+    function hideFeedback() {
+        feedback.style.display = 'none';
+    }
+
+    function verifyAnswer() {
+        const currentTotal = b1.children.length + b2.children.length;
+        feedback.style.display = 'block';
+
+        if (currentTotal === target) {
+            document.getElementById('finalSum').innerText = `${b1.children.length} + ${b2.children.length} = ${target}`;
+            document.getElementById('winModal').style.display = 'flex';
+        } else if (currentTotal > target) {
+            feedback.style.background = 'var(--error)';
+            feedback.style.color = 'white';
+            feedback.innerText = `¡Te has pasado! Quita algunas manzanas.`;
+        } else {
+            feedback.style.background = 'var(--warning)';
+            feedback.style.color = 'white';
+            feedback.innerText = `¡Aún te faltan manzanas!`;
+        }
+    }
+
+    function nextLevel() {
+        document.getElementById('winModal').style.display = 'none';
+        initGame();
+    }
+
+    window.onload = initGame;
+</script>
+</body>
+</html>

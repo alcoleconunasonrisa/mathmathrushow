@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aprendesuma - Fracciones</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        
+        .container {
+            width: 98%; max-width: 950px; height: 95vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        .instruccion {
+            background: #6a11cb; color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+        }
+
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+
+        .zona-operacion {
+            flex: 1.8; overflow-y: auto; padding: 15px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .zona-teclado {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        /* Estilo Fracciones */
+        .contenedor-fracciones { display: flex; align-items: center; gap: 15px; font-size: 2.5rem; font-weight: bold; }
+        .fraccion { display: flex; flex-direction: column; align-items: center; }
+        .linea-fraccion { width: 100%; height: 4px; background: #333; margin: 5px 0; border-radius: 2px; }
+        .num-f, .den-f { min-width: 50px; text-align: center; padding: 5px; }
+
+        .celda {
+            min-width: 60px; height: 60px; border: 2px solid #ccc; border-radius: 8px;
+            background: #fff; line-height: 56px; text-align: center; cursor: pointer;
+            transition: all 0.2s; font-size: 2rem;
+        }
+        .celda.activa { border: 3px solid #FF9800; background: #FFF3E0; transform: scale(1.05); }
+        .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-3px);} 75% {transform: translateX(3px);} }
+
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 250px; }
+        .tecla { padding: 15px 0; font-size: 1.4rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; }
+        .tecla:active { box-shadow: 0 2px #ccc; transform: translateY(2px); }
+
+        .pantalla { display: none; height: 100%; width: 100%; }
+        .pantalla.active { display: flex; flex-direction: column; }
+        
+        .btn-nivel { width: 100%; max-width: 350px; padding: 12px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
+
+        #modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; }
+            .zona-teclado { border-left: none; border-top: 2px solid #eee; }
+            .contenedor-fracciones { font-size: 1.8rem; }
+            .celda { min-width: 50px; height: 50px; line-height: 46px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#6a11cb; margin-bottom:15px;">Suma de Fracciones</h1>
+            <p style="text-align:center; margin-bottom: 20px;">Mismo denominador</p>
+            <button class="btn-nivel" style="background:#43a047" onclick="iniciar(1)">Nivel 1: Denominador hasta 10</button>
+            <button class="btn-nivel" style="background:#fb8c00" onclick="iniciar(2)">Nivel 2: Denominador hasta 50</button>
+            <button class="btn-nivel" style="background:#e53935" onclick="iniciar(3)">Nivel 3: Denominador hasta 100</button>
+            <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="irAInicioFuera()">🏠 Volver a Inicio</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="instruccion" class="instruccion">¡Escribe el denominador primero!</div>
+            <div class="contenido-juego">
+                <div class="zona-operacion">
+                    <div id="tablero" class="contenedor-fracciones">
+                        </div>
+                </div>
+                <div class="zona-teclado">
+                    <div class="teclado">
+                        <button class="tecla" onclick="entrada(1)">1</button>
+                        <button class="tecla" onclick="entrada(2)">2</button>
+                        <button class="tecla" onclick="entrada(3)">3</button>
+                        <button class="tecla" onclick="entrada(4)">4</button>
+                        <button class="tecla" onclick="entrada(5)">5</button>
+                        <button class="tecla" onclick="entrada(6)">6</button>
+                        <button class="tecla" onclick="entrada(7)">7</button>
+                        <button class="tecla" onclick="entrada(8)">8</button>
+                        <button class="tecla" onclick="entrada(9)">9</button>
+                        <button class="tecla" style="background:#ffcdd2" onclick="borrar()">C</button>
+                        <button class="tecla" onclick="entrada(0)">0</button>
+                        <button class="tecla" style="background:#eee" onclick="volverAlMenuNiveles()">🏠</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <h2 style="font-size: 2.5rem; color: #43a047;">¡Genial! Fracción correcta 🏆</h2>
+            <button class="btn-nivel" style="background:#43a047; max-width: 250px; margin-top:20px;" onclick="volverAJugarMismoNivel()">Siguiente suma</button>
+            <button class="btn-nivel" style="background:#1e3c72; max-width: 250px;" onclick="volverAlMenuNiveles()">Cambiar Nivel</button>
+        </div>
+    </div>
+
+    <script>
+        let num1, num2, denComun, nivelActual = 1;
+        let etapaDenominador = true; // Controla si estamos rellenando abajo o arriba
+        let inputActual = "";
+        let audioContext = null;
+
+        const nivelesConfig = {
+            1: { denMax: 10, numMax: 9 },
+            2: { denMax: 50, numMax: 20 },
+            3: { denMax: 100, numMax: 50 }
+        };
+
+        function inicializarAudio() { if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
+        
+        function playSound(tipo) {
+            if (!audioContext) return;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain); gain.connect(audioContext.destination);
+            osc.frequency.setValueAtTime(tipo === 'acierto' ? 800 : 200, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            osc.start(); osc.stop(audioContext.currentTime + 0.1);
+        }
+
+        function iniciar(n) {
+            nivelActual = n;
+            etapaDenominador = true;
+            inputActual = "";
+            inicializarAudio();
+            
+            const conf = nivelesConfig[n];
+            denComun = Math.floor(Math.random() * (conf.denMax - 2 + 1)) + 2;
+            num1 = Math.floor(Math.random() * conf.numMax) + 1;
+            num2 = Math.floor(Math.random() * conf.numMax) + 1;
+            
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('instruccion').textContent = "Paso 1: Escribe el denominador común";
+            
+            renderizarTablero();
+        }
+
+        function renderizarTablero() {
+            const tablero = document.getElementById('tablero');
+            tablero.innerHTML = `
+                <div class="fraccion">
+                    <div class="num-f">${num1}</div>
+                    <div class="linea-fraccion"></div>
+                    <div class="den-f">${denComun}</div>
+                </div>
+                <div>+</div>
+                <div class="fraccion">
+                    <div class="num-f">${num2}</div>
+                    <div class="linea-fraccion"></div>
+                    <div class="den-f">${denComun}</div>
+                </div>
+                <div>=</div>
+                <div class="fraccion">
+                    <div id="res-numerador" class="celda">${!etapaDenominador ? inputActual : ''}</div>
+                    <div class="linea-fraccion"></div>
+                    <div id="res-denominador" class="celda ${etapaDenominador ? 'activa' : ''}">${etapaDenominador ? inputActual : denComun}</div>
+                </div>
+            `;
+            
+            if (!etapaDenominador) {
+                document.getElementById('res-denominador').classList.add('correcta');
+                document.getElementById('res-numerador').classList.add('activa');
+            }
+        }
+
+        function entrada(n) {
+            inputActual += n.toString();
+            const objetivo = etapaDenominador ? denComun.toString() : (num1 + num2).toString();
+            
+            // Actualizar vista previa
+            if (etapaDenominador) {
+                document.getElementById('res-denominador').textContent = inputActual;
+            } else {
+                document.getElementById('res-numerador').textContent = inputActual;
+            }
+
+            // Verificar si el número que lleva escrito coincide con el inicio del objetivo
+            if (objetivo.startsWith(inputActual)) {
+                // Si ya completó el número entero
+                if (inputActual === objetivo) {
+                    playSound('acierto');
+                    if (etapaDenominador) {
+                        etapaDenominador = false;
+                        inputActual = "";
+                        document.getElementById('instruccion').textContent = "Paso 2: Suma los numeradores";
+                        setTimeout(renderizarTablero, 300);
+                    } else {
+                        document.getElementById('res-numerador').classList.add('correcta');
+                        setTimeout(() => {
+                            document.getElementById('modal-victoria').style.display = 'flex';
+                            playSound('acierto');
+                        }, 500);
+                    }
+                }
+            } else {
+                // Error
+                playSound('error');
+                const celdaError = etapaDenominador ? document.getElementById('res-denominador') : document.getElementById('res-numerador');
+                celdaError.classList.add('incorrecta');
+                setTimeout(() => {
+                    celdaError.classList.remove('incorrecta');
+                    inputActual = "";
+                    celdaError.textContent = "";
+                }, 500);
+            }
+        }
+
+        function borrar() {
+            inputActual = "";
+            if (etapaDenominador) {
+                document.getElementById('res-denominador').textContent = "";
+            } else {
+                document.getElementById('res-numerador').textContent = "";
+            }
+        }
+
+        function volverAlMenuNiveles() {
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('juego').classList.remove('active');
+            document.getElementById('menu').classList.add('active');
+        }
+
+        function volverAJugarMismoNivel() { iniciar(nivelActual); }
+        function irAInicioFuera() { window.location.href = 'main-index.html'; }
+    </script>
+</body>
+</html>

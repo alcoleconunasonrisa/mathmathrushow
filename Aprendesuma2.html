@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Enigma de la Suma: Laboratorio Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #38bdf8;
+            --secondary: #a29bfe;
+            --accent: #f472b6;
+            --success: #4ade80;
+            --error: #f43f5e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 100%);
+            min-height: 100vh;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .btn-home {
+            position: absolute; top: 20px; left: 20px;
+            background: rgba(255,255,255,0.1); color: white;
+            padding: 12px 20px; border-radius: 12px;
+            text-decoration: none; display: flex; align-items: center; gap: 10px;
+            font-weight: bold; border: 1px solid rgba(255,255,255,0.2); z-index: 100;
+        }
+
+        .hud {
+            display: flex; justify-content: center; gap: 40px;
+            width: 100%; max-width: 800px; margin-bottom: 15px; margin-top: 50px;
+            background: rgba(255,255,255,0.05); padding: 10px 30px;
+            border-radius: 50px; border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-value { font-size: 1.8rem; font-weight: 900; line-height: 1; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--primary); letter-spacing: 2px; }
+
+        #gameConsole {
+            width: 100%; max-width: 800px; height: 50px;
+            background: rgba(0,0,0,0.4); border-radius: 12px; margin-bottom: 15px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; border: 2px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+
+        /* Nueva clase para errores incrustados */
+        #gameConsole.error-msg {
+            color: var(--error);
+            border-color: var(--error);
+            background: rgba(244, 63, 94, 0.1);
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .target-orb {
+            width: 85px; height: 85px;
+            background: radial-gradient(circle at 30% 30%, var(--accent), #be185d);
+            border-radius: 50%; margin: 0 auto 5px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; font-weight: 900; font-family: 'Orbitron', sans-serif;
+            box-shadow: 0 0 30px rgba(244, 114, 182, 0.4);
+        }
+
+        .lab-bench {
+            background: var(--card-bg); padding: 25px; border-radius: 30px;
+            display: flex; justify-content: space-around; align-items: center;
+            width: 100%; max-width: 850px; margin-bottom: 20px;
+        }
+
+        .flask {
+            width: 150px; height: 180px;
+            border: 4px solid rgba(255,255,255,0.2);
+            border-radius: 15px 15px 50px 50px;
+            background: rgba(255,255,255,0.03);
+            display: flex; flex-wrap: wrap; padding: 10px;
+            align-content: flex-end; justify-content: center; gap: 4px;
+        }
+
+        .gem {
+            width: 26px; height: 26px;
+            background: var(--primary);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+
+        .gem.draggable { 
+            cursor: grab; 
+            background: var(--secondary); 
+            touch-action: none;
+            position: relative;
+            z-index: 10;
+        }
+
+        .gem.dragging {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: scale(1.4);
+            opacity: 0.8;
+        }
+
+        .gem-source {
+            background: rgba(0,0,0,0.3); padding: 20px; border-radius: 20px;
+            min-height: 90px; width: 100%; max-width: 850px;
+            display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+            border: 2px dashed rgba(255,255,255,0.1);
+        }
+
+        .btn-action {
+            background: linear-gradient(180deg, var(--success), #059669);
+            border: none; padding: 15px 45px; color: white; font-size: 1.3rem;
+            font-weight: 900; border-radius: 20px; cursor: pointer;
+            box-shadow: 0 6px 0 #065f46; margin-top: 15px;
+            transition: transform 0.1s;
+        }
+        
+        .btn-action:active { transform: translateY(4px); box-shadow: 0 2px 0 #065f46; }
+
+        .modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            background: white; color: black; padding: 35px; border-radius: 30px;
+            text-align: center; z-index: 1000; width: 90%; max-width: 450px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .modal.show { transform: translate(-50%, -50%) scale(1); }
+    </style>
+</head>
+<body>
+
+    <a href="main-index.html" class="btn-home"><i class="fas fa-home"></i> INICIO</a>
+
+    <div class="hud">
+        <div class="stat"><div class="stat-label">Nivel</div><div class="stat-value" id="lvlVal">1</div></div>
+        <div class="stat"><div class="stat-label">Racha</div><div class="stat-value" id="streakVal">0</div></div>
+    </div>
+
+    <div id="gameConsole">PREPARA LA MEZCLA</div>
+
+    <div class="target-container">
+        <div class="target-orb" id="targetNum">10</div>
+        <p style="color: var(--accent); text-align: center; font-weight: bold; font-size: 0.8rem;">OBJETIVO</p>
+    </div>
+
+    <div class="lab-bench">
+        <div><div class="flask" id="flaskFixed"></div><div class="flask-label" id="valFixed" style="color: #94a3b8; text-align: center; font-size: 2rem;">0</div></div>
+        <div style="font-size: 2.5rem; color: var(--secondary);">+</div>
+        <div><div class="flask" id="flaskPlayer"></div><div class="flask-label" id="valPlayer" style="text-align: center; font-size: 2rem; color: var(--primary);">0</div></div>
+    </div>
+
+    <div class="gem-source" id="gemSource"></div>
+
+    <button class="btn-action" onclick="verifyEnigma()">¡COMPROBAR!</button>
+
+    <div class="modal" id="resultModal">
+        <h2 style="color: var(--success)">¡LOGRADO!</h2>
+        <div id="equationDisplay" style="font-size: 2.2rem; margin: 20px 0; font-family: 'Orbitron';"></div>
+        <button class="btn-action" onclick="nextLevel()">SIGUIENTE</button>
+    </div>
+
+<script>
+    let state = { level: 1, streak: 0, target: 0, fixedValue: 0 };
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.type = type === 'success' ? 'sine' : 'sawtooth';
+        osc.frequency.setValueAtTime(type === 'success' ? 440 : 150, audioCtx.currentTime);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+    }
+
+    function initLevel() {
+        state.target = Math.floor(Math.random() * 5) + 5 + (state.level * 2);
+        state.fixedValue = Math.floor(Math.random() * (state.target - 1)) + 1;
+        
+        document.getElementById('targetNum').innerText = state.target;
+        document.getElementById('lvlVal').innerText = state.level;
+        document.getElementById('gameConsole').innerText = "PREPARA LA MEZCLA";
+        document.getElementById('gameConsole').classList.remove('error-msg');
+        
+        const fFixed = document.getElementById('flaskFixed');
+        fFixed.innerHTML = '';
+        for(let i=0; i < state.fixedValue; i++) {
+            const gem = document.createElement('div');
+            gem.className = 'gem';
+            fFixed.appendChild(gem);
+        }
+        document.getElementById('valFixed').innerText = state.fixedValue;
+
+        document.getElementById('flaskPlayer').innerHTML = '';
+        document.getElementById('valPlayer').innerText = '0';
+        
+        const source = document.getElementById('gemSource');
+        source.innerHTML = '';
+        for(let i=0; i < state.target + 3; i++) {
+            const gem = document.createElement('div');
+            gem.className = 'gem draggable';
+            setupUniversalDrag(gem);
+            source.appendChild(gem);
+        }
+    }
+
+    function setupUniversalDrag(el) {
+        let offsetX, offsetY;
+
+        const startDrag = (e) => {
+            const point = e.touches ? e.touches[0] : e;
+            const rect = el.getBoundingClientRect();
+            offsetX = point.clientX - rect.left;
+            offsetY = point.clientY - rect.top;
+            
+            el.classList.add('dragging');
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+        };
+
+        const drag = (e) => {
+            if (e.type === 'touchmove') e.preventDefault();
+            const point = e.touches ? e.touches[0] : e;
+            el.style.left = (point.clientX - offsetX) + 'px';
+            el.style.top = (point.clientY - offsetY) + 'px';
+        };
+
+        const endDrag = (e) => {
+            const point = e.changedTouches ? e.changedTouches[0] : e;
+            el.classList.remove('dragging');
+            el.style.left = ''; el.style.top = '';
+
+            const flask = document.getElementById('flaskPlayer');
+            const source = document.getElementById('gemSource');
+            const fRect = flask.getBoundingClientRect();
+
+            if (point.clientX > fRect.left && point.clientX < fRect.right &&
+                point.clientY > fRect.top && point.clientY < fRect.bottom) {
+                flask.appendChild(el);
+            } else {
+                source.appendChild(el);
+            }
+
+            document.getElementById('valPlayer').innerText = flask.querySelectorAll('.gem').length;
+            document.getElementById('gameConsole').classList.remove('error-msg');
+
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchend', endDrag);
+        };
+
+        el.addEventListener('mousedown', startDrag);
+        el.addEventListener('touchstart', startDrag);
+    }
+
+    function verifyEnigma() {
+        const playerVal = document.getElementById('flaskPlayer').querySelectorAll('.gem').length;
+        const total = state.fixedValue + playerVal;
+        const consoleMsg = document.getElementById('gameConsole');
+        
+        if (total === state.target) {
+            playSound('success');
+            state.streak++;
+            document.getElementById('streakVal').innerText = state.streak;
+            document.getElementById('equationDisplay').innerText = `${state.fixedValue} + ${playerVal} = ${state.target}`;
+            document.getElementById('resultModal').classList.add('show');
+            consoleMsg.classList.remove('error-msg');
+            consoleMsg.innerText = "¡FÓRMULA CORRECTA!";
+        } else {
+            playSound('error');
+            consoleMsg.classList.add('error-msg');
+            consoleMsg.innerText = total < state.target ? "¡FALTAN GEMAS EN LA MEZCLA!" : "¡TE HAS PASADO DE GEMAS!";
+            
+            // Efecto de limpieza después de un momento
+            setTimeout(() => {
+                if(consoleMsg.classList.contains('error-msg')) {
+                    consoleMsg.innerText = "AJUSTA LA CANTIDAD...";
+                }
+            }, 2500);
+        }
+    }
+
+    function nextLevel() {
+        state.level++;
+        document.getElementById('resultModal').classList.remove('show');
+        initLevel();
+    }
+
+    window.onload = initLevel;
+</script>
+</body>
+</html>

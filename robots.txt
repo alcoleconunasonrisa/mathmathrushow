@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /$
+Allow: /index.html
+Allow: /privacy-policy.html
+Allow: /terms-of-service.html
+Disallow: /assets/
+Disallow: /js/
+Disallow: /css/
+
+Sitemap: https://mathrush.com/sitemap.xml

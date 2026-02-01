@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sincronizador de Materia: Laboratorio de División</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #fbbf24;
+            --secondary: #a29bfe;
+            --success: #4ade80;
+            --error: #f43f5e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 100%);
+            min-height: 100vh;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .btn-home {
+            position: absolute; top: 20px; left: 20px;
+            background: rgba(255,255,255,0.1); color: white;
+            padding: 12px 20px; border-radius: 12px;
+            text-decoration: none; display: flex; align-items: center; gap: 10px;
+            font-weight: bold; border: 1px solid rgba(255,255,255,0.2); z-index: 100;
+        }
+
+        .hud {
+            display: flex; justify-content: center; gap: 40px;
+            width: 100%; max-width: 800px; margin-top: 50px; margin-bottom: 15px;
+            background: rgba(255,255,255,0.05); padding: 10px 30px;
+            border-radius: 50px; border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-value { font-size: 1.8rem; font-weight: 900; line-height: 1; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--primary); letter-spacing: 2px; }
+
+        .mission-info {
+            text-align: center; margin-bottom: 15px;
+            background: rgba(255,255,255,0.05); padding: 15px;
+            border-radius: 20px; border: 2px solid var(--primary);
+            width: 100%; max-width: 800px;
+            transition: all 0.3s ease;
+        }
+
+        /* Efecto para cuando hay un error en el reparto */
+        .mission-info.error-pulse {
+            border-color: var(--error);
+            background: rgba(244, 63, 94, 0.1);
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .lab-bench {
+            background: var(--card-bg); padding: 25px; border-radius: 30px;
+            width: 100%; max-width: 900px; margin-bottom: 15px;
+        }
+
+        .jars-area {
+            display: flex; justify-content: center; gap: 15px;
+            flex-wrap: wrap; margin-bottom: 20px;
+        }
+
+        .jar {
+            width: 120px; height: 140px;
+            background: rgba(255,255,255,0.03);
+            border: 3px solid rgba(255,255,255,0.2);
+            border-radius: 10px 10px 40px 40px;
+            display: flex; flex-wrap: wrap; padding: 10px;
+            align-content: flex-start; justify-content: center; gap: 4px;
+            transition: border-color 0.2s;
+        }
+
+        .gem {
+            width: 24px; height: 24px;
+            background: var(--primary);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+
+        .gem.draggable { 
+            cursor: grab; 
+            touch-action: none; 
+            position: relative; 
+            z-index: 10;
+        }
+
+        .gem.dragging {
+            position: fixed; pointer-events: none;
+            z-index: 9999; transform: scale(1.4); opacity: 0.8;
+        }
+
+        .gem-source {
+            background: rgba(0,0,0,0.3); padding: 20px; border-radius: 20px;
+            min-height: 100px; width: 100%; display: flex;
+            flex-wrap: wrap; gap: 8px; justify-content: center;
+            border: 2px dashed rgba(255,255,255,0.1);
+        }
+
+        .btn-action {
+            background: linear-gradient(180deg, var(--success), #059669);
+            border: none; padding: 15px 45px; color: white; font-size: 1.3rem;
+            font-weight: 900; border-radius: 20px; cursor: pointer;
+            box-shadow: 0 6px 0 #065f46;
+            transition: transform 0.1s;
+        }
+
+        .btn-action:active { transform: translateY(4px); box-shadow: 0 2px 0 #065f46; }
+
+        .modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            background: white; color: black; padding: 35px; border-radius: 30px;
+            text-align: center; z-index: 1000; width: 90%; max-width: 500px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .modal.show { transform: translate(-50%, -50%) scale(1); }
+    </style>
+</head>
+<body>
+
+    <a href="main-index.html" class="btn-home"><i class="fas fa-home"></i> INICIO</a>
+
+    <div class="hud">
+        <div class="stat"><div class="stat-label">Misión</div><div class="stat-value" id="lvlVal">1</div></div>
+        <div class="stat"><div class="stat-label">Racha</div><div class="stat-value" id="streakVal">0</div></div>
+    </div>
+
+    <div class="mission-info" id="infoPanel">
+        <h2 id="instruction" style="font-size: 1.2rem; color: var(--primary);">Cargando protocolo...</h2>
+    </div>
+
+    <div class="lab-bench">
+        <div class="jars-area" id="jarsArea"></div>
+        <div style="text-align: center; color: #94a3b8; font-size: 0.7rem; margin-bottom: 10px;">RESERVA / SOBRANTE</div>
+        <div class="gem-source" id="gemSource"></div>
+    </div>
+
+    <button class="btn-action" onclick="verifyMission()">¡COMPROBAR REPARTO!</button>
+
+    <div class="modal" id="resultModal">
+        <h2 style="color: var(--success)">¡SINCRO COMPLETADA!</h2>
+        <div id="divisionDisplay" style="font-size: 2.2rem; margin: 20px 0; font-family: 'Orbitron';"></div>
+        <p id="resRemainText" style="font-weight: bold; color: #b45309; margin-bottom: 20px;"></p>
+        <button class="btn-action" onclick="nextMission()">SIGUIENTE</button>
+    </div>
+
+<script>
+    const missions = [
+        { total: 12, jars: 3, expected: 4, remain: 0, text: "Reparte 12 gemas en 3 frascos por igual." },
+        { total: 10, jars: 3, expected: 3, remain: 1, text: "Reparte 10 gemas en 3 frascos. ¿Cuántas sobran?" },
+        { total: 14, jars: 4, expected: 3, remain: 2, text: "Divide 14 gemas entre 4 contenedores." },
+        { total: 15, jars: 2, expected: 7, remain: 1, text: "Reparte 15 gemas en 2 frascos." },
+        { total: 20, jars: 5, expected: 4, remain: 0, text: "Sincroniza 20 gemas en 5 frascos." }
+    ];
+
+    let state = { currentIdx: 0, streak: 0 };
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.type = type === 'success' ? 'sine' : 'sawtooth';
+        osc.frequency.setValueAtTime(type === 'success' ? 523 : 100, audioCtx.currentTime);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+    }
+
+    function initMission() {
+        const m = missions[state.currentIdx];
+        const infoPanel = document.getElementById('infoPanel');
+        infoPanel.classList.remove('error-pulse');
+        document.getElementById('instruction').innerText = m.text;
+        document.getElementById('instruction').style.color = "var(--primary)";
+        document.getElementById('lvlVal').innerText = state.currentIdx + 1;
+        
+        const source = document.getElementById('gemSource');
+        const jarsArea = document.getElementById('jarsArea');
+        source.innerHTML = ''; jarsArea.innerHTML = '';
+
+        for(let i=0; i<m.total; i++) {
+            const gem = document.createElement('div');
+            gem.className = 'gem draggable';
+            setupUniversalDrag(gem);
+            source.appendChild(gem);
+        }
+
+        for(let i=0; i<m.jars; i++) {
+            const jar = document.createElement('div');
+            jar.className = 'jar';
+            jarsArea.appendChild(jar);
+        }
+    }
+
+    function setupUniversalDrag(el) {
+        let offsetX, offsetY;
+
+        const startDrag = (e) => {
+            const point = e.touches ? e.touches[0] : e;
+            const rect = el.getBoundingClientRect();
+            offsetX = point.clientX - rect.left;
+            offsetY = point.clientY - rect.top;
+            el.classList.add('dragging');
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+        };
+
+        const drag = (e) => {
+            if (e.type === 'touchmove') e.preventDefault();
+            const point = e.touches ? e.touches[0] : e;
+            el.style.left = (point.clientX - offsetX) + 'px';
+            el.style.top = (point.clientY - offsetY) + 'px';
+        };
+
+        const endDrag = (e) => {
+            const point = e.changedTouches ? e.changedTouches[0] : e;
+            el.classList.remove('dragging');
+            el.style.left = ''; el.style.top = '';
+
+            const jars = document.querySelectorAll('.jar');
+            const source = document.getElementById('gemSource');
+            const infoPanel = document.getElementById('infoPanel');
+            let placed = false;
+
+            jars.forEach(jar => {
+                const rect = jar.getBoundingClientRect();
+                if (point.clientX > rect.left && point.clientX < rect.right &&
+                    point.clientY > rect.top && point.clientY < rect.bottom) {
+                    jar.appendChild(el);
+                    placed = true;
+                }
+            });
+
+            if (!placed) source.appendChild(el);
+            
+            // Limpiar errores visuales al mover gemas
+            infoPanel.classList.remove('error-pulse');
+            document.getElementById('instruction').innerText = missions[state.currentIdx].text;
+            document.getElementById('instruction').style.color = "var(--primary)";
+
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchend', endDrag);
+        };
+
+        el.addEventListener('mousedown', startDrag);
+        el.addEventListener('touchstart', startDrag);
+    }
+
+    function verifyMission() {
+        const m = missions[state.currentIdx];
+        const jars = document.querySelectorAll('.jar');
+        const reserve = document.getElementById('gemSource').children.length;
+        const infoPanel = document.getElementById('infoPanel');
+        const instruction = document.getElementById('instruction');
+        let counts = Array.from(jars).map(j => j.children.length);
+        
+        const allEqual = counts.every(c => c === counts[0] && c > 0);
+        const correctAmount = counts[0] === m.expected;
+        const correctRemain = reserve === m.remain;
+
+        if (allEqual && correctAmount && correctRemain) {
+            playSound('success');
+            state.streak++;
+            document.getElementById('streakVal').innerText = state.streak;
+            document.getElementById('divisionDisplay').innerText = `${m.total} ÷ ${m.jars} = ${m.expected}`;
+            document.getElementById('resRemainText').innerText = m.remain > 0 ? `SOBRAN: ${m.remain}` : "REPARTO EXACTO";
+            document.getElementById('resultModal').classList.add('show');
+        } else {
+            playSound('error');
+            state.streak = 0;
+            document.getElementById('streakVal').innerText = 0;
+            
+            infoPanel.classList.add('error-pulse');
+            instruction.style.color = "var(--error)";
+            
+            if (!allEqual) {
+                instruction.innerText = "¡ERROR! EL REPARTO NO ES IGUAL EN TODOS LOS FRASCOS";
+            } else {
+                instruction.innerText = "¡ERROR! LA CANTIDAD POR FRASCO O EL SOBRANTE ES INCORRECTO";
+            }
+        }
+    }
+
+    function nextMission() {
+        state.currentIdx = (state.currentIdx + 1) % missions.length;
+        document.getElementById('resultModal').classList.remove('show');
+        initMission();
+    }
+
+    window.onload = initMission;
+</script>
+</body>
+</html>

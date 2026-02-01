@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Multiplicación 1 Cifra - Paso a Paso</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        
+        .container {
+            width: 98%; max-width: 950px; height: 95vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        .instruccion {
+            background: #1e3c72; color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+        }
+
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+
+        .zona-operacion {
+            flex: 1.8; overflow-y: auto; padding: 15px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; justify-content: center; align-items: flex-start;
+        }
+
+        .zona-teclado {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        .tablero { font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: flex-end; }
+        
+        .fila { display: flex; height: 45px; justify-content: flex-end; align-items: center; }
+        .fila-linea { border-bottom: 4px solid #333; width: 100%; margin: 5px 0; }
+
+        .num, .celda {
+            width: 40px; height: 42px; line-height: 42px; text-align: center; 
+            font-size: 1.8rem; font-weight: bold;
+        }
+
+        .signo { font-size: 1.8rem; font-weight: bold; margin-right: 10px; }
+
+        .celda { border: 2px solid #ccc; border-radius: 6px; background: #fff; line-height: 38px; }
+        .celda.activa { border: 3px solid #FF9800; background: #FFF3E0; }
+        .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-3px);} 75% {transform: translateX(3px);} }
+
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 250px; }
+        .tecla { padding: 15px 0; font-size: 1.4rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; }
+        .tecla:active { box-shadow: 0 2px #ccc; transform: translateY(2px); }
+
+        .pantalla { display: none; height: 100%; width: 100%; }
+        .pantalla.active { display: flex; flex-direction: column; }
+        
+        .btn-nivel { width: 100%; max-width: 350px; padding: 12px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
+
+        #modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; }
+            .zona-teclado { border-left: none; border-top: 2px solid #eee; }
+            .num, .celda { width: 34px; height: 38px; font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#1e3c72; margin-bottom:15px;">Multiplicación (1 Cifra)</h1>
+            <button class="btn-nivel" style="background:#43a047" onclick="iniciar(1)">Nivel 1: Tablas 2 al 5</button>
+            <button class="btn-nivel" style="background:#fb8c00" onclick="iniciar(2)">Nivel 2: Tablas 6 al 9</button>
+            <button class="btn-nivel" style="background:#e53935" onclick="iniciar(3)">Nivel 3: Números Grandes</button>
+            <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="irAInicioFuera()">🏠 Volver a Inicio Web</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="instruccion" class="instruccion">¡A multiplicar!</div>
+            <div class="contenido-juego">
+                <div class="zona-operacion" id="scroll-area">
+                    <div id="tablero" class="tablero"></div>
+                </div>
+                <div class="zona-teclado">
+                    <div class="teclado">
+                        <button class="tecla" onclick="entrada(1)">1</button>
+                        <button class="tecla" onclick="entrada(2)">2</button>
+                        <button class="tecla" onclick="entrada(3)">3</button>
+                        <button class="tecla" onclick="entrada(4)">4</button>
+                        <button class="tecla" onclick="entrada(5)">5</button>
+                        <button class="tecla" onclick="entrada(6)">6</button>
+                        <button class="tecla" onclick="entrada(7)">7</button>
+                        <button class="tecla" onclick="entrada(8)">8</button>
+                        <button class="tecla" onclick="entrada(9)">9</button>
+                        <button class="tecla" style="background:#ffcdd2" onclick="borrar()">C</button>
+                        <button class="tecla" onclick="entrada(0)">0</button>
+                        <button class="tecla" style="background:#eee" onclick="volverAlMenuNiveles()">🏠</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <h2 style="font-size: 2.5rem; color: #43a047;">¡Excelente trabajo! 🏆</h2>
+            <button class="btn-nivel" style="background:#43a047; max-width: 250px; margin-top:20px;" onclick="volverAJugarMismoNivel()">Jugar otra vez</button>
+            <button class="btn-nivel" style="background:#1e3c72; max-width: 250px;" onclick="volverAlMenuNiveles()">Volver al Menú</button>
+        </div>
+    </div>
+
+    <script>
+        let factor1, factor2, nivelActual = 1;
+        let valorObjetivo = "", celdasActuales = [], indexInput = 0;
+        let audioContext = null;
+
+        const nivelesConfig = {
+            1: { min1: 10, max1: 99, min2: 2, max2: 5 },
+            2: { min1: 10, max1: 99, min2: 6, max2: 9 },
+            3: { min1: 100, max1: 999, min2: 4, max2: 9 }
+        };
+
+        function inicializarAudio() { if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
+        
+        function playSound(tipo) {
+            if (!audioContext) return;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain); gain.connect(audioContext.destination);
+            osc.frequency.setValueAtTime(tipo === 'acierto' ? 800 : 200, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            osc.start(); osc.stop(audioContext.currentTime + 0.1);
+        }
+
+        function iniciar(n) {
+            nivelActual = n;
+            inicializarAudio();
+            const conf = nivelesConfig[n];
+            factor1 = Math.floor(Math.random() * (conf.max1 - conf.min1 + 1)) + conf.min1;
+            factor2 = Math.floor(Math.random() * (conf.max2 - conf.min2 + 1)) + conf.min2;
+            
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+            document.getElementById('modal-victoria').style.display = 'none';
+            
+            const tablero = document.getElementById('tablero');
+            tablero.innerHTML = '';
+            
+            // Dibujar factores
+            tablero.appendChild(crearFilaNumeros(factor1.toString()));
+            const fila2 = crearFilaNumeros(factor2.toString());
+            const signo = document.createElement('span');
+            signo.className = 'signo'; signo.textContent = '×';
+            fila2.prepend(signo);
+            tablero.appendChild(fila2);
+            
+            const linea = document.createElement('div');
+            linea.className = 'fila-linea';
+            tablero.appendChild(linea);
+
+            // Preparar el resultado
+            const resultado = factor1 * factor2;
+            valorObjetivo = resultado.toString();
+            document.getElementById('instruccion').textContent = `Multiplica ${factor1} × ${factor2}`;
+            crearFilaCeldas(valorObjetivo.length);
+        }
+
+        function crearFilaNumeros(numStr) {
+            const fila = document.createElement('div');
+            fila.className = 'fila';
+            for (let char of numStr) {
+                const n = document.createElement('div');
+                n.className = 'num'; n.textContent = char;
+                fila.appendChild(n);
+            }
+            return fila;
+        }
+
+        function crearFilaCeldas(cantidad) {
+            const fila = document.createElement('div');
+            fila.className = 'fila';
+            celdasActuales = [];
+            for (let i = 0; i < cantidad; i++) {
+                const c = document.createElement('div');
+                c.className = 'celda';
+                fila.appendChild(c);
+                celdasActuales.push(c);
+            }
+            document.getElementById('tablero').appendChild(fila);
+            indexInput = celdasActuales.length - 1;
+            celdasActuales[indexInput].classList.add('activa');
+            autoScroll();
+        }
+
+        function entrada(n) {
+            if (indexInput < 0) return;
+            const celda = celdasActuales[indexInput];
+            
+            if (n.toString() === valorObjetivo[indexInput]) {
+                playSound('acierto');
+                celda.textContent = n;
+                celda.className = 'celda correcta';
+                indexInput--;
+                
+                if (indexInput >= 0) {
+                    celdasActuales[indexInput].classList.add('activa');
+                } else {
+                    // Victoria
+                    setTimeout(() => { 
+                        document.getElementById('modal-victoria').style.display = 'flex'; 
+                        playSound('acierto'); 
+                    }, 500);
+                }
+            } else {
+                playSound('error');
+                celda.classList.add('incorrecta');
+                celda.textContent = n;
+                setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
+            }
+        }
+
+        function borrar() {
+            const c = celdasActuales[indexInput];
+            if(c && !c.classList.contains('correcta')) c.textContent = "";
+        }
+
+        function autoScroll() {
+            const s = document.getElementById('scroll-area');
+            s.scrollTop = s.scrollHeight;
+        }
+        
+        function volverAlMenuNiveles() {
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('juego').classList.remove('active');
+            document.getElementById('menu').classList.add('active');
+        }
+
+        function volverAJugarMismoNivel() { iniciar(nivelActual); }
+        function irAInicioFuera() { window.location.href = 'main-index.html'; }
+    </script>
+</body>
+</html>
