@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AprendeFracciones Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        .container {
+            width: 98%; max-width: 950px; height: 95vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+        .instruccion {
+            background: #11998e; color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+        }
+        .pantalla { display: none; height: 100%; width: 100%; flex-direction: column; }
+        .pantalla.active { display: flex; }
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+        .zona-operacion {
+            flex: 1.2; padding: 15px; border: 2px solid #f0f0f0; border-radius: 15px;
+            background: #fafafa; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+        }
+        .zona-opciones {
+            flex: 0.8; display: flex; flex-direction: column;
+            justify-content: center; background: #fff; padding: 10px; border-left: 2px solid #eee;
+        }
+        #canvas-contenedor {
+            width: 100%; height: 250px; margin-bottom: 20px;
+            display: flex; justify-content: center; align-items: center;
+            overflow-x: auto;
+        }
+        .fraccion-display { display: flex; flex-direction: column; align-items: center; font-size: 3rem; font-weight: bold; }
+        .linea-f { width: 80px; height: 6px; background: #333; margin: 8px 0; border-radius: 3px; }
+        .incognita { color: #ccc; border: 2px dashed #ccc; min-width: 60px; text-align: center; border-radius: 12px; }
+        .lleno { color: #11998e; }
+        
+        /* Estilo específico para la fracción del modal final */
+        .resultado-fraccion {
+            display: inline-flex; flex-direction: column; align-items: center;
+            vertical-align: middle; font-size: 3.5rem; font-weight: bold; color: #333;
+            margin: 10px 0;
+        }
+        .resultado-linea { width: 100%; height: 5px; background: #333; margin: 4px 0; border-radius: 2px; }
+
+        .grid-numeros {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; width: 100%;
+            overflow-y: auto; max-height: 300px; padding: 5px;
+        }
+        .btn-accion {
+            padding: 12px; border: none; border-radius: 12px; color: white;
+            font-weight: bold; cursor: pointer; transition: transform 0.2s;
+            width: 100%; max-width: 300px; margin: 5px auto;
+        }
+        .btn-num {
+            padding: 10px 2px; border: 2px solid #ddd; border-radius: 10px;
+            background: white; font-size: 1rem; font-weight: bold;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-num.correcta { background: #4CAF50 !important; color: white; border-color: #4CAF50; }
+        .btn-num.incorrecta { background: #f44336 !important; color: white; border-color: #f44336; animation: shake 0.3s; }
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+        #modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center; padding: 20px;
+        }
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; }
+            .zona-opciones { border-left: none; border-top: 2px solid #eee; }
+            .fraccion-display { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#11998e; margin-bottom:20px;">Identifica la Fracción</h1>
+            <button class="btn-accion" style="background:#43a047" onclick="iniciarJuego(1)">Nivel 1: Hasta 10 partes</button>
+            <button class="btn-accion" style="background:#fb8c00" onclick="iniciarJuego(2)">Nivel 2: Hasta 20 partes</button>
+            <button class="btn-accion" style="background:#e53935" onclick="iniciarJuego(3)">Nivel 3: Impropias (Mezcla)</button>
+            <button class="btn-accion" style="background:#555; margin-top: 20px;" onclick="window.location.href='main-index.html'">🏠 Inicio</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="instruccion" class="instruccion">¿Cuántas partes están coloreadas?</div>
+            <div class="contenido-juego">
+                <div class="zona-operacion">
+                    <div id="canvas-contenedor">
+                        <canvas id="dibujoFraccion" width="500" height="250"></canvas>
+                    </div>
+                    <div class="fraccion-display">
+                        <div id="num-display" class="incognita">?</div>
+                        <div class="linea-f"></div>
+                        <div id="den-display" class="incognita">?</div>
+                    </div>
+                </div>
+                <div class="zona-opciones">
+                    <div id="grid-numeros" class="grid-numeros"></div>
+                    <button class="btn-accion" style="background:#eee; color:#333; margin-top:15px;" onclick="irAlMenu()">🏠 Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <h2 style="font-size: 1.8rem; color: #4CAF50;">¡Excelente!</h2>
+            <div id="mensaje-final"></div>
+            <div id="nombre-fraccion" style="margin-bottom: 20px; font-size: 1.5rem; color: #11998e; font-style: italic;"></div>
+            <button class="btn-accion" style="background:#43a047; max-width: 250px;" onclick="iniciarJuego(nivelActual)">Siguiente</button>
+        </div>
+    </div>
+
+    <script>
+        let totalPartes, partesSombreadas, pasoActual, nivelActual;
+        const canvas = document.getElementById('dibujoFraccion');
+        const ctx = canvas.getContext('2d');
+
+        function iniciarJuego(nivel) {
+            nivelActual = nivel;
+            pasoActual = 1;
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+
+            let maxBotones;
+
+            if (nivel === 1) {
+                totalPartes = Math.floor(Math.random() * 9) + 2; 
+                partesSombreadas = Math.floor(Math.random() * (totalPartes - 1)) + 1;
+                maxBotones = 10;
+            } else if (nivel === 2) {
+                totalPartes = Math.floor(Math.random() * 11) + 10; 
+                partesSombreadas = Math.floor(Math.random() * (totalPartes - 1)) + 1;
+                maxBotones = 20;
+            } else {
+                totalPartes = Math.floor(Math.random() * 8) + 2; 
+                partesSombreadas = Math.floor(Math.random() * (totalPartes * 2 - 1)) + 1;
+                maxBotones = Math.max(partesSombreadas, totalPartes, 15);
+            }
+
+            resetInterfaz();
+            dibujar();
+            generarBotones(maxBotones);
+        }
+
+        function resetInterfaz() {
+            document.getElementById('num-display').textContent = "?";
+            document.getElementById('num-display').className = "incognita";
+            document.getElementById('den-display').textContent = "?";
+            document.getElementById('den-display').className = "incognita";
+            actualizarInstruccion();
+        }
+
+        function actualizarInstruccion() {
+            const ins = document.getElementById('instruccion');
+            ins.textContent = pasoActual === 1 ?
+                "Paso 1: ¿Cuántas partes verdes hay en TOTAL? (Numerador)" :
+                "Paso 2: ¿En cuántas partes se divide CADA círculo? (Denominador)";
+        }
+
+        function dibujar() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const numCirculos = Math.ceil(partesSombreadas / totalPartes);
+            const circulosADibujar = Math.max(numCirculos, 1);
+            const radio = 70;
+            const espaciado = 180;
+            const inicioX = (canvas.width - (circulosADibujar - 1) * espaciado) / 2;
+            const centroY = canvas.height / 2;
+            let partesDibujadas = 0;
+
+            for (let c = 0; c < circulosADibujar; c++) {
+                const centroX = inicioX + (c * espaciado);
+                const anguloPaso = (2 * Math.PI) / totalPartes;
+                for (let i = 0; i < totalPartes; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(centroX, centroY);
+                    ctx.arc(centroX, centroY, radio, i * anguloPaso - Math.PI/2, (i + 1) * anguloPaso - Math.PI/2);
+                    ctx.closePath();
+                    ctx.fillStyle = partesDibujadas < partesSombreadas ? "#38ef7d" : "#ffffff";
+                    ctx.fill();
+                    ctx.strokeStyle = "#333";
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    partesDibujadas++;
+                }
+            }
+        }
+
+        function generarBotones(max) {
+            const contenedor = document.getElementById('grid-numeros');
+            contenedor.innerHTML = "";
+            for (let i = 1; i <= max; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'btn-num';
+                btn.textContent = i;
+                btn.onclick = () => validar(i, btn);
+                contenedor.appendChild(btn);
+            }
+        }
+
+        function validar(valor, btn) {
+            if (pasoActual === 1) {
+                if (valor === partesSombreadas) {
+                    btn.classList.add('correcta');
+                    document.getElementById('num-display').textContent = valor;
+                    document.getElementById('num-display').className = "lleno";
+                    setTimeout(() => { pasoActual = 2; actualizarInstruccion(); btn.classList.remove('correcta'); }, 400);
+                } else { error(btn); }
+            } else {
+                if (valor === totalPartes) {
+                    btn.classList.add('correcta');
+                    document.getElementById('den-display').textContent = valor;
+                    document.getElementById('den-display').className = "lleno";
+                    
+                    // Mostramos la fracción con formato visual de numerador/denominador
+                    document.getElementById('mensaje-final').innerHTML = `
+                        <div class="resultado-fraccion">
+                            <div>${partesSombreadas}</div>
+                            <div class="resultado-linea"></div>
+                            <div>${totalPartes}</div>
+                        </div>
+                    `;
+                    document.getElementById('nombre-fraccion').textContent = escribirFraccion(partesSombreadas, totalPartes);
+                    
+                    setTimeout(() => { document.getElementById('modal-victoria').style.display = 'flex'; }, 500);
+                } else { error(btn); }
+            }
+        }
+
+        function escribirFraccion(n, d) {
+            const numeradores = ["", "Un", "Dos", "Tres", "Cuatro", "Cinco", "Seis", "Siete", "Ocho", "Nueve", "Diez", "Once", "Doce", "Trece", "Catorce", "Quince", "Dieciséis", "Diecisiete", "Dieciocho", "Diecinueve", "Veinte"];
+            const denominadores = ["", "", "Medios", "Tercios", "Cuartos", "Quintos", "Sextos", "Séptimos", "Octavos", "Novenos", "Décimos"];
+            let numTxt = numeradores[n] || n;
+            let denTxt = "";
+            if (d <= 10) denTxt = denominadores[d];
+            else denTxt = numeradores[d].toLowerCase() + "avos";
+            if (n === 1) {
+                if (d === 2) denTxt = "Medio";
+                else denTxt = denTxt.endsWith('s') ? denTxt.slice(0, -1) : denTxt;
+            }
+            return `${numTxt} ${denTxt.toLowerCase()}`;
+        }
+
+        function error(btn) {
+            btn.classList.add('incorrecta');
+            setTimeout(() => btn.classList.remove('incorrecta'), 500);
+        }
+
+        function irAlMenu() {
+            document.getElementById('juego').classList.remove('active');
+            document.getElementById('menu').classList.add('active');
+        }
+    </script>
+</body>
+</html>

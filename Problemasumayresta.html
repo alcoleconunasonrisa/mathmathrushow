@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Resolutor Pro - Matemáticas Divertidas</title>
+    <style>
+        :root {
+            --primary: #00b4db;
+            --secondary: #0077b6;
+            --success: #43a047;
+            --danger: #e53935;
+            --warning: #fbc02d;
+            --bg-card: #f8f9fa;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        
+        .container {
+            width: 98%; max-width: 1000px; height: 95vh;
+            background: white; border-radius: 28px; padding: 1.2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        .instruccion {
+            background: var(--secondary); color: white; padding: 12px;
+            border-radius: 15px; text-align: center; margin-bottom: 0.8rem;
+            font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .contenido-juego { display: flex; flex: 1; gap: 1rem; overflow: hidden; }
+
+        .pantalla { display: none; flex: 1.8; flex-direction: column; border-radius: 20px; background: var(--bg-card); padding: 1.5rem; overflow-y: auto; border: 2px solid #eee; }
+        .pantalla.active { display: flex; }
+
+        .btn-nivel { width: 100%; max-width: 300px; padding: 18px; margin: 10px; border: none; border-radius: 15px; color: white; font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: 0.3s; box-shadow: 0 5px #777; }
+        .btn-nivel:active { transform: translateY(3px); box-shadow: 0 2px #777; }
+
+        .enunciado-box { 
+            background: white; padding: 1.5rem; border-radius: 18px; 
+            border-left: 8px solid var(--warning); margin-bottom: 1.2rem; 
+            font-size: 1.2rem; line-height: 1.5; color: #333;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .avatar-icon { font-size: 3rem; display: block; margin-bottom: 10px; }
+        .highlight-word { color: var(--secondary); font-weight: 800; }
+
+        .fila-dato { display: flex; align-items: center; background: white; padding: 12px; border-radius: 15px; margin-bottom: 10px; border: 2px solid #eee; transition: 0.3s; }
+        .etiqueta-dato { flex: 1; font-size: 1.05rem; color: #555; }
+
+        .celda {
+            width: 48px; height: 55px; border: 2px solid #ccc; border-radius: 10px;
+            background: white; text-align: center; line-height: 52px;
+            font-size: 2rem; font-weight: bold; transition: 0.2s;
+        }
+        .celda.activa { border: 3px solid var(--primary); background: #e0f7fa; transform: scale(1.05); }
+        .celda.correcta { border-color: var(--success); color: var(--success); background: #e8f5e9; }
+        .celda.incorrecta { border-color: var(--danger); background: #ffebee; color: var(--danger); animation: shake 0.4s; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+        .zona-teclado { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fff; border-radius: 20px; border: 2px solid #eee; }
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 280px; padding: 15px; }
+        .tecla { padding: 18px 0; font-size: 1.5rem; border: none; border-radius: 15px; background: #f0f0f0; font-weight: bold; box-shadow: 0 5px #bbb; cursor: pointer; transition: 0.1s; }
+        .tecla:active { transform: translateY(4px); box-shadow: 0 1px #bbb; }
+
+        .tablero { font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: flex-end; font-size: 3rem; font-weight: bold; color: #222; }
+        .fila-linea { border-bottom: 6px solid #333; width: 100%; margin: 10px 0; border-radius: 3px; }
+        
+        #caja-solucion { display: none; background: #e8f5e9; padding: 20px; border-radius: 15px; border: 3px solid var(--success); margin-top: 20px; text-align: center; }
+
+        #modal-victoria { display: none; position: absolute; inset: 0; background: rgba(255,255,255,0.98); z-index: 100; flex-direction: column; justify-content: center; align-items: center; border-radius: 28px; }
+
+        @media (max-width: 768px) { .contenido-juego { flex-direction: column; } .zona-teclado { flex: 1.5; border-top: 5px solid var(--primary); } .tablero { font-size: 2.2rem; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="instruccion" class="instruccion">¡Bienvenido! Elige un nivel para empezar</div>
+    
+  <div id="pantalla-menu" class="pantalla active" style="justify-content: center; align-items: center; text-align: center;">
+    <h1 style="color:var(--secondary); margin-bottom:25px; font-size: 2.5rem;">Aprende Problemas 🚀</h1>
+    
+    <button class="btn-nivel" style="background:var(--success)" onclick="empezarJuego(1)">Nivel 1 (Fácil)</button>
+    <button class="btn-nivel" style="background:#fb8c00" onclick="empezarJuego(2)">Nivel 2 (Medio)</button>
+    <button class="btn-nivel" style="background:var(--danger)" onclick="empezarJuego(3)">Nivel 3 (Difícil)</button>
+    
+    <hr style="width: 80%; margin: 20px auto; border: 0; border-top: 1px solid #ddd;">
+
+    <button class="btn-nivel" style="background:#607d8b; max-width: 250px; font-size: 1rem; box-shadow: 0 5px #455a64;" 
+            onclick="window.location.href='main-index.html'">
+        🏠 Volver al Inicio
+    </button>
+</div>
+    <div id="pantalla-juego" class="contenido-juego" style="display:none;">
+        <div id="vista-planteamiento" class="pantalla active">
+            <div id="enunciado" class="enunciado-box"></div>
+            <div class="fila-dato"><span id="label-d1" class="etiqueta-dato"></span><div id="box-d1" style="display:flex; gap:5px"></div></div>
+            <div class="fila-dato"><span id="label-d2" class="etiqueta-dato"></span><div id="box-d2" style="display:flex; gap:5px"></div></div>
+            
+            <div id="area-op" style="margin-top:1.5rem; display:none;">
+                <p style="margin-bottom:12px; font-weight:bold; color:var(--secondary); text-align:center;">¿Qué operación debemos hacer?</p>
+                <div style="display:flex; gap:10px;">
+                    <button id="btn-suma" class="btn-nivel" style="background:var(--success); margin:0;" onclick="seleccionarOp('+')">SUMAR (+)</button>
+                    <button id="btn-resta" class="btn-nivel" style="background:var(--danger); margin:0;" onclick="seleccionarOp('-')">RESTAR (-)</button>
+                </div>
+                <div id="msg-error-op" style="display:none; color:var(--danger); padding:10px; background:#ffebee; margin-top:10px; border-radius:12px; text-align:center; font-weight:bold;">❌ Esa no es la operación correcta. ¡Piénsalo otra vez!</div>
+            </div>
+        </div>
+
+        <div id="vista-calculo" class="pantalla">
+            <div id="resumen-calculo" style="background:#e3f2fd; padding:12px; border-radius:12px; margin-bottom:1.5rem; text-align:center; font-weight:bold; color:var(--secondary);"></div>
+            <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                <div class="tablero">
+                    <div id="num1-tablero"></div>
+                    <div id="num2-tablero"></div>
+                    <div class="fila-linea"></div>
+                    <div id="fila-resultado" style="display:flex; gap:10px"></div>
+                </div>
+                <div id="caja-solucion">
+                    <h2 style="color:var(--success)">🌟 ¡Excelente!</h2>
+                    <p id="texto-solucion-final" style="font-size:1.2rem; font-weight:bold; margin:12px 0; color:#444;"></p>
+                    <button class="btn-nivel" style="background:var(--success); width:auto; padding:10px 30px; margin-top:10px;" onclick="mostrarVictoria()">Continuar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="zona-teclado">
+            <div class="teclado">
+                <button class="tecla" onclick="inputNum(1)">1</button><button class="tecla" onclick="inputNum(2)">2</button><button class="tecla" onclick="inputNum(3)">3</button>
+                <button class="tecla" onclick="inputNum(4)">4</button><button class="tecla" onclick="inputNum(5)">5</button><button class="tecla" onclick="inputNum(6)">6</button>
+                <button class="tecla" onclick="inputNum(7)">7</button><button class="tecla" onclick="inputNum(8)">8</button><button class="tecla" onclick="inputNum(9)">9</button>
+                <button class="tecla" style="background:#ffcdd2" onclick="borrar()">C</button><button class="tecla" onclick="inputNum(0)">0</button>
+                <button class="tecla" style="background:#e1f5fe" onclick="irMenu()">🏠</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-victoria">
+        <div style="font-size: 5rem; margin-bottom: 20px;">🏆</div>
+        <h2 style="font-size: 2.5rem; color: var(--success); margin-bottom:20px; text-align:center;">¡Problema Resuelto!</h2>
+        <button class="btn-nivel" style="background:var(--success)" onclick="empezarJuego(nivelActual)">Siguiente Problema</button>
+        <button class="btn-nivel" style="background:var(--secondary)" onclick="irMenu()">Cambiar Nivel</button>
+    </div>
+</div>
+
+<script>
+    let nivelActual = 1, fase = "D1", PROBLEMA = {}, celdasActivas = [], subIndice = 0;
+
+    const configProblemas = {
+        nombres: ["María", "Lucas", "Emma", "Leo", "Sofía", "Hugo", "Dani", "Carla"],
+        temas: [
+            { obj: "caramelo", plural: "caramelos", icono: "🍬", vSuma: "le dan", vResta: "se come", solSuma: "Ahora tiene X Y.", solResta: "Le quedan X Y." },
+            { obj: "pájaro", plural: "pájaros", icono: "🐦", vSuma: "llegan", vResta: "se van volando", solSuma: "En total hay X Y.", solResta: "Quedan X Y." },
+            { obj: "euro", plural: "euros", icono: "💰", vSuma: "ahorra", vResta: "se gasta", solSuma: "Tiene guardados X Y.", solResta: "Le sobran X Y." },
+            { obj: "manzana", plural: "manzanas", icono: "🍎", vSuma: "recoge", vResta: "regala", solSuma: "Tiene un total de X Y.", solResta: "Ahora tiene X Y." },
+            { obj: "globo", plural: "globos", icono: "🎈", vSuma: "infla", vResta: "se explotan", solSuma: "Tiene listos X Y.", solResta: "Le quedan X Y." }
+        ]
+    };
+
+    function generarNumeros(cifras, esResta) {
+        const min = Math.pow(10, cifras - 1);
+        const max = Math.pow(10, cifras) - 1;
+        let n1 = Math.floor(Math.random() * (max - min + 1)) + min;
+        let n2 = esResta ? (Math.floor(Math.random() * (n1 - 1)) + 1) : (Math.floor(Math.random() * (max - min + 1)) + min);
+        return [n1.toString(), n2.toString()];
+    }
+
+    function empezarJuego(n) {
+        nivelActual = n; fase = "D1";
+        // Reset de interfaz
+        document.getElementById('modal-victoria').style.display = "none";
+        document.getElementById('pantalla-menu').style.display = "none";
+        document.getElementById('pantalla-juego').style.display = "flex";
+        document.getElementById('vista-planteamiento').style.display = "flex";
+        document.getElementById('vista-calculo').style.display = "none";
+        document.getElementById('area-op').style.display = "none";
+        document.getElementById('caja-solucion').style.display = "none";
+        document.getElementById('instruccion').textContent = "Paso 1: Escribe los datos que aparecen arriba";
+        
+        // Configuración lógica del problema
+        const tipo = Math.random() > 0.5 ? 'suma' : 'resta';
+        const tema = configProblemas.temas[Math.floor(Math.random() * configProblemas.temas.length)];
+        const nombre = configProblemas.nombres[Math.floor(Math.random() * configProblemas.nombres.length)];
+        const [v1, v2] = generarNumeros(n, tipo === 'resta');
+        
+        const accion = tipo === 'suma' ? tema.vSuma : tema.vResta;
+        const solBase = tipo === 'suma' ? tema.solSuma : tema.solResta;
+
+        PROBLEMA = {
+            n1: v1, n2: v2, op: tipo === 'suma' ? '+' : '-',
+            res: (tipo === 'suma' ? parseInt(v1) + parseInt(v2) : parseInt(v1) - parseInt(v2)).toString(),
+            tema: tema,
+            solTemplate: solBase,
+            accionEtiqueta: accion
+        };
+
+        // Renderizado de enunciado vistoso
+        const p1 = parseInt(v1) === 1 ? tema.obj : tema.plural;
+        const p2 = parseInt(v2) === 1 ? tema.obj : tema.plural;
+        PROBLEMA.nombreFinal = parseInt(PROBLEMA.res) === 1 ? tema.obj : tema.plural;
+
+        document.getElementById('enunciado').innerHTML = `
+            <span class="avatar-icon">${tema.icono}</span>
+            ${nombre} tenía <strong>${v1}</strong> ${p1} y luego <span class="highlight-word">${accion}</span> <strong>${v2}</strong> ${p2}.
+            <br><br>¿Cuántos ${tema.plural} tiene al final?`;
+        
+        document.getElementById('label-d1').textContent = `Dato 1 (Tenía):`;
+        document.getElementById('label-d2').textContent = `Dato 2 (${accion.charAt(0).toUpperCase() + accion.slice(1)}):`;
+        
+        document.getElementById('box-d1').innerHTML = "";
+        document.getElementById('box-d2').innerHTML = "";
+        activarGrupo(crearCeldas('box-d1', PROBLEMA.n1));
+    }
+
+    function crearCeldas(id, val) {
+        const cont = document.getElementById(id); const arr = [];
+        for(let i=0; i<val.length; i++) {
+            const c = document.createElement('div'); c.className = 'celda';
+            cont.appendChild(c); arr.push(c);
+        }
+        return arr;
+    }
+
+    function activarGrupo(grupo) {
+        celdasActivas = Array.from(grupo);
+        subIndice = celdasActivas.length - 1; // Empezamos por la derecha (unidades)
+        celdasActivas.forEach(c => c.classList.remove('activa'));
+        if(celdasActivas[subIndice]) celdasActivas[subIndice].classList.add('activa');
+    }
+
+    function inputNum(n) {
+        if(fase === "OP" || fase === "FIN") return;
+        let objetivo = (fase === "D1") ? PROBLEMA.n1 : (fase === "D2" ? PROBLEMA.n2 : PROBLEMA.res);
+        let celda = celdasActivas[subIndice];
+
+        if(n.toString() === objetivo[subIndice]) {
+            celda.textContent = n; celda.className = 'celda correcta';
+            subIndice--;
+            if(subIndice >= 0) {
+                celdasActivas[subIndice].classList.add('activa');
+            } else {
+                avanzar();
+            }
+        } else {
+            celda.textContent = n; celda.classList.add('incorrecta');
+            setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ""; }, 500);
+        }
+    }
+
+    function avanzar() {
+        if(fase === "D1") { 
+            fase = "D2"; 
+            activarGrupo(crearCeldas('box-d2', PROBLEMA.n2)); 
+        }
+        else if(fase === "D2") { 
+            fase = "OP"; 
+            document.getElementById('area-op').style.display = "block"; 
+            document.getElementById('instruccion').textContent = "Paso 2: ¿Suma o Resta? Toca la operación correcta"; 
+        }
+        else if(fase === "CALC") {
+            fase = "FIN";
+            document.getElementById('caja-solucion').style.display = "block";
+            let solText = PROBLEMA.solTemplate.replace("X", PROBLEMA.res).replace("Y", PROBLEMA.nombreFinal);
+            document.getElementById('texto-solucion-final').textContent = solText;
+        }
+    }
+
+    function seleccionarOp(simbolo) {
+        if(simbolo === PROBLEMA.op) {
+            document.getElementById('vista-planteamiento').style.display = "none";
+            document.getElementById('vista-calculo').style.display = "flex";
+            document.getElementById('instruccion').textContent = "Paso 3: ¡Calcula el resultado final!";
+            document.getElementById('num1-tablero').textContent = PROBLEMA.n1;
+            document.getElementById('num2-tablero').textContent = PROBLEMA.op + " " + PROBLEMA.n2;
+            document.getElementById('resumen-calculo').textContent = `Operación: ${PROBLEMA.n1} ${PROBLEMA.op} ${PROBLEMA.n2}`;
+            
+            fase = "CALC";
+            const resCont = document.getElementById('fila-resultado'); resCont.innerHTML = "";
+            activarGrupo(crearCeldas('fila-resultado', PROBLEMA.res));
+        } else {
+            document.getElementById('msg-error-op').style.display = "block";
+            setTimeout(() => { document.getElementById('msg-error-op').style.display = "none"; }, 2500);
+        }
+    }
+
+    function borrar() { 
+        if(celdasActivas[subIndice] && !celdasActivas[subIndice].classList.contains('correcta')) {
+            celdasActivas[subIndice].textContent = ""; 
+        }
+    }
+
+    function mostrarVictoria() { document.getElementById('modal-victoria').style.display = "flex"; }
+    function irMenu() { 
+        document.getElementById('modal-victoria').style.display = "none"; 
+        document.getElementById('pantalla-juego').style.display = "none"; 
+        document.getElementById('pantalla-menu').style.display = "flex"; 
+        document.getElementById('instruccion').textContent = "Elige un nivel para empezar"; 
+    }
+</script>
+</body>
+</html>

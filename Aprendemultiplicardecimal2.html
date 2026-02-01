@@ -157,6 +157,7 @@
         function formatConComa(num, dec) {
             let s = num.toString();
             if (dec === 0) return s;
+            if (s.length <= dec) s = s.padStart(dec + 1, '0');
             return s.slice(0, -dec) + "," + s.slice(-dec);
         }
 
@@ -198,8 +199,6 @@
             fase = "UNIDADES";
             const cifraU = f2_num % 10;
             const resVal = (f1_num * cifraU);
-            // En resultados parciales de mult. tradicional no se suele poner la coma, 
-            // pero para facilitar el aprendizaje visual la mantendremos como número entero.
             valorObjetivo = resVal.toString();
             document.getElementById('instruccion').textContent = `Paso 1: Multiplica ${factor1Str} × ${cifraU}`;
             crearFilaCeldas(valorObjetivo.length);
@@ -209,9 +208,21 @@
             fase = "DECENAS";
             const cifraD = Math.floor((f2_num % 100) / 10);
             const resVal = (f1_num * cifraD);
-            valorObjetivo = resVal.toString() + "0"; // "0" del hueco
-            document.getElementById('instruccion').textContent = `Paso 2: Multiplica ${factor1Str} × ${cifraD} (Recuerda el hueco)`;
-            crearFilaCeldas(valorObjetivo.length);
+            valorObjetivo = resVal.toString(); 
+            document.getElementById('instruccion').textContent = `Paso 2: Multiplica ${factor1Str} × ${cifraD}`;
+            
+            // Creamos celdas para el resultado + 1 (la X)
+            crearFilaCeldas(valorObjetivo.length + 1);
+            
+            // Rellenar automáticamente la X roja en la última celda
+            const ultimoIndex = celdasActuales.length - 1;
+            celdasActuales[ultimoIndex].textContent = "X";
+            celdasActuales[ultimoIndex].style.color = "red";
+            celdasActuales[ultimoIndex].className = 'celda correcta';
+            
+            // Colocar el cursor justo antes de la X
+            indexInput = ultimoIndex - 1;
+            celdasActuales[indexInput].classList.add('activa');
         }
 
         function prepararSuma() {
@@ -260,7 +271,6 @@
             const fila = document.createElement('div');
             fila.className = 'fila';
             celdasActuales = [];
-            // En esta fase el valorObjetivo incluye la coma, creamos celdas para todo
             for (let char of objetivoStr) {
                 const c = document.createElement('div');
                 c.className = 'celda';

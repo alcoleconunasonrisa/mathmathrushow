@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <title>Math Rush: Reto Negativos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
+     <style>
         :root {
-            --primary: #4a148c; /* Morado Oscuro */
-            --secondary: #9c27b0;
+            --primary: #6366f1;
+            --secondary: #a855f7;
             --success: #22c55e;
             --danger: #ef4444;
             --glass: rgba(255, 255, 255, 0.95);
@@ -22,7 +22,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, #311b92, #4a148c, #7b1fa2);
+            background: linear-gradient(135deg, #4f46e5, #7c3aed, #c026d3);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             height: 100vh;
@@ -38,58 +38,46 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* BOTÓN VOLVER AL INICIO */
         .btn-home {
             position: absolute;
-            top: 15px;
-            left: 15px;
+            top: 10px;
+            left: 10px;
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.4);
             color: white;
-            padding: 10px 20px;
+            padding: 8px 15px;
             border-radius: 12px;
             text-decoration: none;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.9rem;
             z-index: 1000;
-            transition: all 0.3s;
             backdrop-filter: blur(5px);
+            transition: all 0.3s;
         }
 
-        .btn-home:hover {
-            background: white;
-            color: var(--primary);
-            transform: scale(1.05);
-        }
-
-        /* Opacidad reducida durante el juego */
-        body.playing .btn-home {
-            opacity: 0.3;
-        }
-        body.playing .btn-home:hover {
-            opacity: 1;
-        }
+        body.playing .btn-home { opacity: 0.3; }
+        body.playing .btn-home:hover { opacity: 1; }
 
         .container {
             width: 95%;
             max-width: 1000px;
-            height: 90vh;
+            height: 95vh;
             background: var(--glass);
             backdrop-filter: blur(10px);
             border-radius: 2rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
-            padding: 2rem;
+            padding: 1.5rem;
             position: relative;
         }
 
         .timer-bar-container {
             width: 100%;
-            height: 12px;
+            height: 8px;
             background: #e2e8f0;
             border-radius: 6px;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             overflow: hidden;
         }
 
@@ -104,15 +92,15 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
         }
 
         .score-box {
             background: var(--primary);
             color: white;
-            padding: 0.5rem 1.5rem;
-            border-radius: 1rem;
-            font-size: 1.5rem;
+            padding: 0.4rem 1rem;
+            border-radius: 0.8rem;
+            font-size: 1.2rem;
             font-weight: bold;
         }
 
@@ -122,35 +110,47 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            min-height: 0;
         }
 
+        #setup { text-align: center; }
+
         .game-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            flex-direction: row;
             gap: 2rem;
             width: 100%;
             align-items: center;
+            justify-content: center;
+        }
+
+        .display-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
         }
 
         .op-card {
-            font-size: 4rem;
+            font-size: 5rem;
             font-weight: 800;
             color: var(--primary);
             background: #f8fafc;
             width: 100%;
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: 1.5rem;
             text-align: center;
             border: 4px solid #e2e8f0;
         }
 
         .input-card {
-            font-size: 5rem;
+            font-size: 4rem;
             font-weight: 800;
             color: var(--secondary);
             background: white;
-            width: 80%;
-            height: 120px;
+            width: 100%;
+            height: 100px;
             border-radius: 1.5rem;
             border: 4px dashed var(--secondary);
             display: flex;
@@ -161,81 +161,89 @@
         .numpad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
+            gap: 0.8rem;
             width: 100%;
-            max-width: 400px;
+            max-width: 350px;
         }
 
         .key {
             background: white;
             border: 1px solid #e2e8f0;
-            padding: 1.5rem;
-            font-size: 2.2rem;
+            padding: 1rem;
+            font-size: 1.8rem;
             font-weight: bold;
             border-radius: 1rem;
             cursor: pointer;
-            box-shadow: 0 6px 0px #cbd5e1;
+            box-shadow: 0 4px 0px #cbd5e1;
             transition: all 0.05s;
             color: var(--primary);
         }
 
         .key:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0px #cbd5e1;
-        }
-
-        .key.special {
-            background: #f3e5f5;
-            color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 1px 0px #cbd5e1;
         }
 
         .key.delete {
+            grid-column: span 2;
             background: #fee2e2;
             color: var(--danger);
             font-size: 1.2rem;
         }
 
         .btn {
-            padding: 1.2rem 2.5rem;
-            font-size: 1.5rem;
+            padding: 1.5rem 3.5rem;
+            font-size: 2rem;
             font-weight: bold;
             border: none;
-            border-radius: 1rem;
+            border-radius: 1.2rem;
             cursor: pointer;
             transition: all 0.2s;
             background: var(--primary);
             color: white;
+            box-shadow: 0 8px 0px #4338ca;
+            margin-top: 1rem;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0px #4338ca;
         }
 
         .resumen-final {
             background: #f1f5f9;
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: 1.5rem;
             width: 100%;
             max-width: 500px;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             border: 2px solid var(--primary);
         }
 
         .resumen-item {
             display: flex;
             justify-content: space-between;
-            padding: 0.8rem 0;
+            padding: 0.6rem 0;
             border-bottom: 1px solid #cbd5e1;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
 
         .correct { animation: pulseGreen 0.4s; border-color: var(--success) !important; }
         .wrong { animation: shake 0.4s; border-color: var(--danger) !important; }
 
         @keyframes pulseGreen { 0%, 100% { background: white; } 50% { background: #dcfce7; } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-15px); } 75% { transform: translateX(15px); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
 
         @media (max-width: 768px) {
-            .game-layout { grid-template-columns: 1fr; }
-            .op-card { font-size: 3rem; }
-            .input-card { font-size: 3.5rem; height: 90px; }
-            .key { padding: 1.2rem; font-size: 1.8rem; }
+            .container { padding: 1rem; height: 98vh; }
+            .game-layout { flex-direction: column; gap: 0.5rem; }
+            .op-card { font-size: 3.5rem; padding: 0.5rem; }
+            .input-card { font-size: 3rem; height: 70px; }
+            .numpad { gap: 0.5rem; max-width: 100%; }
+            .key { padding: 0.8rem; font-size: 1.5rem; }
+            .score-box { font-size: 1rem; }
+            #setup h1 { font-size: 2.5rem !important; }
+            .btn { width: 90%; font-size: 1.6rem; padding: 1.2rem; }
         }
     </style>
 </head>

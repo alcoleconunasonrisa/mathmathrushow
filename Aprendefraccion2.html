@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AprendeFracciones - Nombres Correctos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+
+        .container {
+            width: 98%; max-width: 950px; height: 95vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        .instruccion {
+            background: #6a11cb; color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+        }
+
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+
+        .zona-operacion {
+            flex: 1; overflow-y: auto; padding: 15px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        .zona-opciones {
+            flex: 1.2; display: flex; flex-direction: column;
+            background: #fff; padding: 10px; border-left: 2px solid #eee;
+            overflow-y: auto;
+        }
+
+        .contenedor-fraccion-grande { display: flex; align-items: center; gap: 20px; font-size: 4.5rem; font-weight: bold; }
+        .fraccion { display: flex; flex-direction: column; align-items: center; }
+        .linea-fraccion { width: 120%; height: 6px; background: #333; margin: 8px 0; border-radius: 3px; }
+        
+        .num-f { color: #444; padding: 5px; border-radius: 8px; }
+        .den-f { color: #444; padding: 5px; border-radius: 8px; }
+        .resaltado { background: #fff3e0; color: #ff9800; border: 2px dashed #ff9800; transform: scale(1.1); }
+        .completado { color: #4CAF50; }
+
+        .grid-opciones {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-opcion {
+            padding: 12px 5px; border: 2px solid #ddd; border-radius: 10px;
+            background: white; font-size: 0.95rem; font-weight: bold;
+            cursor: pointer; transition: all 0.2s; color: #444;
+        }
+        .btn-opcion.correcta { background: #4CAF50 !important; color: white; border-color: #4CAF50; }
+        .btn-opcion.incorrecta { background: #f44336 !important; color: white; border-color: #f44336; animation: shake 0.3s; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+
+        .pantalla { display: none; height: 100%; width: 100%; }
+        .pantalla.active { display: flex; flex-direction: column; }
+
+        .btn-nivel { width: 100%; max-width: 350px; padding: 12px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
+
+        #modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; }
+            .zona-opciones { border-left: none; border-top: 2px solid #eee; height: 300px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#6a11cb; margin-bottom:15px;">Nombra la Fracción</h1>
+            <button class="btn-nivel" style="background:#43a047" onclick="iniciar(1)">Nivel 1: Medios a Décimos</button>
+            <button class="btn-nivel" style="background:#fb8c00" onclick="iniciar(2)">Nivel 2: Medios a Veinteavos</button>
+            <button class="btn-nivel" style="background:#e53935" onclick="iniciar(3)">Nivel 3: Fracciones Mayores (7/5, 8/3...)</button>
+            <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="window.location.href='main-index.html'">🏠 Inicio</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="instruccion" class="instruccion">¿Cómo se llama el numerador?</div>
+            <div class="contenido-juego">
+                <div class="zona-operacion">
+                    <div id="display-fraccion" class="contenedor-fraccion-grande"></div>
+                    <div id="nombre-acumulado" style="margin-top:20px; font-size:1.4rem; font-weight:bold; color:#6a11cb; text-align:center;"></div>
+                </div>
+                <div class="zona-opciones">
+                    <div id="lista-opciones" class="grid-opciones"></div>
+                    <button class="btn-nivel" style="background:#eee; color:#333; margin-top:15px; font-size: 0.9rem;" onclick="volverAlMenuNiveles()">🏠 Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <h2 style="font-size: 2rem; color: #43a047;">¡Excelente!</h2>
+            <div id="mensaje-explicativo" style="margin: 15px; font-size: 1.8rem; color: #333; font-weight: bold;"></div>
+            <button class="btn-nivel" style="background:#43a047; max-width: 250px;" onclick="iniciar(nivelActual)">Siguiente</button>
+        </div>
+    </div>
+
+    <script>
+        let num, den, pasoActual, nivelActual;
+        let audioContext = null;
+
+        const nombresNum = ["Un", "Dos", "Tres", "Cuatro", "Cinco", "Seis", "Siete", "Ocho", "Nueve", "Diez", "Once", "Doce", "Trece", "Catorce", "Quince", "Dieciséis", "Diecisiete", "Dieciocho", "Diecinueve", "Veinte"];
+        
+        const nombresDenBase = [
+            "Medio", "Tercio", "Cuarto", "Quinto", "Sexto", 
+            "Séptimo", "Octavo", "Noveno", "Décimo", "Onceavo", 
+            "Doceavo", "Treceavo", "Catorceavo", "Quinceavo", "Dieciseisavo", 
+            "Diecisieteavo", "Dieciochoavo", "Diecinueveavo", "Veinteavo"
+        ];
+
+        function inicializarAudio() { if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
+        function playSound(tipo) {
+            if (!audioContext) return;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain); gain.connect(audioContext.destination);
+            osc.frequency.setValueAtTime(tipo === 'acierto' ? 800 : 200, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            osc.start(); osc.stop(audioContext.currentTime + 0.1);
+        }
+
+        function getNombreCorrectoDen(d, n) {
+            let base = nombresDenBase[d-2];
+            return n > 1 ? base + "s" : base;
+        }
+
+        function iniciar(n) {
+            nivelActual = n;
+            pasoActual = 1;
+            inicializarAudio();
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+            document.getElementById('nombre-acumulado').textContent = "";
+            
+            if (n === 1) {
+                den = Math.floor(Math.random() * 9) + 2; // 2 al 10
+                num = Math.floor(Math.random() * 10) + 1; 
+            } else if (n === 2) {
+                den = Math.floor(Math.random() * 19) + 2; // 2 al 20
+                num = Math.floor(Math.random() * 10) + 1; 
+            } else {
+                den = Math.floor(Math.random() * 19) + 2; // 2 al 20
+                // Forzar numerador mayor que denominador (Impropia)
+                num = den + Math.floor(Math.random() * 5) + 1;
+                if (num > 20) num = 20;
+            }
+            
+            actualizarInterfaz();
+        }
+
+        function actualizarInterfaz() {
+            const display = document.getElementById('display-fraccion');
+            display.innerHTML = `
+                <div class="fraccion">
+                    <div class="num-f ${pasoActual === 1 ? 'resaltado' : 'completado'}">${num}</div>
+                    <div class="linea-fraccion"></div>
+                    <div class="den-f ${pasoActual === 2 ? 'resaltado' : ''}">${den}</div>
+                </div>`;
+
+            const contenedor = document.getElementById('lista-opciones');
+            contenedor.innerHTML = "";
+            
+            if (pasoActual === 1) {
+                document.getElementById('instruccion').textContent = "Paso 1: ¿Cómo se llama el numerador?";
+                // Aseguramos que recorra TODO el array nombresNum
+                for (let i = 0; i < nombresNum.length; i++) {
+                    crearBoton(nombresNum[i], nombresNum[num-1], contenedor);
+                }
+            } else {
+                document.getElementById('instruccion').textContent = "Paso 2: ¿Cómo se llama el denominador?";
+                let correcto = getNombreCorrectoDen(den, num);
+                
+                let limite = (nivelActual === 1) ? 9 : 19;
+                for(let i = 0; i < limite; i++) {
+                    let base = nombresDenBase[i];
+                    let pluralizado = num > 1 ? base + "s" : base;
+                    crearBoton(pluralizado, correcto, contenedor);
+                }
+            }
+        }
+
+        function crearBoton(texto, correcto, parent) {
+            const btn = document.createElement('button');
+            btn.className = 'btn-opcion';
+            btn.textContent = texto;
+            btn.onclick = () => {
+                if (texto === correcto) {
+                    playSound('acierto');
+                    btn.classList.add('correcta');
+                    if (pasoActual === 1) {
+                        document.getElementById('nombre-acumulado').textContent = texto + "...";
+                        setTimeout(() => { pasoActual = 2; actualizarInterfaz(); }, 400);
+                    } else {
+                        let final = nombresNum[num-1] + " " + texto.toLowerCase();
+                        document.getElementById('nombre-acumulado').textContent = final;
+                        document.getElementById('mensaje-explicativo').textContent = final;
+                        setTimeout(() => { document.getElementById('modal-victoria').style.display = 'flex'; }, 400);
+                    }
+                } else {
+                    playSound('error');
+                    btn.classList.add('incorrecta');
+                    setTimeout(() => btn.classList.remove('incorrecta'), 500);
+                }
+            };
+            parent.appendChild(btn);
+        }
+
+        function volverAlMenuNiveles() {
+            document.getElementById('juego').classList.remove('active');
+            document.getElementById('menu').classList.add('active');
+        }
+    </script>
+</body>
+</html>

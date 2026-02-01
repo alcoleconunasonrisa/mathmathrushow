@@ -5,273 +5,271 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Math Rush Ow - ¡Aventura Matemática!</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #FF6B6B;
-            --secondary: #4ECDC4;
-            --accent: #FFE66D;
-            --text: #ffffff;
-            --glass: rgba(255, 255, 255, 0.1);
+            --primary-soft: #FF6B6B;
+            --secondary-soft: #4ECDC4;
+            --accent-soft: #FFE66D;
+            --reasoning-soft: #A29BFE;
+            --glass-card: rgba(255, 255, 255, 0.1);
+            --text-white: #ffffff;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Montserrat', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
 
         body {
             background:
                 linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)),
                 url('iconkid.jpg') no-repeat center center fixed;
             background-size: cover;
-            color: var(--text);
-            padding: 20px;
+            color: var(--text-white);
             min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; }
 
-        header {
-            text-align: center;
-            padding: 20px 0 40px;
-        }
-
-        h1 {
-            font-size: 3rem;
+        header { text-align: center; padding: 10px 0 40px; }
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 900;
             text-transform: uppercase;
             text-shadow: 3px 3px 0px rgba(0,0,0,0.5);
-            margin-bottom: 5px;
+            line-height: 0.9;
+        }
+        .logo span { color: var(--accent-soft); }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 25px;
+            align-items: start;
         }
 
-        .highlight { color: var(--accent); }
-
-        .section-main-title {
-            background: var(--secondary);
-            color: #0f172a;
-            padding: 10px 20px;
+        .section-pill {
+            padding: 15px;
             border-radius: 50px;
-            display: inline-block;
-            margin: 30px 0 20px;
-            font-weight: 800;
+            text-align: center;
+            font-weight: 900;
+            margin-bottom: 25px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 1rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
+        .pill-blue { background: var(--secondary-soft); color: #0f172a; }
+        .pill-red { background: var(--primary-soft); color: white; }
+        .pill-purple { background: var(--reasoning-soft); color: #0f172a; }
 
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--glass);
+        .card-group {
+            background: var(--glass-card);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 20px;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 15px;
+            overflow: hidden;
             transition: 0.3s ease;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.15);
-        }
-
         .card-header {
+            padding: 15px 20px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            font-weight: 800;
-            font-size: 1.2rem;
-            color: var(--accent);
+            cursor: pointer;
+            background: rgba(0,0,0,0.2);
+            color: var(--accent-soft);
         }
 
-        .links-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        .card-header h3 { font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
 
-        .game-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
+        .card-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: 0.4s ease;
+        }
+        .active .card-content { max-height: 2000px; padding: 15px; }
+
+        .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+        .btn-game {
             background: white;
             color: #1e293b;
             text-decoration: none;
+            padding: 10px;
             border-radius: 12px;
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             transition: 0.2s;
             box-shadow: 0 4px 0px #cbd5e1;
         }
 
-        .game-link:hover {
-            background: var(--accent);
+        .btn-game:hover {
             transform: scale(1.03);
+            background: var(--accent-soft);
             box-shadow: 0 4px 0px #d4af37;
         }
 
-        .game-link::before {
-            content: '⭐';
-            margin-right: 10px;
-            font-size: 0.8rem;
+        .dot {
+            width: 22px; height: 22px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 0.7rem; flex-shrink: 0;
         }
 
-        .full-width {
-            grid-column: 1 / -1;
-        }
-
-        .calc-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 12px;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 60px;
-            padding: 20px;
-            opacity: 0.6;
-            font-size: 0.9rem;
+        @media (max-width: 1100px) {
+            .main-grid { grid-template-columns: 1fr 1fr; }
         }
 
         @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
+            .main-grid { grid-template-columns: 1fr; }
+            .logo { font-size: 2.2rem; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1><span class="highlight">MATH</span> MATH RUSH OW</h1>
-            <p>¡Tu academia digital de matemáticas!</p>
-        </header>
+<div class="container">
+    <header>
+        <div class="logo">MATH MATH<br><span>RUSH OW</span></div>
+        <p style="opacity: 0.8; margin-top: 5px;">¡Tu aventura matemática completa!</p>
+    </header>
 
-        <div style="text-align: center;">
-            <h2 class="section-main-title">🎓 ZONA E-APRENDIZAJE</h2>
+    <div class="main-grid">
+
+        <div class="zone">
+            <div class="section-pill pill-blue">🎓 ZONA E-APRENDIZAJE</div>
+
+            <div class="card-group" onclick="this.classList.toggle('active')">
+                <div class="card-header"><h3><i class="fas fa-plus"></i> SUMAS</h3><i class="fas fa-chevron-down"></i></div>
+                <div class="card-content"><div class="links-grid">
+                    <a href="Aprendesum.html" class="btn-game"><div class="dot" style="background:#FF6B6B">1</div> Sumas I</a>
+                    <a href="Aprendesum01.html" class="btn-game"><div class="dot" style="background:#FF6B6B">2</div> Sumas II</a>
+                    <a href="Aprendesuma.html" class="btn-game"><div class="dot" style="background:#4ECDC4">A</div> Aprende I</a>
+                    <a href="Aprendesuma2.html" class="btn-game"><div class="dot" style="background:#4ECDC4">A</div> Aprende II</a>
+                    <a href="Aprendesuma3.html" class="btn-game"><div class="dot" style="background:#4ECDC4">A</div> Aprende III</a>
+                    <a href="Aprendesuma4.html" class="btn-game"><div class="dot" style="background:#4ECDC4">A</div> Aprende IV</a>
+                </div></div>
+            </div>
+
+            <div class="card-group" onclick="this.classList.toggle('active')">
+                <div class="card-header"><h3><i class="fas fa-minus"></i> RESTAS</h3><i class="fas fa-chevron-down"></i></div>
+                <div class="card-content"><div class="links-grid">
+                    <a href="Aprenderest.html" class="btn-game"><div class="dot" style="background:#FF6B6B">-</div> Restas I</a>
+                    <a href="Aprenderesta.html" class="btn-game"><div class="dot" style="background:#4ECDC4">A</div> Aprende I</a>
+                    <a href="Aprenderesta2.html" class="btn-game"><div class="dot" style="background:#4ECDC4">A</div> Aprende II</a>
+                    <a href="Aprenderesta3.html" class="btn-game"><div class="dot" style="background:#4ECDC4">A</div> Aprende III</a>
+                </div></div>
+            </div>
+
+            <div class="card-group" onclick="this.classList.toggle('active')">
+                <div class="card-header"><h3><i class="fas fa-times"></i> MULTIPLICACIÓN</h3><i class="fas fa-chevron-down"></i></div>
+                <div class="card-content"><div class="links-grid">
+                    <a href="Aprendemultiplica.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">×</div> Básico</a>
+                    <a href="Aprendemultiplicar.html" class="btn-game"><div class="dot" style="background:#FF6B6B">A</div> Aprende</a>
+                    <a href="Aprendemultiplicar1.html" class="btn-game"><div class="dot" style="background:#FF6B6B">1</div> Nivel 1</a>
+                    <a href="Aprendemultiplicar2.html" class="btn-game"><div class="dot" style="background:#FF6B6B">2</div> Nivel 2</a>
+                </div></div>
+            </div>
+
+            <div class="card-group" onclick="this.classList.toggle('active')">
+                <div class="card-header"><h3><i class="fas fa-divide"></i> DIVISIÓN</h3><i class="fas fa-chevron-down"></i></div>
+                <div class="card-content"><div class="links-grid">
+                    <a href="Aprendedivisi.html" class="btn-game"><div class="dot" style="background:#A29BFE">÷</div> Básica</a>
+                    <a href="Aprendedivisio.html" class="btn-game"><div class="dot" style="background:#A29BFE">1</div> Aprende I</a>
+                    <a href="Aprendedivisio1.html" class="btn-game"><div class="dot" style="background:#A29BFE">2</div> Aprende II</a>
+                    <a href="Aprendedivision.html" class="btn-game"><div class="dot" style="background:#A29BFE">3</div> Aprende III</a>
+                    <a href="Aprendedivision2conresta.html" class="btn-game"><div class="dot" style="background:#A29BFE">R</div> Con Resta</a>
+                    <a href="Aprendedivision3.html" class="btn-game"><div class="dot" style="background:#A29BFE">4</div> Aprende IV</a>
+                </div></div>
+            </div>
+
+            <div class="card-group active" onclick="this.classList.toggle('active')">
+                <div class="card-header"><h3><i class="fas fa-pie-chart"></i> FRACCIONES</h3><i class="fas fa-chevron-down"></i></div>
+                <div class="card-content"><div class="links-grid">
+                    <a href="Aprendefraccion.html" class="btn-game"><div class="dot" style="background:#6C5CE7">1</div> Aprende F1</a>
+                    <a href="Aprendefraccion1.html" class="btn-game"><div class="dot" style="background:#6C5CE7">2</div> Aprende F2</a>
+                    <a href="Aprendefraccion2.html" class="btn-game"><div class="dot" style="background:#6C5CE7">3</div> Aprende F3</a>
+                    <a href="Aprendefraccion3.html" class="btn-game"><div class="dot" style="background:#6C5CE7">4</div> Aprende F4</a>
+                    <a href="Aprendefraccion4.html" class="btn-game"><div class="dot" style="background:#6C5CE7">5</div> Aprende F5</a>
+                    <a href="Aprendefracciondeunnumero.html" class="btn-game"><div class="dot" style="background:#6C5CE7">#</div> Frac. de nº</a>
+                    <hr style="grid-column: span 2; opacity: 0.2; margin: 5px 0;">
+                    <a href="Aprendefraccionessu.html" class="btn-game"><div class="dot" style="background:#6C5CE7">+</div> Suma</a>
+                    <a href="Aprendefraccionesres.html" class="btn-game"><div class="dot" style="background:#6C5CE7">-</div> Resta</a>
+                    <a href="Aprendefraccionesequivalentes.html" class="btn-game"><div class="dot" style="background:#6C5CE7">=</div> Equiv.</a>
+                    <a href="Aprendefraccionessumdif.html" class="btn-game"><div class="dot" style="background:#6C5CE7">S1</div> Suma I</a>
+                    <a href="Aprendefraccionessumadif.html" class="btn-game"><div class="dot" style="background:#6C5CE7">S2</div> Suma II</a>
+                    <a href="Aprendefraccionesrestdif1.html" class="btn-game"><div class="dot" style="background:#6C5CE7">R1</div> Resta I</a>
+                    <a href="Aprendefraccionesrestdif2.html" class="btn-game"><div class="dot" style="background:#6C5CE7">R2</div> Resta II</a>
+                    <a href="Aprendefraccionesmultiplicar.html" class="btn-game"><div class="dot" style="background:#6C5CE7">×</div> Mult.</a>
+                    <a href="Aprendefraccionesdividir.html" class="btn-game"><div class="dot" style="background:#6C5CE7">÷</div> Dividir</a>
+                </div></div>
+            </div>
+
+            <div class="card-group" onclick="this.classList.toggle('active')">
+                <div class="card-header"><h3><i class="fas fa-coins"></i> DECIMALES</h3><i class="fas fa-chevron-down"></i></div>
+                <div class="card-content"><div class="links-grid">
+                    <a href="Aprendesumadecimal.html" class="btn-game"><div class="dot" style="background:#FDCB6E">S1</div> Suma I</a>
+                    <a href="Aprendesumadecimal2.html" class="btn-game"><div class="dot" style="background:#FDCB6E">S2</div> Suma II</a>
+                    <a href="AprendeRestadecimal.html" class="btn-game"><div class="dot" style="background:#FDCB6E">R1</div> Resta I</a>
+                    <a href="AprendeRestadecimal2.html" class="btn-game"><div class="dot" style="background:#FDCB6E">R2</div> Resta II</a>
+                    <a href="Aprendemultiplicardecimal2.html" class="btn-game"><div class="dot" style="background:#FDCB6E">M1</div> Mult I</a>
+                    <a href="AprendeDivisiondecimal.html" class="btn-game"><div class="dot" style="background:#FDCB6E">D1</div> Div I</a>
+                    <a href="AprendeDivisiondecimal2.html" class="btn-game"><div class="dot" style="background:#FDCB6E">D2</div> Div II</a>
+                    <a href="AprendeDivisiondecimal3.html" class="btn-game"><div class="dot" style="background:#FDCB6E">D3</div> Div III</a>
+                </div></div>
+            </div>
         </div>
 
-        <div class="dashboard">
-            <section class="card">
-                <div class="card-header"><i class="fas fa-plus"></i> SUMAS</div>
-                <div class="links-list">
-                    <a href="Aprendesum.html" class="game-link">Sumas I</a>
-                    <a href="Aprendesum01.html" class="game-link">Sumas II</a>
-                    <a href="Aprendesuma.html" class="game-link">Aprende a Sumar I</a>
-                    <a href="Aprendesuma2.html" class="game-link">Aprende a Sumar II</a>
-                    <a href="Aprendesuma3.html" class="game-link">Aprende a Sumar III</a>
-                    <a href="Aprendesuma4.html" class="game-link">Aprende a Sumar IV</a>
+        <div class="zone">
+            <div class="section-pill pill-red">🚀 ZONA CÁLCULO MENTAL</div>
+            <div class="card-group active">
+                <div class="card-header"><h3><i class="fas fa-bolt"></i> DESAFÍOS</h3></div>
+                <div class="card-content" style="max-height: none; padding: 15px;">
+                    <div class="links-grid">
+                        <a href="1Sumasmovil.html" class="btn-game"><div class="dot" style="background:#7AB2FF">1</div> Sumas Móvil</a>
+                        <a href="2Restasmovil.html" class="btn-game"><div class="dot" style="background:#7AB2FF">2</div> Restas Móvil</a>
+                        <a href="3Sumas20movil.html" class="btn-game"><div class="dot" style="background:#7AB2FF">3</div> Sumas 20</a>
+                        <a href="4Tablas1a5.html" class="btn-game"><div class="dot" style="background:#FFB347">4</div> Tablas 1-5</a>
+                        <a href="5Tablas6a9.html" class="btn-game"><div class="dot" style="background:#FFB347">5</div> Tablas 6-9</a>
+                        <a href="6Tablas1al10movil.html" class="btn-game"><div class="dot" style="background:#FFB347">6</div> Tablas 1-10</a>
+                        <a href="7Divisiones1a5.html" class="btn-game"><div class="dot" style="background:#A29BFE">7</div> Divis. 1-5</a>
+                        <a href="8Divisiones6a9.html" class="btn-game"><div class="dot" style="background:#A29BFE">8</div> Divis. 6-9</a>
+                        <a href="9Divisiones1a10.html" class="btn-game"><div class="dot" style="background:#A29BFE">9</div> Divis. 1-10</a>
+                        <a href="10Sumasyrestas.html" class="btn-game"><div class="dot" style="background:#FF6B6B">10</div> Mix S/R</a>
+                        <a href="11Operacionescombinadas5.html" class="btn-game"><div class="dot" style="background:#555">11</div> Combinadas</a>
+                        <a href="12Sumayrestanegativo.html" class="btn-game"><div class="dot" style="background:#555">12</div> Negativos</a>
+                        <a href="13Sumasyrestasdificil.html" class="btn-game"><div class="dot" style="background:#FF6B6B">13</div> Experto</a>
+                    </div>
                 </div>
-            </section>
-
-            <section class="card">
-                <div class="card-header"><i class="fas fa-minus"></i> RESTAS</div>
-                <div class="links-list">
-                    <a href="Aprenderest.html" class="game-link">Restas I</a>
-                    <a href="Aprenderesta.html" class="game-link">Aprende a Restar I</a>
-                    <a href="Aprenderesta2.html" class="game-link">Aprende a Restar II</a>
-                    <a href="Aprenderesta3.html" class="game-link">Aprende a Restar III</a>
-                </div>
-            </section>
-
-            <section class="card">
-                <div class="card-header"><i class="fas fa-times"></i> MULTIPLICACIÓN</div>
-                <div class="links-list">
-                    <a href="Aprendemultiplica.html" class="game-link">Multiplicar Básico</a>
-                    <a href="Aprendemultiplicar.html" class="game-link">Aprende a Multiplicar</a>
-                    <a href="Aprendemultiplicar1.html" class="game-link">Multiplicar Nivel 1</a>
-                    <a href="Aprendemultiplicar2.html" class="game-link">Multiplicar Nivel 2</a>
-                </div>
-            </section>
-
-            <section class="card">
-                <div class="card-header"><i class="fas fa-divide"></i> DIVISIÓN</div>
-                <div class="links-list">
-                    <a href="Aprendedivisi.html" class="game-link">División Básica</a>
-                    <a href="Aprendedivisio.html" class="game-link">Aprende División I</a>
-                    <a href="Aprendedivisio1.html" class="game-link">Aprende División II</a>
-                    <a href="Aprendedivision.html" class="game-link">Aprende División III</a>
-                    <a href="Aprendedivision2conresta.html" class="game-link">División con Resta</a>
-                    <a href="Aprendedivision3.html" class="game-link">Aprende División IV</a>
-                </div>
-            </section>
-
-            <section class="card">
-                <div class="card-header"><i class="fas fa-pie-chart"></i> FRACCIONES</div>
-                <div class="links-list">
-                    <a href="Aprendefraccionessu.html" class="game-link">Suma Fracciones</a>
-                    <a href="Aprendefraccionesres.html" class="game-link">Resta Fracciones</a>
-                    <a href="Aprendefraccionesequivalentes.html" class="game-link">Equivalentes</a>
-                    <a href="Aprendefraccionessumdif.html" class="game-link">Suma Dif. Denominador I</a>
-                    <a href="Aprendefraccionessumadif.html" class="game-link">Suma Dif. Denominador II</a>
-                    <a href="Aprendefraccionesrestdif1.html" class="game-link">Resta Dif. Denominador I</a>
-                    <a href="Aprendefraccionesrestdif2.html" class="game-link">Resta Dif. Denominador II</a>
-                    <a href="Aprendefraccionesmultiplicar.html" class="game-link">Multiplicar Fracciones</a>
-                    <a href="Aprendefraccionesdividir.html" class="game-link">Dividir Fracciones</a>
-                </div>
-            </section>
-
-            <section class="card">
-                <div class="card-header"><i class="fas fa-coins"></i> DECIMALES</div>
-                <div class="links-list">
-                    <a href="Aprendesumadecimal.html" class="game-link">Suma Decimal I</a>
-                    <a href="Aprendesumadecimal2.html" class="game-link">Suma Decimal II</a>
-                    <a href="AprendeRestadecimal.html" class="game-link">Resta Decimal I</a>
-                    <a href="AprendeRestadecimal2.html" class="game-link">Resta Decimal II</a>
-                    <a href="Aprendemultiplicardecimal2.html" class="game-link">Multiplicar Decimal I</a>
-                    <a href="Aprendemultiplicardecimal3.html" class="game-link">Multiplicar Decimal II</a>
-                    <a href="AprendeDivisiondecimal.html" class="game-link">División Decimal I</a>
-                    <a href="AprendeDivisiondecimal2.html" class="game-link">División Decimal II</a>
-                    <a href="AprendeDivisiondecimal3.html" class="game-link">División Decimal III</a>
-                </div>
-            </section>
+            </div>
         </div>
 
-        <div style="text-align: center;">
-            <h2 class="section-main-title" style="background: var(--primary); color: white;">🚀 ZONA DE CÁLCULO MENTAL</h2>
-        </div>
-
-        <div class="dashboard">
-            <section class="card full-width">
-                <div class="calc-grid">
-                    <div class="links-list">
-                        <a href="1Sumasmovil.html" class="game-link">Sumas Móvil</a>
-                        <a href="2Restasmovil.html" class="game-link">Restas Móvil</a>
-                        <a href="3Sumas20movil.html" class="game-link">Sumas hasta 20</a>
-                        <a href="4Tablas1a5.html" class="game-link">Tablas del 1 al 5</a>
-                    </div>
-                    <div class="links-list">
-                        <a href="5Tablas6a9.html" class="game-link">Tablas del 6 al 9</a>
-                        <a href="6Tablas1al10movil.html" class="game-link">Tablas 1 al 10</a>
-                        <a href="7Divisiones1a5.html" class="game-link">Divisiones (1-5)</a>
-                        <a href="8Divisiones6a9.html" class="game-link">Divisiones (6-9)</a>
-                    </div>
-                    <div class="links-list">
-                        <a href="9Divisiones1a10.html" class="game-link">Divisiones 1 al 10</a>
-                        <a href="10Sumasyrestas.html" class="game-link">Sumas y Restas Mix</a>
-                        <a href="11Operacionescombinadas5.html" class="game-link">Combinadas Nivel 5</a>
-                    </div>
-                    <div class="links-list">
-                        <a href="12Sumayrestanegativo.html" class="game-link">Desafío Negativos</a>
-                        <a href="13Sumasyrestasdificil.html" class="game-link">Nivel Experto</a>
+        <div class="zone">
+            <div class="section-pill pill-purple">🧠 ZONA RAZONAMIENTO</div>
+            <div class="card-group active">
+                <div class="card-header"><h3><i class="fas fa-brain"></i> PROBLEMAS</h3></div>
+                <div class="card-content" style="max-height: none; padding: 15px;">
+                    <div class="links-grid">
+                        <a href="Problemasumayresta.html" class="btn-game"><div class="dot" style="background:#4ECDC4">P1</div> Suma y Resta</a>
+                        <a href="Problemasumayrestaymultipli.html" class="btn-game"><div class="dot" style="background:#FF6B6B">P2</div> Mix 3 Oper.</a>
+                        <a href="Problemasumayrestaymultipli2.html" class="btn-game"><div class="dot" style="background:#FF6B6B">P3</div> Mix 3 (II)</a>
+                        <a href="Problemasumayrestaymultiplidivi.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">P4</div> Todas Oper.</a>
+                        <a href="Problemasumayrestaymultiplidivi2.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">P5</div> Experto</a>
                     </div>
                 </div>
-            </section>
+            </div>
         </div>
 
-        <footer>
-            <p>© 2026 Math Math Rush Ow - Tu viaje hacia la sabiduría</p>
-        </footer>
     </div>
+
+    <footer style="text-align:center; padding: 40px; opacity: 0.5; font-size: 0.8rem;">
+        © 2026 Math Math Rush Ow - Tu viaje hacia la sabiduría
+    </footer>
+</div>
 
 </body>
 </html>

@@ -164,7 +164,6 @@
             const tablero = document.getElementById('tablero');
             tablero.innerHTML = '';
             
-            // Dibujar factores
             tablero.appendChild(crearFilaNumeros(factor1.toString()));
             const fila2 = crearFilaNumeros(factor2.toString());
             const signo = document.createElement('span');
@@ -193,12 +192,17 @@
             const d2 = Math.floor(factor2 / 10);
             const resultado = (factor1 * d2); 
             valorObjetivo = resultado.toString();
-            document.getElementById('instruccion').textContent = `Multiplica ${factor1} × ${d2} (Deja el hueco o pon un 0)`;
+            document.getElementById('instruccion').textContent = `Multiplica ${factor1} × ${d2}`;
             
-            // Añadimos una celda extra para el "hueco" (un cero a la derecha)
             crearFilaCeldas(valorObjetivo.length + 1);
-            // El último valor del objetivo ahora incluye el 0 del hueco
-            valorObjetivo = valorObjetivo + "0";
+            
+            const ultimoIndex = celdasActuales.length - 1;
+            celdasActuales[ultimoIndex].textContent = "X";
+            celdasActuales[ultimoIndex].style.color = "red"; // Color rojo para la X
+            celdasActuales[ultimoIndex].className = 'celda correcta';
+            
+            indexInput = ultimoIndex - 1;
+            celdasActuales[indexInput].classList.add('activa');
         }
 
         function prepararSuma() {
@@ -235,7 +239,6 @@
                 celdasActuales.push(c);
             }
             document.getElementById('tablero').appendChild(fila);
-            // Empezamos por la derecha (unidades)
             indexInput = celdasActuales.length - 1;
             celdasActuales[indexInput].classList.add('activa');
             autoScroll();
@@ -245,7 +248,6 @@
             if (indexInput < 0) return;
             const celda = celdasActuales[indexInput];
             
-            // Comprobamos contra la posición correspondiente en valorObjetivo
             if (n.toString() === valorObjetivo[indexInput]) {
                 playSound('acierto');
                 celda.textContent = n;
@@ -255,7 +257,6 @@
                 if (indexInput >= 0) {
                     celdasActuales[indexInput].classList.add('activa');
                 } else {
-                    // Fin de fila
                     if (fase === "UNIDADES") setTimeout(prepararDecenas, 600);
                     else if (fase === "DECENAS") setTimeout(prepararSuma, 600);
                     else if (fase === "SUMA") {

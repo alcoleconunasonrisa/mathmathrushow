@@ -1,5 +1,5 @@
 // service-worker.js
-const CACHE_NAME = 'math-rush-v2.4'; // <--- CAMBIA ESTE NÚMERO EN CADA ACTUALIZACIÓN
+const CACHE_NAME = 'math-rush-v2.6'; // <--- CAMBIA ESTE NÚMERO EN CADA ACTUALIZACIÓN
 const STATIC_CACHE = 'static-' + CACHE_NAME;
 const DYNAMIC_CACHE = 'dynamic-' + CACHE_NAME;
 
@@ -29,7 +29,7 @@ const staticAssets = [
 
 // Instalación: Guarda los archivos en la memoria del dispositivo
 self.addEventListener('install', event => {
-  console.log('🚀 Service Worker instalando v2.3...');
+  console.log('🚀 Service Worker instalando v2.6...');
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then(cache => {
@@ -47,7 +47,7 @@ self.addEventListener('install', event => {
 
 // Activación: Borra las versiones viejas de la caché
 self.addEventListener('activate', event => {
-  console.log('⚡ Service Worker v2.4 activado');
+  console.log('⚡ Service Worker v2.6 activado');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(

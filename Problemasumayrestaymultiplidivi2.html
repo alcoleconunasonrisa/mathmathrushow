@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Resolutor Pro - Matemáticas</title>
+    <style>
+        :root {
+            --primary: #00b4db;
+            --secondary: #0077b6;
+            --success: #43a047;
+            --danger: #e53935;
+            --warning: #fbc02d;
+            --purple: #9c27b0;
+            --bg-card: #f8f9fa;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        
+        .container {
+            width: 98%; max-width: 1000px; height: 95vh;
+            background: white; border-radius: 28px; padding: 1.2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        .instruccion {
+            background: var(--secondary); color: white; padding: 12px;
+            border-radius: 15px; text-align: center; margin-bottom: 0.8rem;
+            font-weight: bold; font-size: 1.1rem; min-height: 50px; display: flex; align-items: center; justify-content: center;
+        }
+
+        .contenido-juego { display: none; flex: 1; gap: 1rem; overflow: hidden; }
+        .pantalla { display: flex; flex: 1.8; flex-direction: column; border-radius: 20px; background: var(--bg-card); padding: 1.5rem; overflow-y: auto; border: 2px solid #eee; }
+
+        .btn-nivel { width: 100%; max-width: 350px; padding: 18px; margin: 10px; border: none; border-radius: 15px; color: white; font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: 0.3s; box-shadow: 0 5px #777; text-align: center; text-decoration: none; }
+        .btn-nivel:active { transform: translateY(3px); box-shadow: 0 2px #777; }
+
+        .enunciado-box { 
+            background: white; padding: 1.5rem; border-radius: 18px; 
+            border-left: 8px solid var(--warning); margin-bottom: 1.2rem; 
+            font-size: 1.25rem; color: #333; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .fila-dato { display: flex; align-items: center; background: white; padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 2px solid #eee; }
+        .etiqueta-dato { flex: 1; font-size: 1.1rem; color: #444; font-weight: 600; }
+
+        .celda {
+            width: 45px; height: 50px; border: 2px solid #ccc; border-radius: 8px;
+            background: white; text-align: center; line-height: 46px;
+            font-size: 1.8rem; font-weight: bold; margin: 0 2px;
+        }
+        .celda.activa { border: 3px solid var(--primary); background: #e0f7fa; }
+        .celda.correcta { border-color: var(--success); color: var(--success); background: #e8f5e9; }
+        .celda.incorrecta { border-color: var(--danger); background: #ffebee; animation: shake 0.4s; }
+        .celda.bajada { color: #ef6c00; border-color: #ef6c00; border-style: dashed; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        .zona-teclado { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fff; border-radius: 20px; border: 2px solid #eee; }
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 280px; padding: 15px; }
+        .tecla { padding: 18px 0; font-size: 1.6rem; border: none; border-radius: 18px; background: #f5f5f5; font-weight: bold; box-shadow: 0 5px #ccc; cursor: pointer; }
+
+        /* Estilos Operaciones Estándar (Suma, Resta, Multi) */
+        .tablero-estandar { 
+            display: inline-flex; flex-direction: column; align-items: flex-end; 
+            font-family: 'Courier New', monospace; font-size: 2.2rem; font-weight: bold; 
+            margin: 20px auto; padding: 10px;
+        }
+        .fila-op { display: flex; justify-content: flex-end; align-items: center; height: 55px; letter-spacing: 5px; }
+        .linea-suma { border-bottom: 4px solid #333; width: 100%; margin: 5px 0; min-width: 120px; }
+
+        /* Estilos División */
+        .division-grid { display: grid; grid-template-columns: auto auto; margin: 20px auto; }
+        .area-izquierda { display: flex; flex-direction: column; align-items: flex-end; padding-right: 10px; }
+        .fila-div { display: flex; height: 55px; align-items: center; justify-content: flex-end; }
+        .num-div { width: 45px; height: 50px; line-height: 50px; text-align: center; font-size: 2rem; font-weight: bold; }
+        .divisor-box { border-left: 4px solid #333; border-bottom: 4px solid #333; padding: 5px 15px; font-size: 2rem; font-weight: bold; min-width: 80px; text-align: center; }
+        .cociente-box { padding: 10px 15px; font-size: 2rem; font-weight: bold; display: flex; gap: 2px; }
+
+        #modal-victoria { display: none; position: absolute; inset: 0; background: rgba(255,255,255,0.98); z-index: 100; flex-direction: column; justify-content: center; align-items: center; border-radius: 28px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="instruccion" class="instruccion">¡Bienvenido! Elige un nivel</div>
+    
+    <div id="pantalla-menu" class="pantalla" style="justify-content: center; align-items: center; display: flex;">
+        <h1 style="color:var(--secondary); margin-bottom:25px;">Aprende Problemas 🚀</h1>
+        <button class="btn-nivel" style="background:var(--success)" onclick="iniciarProblema(1)">Nivel 1 (Fácil)</button>
+        <button class="btn-nivel" style="background:#fb8c00;" onclick="iniciarProblema(2)">Nivel 2 (Medio)</button>
+        <button class="btn-nivel" style="background:var(--danger);" onclick="iniciarProblema(3)">Nivel 3 (Difícil)</button>
+        <a href="main-index.html" class="btn-nivel" style="background:#555; margin-top:20px;">🏠 Salir al Inicio</a>
+    </div>
+
+    <div id="pantalla-juego" class="contenido-juego">
+        <div id="vista-principal" class="pantalla">
+            <div id="enunciado" class="enunciado-box"></div>
+            
+            <div id="seccion-datos">
+                <div class="fila-dato"><span id="label-d1" class="etiqueta-dato">Dato 1:</span><div id="box-d1" style="display:flex;"></div></div>
+                <div class="fila-dato"><span id="label-d2" class="etiqueta-dato">Dato 2:</span><div id="box-d2" style="display:flex;"></div></div>
+            </div>
+
+            <div id="area-op" style="display:none; text-align:center;">
+                <p style="font-weight:bold; margin:10px 0;">¿QUÉ OPERACIÓN NECESITAS?</p>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <button class="btn-nivel" style="background:var(--success); margin:0; max-width:none;" onclick="chequearOp('+')">+</button>
+                    <button class="btn-nivel" style="background:var(--danger); margin:0; max-width:none;" onclick="chequearOp('-')">-</button>
+                    <button class="btn-nivel" style="background:var(--primary); margin:0; max-width:none;" onclick="chequearOp('x')">x</button>
+                    <button class="btn-nivel" style="background:var(--purple); margin:0; max-width:none;" onclick="chequearOp('÷')">÷</button>
+                </div>
+            </div>
+
+            <div id="area-calculo" style="display:none; text-align:center;">
+                <div id="tablero-operacion"></div>
+            </div>
+
+            <div id="caja-final" style="display:none; background:#e8f5e9; padding:20px; border-radius:15px; text-align:center; border:3px solid var(--success); margin-top:10px;">
+                <h2 style="color:var(--success)">¡RESUELTO!</h2>
+                <p id="texto-res" style="font-size:1.2rem; margin:10px 0;"></p>
+                <button class="btn-nivel" style="background:var(--success); width:auto;" onclick="mostrarVictoria()">Continuar</button>
+            </div>
+        </div>
+
+        <div class="zona-teclado">
+            <div class="teclado">
+                <button class="tecla" onclick="teclear(1)">1</button>
+                <button class="tecla" onclick="teclear(2)">2</button>
+                <button class="tecla" onclick="teclear(3)">3</button>
+                <button class="tecla" onclick="teclear(4)">4</button>
+                <button class="tecla" onclick="teclear(5)">5</button>
+                <button class="tecla" onclick="teclear(6)">6</button>
+                <button class="tecla" onclick="teclear(7)">7</button>
+                <button class="tecla" onclick="teclear(8)">8</button>
+                <button class="tecla" onclick="teclear(9)">9</button>
+                <button class="tecla" style="background:#ffcdd2;" onclick="borrar()">C</button>
+                <button class="tecla" onclick="teclear(0)">0</button>
+                <button class="tecla" style="background:#e1f5fe;" onclick="location.reload()">🏠</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-victoria">
+        <div style="font-size: 5rem;">🏆</div>
+        <h2>¡Excelente trabajo!</h2>
+        <button class="btn-nivel" style="background:var(--success)" id="btn-next">Siguiente Problema</button>
+        <button class="btn-nivel" style="background:var(--secondary)" onclick="location.reload()">Menú Principal</button>
+    </div>
+</div>
+
+<script>
+    let nivelActual = 1, fase = "", PROBLEMA = {}, celdasActivas = [], subIndice = 0, valEsperado = "";
+    let cursorDiv = 0, restoDiv = "", valorActualDiv = "";
+
+    function iniciarProblema(n) {
+        nivelActual = n;
+        document.getElementById('pantalla-menu').style.display = 'none';
+        document.getElementById('pantalla-juego').style.display = 'flex';
+        document.getElementById('modal-victoria').style.display = 'none';
+        document.getElementById('area-op').style.display = 'none';
+        document.getElementById('area-calculo').style.display = 'none';
+        document.getElementById('caja-final').style.display = 'none';
+        document.getElementById('seccion-datos').style.display = 'block';
+        document.getElementById('btn-next').onclick = () => iniciarProblema(n);
+
+        const tipos = ['suma','resta','multi','div'];
+        const tipo = tipos[Math.floor(Math.random()*4)];
+        const nombres = ["Ana", "Pedro", "Luis", "Marta", "Sofía"];
+        const nombre = nombres[Math.floor(Math.random()*nombres.length)];
+        
+        let v1, v2, enunciado, op;
+
+        if(tipo === 'div') {
+            v2 = Math.floor(Math.random()*7)+2;
+            let mult = (n===1)? Math.floor(Math.random()*5)+2 : Math.floor(Math.random()*20)+10;
+            v1 = (v2 * mult).toString(); v2 = v2.toString();
+            enunciado = `${nombre} tiene <strong>${v1}</strong> pegatinas y las reparte en <strong>${v2}</strong> álbumes. ¿Cuántas hay en cada uno?`;
+            op = '÷';
+        } else if(tipo === 'multi') {
+            v1 = (n===1)? Math.floor(Math.random()*12)+2 : Math.floor(Math.random()*40)+10;
+            v2 = (Math.floor(Math.random()*8)+2).toString(); v1 = v1.toString();
+            enunciado = `${nombre} compra <strong>${v1}</strong> cajas con <strong>${v2}</strong> bombones cada una. ¿Cuántos tiene?`;
+            op = 'x';
+        } else {
+            v1 = Math.floor(Math.random()*500)+100;
+            v2 = Math.floor(Math.random()*400)+50;
+            if(tipo==='resta' && v2 > v1) [v1, v2] = [v2, v1];
+            v1 = v1.toString(); v2 = v2.toString();
+            enunciado = `${nombre} tenía <strong>${v1}</strong> puntos y ${tipo==='suma'?'gana':'pierde'} <strong>${v2}</strong>. ¿Cuántos puntos tiene?`;
+            op = (tipo==='suma'?'+':'-');
+        }
+
+        PROBLEMA = { 
+            n1: v1, n2: v2, op: op, 
+            res: (op==='+'? parseInt(v1)+parseInt(v2) : op==='-'? parseInt(v1)-parseInt(v2) : op==='x'? parseInt(v1)*parseInt(v2) : parseInt(v1)/parseInt(v2)).toString()
+        };
+        
+        document.getElementById('enunciado').innerHTML = enunciado;
+        fase = "D1";
+        valEsperado = PROBLEMA.n1;
+        activarCeldas(crearCeldasEn('box-d1', valEsperado.length), false);
+        document.getElementById('instruccion').textContent = "Escribe el primer dato (el número más grande)";
+    }
+
+    function crearCeldasEn(id, cant) {
+        const contenedor = document.getElementById(id);
+        contenedor.innerHTML = "";
+        let celdas = [];
+        for(let i=0; i<cant; i++) {
+            let c = document.createElement('div');
+            c.className = 'celda';
+            contenedor.appendChild(c);
+            celdas.push(c);
+        }
+        return celdas;
+    }
+
+    function activarCeldas(lista, reverse = true) {
+        celdasActivas = lista;
+        subIndice = reverse ? lista.length - 1 : 0;
+        lista.forEach(c => c.classList.remove('activa'));
+        if(lista[subIndice]) lista[subIndice].classList.add('activa');
+    }
+
+    function teclear(n) {
+        let celda = celdasActivas[subIndice];
+        if(!celda) return;
+
+        if(n.toString() === valEsperado[subIndice]) {
+            celda.textContent = n;
+            celda.className = 'celda correcta';
+            
+            let esDireccionNormal = (fase.includes("DIV") || fase === "D1" || fase === "D2"); 
+            
+            if(esDireccionNormal) {
+                if(subIndice < valEsperado.length - 1) {
+                    subIndice++;
+                    celdasActivas.forEach(c => c.classList.remove('activa'));
+                    celdasActivas[subIndice].classList.add('activa');
+                } else { proximaFase(); }
+            } else { 
+                if(subIndice > 0) {
+                    subIndice--;
+                    celdasActivas.forEach(c => c.classList.remove('activa'));
+                    celdasActivas[subIndice].classList.add('activa');
+                } else { proximaFase(); }
+            }
+        } else {
+            celda.classList.add('incorrecta');
+            setTimeout(() => celda.classList.remove('incorrecta'), 400);
+        }
+    }
+
+    function proximaFase() {
+        if(fase === "D1") {
+            fase = "D2"; valEsperado = PROBLEMA.n2;
+            activarCeldas(crearCeldasEn('box-d2', valEsperado.length), false);
+            document.getElementById('instruccion').textContent = "Ahora escribe el segundo dato";
+        } else if(fase === "D2") {
+            fase = "OP";
+            document.getElementById('area-op').style.display = 'block';
+            document.getElementById('instruccion').textContent = "¿Qué operación debemos usar?";
+        } else if(fase === "DIV_COC") setTimeout(prepRestoDiv, 500);
+        else if(fase === "DIV_RES") setTimeout(motorDivision, 500);
+        else if(fase === "DIV_BAJAR") setTimeout(prepCocienteDiv, 500);
+        else finalizar();
+    }
+
+    function chequearOp(o) {
+        if(o === PROBLEMA.op) {
+            document.getElementById('area-op').style.display = 'none';
+            document.getElementById('seccion-datos').style.display = 'none';
+            document.getElementById('area-calculo').style.display = 'block';
+            if(o === '÷') prepDivision();
+            else prepEstandar();
+        } else {
+            document.getElementById('instruccion').textContent = "Esa operación no es la correcta para este problema.";
+        }
+    }
+
+    function prepEstandar() {
+        const tab = document.getElementById('tablero-operacion');
+        tab.innerHTML = `
+            <div class="tablero-estandar">
+                <div class="fila-op">${PROBLEMA.n1}</div>
+                <div class="fila-op">${PROBLEMA.op} ${PROBLEMA.n2}</div>
+                <div class="linea-suma"></div>
+                <div id="res-row" class="fila-op"></div>
+            </div>`;
+        fase = "CALC";
+        valEsperado = PROBLEMA.res;
+        activarCeldas(crearCeldasEn('res-row', valEsperado.length), true);
+        document.getElementById('instruccion').textContent = "¡A calcular!";
+    }
+
+    function prepDivision() {
+        const tab = document.getElementById('tablero-operacion');
+        tab.innerHTML = `
+            <div class="division-grid">
+                <div class="area-izquierda" id="bloque-izq">
+                    <div class="fila-div" id="fila-dividendo"></div>
+                </div>
+                <div class="area-derecha">
+                    <div class="divisor-box">${PROBLEMA.n2}</div>
+                    <div id="box-cociente" class="cociente-box"></div>
+                </div>
+            </div>`;
+        const filaD = document.getElementById('fila-dividendo');
+        PROBLEMA.n1.split('').forEach((d, i) => {
+            filaD.innerHTML += `<div class="num-div" id="d-${i}">${d}</div>`;
+        });
+        cursorDiv = 0; restoDiv = "";
+        motorDivision();
+    }
+
+    function motorDivision() {
+        const cifras = PROBLEMA.n1.split('');
+        const divisor = parseInt(PROBLEMA.n2);
+        if(cursorDiv >= cifras.length) { finalizar(); return; }
+        if(cursorDiv === 0) {
+            if(parseInt(cifras[0]) < divisor && cifras.length > 1) {
+                valorActualDiv = cifras[0] + cifras[1];
+                marcar(0); marcar(1); cursorDiv = 2;
+            } else {
+                valorActualDiv = cifras[0];
+                marcar(0); cursorDiv = 1;
+            }
+            prepCocienteDiv();
+        } else {
+            fase = "DIV_BAJAR"; valEsperado = cifras[cursorDiv];
+            marcar(cursorDiv);
+            document.getElementById('instruccion').textContent = `Baja el ${valEsperado}`;
+            const c = document.createElement('div');
+            c.className = 'celda bajada activa';
+            document.getElementById('bloque-izq').lastElementChild.appendChild(c);
+            celdasActivas = [c]; subIndice = 0;
+            valorActualDiv = (restoDiv == "0" ? "" : restoDiv) + valEsperado;
+            cursorDiv++;
+        }
+    }
+
+    function marcar(i) { 
+        const el = document.getElementById(`d-${i}`);
+        if(el) el.style.borderTop = "4px solid orange";
+    }
+
+    function prepCocienteDiv() {
+        fase = "DIV_COC";
+        valEsperado = Math.floor(parseInt(valorActualDiv) / parseInt(PROBLEMA.n2)).toString();
+        document.getElementById('instruccion').textContent = `¿Cuántas veces cabe ${PROBLEMA.n2} en ${valorActualDiv}?`;
+        const c = document.createElement('div');
+        c.className = 'celda activa';
+        document.getElementById('box-cociente').appendChild(c);
+        celdasActivas = [c]; subIndice = 0;
+    }
+
+    function prepRestoDiv() {
+        fase = "DIV_RES";
+        valEsperado = (parseInt(valorActualDiv) % parseInt(PROBLEMA.n2)).toString();
+        document.getElementById('instruccion').textContent = "¿Cuánto sobra?";
+        const filaR = document.createElement('div');
+        filaR.className = "fila-div";
+        let huecos = (cursorDiv - 1) - (valEsperado.length - 1);
+        for(let i=0; i<huecos; i++) filaR.innerHTML += '<div class="num-div"></div>';
+        let celdasR = [];
+        for(let i=0; i<valEsperado.length; i++) {
+            let c = document.createElement('div'); c.className = 'celda';
+            filaR.appendChild(c); celdasR.push(c);
+        }
+        document.getElementById('bloque-izq').appendChild(filaR);
+        restoDiv = valEsperado;
+        activarCeldas(celdasR, false);
+    }
+
+    function finalizar() {
+        document.getElementById('instruccion').textContent = "¡Perfecto!";
+        document.getElementById('area-calculo').style.display = 'none';
+        document.getElementById('caja-final').style.display = 'block';
+        document.getElementById('texto-res').textContent = `La respuesta correcta es ${PROBLEMA.res}`;
+    }
+
+    function borrar() {
+        if(celdasActivas[subIndice] && !celdasActivas[subIndice].classList.contains('correcta')) {
+            celdasActivas[subIndice].textContent = "";
+        }
+    }
+
+    function mostrarVictoria() {
+        document.getElementById('modal-victoria').style.display = 'flex';
+    }
+</script>
+</body>
+</html>

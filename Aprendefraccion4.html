@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aprende - Mixtos con Resaltado</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        .container {
+            width: 98%; max-width: 950px; height: 95vh;
+            background: white; border-radius: 24px; padding: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+        .instruccion {
+            background: #11998e; color: white; padding: 10px;
+            border-radius: 12px; text-align: center; margin-bottom: 8px;
+            font-weight: bold; font-size: 1rem; flex-shrink: 0;
+        }
+        .pantalla { display: none; height: 100%; width: 100%; flex-direction: column; }
+        .pantalla.active { display: flex; }
+        .contenido-juego { display: flex; flex: 1; gap: 10px; overflow: hidden; }
+        .zona-operacion {
+            flex: 1; padding: 10px; border: 2px solid #f0f0f0; border-radius: 15px;
+            background: #fafafa; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; min-width: 0;
+        }
+        .zona-opciones {
+            flex: 1.2; display: flex; flex-direction: column;
+            background: #fff; padding: 10px; border-left: 2px solid #eee;
+            overflow-y: auto;
+        }
+        #canvas-contenedor {
+            width: 100%; display: flex; flex-wrap: wrap; justify-content: center;
+            align-items: center; gap: 8px; margin-bottom: 10px; flex-shrink: 0;
+        }
+
+        /* Estilo para el resaltado del círculo fraccionado */
+        canvas { max-width: 75px; height: auto; border: 3px solid transparent; border-radius: 50%; transition: all 0.3s; }
+        canvas.resaltado {
+            border: 3px solid #ff4b2b;
+            box-shadow: 0 0 15px rgba(255, 75, 43, 0.5);
+            transform: scale(1.1);
+            background: rgba(255, 75, 43, 0.05);
+        }
+
+        .mixto-display { display: flex; align-items: center; gap: 10px; font-size: 2.5rem; font-weight: bold; }
+        .entero-num { color: #11998e; border: 2px dashed #ccc; padding: 0 10px; border-radius: 8px; }
+        .entero-num.lleno { border-color: transparent; }
+        .fraccion-num { display: flex; flex-direction: column; align-items: center; font-size: 1.8rem; }
+        .linea-f { width: 40px; height: 4px; background: #333; margin: 4px 0; }
+        .incognita { color: #ccc; border: 2px dashed #ccc; min-width: 40px; text-align: center; border-radius: 8px; }
+        .lleno { color: #2ecc71; border: 2px solid transparent; }
+
+        .nombre-acumulado-box {
+            margin-top: 15px; padding: 10px; border: 2px solid #11998e;
+            border-radius: 10px; min-height: 50px; width: 100%;
+            display: flex; justify-content: center; align-items: center;
+            text-align: center; font-weight: bold; color: #11998e; font-size: 1.2rem;
+            background: #eafffa;
+        }
+
+        .grid-opciones { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 6px; width: 100%; }
+        .grid-nombres { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; }
+
+        .btn-nivel { width: 100%; max-width: 300px; padding: 12px; margin: 6px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        .btn-opcion { padding: 12px 2px; border: 2px solid #ddd; border-radius: 10px; background: white; font-size: 0.95rem; font-weight: bold; cursor: pointer; color: #444; min-height: 44px; }
+        .btn-opcion.correcta { background: #4CAF50 !important; color: white; border-color: #4CAF50; }
+        .btn-opcion.incorrecta { background: #f44336 !important; color: white; border-color: #f44336; animation: shake 0.3s; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+        #modal-victoria { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column; justify-content: center; align-items: center; border-radius: 24px; text-align: center; padding: 20px; }
+
+        /* Estilos Confeti */
+        .confetti { position: absolute; width: 10px; height: 10px; z-index: 101; }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; overflow-y: auto; }
+            .zona-opciones { border-left: none; border-top: 2px solid #eee; min-height: 250px; overflow-y: visible; }
+            canvas { max-width: 55px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#11998e; margin-bottom:15px; font-size: 1.6rem;">Números Mixtos</h1>
+            <button class="btn-nivel" style="background:#43a047" onclick="iniciar(1)">Nivel 1: Hasta 2 enteros</button>
+            <button class="btn-nivel" style="background:#fb8c00" onclick="iniciar(2)">Nivel 2: Hasta 3 enteros</button>
+            <button class="btn-nivel" style="background:#e53935" onclick="iniciar(3)">Nivel 3: Hasta 4 enteros</button>
+            <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="window.location.href='main-index.html'">🏠 Inicio</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="instruccion" class="instruccion">Cargando...</div>
+            <div class="contenido-juego">
+                <div class="zona-operacion">
+                    <div id="canvas-contenedor"></div>
+                    <div class="mixto-display">
+                        <div id="entero-display" class="entero-num">?</div>
+                        <div class="fraccion-num">
+                            <div id="num-display" class="incognita">?</div>
+                            <div class="linea-f"></div>
+                            <div id="den-display" class="incognita">?</div>
+                        </div>
+                    </div>
+                    <div id="nombre-acumulado" class="nombre-acumulado-box"></div>
+                </div>
+                <div class="zona-opciones">
+                    <div id="lista-opciones" class="grid-opciones"></div>
+                    <button class="btn-nivel" style="background:#eee; color:#333; margin-top:15px; font-size: 0.8rem;" onclick="irAlMenu()">🏠 Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <h2 style="font-size: 1.8rem; color: #43a047;">¡Perfecto!</h2>
+            <div id="mensaje-final" style="margin: 10px; font-size: 1.4rem; color: #333; font-weight: bold; background: #f0f0f0; padding: 15px; border-radius: 10px;"></div>
+            <button class="btn-nivel" style="background:#43a047; max-width: 220px;" onclick="iniciar(nivelActual)">Siguiente</button>
+        </div>
+    </div>
+
+    <script>
+        let entero, num, den, faseActual, nivelActual;
+        let fraseConstruida = "";
+
+        const nombresEnt = ["Un entero", "Dos enteros", "Tres enteros", "Cuatro enteros"];
+        const nombresNum = ["un", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve", "veinte"];
+        const nombresDen = ["medio", "tercio", "cuarto", "quinto", "sexto", "séptimo", "octavo", "noveno", "décimo", "onceavo", "doceavo", "treceavo", "catorceavo", "quinceavo", "dieciseisavo", "diecisieteavo", "dieciochoavo", "diecinueveavo", "veinteavo"];
+
+        function iniciar(nivel) {
+            nivelActual = nivel;
+            faseActual = 1;
+            fraseConstruida = "";
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+
+            resetVisuals();
+
+            if(nivel === 1) { entero = Math.floor(Math.random()*2)+1; den = Math.floor(Math.random()*9)+2; }
+            else if(nivel === 2) { entero = Math.floor(Math.random()*3)+1; den = Math.floor(Math.random()*9)+2; }
+            else { entero = Math.floor(Math.random()*4)+1; den = Math.floor(Math.random()*19)+2; }
+            num = Math.floor(Math.random()*(den-1))+1;
+
+            dibujarTodo();
+            actualizarInterfaz();
+        }
+
+        function resetVisuals() {
+            document.getElementById('entero-display').textContent = "?";
+            document.getElementById('entero-display').className = "entero-num";
+            document.getElementById('num-display').textContent = "?";
+            document.getElementById('num-display').className = "incognita";
+            document.getElementById('den-display').textContent = "?";
+            document.getElementById('den-display').className = "incognita";
+            document.getElementById('nombre-acumulado').textContent = "...";
+        }
+
+        function dibujarTodo() {
+            const contenedor = document.getElementById('canvas-contenedor');
+            contenedor.innerHTML = "";
+            // Enteros
+            for(let i=0; i<entero; i++) { crearCanvas(contenedor, den, den, false); }
+            // El círculo de la fracción (este es el que resaltaremos)
+            crearCanvas(contenedor, den, num, true);
+        }
+
+        function crearCanvas(parent, d, n, esFraccion) {
+            const can = document.createElement('canvas');
+            if(esFraccion) can.id = "canvas-fraccion";
+            can.width = 100; can.height = 100;
+            const ctx = can.getContext('2d');
+            const cx = 50, cy = 50, r = 45;
+            const angulo = (2 * Math.PI) / d;
+            for(let i=0; i<d; i++) {
+                ctx.beginPath(); ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, r, i * angulo - Math.PI/2, (i+1) * angulo - Math.PI/2);
+                ctx.closePath();
+                ctx.fillStyle = i < n ? "#38ef7d" : "#ffffff";
+                ctx.fill(); ctx.strokeStyle = "#333"; ctx.lineWidth = 2; ctx.stroke();
+            }
+            parent.appendChild(can);
+        }
+
+        function actualizarInterfaz() {
+            const contenedor = document.getElementById('lista-opciones');
+            const instruccion = document.getElementById('instruccion');
+            const canvasFrac = document.getElementById('canvas-fraccion');
+            contenedor.innerHTML = "";
+
+            // Gestionar resaltado rojo
+            if (faseActual === 2 || faseActual === 3) {
+                canvasFrac.classList.add('resaltado');
+            } else if (canvasFrac) {
+                canvasFrac.classList.remove('resaltado');
+            }
+
+            if (faseActual <= 3) {
+                contenedor.className = "grid-opciones";
+                if (faseActual === 1) {
+                    instruccion.textContent = "1. ¿Cuántos círculos están COMPLETOS?";
+                    for(let i=1; i<=4; i++) crearBoton(i, entero, contenedor);
+                } else if (faseActual === 2) {
+                    instruccion.textContent = "2. Numerador de la fracción (círculo rojo):";
+                    for(let i=1; i<=20; i++) crearBoton(i, num, contenedor);
+                } else if (faseActual === 3) {
+                    instruccion.textContent = "3. Denominador de la fracción (círculo rojo):";
+                    for(let i=2; i<=20; i++) crearBoton(i, den, contenedor);
+                }
+            }
+            else {
+                contenedor.className = "grid-nombres";
+                if (faseActual === 4) {
+                    instruccion.textContent = "4. Nombre de la parte ENTERA:";
+                    nombresEnt.forEach(n => crearBoton(n, nombresEnt[entero-1], contenedor));
+                } else if (faseActual === 5) {
+                    instruccion.textContent = "5. Nombre del NUMERADOR:";
+                    nombresNum.forEach(n => crearBoton(n, nombresNum[num-1], contenedor));
+                } else if (faseActual === 6) {
+                    instruccion.textContent = "6. Nombre del DENOMINADOR:";
+                    let correcto = num > 1 ? nombresDen[den-2] + "s" : nombresDen[den-2];
+                    let offset = den <= 10 ? 0 : 9;
+                    for(let i=offset; i < offset+10 && i < nombresDen.length; i++) {
+                        let nombre = num > 1 ? nombresDen[i] + "s" : nombresDen[i];
+                        crearBoton(nombre, correcto, contenedor);
+                    }
+                }
+            }
+            document.querySelector('.zona-opciones').scrollTop = 0;
+        }
+
+        function crearBoton(texto, correcto, parent) {
+            const btn = document.createElement('button');
+            btn.className = 'btn-opcion';
+            btn.textContent = texto;
+            btn.onclick = () => {
+                if (texto == correcto) {
+                    btn.classList.add('correcta');
+                    procesarAcierto(texto);
+                } else {
+                    btn.classList.add('incorrecta');
+                    setTimeout(() => btn.classList.remove('incorrecta'), 500);
+                }
+            };
+            parent.appendChild(btn);
+        }
+
+        function procesarAcierto(valor) {
+            setTimeout(() => {
+                if (faseActual === 1) {
+                    document.getElementById('entero-display').textContent = valor;
+                    document.getElementById('entero-display').className = "entero-num lleno";
+                    faseActual = 2;
+                } else if (faseActual === 2) {
+                    document.getElementById('num-display').textContent = valor;
+                    document.getElementById('num-display').className = "lleno";
+                    faseActual = 3;
+                } else if (faseActual === 3) {
+                    document.getElementById('den-display').textContent = valor;
+                    document.getElementById('den-display').className = "lleno";
+                    faseActual = 4;
+                } else if (faseActual === 4) {
+                    fraseConstruida = valor + " y";
+                    document.getElementById('nombre-acumulado').textContent = fraseConstruida;
+                    faseActual = 5;
+                } else if (faseActual === 5) {
+                    fraseConstruida += " " + valor;
+                    document.getElementById('nombre-acumulado').textContent = fraseConstruida;
+                    faseActual = 6;
+                } else if (faseActual === 6) {
+                    fraseConstruida += " " + valor;
+                    document.getElementById('nombre-acumulado').textContent = fraseConstruida;
+                    document.getElementById('mensaje-final').textContent = fraseConstruida;
+                    lanzarConfeti();
+                    document.getElementById('modal-victoria').style.display = 'flex';
+                }
+                actualizarInterfaz();
+            }, 400);
+        }
+
+        function lanzarConfeti() {
+            for (let i = 0; i < 50; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.left = Math.random() * 100 + 'vw';
+                c.style.top = '-10px';
+                c.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                c.style.transform = `rotate(${Math.random() * 360}deg)`;
+                document.body.appendChild(c);
+
+                const anim = c.animate([
+                    { top: '-10px', opacity: 1 },
+                    { top: '100vh', opacity: 0 }
+                ], {
+                    duration: Math.random() * 3000 + 2000,
+                    easing: 'cubic-bezier(0, .9, .6, 1)'
+                });
+
+                anim.onfinish = () => c.remove();
+            }
+        }
+
+        function irAlMenu() {
+            document.getElementById('juego').classList.remove('active');
+            document.getElementById('menu').classList.add('active');
+        }
+    </script>
+</body>
+</html>

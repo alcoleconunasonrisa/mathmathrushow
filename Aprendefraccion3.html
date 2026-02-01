@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AprendeFracciones - Propias e Impropias</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+
+        .container {
+            width: 98%; max-width: 950px; height: 95vh;
+            background: white; border-radius: 24px; padding: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        .instruccion {
+            background: #6a11cb; color: white; padding: 10px;
+            border-radius: 12px; text-align: center; margin-bottom: 8px;
+            font-weight: bold; font-size: 1rem; flex-shrink: 0;
+        }
+
+        .pantalla { display: none; height: 100%; width: 100%; flex-direction: column; }
+        .pantalla.active { display: flex; }
+
+        .contenido-juego { display: flex; flex: 1; gap: 10px; overflow: hidden; }
+
+        .zona-operacion {
+            flex: 1; padding: 10px; border: 2px solid #f0f0f0; border-radius: 15px;
+            background: #fafafa; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; min-width: 0;
+        }
+
+        .zona-opciones {
+            flex: 1.2; display: flex; flex-direction: column;
+            background: #fff; padding: 10px; border-left: 2px solid #eee;
+            overflow-y: auto; /* Evita que los botones desaparezcan */
+        }
+
+        #canvas-contenedor {
+            width: 100%; height: auto; min-height: 120px; max-height: 200px;
+            margin-bottom: 10px; display: flex; justify-content: center; 
+            align-items: center; gap: 10px; flex-shrink: 0;
+        }
+
+        canvas { max-width: 45%; max-height: 100%; height: auto; }
+
+        .fraccion-num { display: flex; flex-direction: column; align-items: center; font-size: 1.8rem; font-weight: bold; margin-bottom: 5px; flex-shrink: 0; }
+        .linea-f { width: 40px; height: 4px; background: #333; margin: 4px 0; }
+        .incognita { color: #ccc; border: 2px dashed #ccc; min-width: 45px; text-align: center; border-radius: 8px; }
+        .lleno { color: #6a11cb; border: 2px solid transparent; }
+
+        .nombre-final { font-size: 1.1rem; font-weight: bold; color: #43a047; min-height: 1.5em; text-align: center; }
+
+        .grid-opciones { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 6px; width: 100%; }
+        .grid-nombres { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; }
+
+        .btn-nivel {
+            width: 100%; max-width: 300px; padding: 12px; margin: 6px auto;
+            border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem;
+        }
+
+        .btn-opcion {
+            padding: 12px 2px; border: 2px solid #ddd; border-radius: 10px;
+            background: white; font-size: 0.95rem; font-weight: bold;
+            cursor: pointer; transition: all 0.2s; color: #444; min-height: 44px;
+        }
+
+        .btn-opcion.correcta { background: #4CAF50 !important; color: white; border-color: #4CAF50; }
+        .btn-opcion.incorrecta { background: #f44336 !important; color: white; border-color: #f44336; animation: shake 0.3s; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+
+        #modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center; padding: 20px;
+        }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; overflow-y: auto; }
+            .zona-opciones { border-left: none; border-top: 2px solid #eee; flex: none; min-height: 250px; overflow-y: visible; }
+            .grid-opciones { grid-template-columns: repeat(5, 1fr); }
+            canvas { max-width: 40%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#6a11cb; margin-bottom:15px; font-size: 1.6rem;">Del Dibujo al Nombre</h1>
+            <button class="btn-nivel" style="background:#43a047" onclick="iniciar(1)">Nivel 1: Hasta Décimos</button>
+            <button class="btn-nivel" style="background:#fb8c00" onclick="iniciar(2)">Nivel 2: Hasta Veinteavos</button>
+            <button class="btn-nivel" style="background:#e53935" onclick="iniciar(3)">Nivel 3: Propias e Impropias</button>
+            <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="window.location.href='main-index.html'">🏠 Inicio</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="instruccion" class="instruccion">Paso 1: ¿Cuántas partes verdes hay?</div>
+            <div class="contenido-juego">
+                <div class="zona-operacion">
+                    <div id="canvas-contenedor">
+                        <canvas id="canv1" width="180" height="180"></canvas>
+                        <canvas id="canv2" width="180" height="180" style="display:none;"></canvas>
+                    </div>
+                    <div class="fraccion-num">
+                        <div id="num-display" class="incognita">?</div>
+                        <div class="linea-f"></div>
+                        <div id="den-display" class="incognita">?</div>
+                    </div>
+                    <div id="nombre-acumulado" class="nombre-final"></div>
+                </div>
+                <div class="zona-opciones">
+                    <div id="lista-opciones" class="grid-opciones"></div>
+                    <button class="btn-nivel" style="background:#eee; color:#333; margin-top:15px; font-size: 0.8rem; flex-shrink:0;" onclick="irAlMenu()">🏠 Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <h2 style="font-size: 1.8rem; color: #43a047;">¡Perfecto!</h2>
+            <div id="mensaje-final" style="margin: 10px; font-size: 1.5rem; color: #333; font-weight: bold;"></div>
+            <button class="btn-nivel" style="background:#43a047; max-width: 220px;" onclick="iniciar(nivelActual)">Siguiente</button>
+        </div>
+    </div>
+
+    <script>
+        let num, den, faseActual, nivelActual;
+        const c1 = document.getElementById('canv1');
+        const c2 = document.getElementById('canv2');
+        const ctx1 = c1.getContext('2d');
+        const ctx2 = c2.getContext('2d');
+
+        const nombresNum = ["Un", "Dos", "Tres", "Cuatro", "Cinco", "Seis", "Siete", "Ocho", "Nueve", "Diez", 
+                            "Once", "Doce", "Trece", "Catorce", "Quince", "Dieciséis", "Diecisiete", "Dieciocho", "Diecinueve", "Veinte"];
+        
+        const nombresDenBase = ["Medio", "Tercio", "Cuarto", "Quinto", "Sexto", "Séptimo", "Octavo", "Noveno", "Décimo",
+                                "Onceavo", "Doceavo", "Treceavo", "Catorceavo", "Quinceavo", "Dieciseisavo", "Diecisieteavo", "Dieciochoavo", "Diecinueveavo", "Veinteavo"];
+
+        function iniciar(nivel) {
+            nivelActual = nivel;
+            faseActual = 1;
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+            document.getElementById('nombre-acumulado').textContent = "";
+            document.getElementById('num-display').textContent = "?";
+            document.getElementById('num-display').className = "incognita";
+            document.getElementById('den-display').textContent = "?";
+            document.getElementById('den-display').className = "incognita";
+            c2.style.display = "none";
+
+            if (nivel === 1) {
+                den = Math.floor(Math.random() * 9) + 2; 
+                num = Math.floor(Math.random() * (den - 1)) + 1;
+            } else if (nivel === 2) {
+                den = Math.floor(Math.random() * 10) + 11;
+                num = Math.floor(Math.random() * (den - 1)) + 1;
+            } else {
+                den = Math.floor(Math.random() * 7) + 2; 
+                if(Math.random() > 0.4) {
+                    num = Math.floor(Math.random() * (den - 1)) + 1;
+                } else {
+                    num = Math.floor(Math.random() * (den - 1)) + (den + 1);
+                    if (num > 20) num = 20;
+                    c2.style.display = "block";
+                }
+            }
+
+            dibujarCirculo(ctx1, den, Math.min(num, den));
+            if(num > den) dibujarCirculo(ctx2, den, num - den);
+            actualizarInterfaz();
+        }
+
+        function dibujarCirculo(ctx, divisiones, pintadas) {
+            const w = 180; ctx.clearRect(0, 0, w, w);
+            const cx = w/2, cy = w/2, r = 75;
+            const angulo = (2 * Math.PI) / divisiones;
+            for (let i = 0; i < divisiones; i++) {
+                ctx.beginPath(); ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, r, i * angulo - Math.PI/2, (i + 1) * angulo - Math.PI/2);
+                ctx.closePath();
+                ctx.fillStyle = i < pintadas ? "#38ef7d" : "#ffffff";
+                ctx.fill(); ctx.strokeStyle = "#333"; ctx.lineWidth = 2; ctx.stroke();
+            }
+        }
+
+        function actualizarInterfaz() {
+            const contenedor = document.getElementById('lista-opciones');
+            const instruccion = document.getElementById('instruccion');
+            contenedor.innerHTML = "";
+            contenedor.className = (faseActual <= 2) ? "grid-opciones" : "grid-nombres";
+
+            if (faseActual === 1) {
+                instruccion.textContent = "1. ¿Cuántas partes verdes hay en TOTAL?";
+                for(let i=1; i<=20; i++) crearBoton(i, num, contenedor);
+            }
+            else if (faseActual === 2) {
+                instruccion.textContent = "2. ¿En cuántas partes se divide CADA círculo?";
+                for(let i=2; i<=20; i++) crearBoton(i, den, contenedor);
+            }
+            else if (faseActual === 3) {
+                instruccion.textContent = "3. Nombre del numerador:";
+                nombresNum.forEach(n => crearBoton(n, nombresNum[num-1], contenedor));
+            }
+            else if (faseActual === 4) {
+                instruccion.textContent = "4. Nombre del denominador:";
+                let correcto = getNombreDenCorrecto();
+                let inicio = den <= 10 ? 0 : 9;
+                let fin = den <= 10 ? 9 : 19;
+                for(let i=inicio; i<fin; i++) {
+                    let n = nombresDenBase[i];
+                    let plural = num > 1 ? n + "s" : n;
+                    crearBoton(plural, correcto, contenedor);
+                }
+            }
+            // Asegurar que el scroll vuelva arriba al cambiar de fase
+            document.querySelector('.zona-opciones').scrollTop = 0;
+        }
+
+        function getNombreDenCorrecto() {
+            let base = nombresDenBase[den-2];
+            return num > 1 ? base + "s" : base;
+        }
+
+        function crearBoton(texto, correcto, parent) {
+            const btn = document.createElement('button');
+            btn.className = 'btn-opcion';
+            btn.textContent = texto;
+            btn.onclick = () => {
+                if (texto == correcto) {
+                    btn.classList.add('correcta');
+                    procesarAcierto(texto);
+                } else {
+                    btn.classList.add('incorrecta');
+                    setTimeout(() => btn.classList.remove('incorrecta'), 500);
+                }
+            };
+            parent.appendChild(btn);
+        }
+
+        function procesarAcierto(valor) {
+            setTimeout(() => {
+                if (faseActual === 1) {
+                    document.getElementById('num-display').textContent = valor;
+                    document.getElementById('num-display').className = "lleno";
+                    faseActual = 2;
+                } else if (faseActual === 2) {
+                    document.getElementById('den-display').textContent = valor;
+                    document.getElementById('den-display').className = "lleno";
+                    faseActual = 3;
+                } else if (faseActual === 3) {
+                    document.getElementById('nombre-acumulado').textContent = valor + "...";
+                    faseActual = 4;
+                } else if (faseActual === 4) {
+                    let nombreFinal = nombresNum[num-1] + " " + valor.toLowerCase();
+                    document.getElementById('nombre-acumulado').textContent = nombreFinal;
+                    document.getElementById('mensaje-final').textContent = nombreFinal;
+                    document.getElementById('modal-victoria').style.display = 'flex';
+                }
+                actualizarInterfaz();
+            }, 400);
+        }
+
+        function irAlMenu() {
+            document.getElementById('juego').classList.remove('active');
+            document.getElementById('menu').classList.add('active');
+        }
+    </script>
+</body>
+</html>
