@@ -1,5 +1,5 @@
 // service-worker.js
-const CACHE_NAME = 'math-rush-v2.8'; // Incrementa esto cuando hagas cambios
+const CACHE_NAME = 'math-rush-v3.0'; // Incrementa esto cuando hagas cambios
 const STATIC_CACHE = 'static-' + CACHE_NAME;
 const DYNAMIC_CACHE = 'dynamic-' + CACHE_NAME;
 
