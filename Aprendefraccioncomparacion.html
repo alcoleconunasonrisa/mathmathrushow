@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ComparaFracciones Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        .container {
+            width: 98%; max-width: 950px; height: 95vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+        .instruccion {
+            background: #007bff; color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+        }
+        .pantalla { display: none; height: 100%; width: 100%; flex-direction: column; }
+        .pantalla.active { display: flex; }
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+        
+        .zona-comparacion {
+            flex: 1.5; padding: 15px; border: 2px solid #f0f0f0; border-radius: 15px;
+            background: #fafafa; display: flex; flex-direction: column;
+            justify-content: space-around; align-items: center;
+        }
+        
+        .visual-container { display: flex; width: 100%; justify-content: space-around; align-items: center; }
+        .canvas-box { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        
+        .no-dibujo { 
+            width: 160px; height: 160px; display: flex; justify-content: center; 
+            align-items: center; font-size: 5rem; color: #ddd; 
+            background: #eee; border-radius: 50%; border: 4px dashed #ccc;
+        }
+
+        .fraccion-display { display: flex; flex-direction: column; align-items: center; font-size: 3.8rem; font-weight: bold; }
+        .linea-f { width: 90px; height: 7px; background: #333; margin: 5px 0; border-radius: 4px; }
+        
+        .simbolo-pregunta {
+            font-size: 4.5rem; color: #ccc; border: 3px dashed #ccc;
+            width: 90px; height: 90px; display: flex; justify-content: center;
+            align-items: center; border-radius: 15px; margin: 0 10px;
+        }
+
+        .zona-opciones {
+            flex: 0.5; display: flex; flex-direction: column;
+            justify-content: center; gap: 15px; background: #fff; padding: 10px; border-left: 2px solid #eee;
+        }
+
+        .resultado-final-box {
+            display: flex; align-items: center; justify-content: center;
+            gap: 30px; margin: 20px 0; background: #f8f9fa;
+            padding: 20px; border-radius: 20px; border: 2px solid #e0e0e0;
+        }
+        .fraccion-final { display: flex; flex-direction: column; align-items: center; font-size: 3.5rem; font-weight: bold; color: #333; }
+        .linea-final { width: 100%; height: 6px; background: #333; margin: 5px 0; border-radius: 3px; }
+        .simbolo-final { font-size: 5rem; color: #4CAF50; font-weight: bold; }
+
+        .btn-simbolo {
+            padding: 20px; border: 2px solid #ddd; border-radius: 15px;
+            background: white; font-size: 2.5rem; font-weight: bold;
+            cursor: pointer; transition: all 0.2s; color: #333;
+        }
+        .btn-simbolo:hover { background: #f8f9fa; transform: scale(1.05); }
+        .btn-simbolo.incorrecta { background: #f44336 !important; color: white; border-color: #f44336; animation: shake 0.3s; }
+
+        .btn-accion {
+            padding: 12px; border: none; border-radius: 12px; color: white;
+            font-weight: bold; cursor: pointer; transition: transform 0.2s;
+            width: 100%; max-width: 300px; margin: 5px auto;
+        }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+        
+        #modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.98); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center; padding: 20px;
+        }
+
+        canvas { background: white; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; }
+            .zona-opciones { border-left: none; border-top: 2px solid #eee; flex-direction: row; }
+            .btn-simbolo { flex: 1; padding: 10px; font-size: 1.8rem; }
+            .fraccion-display { font-size: 2.8rem; }
+            .visual-container { transform: scale(0.8); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#007bff; margin-bottom:20px;">Compara Fracciones</h1>
+            <button class="btn-accion" style="background:#43a047" onclick="iniciarJuego(1)">Nivel 1: Igual Denominador</button>
+            <button class="btn-accion" style="background:#fb8c00" onclick="iniciarJuego(2)">Nivel 2: Igual Numerador</button>
+            <button class="btn-accion" style="background:#e53935" onclick="iniciarJuego(3)">Nivel 3: Mezcla con Dibujo</button>
+            <button class="btn-accion" style="background:#6a1b9a" onclick="iniciarJuego(4)">Nivel 4: Mezcla SIN Dibujo</button>
+            <button class="btn-accion" style="background:#555; margin-top: 20px;" onclick="window.location.href='main-index.html'">🏠 Inicio</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="instruccion" class="instruccion">¿Qué fracción es mayor?</div>
+            <div class="contenido-juego">
+                <div class="zona-comparacion">
+                    <div class="visual-container">
+                        <div class="canvas-box">
+                            <div id="visualA"></div>
+                            <div class="fraccion-display">
+                                <div id="numA">0</div>
+                                <div class="linea-f"></div>
+                                <div id="denA">0</div>
+                            </div>
+                        </div>
+
+                        <div id="simbolo-pregunta" class="simbolo-pregunta">?</div>
+
+                        <div class="canvas-box">
+                            <div id="visualB"></div>
+                            <div class="fraccion-display">
+                                <div id="numB">0</div>
+                                <div class="linea-f"></div>
+                                <div id="denB">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="zona-opciones">
+                    <button class="btn-simbolo" onclick="validar('<')">&lt;</button>
+                    <button class="btn-simbolo" onclick="validar('=')">=</button>
+                    <button class="btn-simbolo" onclick="validar('>')">&gt;</button>
+                    <button class="btn-accion" style="background:#eee; color:#333; margin-top:15px;" onclick="irAlMenu()">🏠 Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <h2 style="font-size: 2rem; color: #4CAF50;">¡Respuesta Correcta!</h2>
+            <div id="contenedor-resultado" class="resultado-final-box"></div>
+            <div id="mensaje-explicativo" style="font-size: 1.1rem; max-width: 500px; margin-bottom: 25px; color: #555; line-height: 1.4;"></div>
+            <button class="btn-accion" style="background:#43a047; max-width: 250px;" onclick="iniciarJuego(nivelActual)">Siguiente Reto</button>
+        </div>
+    </div>
+
+    <script>
+        let fA = { n: 0, d: 0 }, fB = { n: 0, d: 0 };
+        let nivelActual;
+
+        function iniciarJuego(nivel) {
+            nivelActual = nivel;
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+            document.getElementById('simbolo-pregunta').textContent = "?";
+            document.getElementById('simbolo-pregunta').style.color = "#ccc";
+
+            generarFracciones(nivel);
+            
+            const visualA = document.getElementById('visualA');
+            const visualB = document.getElementById('visualB');
+            const ins = document.getElementById('instruccion');
+
+            if (nivel === 4) {
+                visualA.innerHTML = '<div class="no-dibujo">?</div>';
+                visualB.innerHTML = '<div class="no-dibujo">?</div>';
+                ins.textContent = "¡A pensar! Compara los números sin ayuda de dibujos.";
+            } else {
+                visualA.innerHTML = '<canvas id="canvasA" width="160" height="160"></canvas>';
+                visualB.innerHTML = '<canvas id="canvasB" width="160" height="160"></canvas>';
+                dibujarFraccion('canvasA', fA);
+                dibujarFraccion('canvasB', fB);
+                ins.textContent = "¿Qué fracción es mayor? Fíjate en el dibujo.";
+            }
+
+            actualizarTextos();
+        }
+
+        function generarFracciones(nivel) {
+            let tipo = (nivel === 1) ? 1 : (nivel === 2) ? 2 : (Math.random() > 0.5 ? 1 : 2);
+
+            if (tipo === 1) { // Igual Denominador
+                let d = Math.floor(Math.random() * 7) + 3;
+                fA.d = d; fB.d = d;
+                do {
+                    fA.n = Math.floor(Math.random() * (d - 1)) + 1;
+                    fB.n = Math.floor(Math.random() * (d - 1)) + 1;
+                } while (fA.n === fB.n && Math.random() > 0.2);
+            } else { // Igual Numerador
+                let n = Math.floor(Math.random() * 5) + 1;
+                fA.n = n; fB.n = n;
+                do {
+                    fA.d = Math.floor(Math.random() * 8) + n;
+                    fB.d = Math.floor(Math.random() * 8) + n;
+                    if(fA.d < 2) fA.d = 2; if(fB.d < 2) fB.d = 2;
+                } while (fA.d === fB.d && Math.random() > 0.2);
+            }
+        }
+
+        function actualizarTextos() {
+            document.getElementById('numA').textContent = fA.n;
+            document.getElementById('denA').textContent = fA.d;
+            document.getElementById('numB').textContent = fB.n;
+            document.getElementById('denB').textContent = fB.d;
+        }
+
+        function dibujarFraccion(id, fraccion) {
+            const canvas = document.getElementById(id);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const radio = 70;
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const anguloPaso = (2 * Math.PI) / fraccion.d;
+            for (let i = 0; i < fraccion.d; i++) {
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, radio, i * anguloPaso - Math.PI/2, (i + 1) * anguloPaso - Math.PI/2);
+                ctx.closePath();
+                ctx.fillStyle = i < fraccion.n ? "#38ef7d" : "#ffffff";
+                ctx.fill();
+                ctx.strokeStyle = "#333";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        function validar(opcion) {
+            const valA = fA.n / fA.d;
+            const valB = fB.n / fB.d;
+            let correcta = (Math.abs(valA - valB) < 0.001) ? '=' : (valA < valB ? '<' : '>');
+
+            if (opcion === correcta) {
+                mostrarResultadoFinal(correcta);
+            } else {
+                const btns = document.querySelectorAll('.btn-simbolo');
+                btns.forEach(b => {
+                    if(b.textContent === opcion) {
+                        b.classList.add('incorrecta');
+                        setTimeout(() => b.classList.remove('incorrecta'), 500);
+                    }
+                });
+            }
+        }
+
+        function mostrarResultadoFinal(simbolo) {
+            document.getElementById('simbolo-pregunta').textContent = simbolo;
+            document.getElementById('simbolo-pregunta').style.color = "#4CAF50";
+
+            const contenedor = document.getElementById('contenedor-resultado');
+            contenedor.innerHTML = `
+                <div class="fraccion-final"><div>${fA.n}</div><div class="linea-final"></div><div>${fA.d}</div></div>
+                <div class="simbolo-final">${simbolo}</div>
+                <div class="fraccion-final"><div>${fB.n}</div><div class="linea-final"></div><div>${fB.d}</div></div>
+            `;
+
+            let texto = "";
+            if (fA.d === fB.d && fA.n !== fB.n) {
+                texto = `Como dividimos en las mismas partes (${fA.d}), la fracción con el número de arriba más grande es la mayor.`;
+            } else if (fA.n === fB.n && fA.d !== fB.d) {
+                texto = `Como cogemos las mismas partes (${fA.n}), es mayor la que tiene el número de abajo más pequeño porque sus trozos son más grandes.`;
+            } else if (fA.n === fB.n && fA.d === fB.d) {
+                texto = "¡Son exactamente la misma fracción!";
+            }
+
+            document.getElementById('mensaje-explicativo').textContent = texto;
+            setTimeout(() => { document.getElementById('modal-victoria').style.display = 'flex'; }, 600);
+        }
+
+        function irAlMenu() {
+            document.getElementById('juego').classList.remove('active');
+            document.getElementById('menu').classList.add('active');
+        }
+    </script>
+</body>
+</html>

@@ -186,14 +186,16 @@
     </div>
 
     <footer>
-        <p>© 2026 Math Math Rush Ow - Academia de Aventuras</p>
+    <a href="privacy-policy.html">Política de Privacidad</a> | 
+    <a href="terms-of-service.html">Términos de Servicio</a>
+    <p>© 2026 Math Math Rush Ow - Academia de Aventuras</p>
     </footer>
 
     <script>
         // Lógica del Service Worker y PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js?v=2.6')
+                navigator.serviceWorker.register('/service-worker.js?v=2.8')
                     .then(reg => console.log('✅ SW registrado'))
                     .catch(err => console.error('❌ Error SW:', err));
             });
@@ -228,3 +230,4 @@
     </script>
 </body>
 </html>
+
