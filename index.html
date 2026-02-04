@@ -222,9 +222,6 @@
         window.addEventListener('load', () => {
             if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
                 installButton.style.display = 'none';
-                setTimeout(() => {
-                    window.location.href = 'main-index.html';
-                }, 3500);
             }
         });
     </script>
