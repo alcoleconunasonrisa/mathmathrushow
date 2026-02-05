@@ -1,19 +1,19 @@
 // service-worker.js
-const CACHE_NAME = 'math-rush-v3.1'; // Incrementado a 3.1 para forzar la actualización
+const CACHE_NAME = 'math-rush-v4.0'; // Incrementado a 4.0 para forzar la actualización limpia
 const STATIC_CACHE = 'static-' + CACHE_NAME;
 const DYNAMIC_CACHE = 'dynamic-' + CACHE_NAME;
 
 // Archivos críticos para funcionamiento básico y offline
 const staticAssets = [
-  '/',  
-  '/index.html',
-  '/main-index.html',
-  '/manifest.json',
-  '/privacy-policy.html',
-  '/terms-of-service.html',
-  '/icon-192.png',
-  '/icon-512.png',
-  'iconkid.jpg' // Añadido porque es el fondo de tu web
+  './',  
+  './index.html',
+  './main-index.html',
+  './manifest.json',
+  './privacy-policy.html',
+  './terms-of-service.html',
+  './icon-192.png',
+  './icon-512.png',
+  './iconkid.jpg' 
 ];
 
 // 1. Instalación: Guardar archivos estáticos
@@ -22,6 +22,7 @@ self.addEventListener('install', event => {
     caches.open(STATIC_CACHE)
       .then(cache => {
         console.log('✅ Precargando recursos estáticos');
+        // Usamos rutas relativas para evitar problemas con redirecciones de dominio
         return cache.addAll(staticAssets);
       })
       .then(() => self.skipWaiting()) 
@@ -44,23 +45,26 @@ self.addEventListener('activate', event => {
   );
 });
 
-// 3. Estrategia Fetch: Caché primero, luego Red (con validación de seguridad)
+// 3. Estrategia Fetch: Manejo de Redirecciones y Seguridad
 self.addEventListener('fetch', event => {
-  // Solo procesar peticiones GET
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
-      // Si está en caché, lo devolvemos inmediatamente
       if (cachedResponse) return cachedResponse;
 
-      // Si no está, vamos a la red
       return fetch(event.request).then(networkResponse => {
         
-        // --- VALIDACIÓN DE SEGURIDAD PARA CHROME ---
-        // Solo guardamos en caché si la respuesta es válida (status 200)
-        // y si el recurso es de nuestro propio dominio (type === 'basic').
-        // Esto evita errores de "Opaque Response" con CDNs externos.
+        // --- SOLUCIÓN AL ERROR DE REDIRECCIÓN ---
+        // Si la respuesta fue redireccionada, la devolvemos tal cual.
+        // Chrome bloquea el guardado en caché de respuestas redireccionadas por seguridad.
+        if (networkResponse.redirected) {
+          return networkResponse;
+        }
+
+        // --- VALIDACIÓN DE SEGURIDAD ---
+        // Solo guardamos si es una respuesta exitosa y de nuestro propio origen (basic).
+        // Esto evita que el SW se "pille" con recursos de terceros (Google Fonts, CDNs).
         if (
           !networkResponse || 
           networkResponse.status !== 200 || 
@@ -76,9 +80,9 @@ self.addEventListener('fetch', event => {
 
         return networkResponse;
       }).catch(() => {
-        // Si falla la red (offline) y es una navegación, mostrar la home
+        // Soporte offline para navegación principal
         if (event.request.mode === 'navigate') {
-          return caches.match('/index.html');
+          return caches.match('./index.html');
         }
       });
     })
