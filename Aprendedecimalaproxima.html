@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aproxima Decimales Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #673ab7, #9575cd);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+
+        .container {
+            width: 98%; max-width: 950px; height: 95vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        .instruccion {
+            background: #673ab7; color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+        }
+
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+
+        .zona-operacion {
+            flex: 1.2; overflow-y: auto; padding: 15px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        .zona-teclado {
+            flex: 1.3; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        .pregunta-container {
+            text-align: center; font-family: 'Segoe UI', sans-serif;
+        }
+
+        .num-original {
+            font-size: 3.5rem; font-weight: bold; color: #333; margin-bottom: 10px;
+        }
+
+        .objetivo-texto {
+            font-size: 1.4rem; color: #673ab7; font-weight: bold; margin-bottom: 20px;
+            background: #ede7f6; padding: 10px 20px; border-radius: 50px;
+        }
+
+        .respuesta-box {
+            font-size: 3rem; width: 250px; height: 80px; border: 4px dashed #bbb;
+            border-radius: 15px; display: flex; justify-content: center;
+            align-items: center; color: #673ab7; background: #fff; font-weight: bold;
+        }
+
+        .respuesta-box.correcta { border: 4px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .respuesta-box.incorrecta { border: 4px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 300px; }
+        .tecla { 
+            padding: 15px 0; font-size: 1.8rem; border: none; border-radius: 12px; 
+            background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer;
+        }
+        .tecla:active { box-shadow: 0 1px #ccc; transform: translateY(3px); }
+        .tecla-accion { background: #ffccbc; color: #d84315; }
+        .tecla-enviar { background: #c8e6c9; color: #2e7d32; grid-column: span 3; margin-top: 5px; }
+
+        .pantalla { display: none; height: 100%; width: 100%; }
+        .pantalla.active { display: flex; flex-direction: column; }
+
+        #modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+            padding: 20px;
+        }
+
+        .solucion-texto { font-size: 1.8rem; color: #333; margin: 20px 0; font-weight: bold; }
+        .btn-nivel { width: 100%; max-width: 350px; padding: 12px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; }
+            .zona-teclado { border-left: none; border-top: 2px solid #eee; }
+            .num-original { font-size: 2.5rem; }
+            .respuesta-box { width: 200px; height: 60px; font-size: 2rem; }
+            .tecla { padding: 10px 0; font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#673ab7; margin-bottom:15px;">Aproximación Decimal</h1>
+            <button class="btn-nivel" style="background:#43a047" onclick="iniciar(0)">Nivel 1: A las Unidades</button>
+            <button class="btn-nivel" style="background:#fb8c00" onclick="iniciar(1)">Nivel 2: A las Décimas</button>
+            <button class="btn-nivel" style="background:#0288d1" onclick="iniciar(2)">Nivel 3: A las Centésimas</button>
+            <button class="btn-nivel" style="background:#c62828" onclick="iniciar(3)">Nivel 4: Modo Mix</button>
+            <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="irAInicioFuera()">🏠 Inicio Web</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="instruccion" class="instruccion">Escribe el número redondeado</div>
+            <div class="contenido-juego">
+                <div class="zona-operacion">
+                    <div class="pregunta-container">
+                        <div id="num-display" class="num-original">-</div>
+                        <div id="objetivo-display" class="objetivo-texto">-</div>
+                        <div id="caja-respuesta" class="respuesta-box"></div>
+                    </div>
+                </div>
+                <div class="zona-teclado">
+                    <div class="teclado">
+                        <button class="tecla" onclick="addNum('7')">7</button>
+                        <button class="tecla" onclick="addNum('8')">8</button>
+                        <button class="tecla" onclick="addNum('9')">9</button>
+                        <button class="tecla" onclick="addNum('4')">4</button>
+                        <button class="tecla" onclick="addNum('5')">5</button>
+                        <button class="tecla" onclick="addNum('6')">6</button>
+                        <button class="tecla" onclick="addNum('1')">1</button>
+                        <button class="tecla" onclick="addNum('2')">2</button>
+                        <button class="tecla" onclick="addNum('3')">3</button>
+                        <button class="tecla" onclick="addNum('0')">0</button>
+                        <button class="tecla" onclick="addNum(',')">,</button>
+                        <button class="tecla tecla-accion" onclick="borrar()">⌫</button>
+                        <button class="tecla tecla-enviar" onclick="comprobar()">COMPROBAR</button>
+                        <button class="tecla tecla-enviar" style="background:#eee; color:#333; font-size: 1rem;" onclick="volverAlMenuNiveles()">🏠 Volver al Menú</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <h2 style="font-size: 2.2rem; color: #4CAF50;">¡Correcto! ⭐</h2>
+            <div id="texto-explicativo" class="solucion-texto"></div>
+            <button class="btn-nivel" style="background:#4CAF50; max-width: 250px;" onclick="volverAJugarMismoNivel()">Siguiente</button>
+            <button class="btn-nivel" style="background:#1e88e5; max-width: 250px;" onclick="volverAlMenuNiveles()">Menú</button>
+        </div>
+    </div>
+
+    <script>
+        let valorOriginal, respuestaCorrecta, precisionActual;
+        let nivelConfig = 0; 
+        let inputUsuario = "";
+        let audioCtx = null;
+
+        const nombresPrecision = ["las Unidades", "las Décimas", "las Centésimas"];
+
+        function playSound(frec) {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(frec, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        }
+
+        function generarPregunta() {
+            inputUsuario = "";
+            actualizarCaja();
+            
+            let cantDecimales = Math.floor(Math.random() * 4) + 1; 
+            valorOriginal = (Math.random() * 20).toFixed(cantDecimales);
+            
+            if (nivelConfig === 3) {
+                precisionActual = Math.floor(Math.random() * 3);
+            } else {
+                precisionActual = nivelConfig;
+            }
+
+            respuestaCorrecta = parseFloat(valorOriginal).toFixed(precisionActual);
+            
+            document.getElementById('num-display').textContent = valorOriginal.toString().replace('.', ',');
+            document.getElementById('objetivo-display').textContent = "Aproxima a " + nombresPrecision[precisionActual];
+            
+            const caja = document.getElementById('caja-respuesta');
+            caja.className = 'respuesta-box';
+        }
+
+        function addNum(n) {
+            if (inputUsuario.length < 8) {
+                inputUsuario += n;
+                actualizarCaja();
+            }
+        }
+
+        function borrar() {
+            inputUsuario = inputUsuario.slice(0, -1);
+            actualizarCaja();
+        }
+
+        function actualizarCaja() {
+            document.getElementById('caja-respuesta').textContent = inputUsuario;
+        }
+
+        function iniciar(n) {
+            nivelConfig = n;
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+            document.getElementById('modal-victoria').style.display = 'none';
+            generarPregunta();
+        }
+
+        function comprobar() {
+            const caja = document.getElementById('caja-respuesta');
+            if (inputUsuario === "") return;
+
+            let intento = inputUsuario.replace(',', '.');
+            let numIntento = parseFloat(intento);
+            let numCorrecto = parseFloat(respuestaCorrecta);
+
+            if (numIntento === numCorrecto) {
+                playSound(800);
+                caja.className = 'respuesta-box correcta';
+                
+                document.getElementById('texto-explicativo').innerHTML = 
+                    `El número ${valorOriginal.replace('.', ',')}<br>aproximado a ${nombresPrecision[precisionActual]} es<br><span style="color:#43a047">${respuestaCorrecta.replace('.', ',')}</span>`;
+                
+                setTimeout(() => { document.getElementById('modal-victoria').style.display = 'flex'; }, 600);
+            } else {
+                playSound(150);
+                caja.className = 'respuesta-box incorrecta';
+                setTimeout(() => {
+                    inputUsuario = ""; // Borrado inteligente tras el fallo
+                    actualizarCaja();
+                    caja.className = 'respuesta-box';
+                }, 500);
+            }
+        }
+
+        function volverAlMenuNiveles() {
+            document.getElementById('juego').classList.remove('active');
+            document.getElementById('menu').classList.add('active');
+            document.getElementById('modal-victoria').style.display = 'none';
+        }
+
+        function volverAJugarMismoNivel() {
+            document.getElementById('modal-victoria').style.display = 'none';
+            generarPregunta();
+        }
+
+        function irAInicioFuera() { window.location.href = 'main-index.html'; }
+    </script>
+</body>
+</html>

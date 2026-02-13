@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tutor de Números Mixtos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #00796b, #4db6ac);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+
+        .container {
+            width: 98%; max-width: 950px; height: 95vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        .instruccion {
+            background: #00796b; color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+        }
+
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+
+        .zona-operacion {
+            flex: 1.2; padding: 15px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        .zona-teclado {
+            flex: 1.3; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        /* Estilos de Fracciones */
+        .fraccion-display { display: inline-flex; flex-direction: column; align-items: center; margin-bottom: 25px; }
+        .linea-fraccion { width: 100%; height: 4px; background: #333; margin: 4px 0; border-radius: 2px; }
+        
+        .num-impropio { font-size: 3.5rem; font-weight: bold; color: #333; }
+
+        /* Contenedor del Mixto */
+        .mixto-container { display: flex; align-items: center; gap: 15px; }
+        
+        .input-box {
+            border: 3px solid #ccc; border-radius: 12px; background: #fff;
+            display: flex; justify-content: center; align-items: center; font-weight: bold;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .input-box.active { border-color: #00796b; background: #e0f2f1; transform: scale(1.05); box-shadow: 0 0 8px rgba(0,121,107,0.3); }
+        
+        .box-entero { width: 90px; height: 110px; font-size: 3rem; }
+        .box-frac { width: 85px; height: 65px; font-size: 2.2rem; }
+
+        .fraccion-input { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+
+        .input-box.correcta { border-color: #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .input-box.incorrecta { border-color: #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+
+        /* Solución visual */
+        .explicacion-visual {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            font-size: 2.8rem; font-weight: bold; color: #00796b; margin-top: 15px;
+        }
+        .frac-mini { display: flex; flex-direction: column; align-items: center; font-size: 2rem; }
+        .linea-mini { width: 100%; height: 3px; background: #00796b; margin: 2px 0; }
+
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 280px; }
+        .tecla { 
+            padding: 15px 0; font-size: 1.8rem; border: none; border-radius: 12px; 
+            background: #f5f5f5; font-weight: bold; box-shadow: 0 4px #ddd; cursor: pointer;
+        }
+        .tecla:active { box-shadow: 0 1px #ddd; transform: translateY(3px); }
+        .tecla-accion { background: #ffebee; color: #c62828; }
+        .tecla-enviar { background: #00796b; color: white; grid-column: span 3; margin-top: 10px; font-size: 1.4rem; }
+
+        .pantalla { display: none; height: 100%; width: 100%; }
+        .pantalla.active { display: flex; flex-direction: column; }
+
+        #modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.98); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center; padding: 30px;
+        }
+
+        .btn-nivel { width: 100%; max-width: 350px; padding: 15px; margin: 8px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; }
+            .zona-teclado { border-left: none; border-top: 2px solid #eee; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#00796b; margin-bottom:25px;">Tutor de Números Mixtos</h1>
+            <button class="btn-nivel" style="background:#4db6ac" onclick="iniciar(1)">Nivel 1: Básico</button>
+            <button class="btn-nivel" style="background:#00897b" onclick="iniciar(2)">Nivel 2: Intermedio</button>
+            <button class="btn-nivel" style="background:#004d40" onclick="iniciar(3)">Nivel 3: Experto (Cálculo fácil)</button>
+            <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="irAInicioFuera()">🏠 Inicio Web</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="barra-instruccion" class="instruccion">¿Cuántas veces cabe el denominador en el numerador?</div>
+            <div class="contenido-juego">
+                <div class="zona-operacion">
+                    <div class="fraccion-display">
+                        <div id="val-num" class="num-impropio">?</div>
+                        <div class="linea-fraccion" style="width: 80px;"></div>
+                        <div id="val-den" class="num-impropio">?</div>
+                    </div>
+                    
+                    <div class="mixto-container">
+                        <div id="box-e" class="input-box box-entero active" onclick="setFocus('e')"></div>
+                        
+                        <div class="fraccion-input">
+                            <div id="box-n" class="input-box box-frac" onclick="setFocus('n')"></div>
+                            <div class="linea-fraccion" style="width: 75px; background: #00796b;"></div>
+                            <div id="box-d" class="input-box box-frac" onclick="setFocus('d')"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="zona-teclado">
+                    <div class="teclado">
+                        <button class="tecla" onclick="addNum('7')">7</button>
+                        <button class="tecla" onclick="addNum('8')">8</button>
+                        <button class="tecla" onclick="addNum('9')">9</button>
+                        <button class="tecla" onclick="addNum('4')">4</button>
+                        <button class="tecla" onclick="addNum('5')">5</button>
+                        <button class="tecla" onclick="addNum('6')">6</button>
+                        <button class="tecla" onclick="addNum('1')">1</button>
+                        <button class="tecla" onclick="addNum('2')">2</button>
+                        <button class="tecla" onclick="addNum('3')">3</button>
+                        <button class="tecla" style="grid-column: span 2" onclick="addNum('0')">0</button>
+                        <button class="tecla tecla-accion" onclick="borrar()">⌫</button>
+                        <button class="tecla tecla-enviar" onclick="comprobar()">COMPROBAR</button>
+                        <button class="tecla tecla-enviar" style="background:#eee; color:#333; font-size: 1rem;" onclick="volverAlMenuNiveles()">🏠 Menú</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <h2 style="font-size: 2.5rem; color: #4CAF50; margin-bottom:10px;">¡Muy bien! 🌟</h2>
+            <div id="texto-explicativo-superior" style="font-size: 1.3rem; color:#444;"></div>
+            
+            <div class="explicacion-visual">
+                <span id="sol-entero"></span>
+                <div class="frac-mini">
+                    <span id="sol-num"></span>
+                    <div class="linea-mini"></div>
+                    <span id="sol-den"></span>
+                </div>
+            </div>
+
+            <button class="btn-nivel" style="background:#4CAF50; max-width: 250px; margin-top:20px;" onclick="generarPregunta()">Siguiente</button>
+            <button class="btn-nivel" style="background:#00796b; max-width: 250px;" onclick="volverAlMenuNiveles()">Menú</button>
+        </div>
+    </div>
+
+    <script>
+        let solE, solN, solD, impropiaNum;
+        let focusActual = 'e';
+        let inputs = { e: "", n: "", d: "" };
+        let nivelActual = 1;
+        let audioCtx = null;
+
+        function playSound(frec) {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(frec, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        }
+
+        function generarPregunta() {
+            document.getElementById('modal-victoria').style.display = 'none';
+            document.getElementById('barra-instruccion').textContent = "¿Cuántas veces cabe el denominador en el numerador?";
+            inputs = { e: "", n: "", d: "" };
+            setFocus('e');
+            
+            let entero, den, num;
+            if (nivelActual === 1 || nivelActual === 3) {
+                entero = Math.floor(Math.random() * 4) + 1;
+                den = Math.floor(Math.random() * 3) + 2;
+                num = Math.floor(Math.random() * (den - 1)) + 1;
+            } else {
+                entero = Math.floor(Math.random() * 6) + 2;
+                den = Math.floor(Math.random() * 6) + 3;
+                num = Math.floor(Math.random() * (den - 1)) + 1;
+            }
+
+            solE = entero; solN = num; solD = den;
+            impropiaNum = (entero * den) + num;
+
+            document.getElementById('val-num').textContent = impropiaNum;
+            document.getElementById('val-den').textContent = den;
+            
+            if (nivelActual < 3) {
+                inputs.d = den.toString();
+                document.getElementById('box-d').style.background = "#f0f0f0";
+                document.getElementById('box-d').style.color = "#666";
+            } else {
+                document.getElementById('box-d').style.background = "#fff";
+                document.getElementById('box-d').style.color = "#333";
+            }
+            updateVisuals();
+        }
+
+        function setFocus(f) {
+            if (nivelActual < 3 && f === 'd') return; 
+            focusActual = f;
+            if(f === 'n') {
+                document.getElementById('barra-instruccion').textContent = "Escribe el resto (lo que sobra)";
+            } else if (f === 'd') {
+                document.getElementById('barra-instruccion').textContent = "¿Cuál era el denominador original?";
+            } else {
+                document.getElementById('barra-instruccion').textContent = "¿Cuántas veces cabe el denominador en el numerador?";
+            }
+            updateVisuals();
+        }
+
+        function addNum(n) {
+            if (inputs[focusActual].length < 2) {
+                inputs[focusActual] += n;
+                
+                if (focusActual === 'e' && inputs.e.length >= solE.toString().length) {
+                    if (inputs.n === "") setTimeout(() => setFocus('n'), 200);
+                    else if (nivelActual === 3 && inputs.d === "") setTimeout(() => setFocus('d'), 200);
+                } else if (focusActual === 'n' && inputs.n.length >= solN.toString().length) {
+                    if (nivelActual === 3 && inputs.d === "") setTimeout(() => setFocus('d'), 200);
+                    else if (inputs.e === "") setTimeout(() => setFocus('e'), 200);
+                }
+                updateVisuals();
+            }
+        }
+
+        function borrar() {
+            if (inputs[focusActual] === "") {
+                if (focusActual === 'd') setFocus('n');
+                else if (focusActual === 'n') setFocus('e');
+            }
+            inputs[focusActual] = inputs[focusActual].slice(0, -1);
+            updateVisuals();
+        }
+
+        function updateVisuals() {
+            document.getElementById('box-e').textContent = inputs.e;
+            document.getElementById('box-n').textContent = inputs.n;
+            document.getElementById('box-d').textContent = inputs.d;
+            
+            document.getElementById('box-e').className = 'input-box box-entero' + (focusActual==='e'?' active':'');
+            document.getElementById('box-n').className = 'input-box box-frac' + (focusActual==='n'?' active':'');
+            document.getElementById('box-d').className = 'input-box box-frac' + (focusActual==='d'?' active':'');
+        }
+
+        function iniciar(n) {
+            nivelActual = n;
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+            generarPregunta();
+        }
+
+        function comprobar() {
+            let userE = parseInt(inputs.e);
+            let userN = parseInt(inputs.n);
+            let userD = parseInt(inputs.d);
+
+            if (userE === solE && userN === solN && userD === solD) {
+                playSound(800);
+                document.getElementById('texto-explicativo-superior').innerHTML = 
+                    `Has dividido <b>${impropiaNum}</b> entre <b>${solD}</b>.<br>El cociente es <b>${solE}</b> y el resto es <b>${solN}</b>.`;
+                
+                document.getElementById('sol-entero').textContent = solE;
+                document.getElementById('sol-num').textContent = solN;
+                document.getElementById('sol-den').textContent = solD;
+                
+                setTimeout(() => { document.getElementById('modal-victoria').style.display = 'flex'; }, 400);
+            } else {
+                playSound(150);
+                
+                let errorE = (userE !== solE);
+                let errorN = (userN !== solN);
+                let errorD = (userD !== solD && nivelActual === 3);
+
+                if (errorE) document.getElementById('box-e').classList.add('incorrecta');
+                if (errorN) document.getElementById('box-n').classList.add('incorrecta');
+                if (errorD) document.getElementById('box-d').classList.add('incorrecta');
+                
+                setTimeout(() => {
+                    if (errorE) inputs.e = "";
+                    if (errorN) inputs.n = "";
+                    if (errorD) inputs.d = "";
+                    
+                    document.querySelectorAll('.input-box').forEach(b => b.classList.remove('incorrecta'));
+                    
+                    if (inputs.e === "") setFocus('e');
+                    else if (inputs.n === "") setFocus('n');
+                    else if (inputs.d === "" && nivelActual === 3) setFocus('d');
+                    
+                    updateVisuals();
+                }, 500);
+            }
+        }
+
+        function volverAlMenuNiveles() {
+            document.getElementById('juego').classList.remove('active');
+            document.getElementById('menu').classList.add('active');
+            document.getElementById('modal-victoria').style.display = 'none';
+        }
+
+        function irAInicioFuera() { window.location.href = 'main-index.html'; }
+    </script>
+</body>
+</html>

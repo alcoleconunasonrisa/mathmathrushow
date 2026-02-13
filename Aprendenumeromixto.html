@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Identifica el Número Mixto</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #43A047, #81C784);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+
+        .container {
+            width: 98%; max-width: 950px; height: 95vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        .instruccion {
+            background: #2E7D32; color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+        }
+
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+
+        .zona-visual {
+            flex: 1.5; padding: 15px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        #canvas-dibujo { max-width: 100%; max-height: 250px; }
+
+        .zona-teclado {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        .resultado-container { 
+            display: flex; align-items: center; gap: 15px; margin-top: 20px;
+        }
+        
+        .input-box {
+            border: 3px solid #ccc; border-radius: 12px; background: #fff;
+            display: flex; justify-content: center; align-items: center; font-weight: bold;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .input-box.active { border-color: #2E7D32; background: #E8F5E9; transform: scale(1.05); }
+        
+        .box-entero { width: 90px; height: 110px; font-size: 3.5rem; }
+        .box-frac { width: 75px; height: 65px; font-size: 2.2rem; }
+
+        .fraccion-vertical { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .linea-frac { width: 70px; height: 5px; background: #333; border-radius: 2px; }
+
+        .input-box.incorrecta { border-color: #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+
+        .resultado-final-mixto { display: flex; align-items: center; gap: 10px; margin: 20px 0; }
+        .entero-final { font-size: 5rem; font-weight: bold; color: #2E7D32; }
+        .frac-final { display: flex; flex-direction: column; align-items: center; font-size: 2.5rem; font-weight: bold; }
+        .linea-final { width: 60px; height: 4px; background: #2E7D32; margin: 5px 0; }
+
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 280px; }
+        .tecla { 
+            padding: 15px 0; font-size: 1.8rem; border: none; border-radius: 12px; 
+            background: #f5f5f5; font-weight: bold; box-shadow: 0 4px #ddd; cursor: pointer;
+        }
+        .tecla:active { box-shadow: 0 1px #ddd; transform: translateY(3px); }
+        .tecla-accion { background: #ffebee; color: #c62828; }
+        .tecla-enviar { background: #2E7D32; color: white; grid-column: span 3; margin-top: 10px; font-size: 1.4rem; }
+
+        .pantalla { display: none; height: 100%; width: 100%; }
+        .pantalla.active { display: flex; flex-direction: column; }
+
+        #modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.98); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center; padding: 30px;
+        }
+
+        .btn-nivel { width: 100%; max-width: 350px; padding: 15px; margin: 8px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; overflow-y: auto; }
+            .zona-teclado { border-left: none; border-top: 2px solid #eee; padding-top: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="menu" class="pantalla active" style="justify-content: center;">
+            <h1 style="text-align:center; color:#2E7D32; margin-bottom:25px;">Identifica el Número Mixto</h1>
+            <button class="btn-nivel" style="background:#81C784" onclick="iniciar(1)">Nivel 1</button>
+            <button class="btn-nivel" style="background:#4CAF50" onclick="iniciar(2)">Nivel 2</button>
+            <button class="btn-nivel" style="background:#2E7D32" onclick="iniciar(3)">Nivel 3</button>
+            <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="irAInicioFuera()">🏠 Inicio Web</button>
+        </div>
+
+        <div id="juego" class="pantalla">
+            <div id="barra-instruccion" class="instruccion">¿Cuántas figuras enteras ves?</div>
+            <div class="contenido-juego">
+                <div class="zona-visual">
+                    <canvas id="canvas-dibujo"></canvas>
+                    <div class="resultado-container">
+                        <div id="box-e" class="input-box box-entero" onclick="setFocus('e')"></div>
+                        <div class="fraccion-vertical">
+                            <div id="box-n" class="input-box box-frac" onclick="setFocus('n')"></div>
+                            <div class="linea-frac"></div>
+                            <div id="box-d" class="input-box box-frac" onclick="setFocus('d')"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="zona-teclado">
+                    <div class="teclado">
+                        <button class="tecla" onclick="addNum('7')">7</button>
+                        <button class="tecla" onclick="addNum('8')">8</button>
+                        <button class="tecla" onclick="addNum('9')">9</button>
+                        <button class="tecla" onclick="addNum('4')">4</button>
+                        <button class="tecla" onclick="addNum('5')">5</button>
+                        <button class="tecla" onclick="addNum('6')">6</button>
+                        <button class="tecla" onclick="addNum('1')">1</button>
+                        <button class="tecla" onclick="addNum('2')">2</button>
+                        <button class="tecla" onclick="addNum('3')">3</button>
+                        <button class="tecla" style="grid-column: span 2" onclick="addNum('0')">0</button>
+                        <button class="tecla tecla-accion" onclick="borrar()">⌫</button>
+                        <button class="tecla tecla-enviar" onclick="comprobar()">COMPROBAR</button>
+                        <button class="tecla tecla-enviar" style="background:#eee; color:#333; font-size: 1rem;" onclick="volverAlMenuNiveles()">🏠 Menú</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-victoria">
+            <h2 style="font-size: 2.5rem; color: #4CAF50; margin-bottom:10px;">¡Muy bien! 🎯</h2>
+            <div class="resultado-final-mixto">
+                <div id="res-e" class="entero-final"></div>
+                <div class="frac-final">
+                    <div id="res-n"></div>
+                    <div class="linea-final"></div>
+                    <div id="res-d"></div>
+                </div>
+            </div>
+            <button class="btn-nivel" style="background:#4CAF50; max-width: 250px; margin-top:20px;" onclick="generarPregunta()">Siguiente</button>
+            <button class="btn-nivel" style="background:#2E7D32; max-width: 250px;" onclick="volverAlMenuNiveles()">Menú</button>
+        </div>
+    </div>
+
+    <script>
+        let qE, qN, qD;
+        let focusActual = 'e';
+        let inputs = { e: "", n: "", d: "" };
+        let nivelActual = 1;
+        let audioCtx = null;
+
+        function playSound(frec, tipo = 'sine') {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = tipo;
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(frec, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+        }
+
+        function playSuccessSound() {
+            setTimeout(() => playSound(523.25), 0);
+            setTimeout(() => playSound(659.25), 100);
+            setTimeout(() => playSound(783.99), 200);
+        }
+
+        function iniciar(n) {
+            nivelActual = n;
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('juego').classList.add('active');
+            generarPregunta();
+        }
+
+        function generarPregunta() {
+            document.getElementById('modal-victoria').style.display = 'none';
+            inputs = { e: "", n: "", d: "" };
+            setFocus('e');
+            
+            if (nivelActual === 1) { qE = Math.floor(Math.random() * 2) + 1; qD = Math.floor(Math.random() * 3) + 2; }
+            else if (nivelActual === 2) { qE = Math.floor(Math.random() * 2) + 2; qD = Math.floor(Math.random() * 4) + 4; }
+            else { qE = Math.floor(Math.random() * 3) + 2; qD = Math.floor(Math.random() * 3) + 8; }
+            qN = Math.floor(Math.random() * (qD - 1)) + 1;
+
+            dibujarFracciones();
+            updateVisuals();
+        }
+
+        function dibujarFracciones() {
+            const canvas = document.getElementById('canvas-dibujo');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 600; canvas.height = 200;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const total = qE + 1;
+            const r = 38, gap = 95;
+            const startX = (canvas.width - (total * gap)) / 2 + r;
+            for (let i = 0; i < qE; i++) drawCircle(ctx, startX + (i * gap), 100, r, qD, qD);
+            drawCircle(ctx, startX + (qE * gap), 100, r, qD, qN);
+        }
+
+        function drawCircle(ctx, x, y, r, div, fill) {
+            const step = (2 * Math.PI) / div;
+            for (let i = 0; i < div; i++) {
+                ctx.beginPath(); ctx.moveTo(x, y);
+                ctx.arc(x, y, r, i * step - Math.PI/2, (i + 1) * step - Math.PI/2);
+                ctx.fillStyle = i < fill ? "#FFC107" : "#FFFFFF";
+                ctx.fill(); ctx.strokeStyle = "#333"; ctx.lineWidth = 2; ctx.stroke();
+            }
+        }
+
+        function setFocus(f) {
+            focusActual = f;
+            const msgs = { e: "Unidades completas", n: "Numerador (pintadas)", d: "Denominador (totales)" };
+            document.getElementById('barra-instruccion').textContent = msgs[f];
+            updateVisuals();
+        }
+
+        function addNum(n) {
+            // Evitar escribir si la casilla ya tiene algo (prevención de errores)
+            if (inputs[focusActual].length < 2) {
+                inputs[focusActual] += n;
+                updateVisuals();
+                
+                // SALTO INTELIGENTE:
+                // Solo saltamos si la siguiente casilla está VACÍA. 
+                // Si ya tiene un número (porque era correcto), buscamos la siguiente vacía.
+                if (focusActual === 'e') {
+                    if (inputs.n === "") setTimeout(() => setFocus('n'), 150);
+                    else if (inputs.d === "") setTimeout(() => setFocus('d'), 150);
+                } 
+                else if (focusActual === 'n' && inputs.n.length >= qN.toString().length) {
+                    if (inputs.d === "") setTimeout(() => setFocus('d'), 150);
+                    else if (inputs.e === "") setTimeout(() => setFocus('e'), 150);
+                }
+            }
+        }
+
+        function borrar() {
+            if (inputs[focusActual] === "") {
+                if (focusActual === 'd') setFocus('n');
+                else if (focusActual === 'n') setFocus('e');
+            } else {
+                inputs[focusActual] = inputs[focusActual].slice(0, -1);
+            }
+            updateVisuals();
+        }
+
+        function updateVisuals() {
+            ['e', 'n', 'd'].forEach(id => {
+                const box = document.getElementById('box-' + id);
+                box.textContent = inputs[id];
+                box.className = `input-box box-${id === 'e' ? 'entero' : 'frac'} ${focusActual === id ? 'active' : ''}`;
+            });
+        }
+
+        function comprobar() {
+            let valE = parseInt(inputs.e);
+            let valN = parseInt(inputs.n);
+            let valD = parseInt(inputs.d);
+
+            if (valE === qE && valN === qN && valD === qD) {
+                playSuccessSound();
+                document.getElementById('res-e').textContent = qE;
+                document.getElementById('res-n').textContent = qN;
+                document.getElementById('res-d').textContent = qD;
+                document.getElementById('modal-victoria').style.display = 'flex';
+            } else {
+                playSound(150, 'sawtooth');
+                
+                let errorE = (valE !== qE);
+                let errorN = (valN !== qN);
+                let errorD = (valD !== qD);
+
+                if (errorE) document.getElementById('box-e').classList.add('incorrecta');
+                if (errorN) document.getElementById('box-n').classList.add('incorrecta');
+                if (errorD) document.getElementById('box-d').classList.add('incorrecta');
+                
+                setTimeout(() => {
+                    if (errorE) inputs.e = "";
+                    if (errorN) inputs.n = "";
+                    if (errorD) inputs.d = "";
+                    
+                    document.querySelectorAll('.input-box').forEach(b => b.classList.remove('incorrecta'));
+                    
+                    // FOCO INTELIGENTE TRAS ERROR:
+                    // Va directamente a la primera casilla que se acaba de borrar.
+                    if (inputs.e === "") setFocus('e');
+                    else if (inputs.n === "") setFocus('n');
+                    else if (inputs.d === "") setFocus('d');
+                    
+                    updateVisuals();
+                }, 500);
+            }
+        }
+
+        function volverAlMenuNiveles() {
+            document.getElementById('juego').classList.remove('active');
+            document.getElementById('menu').classList.add('active');
+            document.getElementById('modal-victoria').style.display = 'none';
+        }
+
+        function irAInicioFuera() { window.location.href = 'main-index.html'; }
+    </script>
+</body>
+</html>
