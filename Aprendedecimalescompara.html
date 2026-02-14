@@ -98,7 +98,7 @@
             <h1 style="text-align:center; color:#1e88e5; margin-bottom:15px;">Comparación Decimal</h1>
             <button class="btn-nivel" style="background:#43a047" onclick="iniciar(1)">Nivel 1: Sencillo</button>
             <button class="btn-nivel" style="background:#fb8c00" onclick="iniciar(2)">Nivel 2: Intermedio</button>
-            <button class="btn-nivel" style="background:#c62828" onclick="iniciar(3)">Nivel 3: Avanzado (Dígitos mixtos)</button>
+            <button class="btn-nivel" style="background:#c62828" onclick="iniciar(3)">Nivel 3: Avanzado</button>
             <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="irAInicioFuera()">🏠 Inicio Web</button>
         </div>
 
@@ -148,25 +148,54 @@
 
         function generarPregunta(nivel) {
             let n1, n2;
+            // 90% de probabilidad de tener la misma parte entera
+            const mismaUnidad = Math.random() < 0.9;
+            const unidadComun = Math.floor(Math.random() * 10);
+
             if (nivel === 1) {
-                n1 = (Math.random() * 10).toFixed(1);
-                n2 = (Math.random() * 10).toFixed(1);
+                if (mismaUnidad) {
+                    n1 = (unidadComun + Math.random()).toFixed(1);
+                    n2 = (unidadComun + Math.random()).toFixed(1);
+                } else {
+                    n1 = (Math.random() * 10).toFixed(1);
+                    n2 = (Math.random() * 10).toFixed(1);
+                }
             } else if (nivel === 2) {
-                n1 = (Math.random() * 5).toFixed(1);
-                n2 = (Math.random() * 5).toFixed(2);
+                if (mismaUnidad) {
+                    n1 = (unidadComun + Math.random()).toFixed(1);
+                    n2 = (unidadComun + Math.random()).toFixed(2);
+                } else {
+                    n1 = (Math.random() * 5).toFixed(1);
+                    n2 = (Math.random() * 5).toFixed(2);
+                }
             } else {
-                // Nivel 3: Mezcla de enteros y muchos decimales (ej: 1,2 vs 0,123)
-                let tipos = [
-                    () => [(Math.random() * 2).toFixed(1), (Math.random() * 2).toFixed(3)],
-                    () => [(Math.random() * 10).toFixed(0), (Math.random() * 10).toFixed(2)],
-                    () => { let v = (Math.random() * 5).toFixed(1); return [v, v]; }
-                ];
-                [n1, n2] = tipos[Math.floor(Math.random() * tipos.length)]();
+                // Nivel 3: Mezcla compleja con 90% de unidades iguales
+                if (mismaUnidad) {
+                    let decimales = [1, 2, 3];
+                    n1 = (unidadComun + Math.random()).toFixed(decimales[Math.floor(Math.random()*3)]);
+                    n2 = (unidadComun + Math.random()).toFixed(decimales[Math.floor(Math.random()*3)]);
+                    
+                    // Pequeña probabilidad de que sean exactamente iguales para probar el signo '='
+                    if (Math.random() < 0.15) n2 = n1;
+                } else {
+                    let tipos = [
+                        () => [(Math.random() * 2).toFixed(1), (Math.random() * 2).toFixed(3)],
+                        () => [(Math.random() * 10).toFixed(0), (Math.random() * 10).toFixed(2)]
+                    ];
+                    [n1, n2] = tipos[Math.floor(Math.random() * tipos.length)]();
+                }
             }
 
             valor1 = parseFloat(n1);
             valor2 = parseFloat(n2);
-            signoCorrecto = valor1 > valor2 ? '>' : (valor1 < valor2 ? '<' : '=');
+            
+            // Corregir precisión de punto flotante para la comparación
+            const diff = Math.abs(valor1 - valor2);
+            if (diff < 0.00001) {
+                signoCorrecto = '=';
+            } else {
+                signoCorrecto = valor1 > valor2 ? '>' : '<';
+            }
 
             document.getElementById('num-izq').textContent = n1.toString().replace('.', ',');
             document.getElementById('num-der').textContent = n2.toString().replace('.', ',');
@@ -197,7 +226,7 @@
                 
                 setTimeout(() => { document.getElementById('modal-victoria').style.display = 'flex'; }, 600);
             } else {
-                playSound(150); // Sonido de error
+                playSound(150);
                 celda.textContent = s;
                 celda.className = 'simbolo-celda incorrecta';
                 setTimeout(() => {
