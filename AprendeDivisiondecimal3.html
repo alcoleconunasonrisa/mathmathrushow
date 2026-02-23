@@ -21,7 +21,6 @@
             display: flex; flex-direction: column; position: relative;
         }
 
-        /* CORRECCIÓN DEFINITIVA DE LA CAJA DE INSTRUCCIONES */
         .instruccion {
             background: #1a2a6c; 
             color: white; 
@@ -32,9 +31,9 @@
             font-weight: bold; 
             font-size: 1.2rem; 
             line-height: 1.5;
-            flex-shrink: 0; /* Impide que la caja se aplaste */
+            flex-shrink: 0; 
             width: 100%;
-            display: block; /* Cambiado de flex a block para evitar problemas de centrado vertical si el texto crece mucho */
+            display: block; 
         }
 
         .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
@@ -92,9 +91,9 @@
     <div class="container">
         <div id="menu" class="pantalla active" style="justify-content: center;">
             <h1 style="text-align:center; color:#1a2a6c; margin-bottom:25px;">Divisor con Decimales</h1>
-            <button class="btn-nivel" style="background:#3498db" onclick="iniciar(1)">Nivel 1: Básico</button>
-            <button class="btn-nivel" style="background:#2980b9" onclick="iniciar(2)">Nivel 2: Intermedio</button>
-            <button class="btn-nivel" style="background:#1c5980" onclick="iniciar(3)">Nivel 3: Experto</button>
+            <button class="btn-nivel" style="background:#3498db" onclick="iniciar(1)">Nivel 1: Natural ÷ Decimal</button>
+            <button class="btn-nivel" style="background:#2980b9" onclick="iniciar(2)">Nivel 2: Decimal ÷ Decimal</button>
+            <button class="btn-nivel" style="background:#1c5980" onclick="iniciar(3)">Nivel 3: Mix Aleatorio</button>
             <button class="btn-nivel" style="background:#555; margin-top: 20px;" onclick="irAInicioFuera()">🏠 Inicio Web</button>
         </div>
 
@@ -139,9 +138,9 @@
         let faseDiv = "";
 
         const nivelesConfig = {
-            1: { decs: 1, minCoc: 10, maxCoc: 20 },
-            2: { decs: 1, minCoc: 21, maxCoc: 50 },
-            3: { decs: 2, minCoc: 15, maxCoc: 45 }
+            1: { tipo: "NAT_DEC", minCoc: 10, maxCoc: 30 },
+            2: { tipo: "DEC_DEC", minCoc: 10, maxCoc: 30 },
+            3: { tipo: "MIX", minCoc: 10, maxCoc: 40 }
         };
 
         function inicializarAudio() { if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
@@ -156,17 +155,43 @@
 
         function generarDivision(n) {
             const conf = nivelesConfig[n];
-            const disoVal = (Math.floor(Math.random() * 15 + 11) / Math.pow(10, conf.decs)).toFixed(conf.decs);
+            let tipo = conf.tipo;
+            if(tipo === "MIX") tipo = Math.random() > 0.5 ? "NAT_DEC" : "DEC_DEC";
+
+            let disoValStr, diviValStr;
+            let decsDiso = (Math.random() > 0.5) ? 1 : 2;
+            
+            // Generar Divisor que no sea .0
+            let disoNum;
+            do {
+                disoNum = (Math.floor(Math.random() * 120 + 11) / Math.pow(10, decsDiso));
+                disoValStr = disoNum.toFixed(decsDiso);
+            } while (disoValStr.endsWith('0'));
+
             const cociente = Math.floor(Math.random() * (conf.maxCoc - conf.minCoc) + conf.minCoc);
-            const diviVal = (parseFloat(disoVal) * cociente).toFixed(conf.decs);
-            return [diviVal.replace('.',','), disoVal.replace('.',',')];
+            
+            if (tipo === "NAT_DEC") {
+                diviValStr = (disoNum * cociente).toFixed(0);
+            } else {
+                // Dividendo con 1 o 2 decimales aleatorios
+                let decsDivi = (Math.random() > 0.5) ? 1 : 2;
+                diviValStr = (disoNum * cociente).toFixed(decsDivi);
+            }
+
+            return [diviValStr.replace('.',','), disoValStr.replace('.',',')];
         }
 
         function iniciar(n) {
             nivelActual = n; inicializarAudio();
             [diviOrig, disoOrig] = generarDivision(n);
-            const numDecs = disoOrig.split(',')[1].length;
-            factorMulti = Math.pow(10, numDecs).toString();
+            
+            // Calculamos el factor basado en el número que tenga más decimales
+            const decsDivi = (diviOrig.split(',')[1] || "").length;
+            const decsDiso = (disoOrig.split(',')[1] || "").length;
+            const maxDecs = Math.max(decsDivi, decsDiso);
+            
+            factorMulti = Math.pow(10, maxDecs).toString();
+
             document.getElementById('menu').classList.remove('active');
             document.getElementById('juego').classList.add('active');
             document.getElementById('modal-victoria').style.display = 'none';
@@ -175,13 +200,17 @@
 
         function mostrarFase1() {
             faseJuego = "FASE1";
-            const d = disoOrig.split(',')[1].length;
-            document.getElementById('instruccion').innerHTML = `El divisor tiene <b>${d}</b> ${d === 1 ? 'decimal' : 'decimales'}. <br> ¿Por cuánto multiplicamos para quitar la coma?`;
+            const decsDivi = (diviOrig.split(',')[1] || "").length;
+            const decsDiso = (disoOrig.split(',')[1] || "").length;
+            const max = Math.max(decsDivi, decsDiso);
+            
+            document.getElementById('instruccion').innerHTML = `Para quitar los decimales (${max}), <br> ¿por cuánto multiplicamos los dos números?`;
+            
             const contenedor = document.getElementById('dinamico-juego');
             contenedor.innerHTML = `
                 <div class="fase-previa">
                     <div class="referencia-visual">
-                        <div class="ref-original">${diviOrig} : <b style="color:#e74c3c">${disoOrig}</b></div>
+                        <div class="ref-original">${diviOrig} : ${disoOrig}</div>
                     </div>
                     <div style="display:flex; align-items:center; gap:15px;">
                         <span style="font-size:1.6rem; font-weight:bold;">Multiplicar x </span>
