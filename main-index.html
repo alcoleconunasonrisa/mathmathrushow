@@ -14,22 +14,72 @@
             --reasoning-soft: #A29BFE;
             --glass-card: rgba(255, 255, 255, 0.1);
             --text-white: #ffffff;
+            --playstore-blue: #4285F4;
+            --playstore-green: #34A853;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
 
         body {
-            background:
+            background: 
                 linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)),
                 url('iconkid.jpg') no-repeat center center fixed;
             background-size: cover;
             color: var(--text-white);
             min-height: 100vh;
-            padding: 20px;
+            padding: 0; /* Ajustado para que el banner toque los bordes */
             overflow-x: hidden;
         }
 
-        .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; }
+        /* --- ESTILOS DEL BANNER PLAY STORE --- */
+        #android-banner {
+            display: none; /* Se activa por JS si es Android */
+            position: sticky;
+            top: 0;
+            z-index: 9999;
+            width: 100%;
+        }
+
+        .playstore-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(90deg, var(--playstore-blue), var(--playstore-green));
+            padding: 12px 20px;
+            text-decoration: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            animation: pulse-banner 2.5s infinite;
+        }
+
+        .banner-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .banner-info i { font-size: 1.6rem; }
+        .banner-text { font-weight: 700; font-size: 0.85rem; line-height: 1.2; }
+
+        .btn-instalar {
+            background: white;
+            color: #1e293b;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        @keyframes pulse-banner {
+            0% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.01); filter: brightness(1.1); }
+            100% { transform: scale(1); filter: brightness(1); }
+        }
+
+        /* --- RESTO DE LA ESTRUCTURA --- */
+        .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 20px; }
 
         header { text-align: center; padding: 10px 0 40px; }
         .logo {
@@ -131,6 +181,16 @@
     </style>
 </head>
 <body>
+
+<div id="android-banner">
+    <a href="https://play.google.com/store/apps/details?id=com.mathmathrushow.app&hl=es_419" target="_blank" class="playstore-link">
+        <div class="banner-info">
+            <i class="fab fa-google-play"></i>
+            <div class="banner-text">¡DESCARGA LA APP!<br><span style="font-weight: 400; opacity: 0.9;">MATHMATHRUSHOW en Android</span></div>
+        </div>
+        <div class="btn-instalar">Instalar</div>
+    </a>
+</div>
 
 <div class="container">
     <header>
@@ -274,11 +334,23 @@
     </div>
 
     <footer style="text-align:center; padding: 40px; opacity: 0.5; font-size: 0.8rem;">
-    <a href="privacy-policy.html">Política de Privacidad</a> | 
-    <a href="terms-of-service.html">Términos de Servicio</a>
+    <a href="privacy-policy.html" style="color: white;">Política de Privacidad</a> | 
+    <a href="terms-of-service.html" style="color: white;">Términos de Servicio</a><br>
         © 2026 Math Math Rush Ow - Tu viaje hacia la sabiduría
     </footer>
 </div>
+
+<script>
+    // SCRIPT DE DETECCIÓN DE ANDROID
+    window.onload = function() {
+        var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        
+        // Verifica si el dispositivo es Android
+        if (/android/i.test(userAgent)) {
+            document.getElementById('android-banner').style.display = 'block';
+        }
+    };
+</script>
 
 </body>
 </html>
