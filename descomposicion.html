@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Descomposición de Números Naturales</title>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --secondary: #7c3aed;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg-ui: #f8fafc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e40af);
+            height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+
+        .container {
+            width: 98%; max-width: 1200px; height: 95vh;
+            background: white; border-radius: 2rem; padding: 20px;
+            display: flex; flex-direction: column; box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        .btn-home { padding: 10px 20px; background: #f1f5f9; border-radius: 12px; text-decoration: none; color: #1e1b4b; font-weight: bold; border: 1px solid #e2e8f0; }
+
+        .screen { display: none; flex: 1; flex-direction: column; align-items: center; justify-content: center; }
+        .active { display: flex; }
+
+        .game-layout { display: flex; flex: 1; width: 100%; gap: 30px; align-items: center; overflow: hidden; }
+        .main-area { flex: 1.8; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+        .numpad-area { flex: 0.8; max-width: 300px; display: flex; flex-direction: column; gap: 15px; }
+
+        .num-display {
+            font-size: 3.5rem; font-weight: 900; color: var(--primary);
+            background: var(--bg-ui); padding: 15px 40px; border-radius: 25px;
+            border: 5px solid #e2e8f0; margin-bottom: 25px; letter-spacing: 2px;
+        }
+
+        .grid-descomponer { display: grid; gap: 10px; width: 100%; }
+        .col { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; }
+        
+        .label { width: 100%; text-align: center; color: white; font-weight: bold; padding: 6px; border-radius: 8px; font-size: 0.9rem; white-space: nowrap; }
+        /* Colores para las posiciones */
+        .c-u { background: #ecc94b; color: #000; } .c-d { background: #f59e0b; } .c-c { background: #ef4444; }
+        .c-um { background: #10b981; } .c-dm { background: #3b82f6; } .c-cm { background: #8b5cf6; }
+        .c-umi { background: #065f46; } .c-dmi { background: #1e40af; } .c-cmi { background: #4c1d95; }
+
+        .slot, .valor-input {
+            width: 100%; border-radius: 12px; display: flex; align-items: center; 
+            justify-content: center; font-weight: bold; transition: all 0.2s;
+            background: white; border: 2px solid #cbd5e1;
+        }
+
+        .slot { height: 60px; font-size: 2rem; }
+        .valor-input { height: 45px; font-size: 1rem; overflow: hidden; }
+
+        .active-input { border-color: var(--secondary) !important; background: #f5f3ff !important; transform: scale(1.05); z-index: 10; }
+        .is-correct { background: #d1fae5 !important; border-color: var(--success) !important; color: #065f46; }
+        .is-wrong { background: #fee2e2 !important; border-color: var(--danger) !important; animation: shake 0.4s; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        .tag-valor { font-size: 0.6rem; font-weight: 900; color: #94a3b8; text-transform: uppercase; margin-right: 4px;}
+
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+        .key {
+            background: white; border: 1px solid #e2e8f0; padding: 1rem 0; font-size: 1.5rem;
+            font-weight: bold; border-radius: 15px; cursor: pointer;
+            box-shadow: 0 4px 0 #cbd5e1; color: var(--primary); transition: 0.1s;
+        }
+        .key:active { transform: translateY(2px); box-shadow: 0 2px 0 #cbd5e1; }
+
+        .instr-box { background: #eef2ff; color: var(--primary); padding: 10px 20px; border-radius: 15px; margin-bottom: 15px; font-weight: 800; text-align: center; font-size: 1.2rem; }
+        .btn-level { width: 100%; max-width: 400px; padding: 20px; margin: 10px; border: none; border-radius: 20px; color: white; font-size: 1.3rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-level:hover { transform: scale(1.05); filter: brightness(1.1); }
+
+        @media (max-width: 900px) {
+            .game-layout { flex-direction: column; overflow-y: auto; }
+            .num-display { font-size: 2rem; padding: 10px 20px; }
+            .grid-descomponer { gap: 5px; }
+            .tag-valor { display: none; }
+            .slot { height: 45px; font-size: 1.5rem; }
+            .label { font-size: 0.7rem; padding: 4px 2px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <a href="#" onclick="location.reload()" class="btn-home">🏠 INICIO</a>
+        <div id="level-display" style="font-weight: bold; color: var(--secondary); font-size: 1.1rem;"></div>
+    </div>
+
+    <div id="menu" class="screen active">
+        <h1 style="color: var(--primary); font-size: 2.5rem; margin-bottom: 30px; text-align: center;">Descomposición Natural</h1>
+        <button class="btn-level" style="background: var(--success)" onclick="startGame(1)">Nivel 1: Hasta la Centena</button>
+        <button class="btn-level" style="background: #3b82f6" onclick="startGame(2)">Nivel 2: Hasta Centena de Millar</button>
+        <button class="btn-level" style="background: var(--secondary)" onclick="startGame(3)">Nivel 3: Hasta Centena de Millón</button>
+    </div>
+
+    <div id="game" class="screen">
+        <div class="instr-box" id="instruccion">PASO 1: COLOCA LAS CIFRAS</div>
+        <div class="game-layout">
+            <div class="main-area">
+                <div id="target-num" class="num-display">0</div>
+                <div class="grid-descomponer" id="grid"></div>
+            </div>
+            <div class="numpad-area">
+                <div class="numpad">
+                    <button class="key" onclick="pressKey('7')">7</button>
+                    <button class="key" onclick="pressKey('8')">8</button>
+                    <button class="key" onclick="pressKey('9')">9</button>
+                    <button class="key" onclick="pressKey('4')">4</button>
+                    <button class="key" onclick="pressKey('5')">5</button>
+                    <button class="key" onclick="pressKey('6')">6</button>
+                    <button class="key" onclick="pressKey('1')">1</button>
+                    <button class="key" onclick="pressKey('2')">2</button>
+                    <button class="key" onclick="pressKey('3')">3</button>
+                    <button class="key" style="background:#f1f5f9" disabled></button>
+                    <button class="key" onclick="pressKey('0')">0</button>
+                    <button class="key" style="background:#eee; font-size:1.2rem;" onclick="deleteContent()">⌫</button>
+                </div>
+                <button onclick="location.reload()" style="margin-top:10px; border:none; background:none; color:#94a3b8; cursor:pointer; font-weight:bold;">⬅ Cambiar Nivel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let nivel = 1, paso = 1, columnasActivas = [], indiceActual = 0, targetData = {}, bloqueado = false;
+    
+    // Configuración de columnas de derecha a izquierda (Unidades a Millones)
+    const config = { 
+        'cmi': { label: 'C.Millón', class: 'c-cmi', power: 8 },
+        'dmi': { label: 'D.Millón', class: 'c-dmi', power: 7 },
+        'umi': { label: 'U.Millón', class: 'c-umi', power: 6 },
+        'cm': { label: 'C.Millar', class: 'c-cm', power: 5 },
+        'dm': { label: 'D.Millar', class: 'c-dm', power: 4 },
+        'um': { label: 'U.Millar', class: 'c-um', power: 3 },
+        'c': { label: 'C', class: 'c-c', power: 2 },
+        'd': { label: 'D', class: 'c-d', power: 1 },
+        'u': { label: 'U', class: 'c-u', power: 0 }
+    };
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSfx(freq, type = 'sine', duration = 0.2) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function startGame(n) {
+        nivel = n;
+        if (n === 1) columnasActivas = ['c', 'd', 'u'];
+        else if (n === 2) columnasActivas = ['cm', 'dm', 'um', 'c', 'd', 'u'];
+        else columnasActivas = ['cmi', 'dmi', 'umi', 'cm', 'dm', 'um', 'c', 'd', 'u'];
+
+        document.getElementById('menu').classList.remove('active');
+        document.getElementById('game').classList.add('active');
+        buildGrid();
+        nextExercise();
+    }
+
+    function buildGrid() {
+        const grid = document.getElementById('grid');
+        grid.style.gridTemplateColumns = `repeat(${columnasActivas.length}, 1fr)`;
+        grid.innerHTML = '';
+        columnasActivas.forEach(id => {
+            const col = document.createElement('div');
+            col.className = 'col';
+            col.innerHTML = `
+                <div class="label ${config[id].class}">${config[id].label}</div>
+                <div class="slot" id="slot-${id}"></div>
+                <div style="display:flex; align-items:center; width:100%;">
+                    <div class="valor-input" id="val-${id}"></div>
+                </div>`;
+            grid.appendChild(col);
+        });
+    }
+
+    function nextExercise() {
+        paso = 1; indiceActual = 0; bloqueado = false;
+        document.getElementById('instruccion').innerText = "PASO 1: COLOCA LAS CIFRAS";
+        
+        let min, max;
+        if (nivel === 1) { min = 100; max = 999; }
+        else if (nivel === 2) { min = 10000; max = 999999; }
+        else { min = 1000000; max = 999999999; }
+
+        let num = Math.floor(Math.random() * (max - min + 1) + min);
+        let numStr = num.toString().padStart(columnasActivas.length, '0');
+        
+        document.getElementById('target-num').innerText = num.toLocaleString('es-ES');
+
+        targetData = {};
+        columnasActivas.forEach((id, index) => {
+            let cifra = numStr[index];
+            let valor = (parseInt(cifra) * Math.pow(10, config[id].power)).toString();
+            targetData[id] = { cifra, valor };
+        });
+
+        columnasActivas.forEach(id => {
+            const s = document.getElementById('slot-'+id), v = document.getElementById('val-'+id);
+            s.innerText = ""; s.className = "slot";
+            v.innerText = ""; v.className = "valor-input";
+        });
+        updateFocusUI();
+    }
+
+    function updateFocusUI() {
+        document.querySelectorAll('.slot, .valor-input').forEach(el => el.classList.remove('active-input'));
+        const id = columnasActivas[indiceActual];
+        const el = (paso === 1) ? document.getElementById('slot-' + id) : document.getElementById('val-' + id);
+        if(el) el.classList.add('active-input');
+    }
+
+    function pressKey(k) {
+        if(bloqueado) return;
+        playSfx(440, 'sine', 0.05);
+        const id = columnasActivas[indiceActual];
+        const el = (paso === 1) ? document.getElementById('slot-' + id) : document.getElementById('val-' + id);
+        
+        if(paso === 1) {
+            el.innerText = k;
+            validarCasilla(el, k, targetData[id].cifra);
+        } else {
+            el.innerText += k;
+            let uV = el.innerText, tV = targetData[id].valor;
+            // Validar si el largo coincide o si es 0 y el objetivo es 0
+            if((uV === "0" && tV === "0") || uV.length >= tV.length) {
+                validarCasilla(el, uV, tV);
+            }
+        }
+    }
+
+    function validarCasilla(el, userVal, targetVal) {
+        bloqueado = true;
+        let isOk = (userVal === targetVal);
+
+        if(isOk) {
+            playSfx(600, 'sine', 0.1);
+            el.classList.remove('active-input');
+            el.classList.add('is-correct');
+            setTimeout(() => {
+                bloqueado = false;
+                if(indiceActual < columnasActivas.length - 1) {
+                    indiceActual++;
+                    updateFocusUI();
+                } else {
+                    finalizarPaso();
+                }
+            }, 150);
+        } else {
+            playSfx(150, 'sawtooth', 0.3);
+            el.classList.add('is-wrong');
+            setTimeout(() => {
+                el.classList.remove('is-wrong');
+                el.innerText = "";
+                bloqueado = false;
+            }, 600);
+        }
+    }
+
+    function finalizarPaso() {
+        if(paso === 1) {
+            paso = 2; indiceActual = 0;
+            document.getElementById('instruccion').innerText = "PASO 2: ESCRIBE EL VALOR DE CADA CIFRA";
+            updateFocusUI();
+        } else {
+            playSfx(1000, 'sine', 0.4);
+            setTimeout(nextExercise, 800);
+        }
+    }
+
+    function deleteContent() {
+        if(bloqueado) return;
+        const id = columnasActivas[indiceActual];
+        const el = (paso === 1) ? document.getElementById('slot-' + id) : document.getElementById('val-' + id);
+        el.innerText = "";
+    }
+</script>
+</body>
+</html>
