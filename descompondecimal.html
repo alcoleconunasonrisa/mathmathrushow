@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Descomposición Decimal - Corrección Intuitiva</title>
+    <title>Descomposición Decimal - Pro</title>
     <style>
         :root {
             --primary: #4338ca;
@@ -17,83 +17,105 @@
 
         body {
             background: linear-gradient(135deg, #1e1b4b, #4338ca);
-            height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden;
+            height: 100vh; height: -webkit-fill-available;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
         }
 
         .container {
-            width: 98%; max-width: 1100px; height: 95vh;
-            background: white; border-radius: 2rem; padding: 20px;
+            width: 98%; max-width: 1100px; height: 98vh;
+            background: white; border-radius: 1.5rem; padding: 15px;
             display: flex; flex-direction: column; box-shadow: 0 25px 50px rgba(0,0,0,0.4);
         }
 
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
-        .btn-home { padding: 10px 20px; background: #f1f5f9; border-radius: 12px; text-decoration: none; color: #1e1b4b; font-weight: bold; border: 1px solid #e2e8f0; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; border-bottom: 2px solid #f1f5f9; padding-bottom: 5px; }
+        .btn-home { padding: 8px 15px; background: #f1f5f9; border-radius: 10px; text-decoration: none; color: #1e1b4b; font-weight: bold; font-size: 0.9rem; border: 1px solid #ddd; }
 
-        .screen { display: none; flex: 1; flex-direction: column; align-items: center; justify-content: center; }
+        .screen { display: none; flex: 1; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
         .active { display: flex; }
 
-        .game-layout { display: flex; flex: 1; width: 100%; gap: 30px; align-items: center; overflow: hidden; }
-        .main-area { flex: 1.8; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .numpad-area { flex: 1; max-width: 340px; display: flex; flex-direction: column; gap: 15px; }
+        .game-layout { 
+            display: flex; flex: 1; width: 100%; gap: 15px; 
+            align-items: center; justify-content: space-between; overflow: hidden; 
+        }
+
+        .main-area { 
+            flex: 1.5; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; width: 100%; 
+        }
+
+        .numpad-area { 
+            flex: 0.8; width: 100%; max-width: 320px; 
+            display: flex; flex-direction: column; gap: 10px; 
+        }
+
+        /* DISEÑO VERTICAL PARA SMARTPHONES */
+        @media (max-aspect-ratio: 1/1), (max-width: 768px) {
+            .game-layout { flex-direction: column; }
+            .main-area { flex: 1.2; justify-content: flex-start; padding-top: 10px; }
+            .numpad-area { max-width: 100%; padding-bottom: 10px; flex: 1; }
+            .num-display { font-size: 2.5rem !important; padding: 10px 20px !important; margin-bottom: 15px !important; }
+            .slot { height: 55px !important; font-size: 1.8rem !important; }
+            .valor-container { height: 55px !important; }
+            .valor-input { font-size: 1.2rem !important; }
+        }
 
         .num-display {
-            font-size: 4rem; font-weight: 900; color: var(--primary);
-            background: var(--bg-ui); padding: 20px 50px; border-radius: 25px;
+            font-size: 3.5rem; font-weight: 900; color: var(--primary);
+            background: var(--bg-ui); padding: 15px 40px; border-radius: 25px;
             border: 5px solid #e2e8f0; margin-bottom: 25px; letter-spacing: 4px;
         }
 
-        .grid-descomponer { display: grid; gap: 15px; width: 100%; }
-        .col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .grid-descomponer { display: grid; gap: 10px; width: 100%; }
+        .col { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; }
         
-        .label { width: 100%; text-align: center; color: white; font-weight: bold; padding: 8px; border-radius: 10px; font-size: 1.1rem; }
+        .label { width: 100%; text-align: center; color: white; font-weight: bold; padding: 6px 2px; border-radius: 8px; font-size: 0.9rem; }
         .c-c { background: #ef4444; } .c-d { background: #f59e0b; } .c-u { background: #ecc94b; color: #000; }
         .c-dc { background: #10b981; } .c-cn { background: #3b82f6; } .c-ml { background: #8b5cf6; }
 
-        .slot, .valor-input {
-            width: 100%; border-radius: 15px; display: flex; align-items: center; 
-            justify-content: center; font-weight: bold; transition: all 0.3s;
-            background: white; border: 3px solid #cbd5e1;
+        .slot, .valor-container {
+            width: 100%; border-radius: 12px; display: flex; align-items: center; 
+            justify-content: center; font-weight: bold; transition: all 0.2s;
+            background: white; border: 3px solid #cbd5e1; position: relative;
         }
 
         .slot { height: 75px; font-size: 2.5rem; }
-        .valor-input { height: 55px; font-size: 1.2rem; }
+        
+        .valor-container { height: 65px; flex-direction: column; }
+        .valor-input { font-size: 1.5rem; color: var(--primary); width: 100%; text-align: center; padding-top: 8px; }
 
-        .active-input { border-color: var(--secondary) !important; background: #f5f3ff !important; transform: scale(1.03); box-shadow: 0 0 15px rgba(124, 58, 237, 0.2); }
+        .tag-valor-label { 
+            position: absolute; top: 2px; left: 50%; transform: translateX(-50%);
+            font-size: 0.6rem; color: #94a3b8; font-weight: 900; pointer-events: none;
+        }
+
+        .active-input { border-color: var(--secondary) !important; background: #f5f3ff !important; transform: scale(1.03); z-index: 5; }
         .is-correct { background: #d1fae5 !important; border-color: var(--success) !important; color: #065f46; }
         .is-wrong { background: #fee2e2 !important; border-color: var(--danger) !important; animation: shake 0.4s; }
 
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
-        .tag-valor { font-size: 0.65rem; font-weight: 900; color: #94a3b8; text-transform: uppercase; margin-right: 5px;}
-
-        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; }
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
         .key {
-            background: white; border: 1px solid #e2e8f0; padding: 1.2rem 0; font-size: 2rem;
-            font-weight: bold; border-radius: 18px; cursor: pointer;
-            box-shadow: 0 6px 0 #cbd5e1; color: var(--primary); transition: 0.1s;
+            background: white; border: 1px solid #e2e8f0; padding: 15px 0; font-size: 1.8rem;
+            font-weight: bold; border-radius: 15px; cursor: pointer;
+            box-shadow: 0 5px 0 #cbd5e1; color: var(--primary); transition: 0.1s;
         }
-        .key:active { transform: translateY(4px); box-shadow: 0 2px 0 #cbd5e1; }
+        .key:active { transform: translateY(3px); box-shadow: 0 2px 0 #cbd5e1; }
 
-        .instr-box { background: #eef2ff; color: var(--primary); padding: 15px 30px; border-radius: 20px; margin-bottom: 20px; font-weight: 800; text-align: center; font-size: 1.3rem; }
-        .btn-level { width: 100%; max-width: 400px; padding: 25px; margin: 12px; border: none; border-radius: 20px; color: white; font-size: 1.5rem; font-weight: bold; cursor: pointer; }
-
-        @media (max-width: 900px) {
-            .game-layout { flex-direction: column; overflow-y: auto; }
-            .num-display { font-size: 2.2rem; }
-            .tag-valor { display: none; }
-        }
+        .instr-box { background: #eef2ff; color: var(--primary); padding: 12px; border-radius: 15px; margin-bottom: 10px; font-weight: 800; text-align: center; font-size: 1.2rem; width: 100%; }
+        .btn-level { width: 100%; max-width: 400px; padding: 25px; margin: 12px; border: none; border-radius: 20px; color: white; font-size: 1.5rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 0 rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <a href="main-index.html" class="btn-home">🏠 INICIO</a>
-        <div id="level-display" style="font-weight: bold; color: var(--secondary); font-size: 1.2rem;"></div>
+        <a href="#" onclick="location.reload()" class="btn-home">🏠 INICIO</a>
+        <div id="level-display" style="font-weight: bold; color: var(--secondary); font-size: 1rem;"></div>
     </div>
 
     <div id="menu" class="screen active">
-        <h1 style="color: var(--primary); font-size: 3rem; margin-bottom: 40px;">Descomposición</h1>
+        <h1 style="color: var(--primary); font-size: 2.5rem; margin-bottom: 30px; text-align: center;">Descomposición Decimal</h1>
         <button class="btn-level" style="background: var(--success)" onclick="startGame(1)">Nivel 1: U , d c m</button>
         <button class="btn-level" style="background: var(--danger)" onclick="startGame(2)">Nivel 2: C D U , d c m</button>
     </div>
@@ -118,9 +140,8 @@
                     <button class="key" onclick="pressKey('3')">3</button>
                     <button class="key" style="color:var(--secondary)" onclick="pressKey(',')">,</button>
                     <button class="key" onclick="pressKey('0')">0</button>
-                    <button class="key" style="background:#eee; font-size:1.2rem;" onclick="deleteContent()">⌫</button>
+                    <button class="key" style="background:#f1f5f9; color:var(--danger)" onclick="deleteContent()">⌫</button>
                 </div>
-                <button onclick="location.reload()" style="margin-top:10px; border:none; background:none; color:#94a3b8; cursor:pointer; font-weight:bold;">⬅ Cambiar Nivel</button>
             </div>
         </div>
     </div>
@@ -156,12 +177,13 @@
         columnasActivas.forEach(id => {
             const col = document.createElement('div');
             col.className = 'col';
-            col.innerHTML = `<div class="label ${config[id].class}">${config[id].label}</div>
-                             <div class="slot" id="slot-${id}"></div>
-                             <div style="display:flex; align-items:center; width:100%;">
-                                <span class="tag-valor">VALOR</span>
-                                <div class="valor-input" id="val-${id}"></div>
-                             </div>`;
+            col.innerHTML = `
+                <div class="label ${config[id].class}">${config[id].label}</div>
+                <div class="slot" id="slot-${id}"></div>
+                <div class="valor-container" id="cont-val-${id}">
+                    <span class="tag-valor-label">VALOR</span>
+                    <div class="valor-input" id="val-${id}"></div>
+                </div>`;
             grid.appendChild(col);
         });
     }
@@ -185,17 +207,18 @@
             ml: { cifra: decimal[2], valor: "0,00" + decimal[2] }
         };
         columnasActivas.forEach(id => {
-            const s = document.getElementById('slot-'+id), v = document.getElementById('val-'+id);
+            const s = document.getElementById('slot-'+id), v = document.getElementById('val-'+id), cv = document.getElementById('cont-val-'+id);
             s.innerText = ""; s.className = "slot";
-            v.innerText = ""; v.className = "valor-input";
+            v.innerText = ""; cv.className = "valor-container";
         });
         updateFocusUI();
     }
 
     function updateFocusUI() {
-        document.querySelectorAll('.slot, .valor-input').forEach(el => el.classList.remove('active-input'));
+        document.querySelectorAll('.slot, .valor-container').forEach(el => el.classList.remove('active-input'));
         const id = columnasActivas[indiceActual];
-        const el = (paso === 1) ? document.getElementById('slot-' + id) : document.getElementById('val-' + id);
+        const targetId = (paso === 1) ? 'slot-' + id : 'cont-val-' + id;
+        const el = document.getElementById(targetId);
         if(el) el.classList.add('active-input');
     }
 
@@ -204,17 +227,17 @@
         playSfx(440, 'sine', 0.05);
         const id = columnasActivas[indiceActual];
         const el = (paso === 1) ? document.getElementById('slot-' + id) : document.getElementById('val-' + id);
+        const container = (paso === 1) ? el : document.getElementById('cont-val-' + id);
         
         if(paso === 1) {
             if(k === ',') return;
             el.innerText = k;
-            validarCasilla(el, k, targetData[id].cifra);
+            validarCasilla(container, k, targetData[id].cifra);
         } else {
             el.innerText += k;
             let uV = el.innerText.replace(',', '.'), tV = targetData[id].valor.replace(',', '.');
-            // Si el largo es suficiente o es un 0 simple
             if((uV === "0" && parseFloat(tV) === 0) || uV.length >= tV.length) {
-                validarCasilla(el, el.innerText, targetData[id].valor);
+                validarCasilla(container, el.innerText, targetData[id].valor);
             }
         }
     }
@@ -222,12 +245,11 @@
     function validarCasilla(el, userVal, targetVal) {
         bloqueado = true;
         let isOk = false;
-        
         if(paso === 1) isOk = (userVal == targetVal);
         else isOk = ( (parseFloat(userVal.replace(',','.')) === 0 && parseFloat(targetVal.replace(',','.')) === 0) || userVal === targetVal );
 
         if(isOk) {
-            playSfx(600, 'sine', 0.1);
+            playSfx(600, 'sine', 0.15);
             el.classList.remove('active-input');
             el.classList.add('is-correct');
             setTimeout(() => {
@@ -244,7 +266,8 @@
             el.classList.add('is-wrong');
             setTimeout(() => {
                 el.classList.remove('is-wrong');
-                el.innerText = "";
+                if(paso === 1) el.innerText = "";
+                else el.querySelector('.valor-input').innerText = "";
                 bloqueado = false;
             }, 800);
         }
