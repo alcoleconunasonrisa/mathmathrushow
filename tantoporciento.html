@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Porcentajes - Pulido Final</title>
+    <style>
+        :root {
+            --primary: #0369a1;
+            --secondary: #6366f1;
+            --success: #059669;
+            --danger: #dc2626;
+            --bg-body: #f1f5f9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background: var(--bg-body);
+            height: 100vh; height: -webkit-fill-available;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+
+        .container {
+            width: 98%; max-width: 900px; height: 98vh;
+            background: #ffffff; border-radius: 1.5rem; padding: 15px;
+            display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; flex-shrink: 0; }
+        .btn-home { padding: 8px 15px; background: #f8fafc; border-radius: 10px; text-decoration: none; color: #1e293b; font-weight: bold; border: 1px solid #cbd5e1; font-size: 0.9rem; }
+
+        .screen { display: none; flex: 1; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+        .active { display: flex; }
+
+        .game-layout { display: flex; flex: 1; width: 100%; gap: 20px; overflow: hidden; padding-top: 10px; }
+
+        .workspace {
+            flex: 1.2; display: flex; flex-direction: column; gap: 20px; 
+            overflow-y: auto; padding: 10px; padding-bottom: 150px;
+            scroll-behavior: smooth;
+        }
+
+        .workspace::-webkit-scrollbar { width: 6px; }
+        .workspace::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        .target-card {
+            background: var(--primary); color: white; padding: 15px 30px; border-radius: 20px;
+            font-size: 2.2rem; font-weight: 900; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+            text-align: center; width: 100%; flex-shrink: 0;
+        }
+
+        .step-card {
+            background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 15px;
+            padding: 25px 15px; width: 100%; display: flex; align-items: center;
+            justify-content: center; gap: 12px; transition: 0.4s; position: relative; flex-shrink: 0;
+        }
+        
+        .step-card.completed { background: #f0fdf4; border-color: #bcf0da; opacity: 0.7; transform: scale(0.98); }
+        .step-card.active-step { border-color: var(--secondary); border-width: 3px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        .step-card.hidden { display: none; }
+
+        .solution-card {
+            background: #065f46; color: white; padding: 25px; border-radius: 15px;
+            width: 100%; text-align: center; font-size: 2rem; font-weight: 900;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+            border: 4px solid #10b981; margin-top: 10px;
+        }
+
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .step-label { position: absolute; top: -12px; left: 20px; background: white; padding: 2px 12px; font-size: 0.75rem; font-weight: 800; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; }
+        .op-text { font-size: 1.6rem; font-weight: bold; color: #334155; }
+        .fraction { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .f-line { width: 100%; height: 3px; background: #334155; border-radius: 2px; }
+
+        .box {
+            width: 80px; height: 55px; border: 2px solid #cbd5e1; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            background: white; font-size: 1.5rem; font-weight: bold; color: var(--primary);
+        }
+
+        .box-lg { width: 140px; }
+        .active-box { border-color: var(--secondary); background: #f5f3ff; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+        .correct-box { background: #d1fae5; border-color: var(--success); color: #065f46; }
+        .wrong-box { background: #fee2e2; border-color: var(--danger); animation: shake 0.4s; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        .numpad-container { flex: 0.8; max-width: 320px; width: 100%; display: flex; flex-direction: column; }
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .key {
+            background: white; border: 1px solid #e2e8f0; padding: 18px 0; font-size: 1.8rem;
+            font-weight: bold; border-radius: 15px; cursor: pointer;
+            box-shadow: 0 5px 0 #cbd5e1; color: #1e293b;
+        }
+        .key:active { transform: translateY(3px); box-shadow: 0 2px 0 #cbd5e1; }
+
+        .instr-box { background: #f0f9ff; color: #0369a1; padding: 12px; border-radius: 15px; margin-bottom: 10px; font-weight: 800; text-align: center; width: 100%; border: 1px solid #bae6fd; flex-shrink: 0; }
+
+        @media (max-aspect-ratio: 1/1) {
+            .game-layout { flex-direction: column; }
+            .workspace { flex: 1.5; padding-bottom: 80px; }
+            .target-card { font-size: 1.8rem; }
+            .solution-card { font-size: 1.5rem; }
+            .box { width: 65px; height: 45px; font-size: 1.1rem; }
+            .box-lg { width: 110px; }
+            .key { padding: 12px 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <a href="#" onclick="location.reload()" class="btn-home">🏠 INICIO</a>
+        <div style="font-weight: 900; color: var(--secondary); font-size: 0.9rem;">MATEMÁTICAS</div>
+    </div>
+
+    <div id="menu" class="screen active">
+        <h1 style="color: var(--primary); margin-bottom: 30px; text-align: center;">Tanto por Ciento</h1>
+        <button onclick="startGame(1)" style="width: 100%; max-width: 350px; padding: 25px; background: var(--success); color: white; border: none; border-radius: 20px; font-size: 1.3rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 0 #047857;">NIVEL 1: FÁCIL</button>
+        <button onclick="startGame(2)" style="width: 100%; max-width: 350px; padding: 25px; background: var(--primary); color: white; border: none; border-radius: 20px; font-size: 1.3rem; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 6px 0 #035b8a;">NIVEL 2: NORMAL</button>
+    </div>
+
+    <div id="game" class="screen">
+        <div class="instr-box" id="instruccion">¡Cargando ejercicio...!</div>
+        
+        <div class="game-layout">
+            <div class="workspace" id="ws">
+                <div id="target-num" class="target-card">---</div>
+
+                <div id="step-1" class="step-card active-step">
+                    <span class="step-label">PASO 1: LA FRACCIÓN</span>
+                    <div class="fraction">
+                        <div class="box" id="b1-num"></div>
+                        <div class="f-line"></div>
+                        <div class="box" id="b1-den"></div>
+                    </div>
+                    <span class="op-text">de</span>
+                    <span class="op-text" id="disp-total-1">---</span>
+                </div>
+
+                <div id="step-2" class="step-card hidden">
+                    <span class="step-label">PASO 2: EL PRODUCTO</span>
+                    <div class="fraction">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div class="box" id="b2-num"></div>
+                            <span class="op-text">×</span>
+                            <div class="box box-lg" id="b2-total"></div>
+                        </div>
+                        <div class="f-line"></div>
+                        <div class="box" id="b2-den"></div>
+                    </div>
+                </div>
+
+                <div id="step-3" class="step-card hidden">
+                    <span class="step-label">PASO 3: DIVIDIR</span>
+                    <div class="fraction">
+                        <div class="box box-lg" id="b3-prod"></div>
+                        <div class="f-line"></div>
+                        <div class="box" id="b3-den"></div>
+                    </div>
+                    <span class="op-text">=</span>
+                    <div class="box box-lg" id="b4-final"></div>
+                </div>
+
+                <div id="final-solution" class="solution-card hidden"></div>
+            </div>
+
+            <div class="numpad-container">
+                <div class="numpad">
+                    <button class="key" onclick="pressKey('7')">7</button>
+                    <button class="key" onclick="pressKey('8')">8</button>
+                    <button class="key" onclick="pressKey('9')">9</button>
+                    <button class="key" onclick="pressKey('4')">4</button>
+                    <button class="key" onclick="pressKey('5')">5</button>
+                    <button class="key" onclick="pressKey('6')">6</button>
+                    <button class="key" onclick="pressKey('1')">1</button>
+                    <button class="key" onclick="pressKey('2')">2</button>
+                    <button class="key" onclick="pressKey('3')">3</button>
+                    <button class="key" style="background:#f1f5f9" disabled></button>
+                    <button class="key" onclick="pressKey('0')">0</button>
+                    <button class="key" style="color: var(--danger)" onclick="deleteKey()">⌫</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let nivel = 1, pasoGlobal = 1, subIndice = 0, bloqueado = false;
+    let nPerc, nTotal, nProd, nFinal;
+
+    const rutaPasos = {
+        1: ['b1-num', 'b1-den'],
+        2: ['b2-num', 'b2-total', 'b2-den'],
+        3: ['b3-prod', 'b3-den', 'b4-final']
+    };
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSfx(f, t='sine', d=0.1) {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = t; o.frequency.setValueAtTime(f, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+d);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime+d);
+    }
+
+    function startGame(n) {
+        nivel = n;
+        document.getElementById('menu').classList.remove('active');
+        document.getElementById('game').classList.add('active');
+        nextExercise();
+    }
+
+    function nextExercise() {
+        // 1. Reset de variables y estado
+        pasoGlobal = 1; subIndice = 0; bloqueado = false;
+        
+        // 2. Generar nuevos números
+        nPerc = nivel === 1 ? (Math.floor(Math.random()*9)+1)*10 : (Math.floor(Math.random()*19)+1)*5;
+        nTotal = nivel === 1 ? (Math.floor(Math.random()*9)+1)*100 : (Math.floor(Math.random()*49)+1)*20;
+        nProd = nPerc * nTotal;
+        nFinal = nProd / 100;
+
+        // 3. Limpiar Interfaz completamente
+        document.getElementById('target-num').innerText = `${nPerc}% de ${nTotal}`;
+        document.getElementById('disp-total-1').innerText = nTotal;
+        document.getElementById('instruccion').innerText = "Paso 1: Escribe la fracción (porcentaje sobre 100)";
+        
+        const solCard = document.getElementById('final-solution');
+        solCard.classList.add('hidden');
+        solCard.innerText = ""; // Limpiar texto anterior
+        
+        document.querySelectorAll('.step-card').forEach(s => s.className = 'step-card hidden');
+        document.querySelectorAll('.box').forEach(b => { 
+            b.innerText = ""; 
+            b.className = "box"; 
+        });
+        
+        // 4. Activar primer paso
+        document.getElementById('step-1').className = 'step-card active-step';
+        document.getElementById('ws').scrollTop = 0;
+        updateFocus();
+    }
+
+    function updateFocus() {
+        document.querySelectorAll('.box').forEach(b => b.classList.remove('active-box'));
+        const id = rutaPasos[pasoGlobal][subIndice];
+        document.getElementById(id).classList.add('active-box');
+    }
+
+    function pressKey(val) {
+        if(bloqueado) return;
+        playSfx(440, 'sine', 0.05);
+        const id = rutaPasos[pasoGlobal][subIndice];
+        const el = document.getElementById(id);
+        el.innerText += val;
+
+        let correcto = "";
+        if(id.includes('num')) correcto = nPerc.toString();
+        else if(id.includes('den')) correcto = "100";
+        else if(id.includes('total')) correcto = nTotal.toString();
+        else if(id.includes('prod')) correcto = nProd.toString();
+        else if(id.includes('final')) correcto = nFinal.toString();
+
+        if(el.innerText.length >= correcto.length) {
+            validar(el, correcto);
+        }
+    }
+
+    function validar(el, corr) {
+        bloqueado = true;
+        if(el.innerText === corr) {
+            playSfx(600);
+            el.className = "box correct-box";
+            setTimeout(() => {
+                bloqueado = false;
+                subIndice++;
+                if(subIndice >= rutaPasos[pasoGlobal].length) {
+                    avanzarPaso();
+                } else {
+                    updateFocus();
+                }
+            }, 200);
+        } else {
+            playSfx(150, 'sawtooth', 0.3);
+            el.classList.add('wrong-box');
+            setTimeout(() => {
+                el.classList.remove('wrong-box');
+                el.innerText = "";
+                bloqueado = false;
+            }, 600);
+        }
+    }
+
+    function avanzarPaso() {
+        const actual = document.getElementById(`step-${pasoGlobal}`);
+        actual.className = 'step-card completed';
+        
+        pasoGlobal++;
+        subIndice = 0;
+        const ws = document.getElementById('ws');
+
+        if(pasoGlobal > 3) {
+            // Finalización del ejercicio
+            document.getElementById('instruccion').innerText = "¡PROCESO COMPLETADO!";
+            const solCard = document.getElementById('final-solution');
+            solCard.innerText = `${nPerc}% de ${nTotal} = ${nFinal}`;
+            solCard.classList.remove('hidden');
+            
+            playSfx(850, 'sine', 0.4);
+            
+            setTimeout(() => { ws.scrollTop = ws.scrollHeight; }, 100);
+            setTimeout(nextExercise, 4000); // Pausa para ver la solución
+        } else {
+            const siguiente = document.getElementById(`step-${pasoGlobal}`);
+            siguiente.className = 'step-card active-step';
+            
+            if(pasoGlobal === 2) document.getElementById('instruccion').innerText = "Paso 2: Multiplica el porcentaje por el número";
+            if(pasoGlobal === 3) document.getElementById('instruccion').innerText = "Paso 3: Divide el resultado entre 100";
+            
+            updateFocus();
+            setTimeout(() => {
+                ws.scrollTo({ top: siguiente.offsetTop - ws.offsetTop - 20, behavior: 'smooth' });
+            }, 100);
+        }
+    }
+
+    function deleteKey() {
+        if(bloqueado) return;
+        const id = rutaPasos[pasoGlobal][subIndice];
+        document.getElementById(id).innerText = "";
+    }
+</script>
+</body>
+</html>
