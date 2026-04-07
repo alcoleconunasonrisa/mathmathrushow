@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,6 +13,7 @@
             --secondary-soft: #4ECDC4;
             --accent-soft: #FFE66D;
             --reasoning-soft: #A29BFE;
+            --arcade-orange: #FF9F43;
             --glass-card: rgba(255, 255, 255, 0.1);
             --text-white: #ffffff;
             --playstore-blue: #4285F4;
@@ -27,13 +29,13 @@
             background-size: cover;
             color: var(--text-white);
             min-height: 100vh;
-            padding: 0; /* Ajustado para que el banner toque los bordes */
+            padding: 0;
             overflow-x: hidden;
         }
 
-        /* --- ESTILOS DEL BANNER PLAY STORE --- */
+        /* --- BANNER PLAY STORE --- */
         #android-banner {
-            display: none; /* Se activa por JS si es Android */
+            display: none;
             position: sticky;
             top: 0;
             z-index: 9999;
@@ -52,12 +54,7 @@
             animation: pulse-banner 2.5s infinite;
         }
 
-        .banner-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
+        .banner-info { display: flex; align-items: center; gap: 12px; }
         .banner-info i { font-size: 1.6rem; }
         .banner-text { font-weight: 700; font-size: 0.85rem; line-height: 1.2; }
 
@@ -69,7 +66,6 @@
             font-size: 0.75rem;
             font-weight: 900;
             text-transform: uppercase;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         @keyframes pulse-banner {
@@ -78,8 +74,8 @@
             100% { transform: scale(1); filter: brightness(1); }
         }
 
-        /* --- RESTO DE LA ESTRUCTURA --- */
-        .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 20px; }
+        /* --- CONTENEDOR Y GRID --- */
+        .container { position: relative; z-index: 1; max-width: 1600px; margin: 0 auto; padding: 20px; }
 
         header { text-align: center; padding: 10px 0 40px; }
         .logo {
@@ -93,7 +89,7 @@
 
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 25px;
             align-items: start;
         }
@@ -111,6 +107,7 @@
         .pill-blue { background: var(--secondary-soft); color: #0f172a; }
         .pill-red { background: var(--primary-soft); color: white; }
         .pill-purple { background: var(--reasoning-soft); color: #0f172a; }
+        .pill-orange { background: var(--arcade-orange); color: white; }
 
         .card-group {
             background: var(--glass-card);
@@ -139,7 +136,7 @@
             overflow: hidden;
             transition: 0.4s ease;
         }
-        .active .card-content { max-height: 2000px; padding: 15px; }
+        .active .card-content { max-height: 3000px; padding: 15px; }
 
         .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
@@ -170,14 +167,7 @@
             color: white; font-size: 0.7rem; flex-shrink: 0;
         }
 
-        @media (max-width: 1100px) {
-            .main-grid { grid-template-columns: 1fr 1fr; }
-        }
-
-        @media (max-width: 768px) {
-            .main-grid { grid-template-columns: 1fr; }
-            .logo { font-size: 2.2rem; }
-        }
+        @media (max-width: 768px) { .logo { font-size: 2.2rem; } }
     </style>
 </head>
 <body>
@@ -206,7 +196,7 @@
             <div class="card-group" onclick="this.classList.toggle('active')">
                 <div class="card-header"><h3><i class="fas fa-plus"></i> SUMAS</h3><i class="fas fa-chevron-down"></i></div>
                 <div class="card-content"><div class="links-grid">
-                    <a href="descomposicion.html" class="btn-game"><div class="dot" style="background:#FF6B6B">1</div> Descomposición de números</a>
+                    <a href="descomposicion.html" class="btn-game"><div class="dot" style="background:#FF6B6B">1</div> Descomposición</a>
                     <a href="Aprendesum.html" class="btn-game"><div class="dot" style="background:#FF6B6B">1</div> Sumas I</a>
                     <a href="Aprendesum01.html" class="btn-game"><div class="dot" style="background:#FF6B6B">2</div> Sumas II</a>
                     <a href="Aprendesuma.html" class="btn-game"><div class="dot" style="background:#4ECDC4">A</div> Aprende I</a>
@@ -233,7 +223,7 @@
                     <a href="Aprendemultiplicar.html" class="btn-game"><div class="dot" style="background:#FF6B6B">A</div> Aprende</a>
                     <a href="Aprendemultiplicar1.html" class="btn-game"><div class="dot" style="background:#FF6B6B">1</div> Nivel 1</a>
                     <a href="Aprendemultiplicar2.html" class="btn-game"><div class="dot" style="background:#FF6B6B">2</div> Nivel 2</a>
-                    <a href="multiunidad.html" class="btn-game"><div class="dot" style="background:#FF6B6B">2</div> Multiplica x10,100,...</a>
+                    <a href="multiunidad.html" class="btn-game"><div class="dot" style="background:#FF6B6B">2</div> x10, 100...</a>
                 </div></div>
             </div>
 
@@ -246,7 +236,7 @@
                     <a href="Aprendedivision.html" class="btn-game"><div class="dot" style="background:#A29BFE">3</div> Aprende III</a>
                     <a href="Aprendedivision2conresta.html" class="btn-game"><div class="dot" style="background:#A29BFE">R</div> Con Resta</a>
                     <a href="Aprendedivision3.html" class="btn-game"><div class="dot" style="background:#A29BFE">4</div> Aprende IV</a>
-                    <a href="diviunidad.html" class="btn-game"><div class="dot" style="background:#FF6B6B">2</div> Divide :10, 100,...</a>
+                    <a href="diviunidad.html" class="btn-game"><div class="dot" style="background:#FF6B6B">2</div> :10, 100...</a>
                 </div></div>
             </div>
 
@@ -266,8 +256,8 @@
                     <a href="Aprendefraccionesres.html" class="btn-game"><div class="dot" style="background:#6C5CE7">-</div> Resta</a>
                     <a href="Aprendefraccionesequivalentes.html" class="btn-game"><div class="dot" style="background:#6C5CE7">=</div> Equiv.</a>
                     <a href="Aprendenumeromixto.html" class="btn-game"><div class="dot" style="background:#6C5CE7">÷</div> Número mixto</a>
-                    <a href="Aprendefraccionmixto.html" class="btn-game"><div class="dot" style="background:#6C5CE7">÷</div> Fracción-mixto</a>
-                    <a href="Aprendemixtofraccion.html" class="btn-game"><div class="dot" style="background:#6C5CE7">÷</div> Mixto-fraccion</a>
+                    <a href="Aprendefraccionmixto.html" class="btn-game"><div class="dot" style="background:#6C5CE7">÷</div> Frac-mixto</a>
+                    <a href="Aprendemixtofraccion.html" class="btn-game"><div class="dot" style="background:#6C5CE7">÷</div> Mixto-frac</a>
                     <a href="Aprendefraccionessumdif.html" class="btn-game"><div class="dot" style="background:#6C5CE7">S1</div> Suma I</a>
                     <a href="Aprendefraccionessumadif.html" class="btn-game"><div class="dot" style="background:#6C5CE7">S2</div> Suma II</a>
                     <a href="Aprendefraccionesrestdif1.html" class="btn-game"><div class="dot" style="background:#6C5CE7">R1</div> Resta I</a>
@@ -280,8 +270,8 @@
             <div class="card-group" onclick="this.classList.toggle('active')">
                 <div class="card-header"><h3><i class="fas fa-coins"></i> DECIMALES</h3><i class="fas fa-chevron-down"></i></div>
                 <div class="card-content"><div class="links-grid">
-                    <a href="descompondecimal.html" class="btn-game"><div class="dot" style="background:#FDCB6E">C1</div> Descomposición de decimales</a>
-                    <a href="tantoporciento.html" class="btn-game"><div class="dot" style="background:#FDCB6E">C1</div> % de un número</a>
+                    <a href="descompondecimal.html" class="btn-game"><div class="dot" style="background:#FDCB6E">C1</div> Descomp.</a>
+                    <a href="tantoporciento.html" class="btn-game"><div class="dot" style="background:#FDCB6E">C1</div> % de nº</a>
                     <a href="Aprendedecimalescompara.html" class="btn-game"><div class="dot" style="background:#FDCB6E">C1</div> Compara</a>
                     <a href="Aprendedecimalaproxima.html" class="btn-game"><div class="dot" style="background:#FDCB6E">C1</div> Aproxima</a>
                     <a href="Aprendesumadecimal.html" class="btn-game"><div class="dot" style="background:#FDCB6E">S1</div> Suma I</a>
@@ -289,7 +279,7 @@
                     <a href="AprendeRestadecimal.html" class="btn-game"><div class="dot" style="background:#FDCB6E">R1</div> Resta I</a>
                     <a href="AprendeRestadecimal2.html" class="btn-game"><div class="dot" style="background:#FDCB6E">R2</div> Resta II</a>
                     <a href="Aprendemultiplicardecimal2.html" class="btn-game"><div class="dot" style="background:#FDCB6E">M1</div> Mult I</a>
-                     <a href="Aprendemultiplicardecimal3.html" class="btn-game"><div class="dot" style="background:#FDCB6E">M1</div> Mult II</a>
+                    <a href="Aprendemultiplicardecimal3.html" class="btn-game"><div class="dot" style="background:#FDCB6E">M2</div> Mult II</a>
                     <a href="AprendeDivisiondecimal.html" class="btn-game"><div class="dot" style="background:#FDCB6E">D1</div> Div I</a>
                     <a href="AprendeDivisiondecimal2.html" class="btn-game"><div class="dot" style="background:#FDCB6E">D2</div> Div II</a>
                     <a href="AprendeDivisiondecimal3.html" class="btn-game"><div class="dot" style="background:#FDCB6E">D3</div> Div III</a>
@@ -301,20 +291,20 @@
             <div class="section-pill pill-red">🚀 ZONA CÁLCULO MENTAL</div>
             <div class="card-group active">
                 <div class="card-header"><h3><i class="fas fa-bolt"></i> DESAFÍOS</h3></div>
-                <div class="card-content" style="max-height: none; padding: 15px;">
+                <div class="card-content" style="max-height: none;">
                     <div class="links-grid">
                         <a href="Sumasmovil.html" class="btn-game"><div class="dot" style="background:#7AB2FF">1</div> Sumas</a>
                         <a href="Restasmovil.html" class="btn-game"><div class="dot" style="background:#7AB2FF">2</div> Restas</a>
-                        <a href="Sumas20movil.html" class="btn-game"><div class="dot" style="background:#7AB2FF">3</div> Sumas hasta 20</a>
+                        <a href="Sumas20movil.html" class="btn-game"><div class="dot" style="background:#7AB2FF">3</div> Hasta 20</a>
                         <a href="Tablas1a5.html" class="btn-game"><div class="dot" style="background:#FFB347">4</div> Tablas 1-5</a>
                         <a href="Tablas6a9.html" class="btn-game"><div class="dot" style="background:#FFB347">5</div> Tablas 6-9</a>
                         <a href="Tablas1al10movil.html" class="btn-game"><div class="dot" style="background:#FFB347">6</div> Tablas 1-10</a>
-                        <a href="Divisiones1a5.html" class="btn-game"><div class="dot" style="background:#A29BFE">7</div> Divis. 1-5</a>
-                        <a href="Divisiones6a9.html" class="btn-game"><div class="dot" style="background:#A29BFE">8</div> Divis. 6-9</a>
-                        <a href="Divisiones1a10.html" class="btn-game"><div class="dot" style="background:#A29BFE">9</div> Divis. 1-10</a>
-                        <a href="Sumasyrestas.html" class="btn-game"><div class="dot" style="background:#FF6B6B">10</div> Mix </a>
+                        <a href="Divisiones1a5.html" class="btn-game"><div class="dot" style="background:#A29BFE">7</div> Divis 1-5</a>
+                        <a href="Divisiones6a9.html" class="btn-game"><div class="dot" style="background:#A29BFE">8</div> Divis 6-9</a>
+                        <a href="Divisiones1a10.html" class="btn-game"><div class="dot" style="background:#A29BFE">9</div> Divis 1-10</a>
+                        <a href="Sumasyrestas.html" class="btn-game"><div class="dot" style="background:#FF6B6B">10</div> Mix</a>
                         <a href="Operacionescombinadas5.html" class="btn-game"><div class="dot" style="background:#555">11</div> Combinadas</a>
-                        <a href="Sumayrestanegativo.html" class="btn-game"><div class="dot" style="background:#555">12</div> Números Negativos</a>
+                        <a href="Sumayrestanegativo.html" class="btn-game"><div class="dot" style="background:#555">12</div> Negativos</a>
                         <a href="Sumasyrestasdificil.html" class="btn-game"><div class="dot" style="background:#FF6B6B">13</div> Experto</a>
                     </div>
                 </div>
@@ -322,16 +312,28 @@
         </div>
 
         <div class="zone">
-            <div class="section-pill pill-purple">🧠 ZONA RAZONAMIENTO</div>
+            <div class="section-pill pill-purple">🧠 RAZONAMIENTO</div>
             <div class="card-group active">
                 <div class="card-header"><h3><i class="fas fa-brain"></i> PROBLEMAS</h3></div>
-                <div class="card-content" style="max-height: none; padding: 15px;">
+                <div class="card-content" style="max-height: none;">
                     <div class="links-grid">
                         <a href="Problemasumayresta.html" class="btn-game"><div class="dot" style="background:#4ECDC4">P1</div> Suma y Resta</a>
-                        <a href="Problemasumayrestaymultipli.html" class="btn-game"><div class="dot" style="background:#FF6B6B">P2</div> Mix 3 Oper.</a>
+                        <a href="Problemasumayrestaymultipli.html" class="btn-game"><div class="dot" style="background:#FF6B6B">P2</div> Mix 3 Oper</a>
                         <a href="Problemasumayrestaymultipli2.html" class="btn-game"><div class="dot" style="background:#FF6B6B">P3</div> Mix 3 (II)</a>
-                        <a href="Problemasumayrestaymultiplidivi.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">P4</div> Todas Oper.</a>
+                        <a href="Problemasumayrestaymultiplidivi.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">P4</div> Todas</a>
                         <a href="Problemasumayrestaymultiplidivi2.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">P5</div> Experto</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-pill pill-orange" style="margin-top: 30px;">🕹️ ZONA ARCADE</div>
+            <div class="card-group active">
+                <div class="card-header"><h3><i class="fas fa-ghost"></i> PAC-MATH</h3></div>
+                <div class="card-content" style="max-height: none;">
+                    <div class="links-grid">
+                        <a href="pacmansuma.html" class="btn-game"><div class="dot" style="background:#FF6B6B">+</div> Pac-Suma</a>
+                        <a href="pacmantablas.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">×</div> Pac-Tablas</a>
+                        <a href="pacmandivision.html" class="btn-game"><div class="dot" style="background:#A29BFE">÷</div> Pac-Divis</a>
                     </div>
                 </div>
             </div>
@@ -340,18 +342,15 @@
     </div>
 
     <footer style="text-align:center; padding: 40px; opacity: 0.5; font-size: 0.8rem;">
-    <a href="privacy-policy.html" style="color: white;">Política de Privacidad</a> | 
-    <a href="terms-of-service.html" style="color: white;">Términos de Servicio</a><br>
-        © 2026 Math Math Rush Ow - Tu viaje hacia la sabiduría
+        <a href="privacy-policy.html" style="color: white;">Privacidad</a> | 
+        <a href="terms-of-service.html" style="color: white;">Términos</a><br>
+        © 2026 Math Math Rush Ow
     </footer>
 </div>
 
 <script>
-    // SCRIPT DE DETECCIÓN DE ANDROID
     window.onload = function() {
         var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        
-        // Verifica si el dispositivo es Android
         if (/android/i.test(userAgent)) {
             document.getElementById('android-banner').style.display = 'block';
         }
