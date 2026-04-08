@@ -265,7 +265,7 @@
         for(let r=0; r<R; r++) for(let c=0; c<C; c++) if(map[r][c]===1) ctx.strokeRect(c*T+4, r*T+4, T-8, T-8);
 
         nums.forEach(n => {
-            ctx.fillStyle = n.c && f%10<5 ? "#fff" : "#fbbf24";
+            ctx.fillStyle = n.c ? "#fff" : "#fbbf24";
             ctx.font = "bold 20px Fredoka";
             ctx.textAlign = "center";
             ctx.fillText(n.v, n.x*T+T/2, n.y*T+T/1.4);
