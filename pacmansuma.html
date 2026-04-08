@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Math-Man: Touch Edition</title>
+    <title>Math-Man: Operaciones Master</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #020210; --wall: #1e40af; --pacman: #fbbf24; --correct: #22c55e; --wrong: #ef4444; --power: #3b82f6; }
-        /* Bloqueamos el scroll y gestos nativos del navegador */
         * { touch-action: none; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; font-family: 'Fredoka', sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; overflow: hidden; height: 100vh; }
         
@@ -22,20 +21,25 @@
         #power-msg { color: #fff; display: none; text-shadow: 0 0 10px var(--power); background: rgba(0,0,0,0.7); padding: 5px; }
 
         #over, #start-screen, #pause-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; text-align: center; padding: 20px; }
-        button { padding: 15px 35px; font-size: 1.3rem; background: var(--correct); color: white; border: none; border-radius: 12px; cursor: pointer; margin: 15px; font-family: 'Fredoka'; box-shadow: 0 4px 0 #16a34a; }
-        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #16a34a; }
-        h1 { color: var(--pacman); font-size: 2.8rem; margin: 0; text-shadow: 3px 3px var(--wall); }
+        
+        .config-group { background: rgba(255,255,255,0.1); padding: 12px; border-radius: 15px; margin: 8px 0; width: 280px; }
+        label { display: block; margin-bottom: 5px; color: var(--pacman); font-size: 0.8rem; text-transform: uppercase; }
+        select { width: 100%; padding: 10px; border-radius: 8px; border: none; font-family: 'Fredoka'; font-size: 1rem; cursor: pointer; background: white; }
 
-        #btn-pause-toggle { position: absolute; top: 10px; right: 10px; background: #333; padding: 8px 15px; font-size: 0.9rem; margin: 0; box-shadow: none; }
-        .hint { font-size: 0.9rem; color: #888; margin-top: 10px; }
+        button { padding: 15px 35px; font-size: 1.3rem; background: var(--correct); color: white; border: none; border-radius: 12px; cursor: pointer; margin: 10px; font-family: 'Fredoka'; box-shadow: 0 4px 0 #16a34a; }
+        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #16a34a; }
+        h1 { color: var(--pacman); font-size: 2.5rem; margin: 0; text-shadow: 3px 3px var(--wall); }
+
+        #btn-home { position: absolute; top: 10px; left: 10px; background: #555; padding: 8px 15px; font-size: 0.8rem; margin: 0; box-shadow: none; z-index: 110;}
+        #btn-pause-toggle { position: absolute; top: 10px; right: 10px; background: #333; padding: 8px 15px; font-size: 0.8rem; margin: 0; box-shadow: none; z-index: 110; color: white; border-radius: 8px; cursor: pointer; border: none;}
     </style>
 </head>
 <body>
 
     <div id="ui">
-        <button id="btn-home" onclick="window.location.href='main-index.html'" style="position: absolute; top: 10px; left: 10px; background: #555; padding: 8px 15px; font-size: 0.9rem; margin: 0; box-shadow: none;">INICIO</button>
+        <button id="btn-home" onclick="window.location.href='main-index.html'">INICIO</button>
         <button id="btn-pause-toggle" onclick="togglePause()">PAUSA</button>
-        <div id="op">PREPARADO...</div>
+        <div id="op">¡LISTO!</div>
         <div class="stats">
             <div>Pts: <span id="sc">0</span></div>
             <div>Vidas: <span id="lv">3</span></div>
@@ -43,17 +47,34 @@
         </div>
     </div>
     
-    <div id="penalty" class="msg">⚠️ ¡PENALIZACIÓN!</div>
-    <div id="power-msg" class="msg">⚡ ¡CAZADOR! ⚡</div>
+    <div id="penalty" class="msg">⚠️ ¡INCORRECTO!</div>
+    <div id="power-msg" class="msg">⚡ ¡MODO CAZADOR! ⚡</div>
 
     <canvas id="g"></canvas>
 
     <div id="start-screen">
         <h1>MATH-MAN</h1>
-        <p>Resuelve la operación comiendo el número correcto.</p>
-        <p style="color: var(--pacman)">Desliza el dedo para moverte</p>
-        <button onclick="startGame()">EMPEZAR</button>
-        <div class="hint">En PC usa las flechas o WASD</div>
+        <h2 style="color: #3b82f6; margin-bottom: 10px;">Aritmética Master</h2>
+        
+        <div class="config-group">
+            <label>Operación</label>
+            <select id="sel-tipo">
+                <option value="suma">Solo Sumas (+)</option>
+                <option value="resta">Solo Restas (-)</option>
+                <option value="mix" selected>Mix (Sumas y Restas)</option>
+            </select>
+        </div>
+
+        <div class="config-group">
+            <label>Velocidad del Juego</label>
+            <select id="sel-speed">
+                <option value="180">Lento</option>
+                <option value="130" selected>Normal</option>
+                <option value="90">Rápido</option>
+            </select>
+        </div>
+
+        <button onclick="startGame()">EMPEZAR JUEGO</button>
     </div>
 
     <div id="pause-screen" style="display:none;">
@@ -64,7 +85,7 @@
     <div id="over" style="display:none;">
         <h2>¡FIN DEL JUEGO!</h2>
         <p id="final-score" style="font-size: 1.5rem;"></p>
-        <button onclick="reset()">REINTENTAR</button>
+        <button onclick="location.reload()">REINTENTAR</button>
     </div>
 
 <script>
@@ -76,7 +97,6 @@
     const T = 32, R = 15, C = 19;
     cvs.width = C*T; cvs.height = R*T;
 
-    // --- MAPA ---
     const map = [
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
         [1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -90,241 +110,154 @@
 
     let p = {x:9, y:11, d:"STAY", nd:"STAY", s:0, l:3, penalty:0, power:0, combo:0};
     let gs = [{x:9, y:7, c:"#f44", d:"UP"}, {x:10, y:7, c:"#f4f", d:"DOWN"}];
-    let nums = [], task = {q:"", a:0}, active = false, paused = false, au = null, f = 0;
+    let nums = [], task = {q:"", a:0}, active = false, paused = false, au = null, f = 0, gameSpeed = 130;
 
-    // --- SISTEMA TÁCTIL (SWIPE) ---
-    let touchStartX = 0, touchStartY = 0;
-    
-    document.addEventListener('touchstart', e => {
-        touchStartX = e.changedTouches[0].screenX;
-        touchStartY = e.changedTouches[0].screenY;
-    }, {passive: false});
-
-    document.addEventListener('touchend', e => {
-        let x = e.changedTouches[0].screenX;
-        let y = e.changedTouches[0].screenY;
-        handleSwipe(x, y);
-    }, {passive: false});
-
-    function handleSwipe(endX, endY) {
-        if (!active) return;
-        const dx = endX - touchStartX;
-        const dy = endY - touchStartY;
-        const threshold = 30; // Mínimo de píxeles para detectar el swipe
-
-        if (Math.abs(dx) > Math.abs(dy)) {
-            if (Math.abs(dx) > threshold) handleInput(dx > 0 ? "RIGHT" : "LEFT");
-        } else {
-            if (Math.abs(dy) > threshold) handleInput(dy > 0 ? "DOWN" : "UP" );
-        }
+    // --- AUDIO ---
+    function initAudio() {
+        if (!au) au = new (window.AudioContext || window.webkitAudioContext)();
+        if (au.state === 'suspended') au.resume();
     }
 
-    // --- LÓGICA DE JUEGO ---
-    function startGame() {
-        document.getElementById("start-screen").style.display = "none";
-        initAudio();
-        if(!active) { active = true; gen(); }
+    function playSfx(fr, dur, vol, type='sine') {
+        if (!au || au.state !== 'running' || paused) return;
+        try {
+            let o = au.createOscillator(), g = au.createGain();
+            o.type = type; o.frequency.setValueAtTime(fr, au.currentTime);
+            g.gain.setValueAtTime(vol, au.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.0001, au.currentTime + dur);
+            o.connect(g); g.connect(au.destination);
+            o.start(); o.stop(au.currentTime + dur);
+        } catch(e) {}
     }
 
+    function playMusic() {
+        if (!active || paused) { setTimeout(playMusic, 250); return; }
+        let notes = [261, 329, 392, 523];
+        if (f % 8 === 0) playSfx(p.power > 0 ? notes[f%4]*1.5 : notes[f%4], 0.15, 0.02, 'triangle');
+        setTimeout(playMusic, 150);
+    }
+
+    // --- LOGICA ---
     function togglePause() {
-        if(!active) return;
+        if (!active) return;
         paused = !paused;
         document.getElementById("pause-screen").style.display = paused ? "flex" : "none";
-    }
-
-    function initAudio() { 
-        if(!au) {
-            au = new (window.AudioContext||window.webkitAudioContext)();
-            const musicLoop = () => {
-                if(active && !paused) {
-                    let notes = [261.6, 293.7, 329.6, 349.2];
-                    let note = notes[Math.floor(f/10)%4];
-                    playSfx(p.power > 0 ? note*1.5 : note, 0.2, 0.03, 'triangle');
-                }
-                setTimeout(musicLoop, 500);
-            };
-            musicLoop();
-        }
-    }
-    
-    function playSfx(fr, dur, vol, type='sine') { 
-        if(!au || paused) return;
-        let o=au.createOscillator(), g=au.createGain();
-        o.type=type;
-        o.frequency.value = p.penalty > 0 ? fr * 0.5 : fr;
-        g.gain.setValueAtTime(vol, au.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001, au.currentTime+dur);
-        o.connect(g); g.connect(au.destination);
-        o.start(); o.stop(au.currentTime+dur);
+        if (!paused) update();
     }
 
     function gen() {
-        let a = Math.floor(Math.random()*8)+1, b = Math.floor(Math.random()*8)+1, op = Math.random()>0.5?'+':'-';
-        if(op==='-' && a<b) [a,b] = [b,a];
-        task = {q:`${a}${op}${b}`, a:op==='+'?a+b:a-b};
+        let tipo = document.getElementById("sel-tipo").value;
+        let n1 = Math.floor(Math.random()*9)+1;
+        let n2 = Math.floor(Math.random()*9)+1;
+        let opActual = tipo;
+
+        if (tipo === "mix") opActual = Math.random() > 0.5 ? "suma" : "resta";
+
+        if (opActual === "suma") {
+            task = { q: `${n1} + ${n2}`, a: n1 + n2 };
+        } else {
+            if (n1 < n2) [n1, n2] = [n2, n1];
+            task = { q: `${n1} - ${n2}`, a: n1 - n2 };
+        }
+
         opDiv.innerText = task.q;
         nums = []; posNum(task.a, true);
         for(let i=0; i<3; i++) {
-            let v = Math.floor(Math.random()*15)+1;
-            if(v!==task.a) posNum(v, false);
+            let v; do { v = Math.floor(Math.random()*18); } while (v === task.a || nums.some(n => n.v === v));
+            posNum(v, false);
         }
     }
 
     function posNum(v, c) {
         let ok = false; while(!ok) {
             let rx = Math.floor(Math.random()*C), ry = Math.floor(Math.random()*R);
-            if(map[ry][rx]===0 && !nums.some(n=>n.x===rx && n.y===ry)) { 
-                nums.push({x:rx, y:ry, v:v, c:c}); ok = true; 
-            }
+            if(map[ry][rx]===0 && !nums.some(n=>n.x===rx && n.y===ry)) { nums.push({x:rx, y:ry, v:v, c:c}); ok = true; }
         }
     }
 
-    function canMove(x, y, d) {
-        let nx = x, ny = y;
-        if(d==="UP") ny--; else if(d==="DOWN") ny++; else if(d==="LEFT") nx--; else if(d==="RIGHT") nx++;
-        if(nx < 0) nx = C - 1; if(nx >= C) nx = 0;
-        return (map[ny] && map[ny][nx] === 0);
-    }
-
-    function moveGhost(g) {
-        const dirs = ["UP", "DOWN", "LEFT", "RIGHT"];
-        let possible = dirs.filter(d => d !== getOpposite(g.d) && canMove(g.x, g.y, d));
-        if (possible.length === 0) possible = dirs.filter(d => canMove(g.x, g.y, d));
-        if (possible.length > 1 || !canMove(g.x, g.y, g.d) || Math.random() < 0.2) {
-            g.d = possible[Math.floor(Math.random() * possible.length)];
-        }
-        let tx = g.x, ty = g.y;
-        if(g.d==="UP") ty--; else if(g.d==="DOWN") ty++; else if(g.d==="LEFT") tx--; else if(g.d==="RIGHT") tx++;
-        if(tx < 0) tx = C - 1; else if(tx >= C) tx = 0;
-        g.x = tx; g.y = ty;
-    }
-
-    function getOpposite(d) {
-        if(d==="UP") return "DOWN"; if(d==="DOWN") return "UP";
-        if(d==="LEFT") return "RIGHT"; if(d==="RIGHT") return "LEFT";
-        return "";
+    function startGame() {
+        initAudio();
+        gameSpeed = parseInt(document.getElementById("sel-speed").value);
+        document.getElementById("start-screen").style.display = "none";
+        active = true; gen(); playMusic(); update();
     }
 
     function update() {
         if(!active || paused) return;
         f++;
-
-        if (p.penalty > 0) {
-            if (f % 2 === 0) movePacman();
-            p.penalty--;
-        } else {
-            movePacman();
-            if(f % 6 === 0 && p.d !== "STAY") playSfx(440, 0.05, 0.02, 'square');
-        }
-
+        if (p.penalty > 0) { if (f % 2 === 0) movePacman(); p.penalty--; } else movePacman();
         if(f % 4 === 0) gs.forEach(g => moveGhost(g));
         if(p.power > 0) p.power--;
 
         let ni = nums.findIndex(n=>n.x===p.x && n.y===p.y);
         if(ni!==-1) {
             if(nums[ni].c) {
-                p.s+=10; p.combo++; 
-                playSfx(800, 0.1, 0.1);
-                if(p.combo >= 5) { p.power = 100; p.combo = 0; playSfx(1000, 0.6, 0.2); }
+                p.s+=50; p.combo++; playSfx(880, 0.1, 0.1);
+                if(p.combo >= 5) { p.power = 120; p.combo = 0; playSfx(1200, 0.4, 0.2); }
                 gen();
-            } else {
-                p.penalty = 60; p.combo = 0; playSfx(150, 0.5, 0.2, 'sawtooth'); gen();
-            }
+            } else { p.penalty = 40; p.combo = 0; playSfx(150, 0.3, 0.2, 'sawtooth'); gen(); }
         }
 
         gs.forEach(g => {
-            let dist = Math.sqrt((g.x-p.x)**2 + (g.y-p.y)**2);
-            if(dist < 0.6) {
-                if(p.power > 0) {
-                    p.s += 50; playSfx(1200, 0.2, 0.3);
-                    g.x = 9; g.y = 7;
-                } else {
-                    p.l--; playSfx(100, 0.8, 0.3, 'sawtooth');
-                    p.x = 9; p.y = 11; p.d = p.nd = "STAY"; p.combo = 0;
-                }
+            if(g.x === p.x && g.y === p.y) {
+                if(p.power > 0) { p.s += 100; playSfx(1500, 0.2, 0.2); g.x = 9; g.y = 7; } 
+                else { p.l--; playSfx(80, 0.5, 0.3, 'sawtooth'); p.x = 9; p.y = 11; p.d = p.nd = "STAY"; }
             }
         });
 
-        if(p.l<=0) { 
-            active=false; 
-            document.getElementById("over").style.display="flex"; 
-            document.getElementById("final-score").innerText = "Puntos: " + p.s;
-        }
-        
+        if(p.l<=0) { active=false; document.getElementById("over").style.display="flex"; document.getElementById("final-score").innerText = "Puntos: " + p.s; }
         scDiv.innerText = p.s; lvDiv.innerText = p.l; cbDiv.innerText = p.combo;
         penDiv.style.display = p.penalty > 0 ? "block" : "none";
         powDiv.style.display = p.power > 0 ? "block" : "none";
         draw();
+        if(active && !paused) setTimeout(update, gameSpeed);
     }
 
     function draw() {
         ctx.fillStyle = "#000"; ctx.fillRect(0,0,cvs.width,cvs.height);
-        
-        ctx.strokeStyle = (p.power > 0 && f%6<3) ? "#fff" : "#1e40af";
+        ctx.strokeStyle = (p.power > 0 && f%4<2) ? "#fff" : "#1e40af";
         ctx.lineWidth = 2;
-        for(let r=0; r<R; r++) for(let c=0; c<C; c++) if(map[r][c]===1) ctx.strokeRect(c*T+4, r*T+4, T-8, T-8);
-
-        nums.forEach(n => {
-            ctx.fillStyle = "#fbbf24";
-            ctx.font = "bold 20px Fredoka";
-            ctx.textAlign = "center";
-            ctx.fillText(n.v, n.x*T+T/2, n.y*T+T/1.4);
-        });
-
-        ctx.fillStyle = p.penalty > 0 ? (f%4<2 ? "#fff" : "#ef4444") : "#fbbf24";
-        if(p.power > 0 && f%4<2) ctx.fillStyle = "#fff";
-        let px = p.x*T+T/2, py = p.y*T+T/2;
-        let rot = p.d==="UP"?1.5:p.d==="DOWN"?0.5:p.d==="LEFT"?1:0;
-        let mouth = Math.abs(Math.sin(f*0.3))*0.2;
-        ctx.beginPath();
-        ctx.arc(px, py, T/2.4, (rot+mouth)*Math.PI, (rot+2-mouth)*Math.PI);
-        ctx.lineTo(px, py); ctx.fill();
-
-        gs.forEach(g => {
-            ctx.fillStyle = (p.power > 0) ? (p.power < 30 && f%4<2 ? "#fff" : "#3b82f6") : g.c;
-            ctx.beginPath();
-            ctx.arc(g.x*T+T/2, g.y*T+T/2.5, T/2.5, Math.PI, 0);
-            ctx.lineTo(g.x*T+T-6, g.y*T+T-6); 
-            ctx.lineTo(g.x*T+6, g.y*T+T-6); 
-            ctx.fill();
-        });
+        for(let r=0; r<R; r++) for(let c=0; c<C; c++) if(map[r][c]===1) ctx.strokeRect(c*T+5, r*T+5, T-10, T-10);
+        nums.forEach(n => { ctx.fillStyle = "#fff"; ctx.font = "bold 20px Fredoka"; ctx.textAlign = "center"; ctx.fillText(n.v, n.x*T+T/2, n.y*T+T/1.3); });
+        ctx.fillStyle = p.penalty > 0 ? "#555" : "#fbbf24";
+        let px = p.x*T+T/2, py = p.y*T+T/2, rot = p.d==="UP"?1.5:p.d==="DOWN"?0.5:p.d==="LEFT"?1:0, open = Math.abs(Math.sin(f*0.4))*0.2;
+        ctx.beginPath(); ctx.arc(px, py, T/2.5, (rot+open)*Math.PI, (rot+2-open)*Math.PI); ctx.lineTo(px, py); ctx.fill();
+        gs.forEach(g => { ctx.fillStyle = p.power > 0 ? "#3b82f6" : g.c; ctx.beginPath(); ctx.arc(g.x*T+T/2, g.y*T+T/2, T/2.8, 0, Math.PI*2); ctx.fill(); });
     }
 
-    function handleInput(dir) {
-        if(!active) return;
-        if(paused) togglePause();
-        p.nd = dir;
-        initAudio();
+    function canMove(x,y,d) {
+        let nx=x, ny=y; if(d==="UP") ny--; else if(d==="DOWN") ny++; else if(d==="LEFT") nx--; else if(d==="RIGHT") nx++;
+        if(nx<0) nx=C-1; if(nx>=C) nx=0; return (map[ny] && map[ny][nx]===0);
     }
-
     function movePacman() {
         if(canMove(p.x, p.y, p.nd)) p.d = p.nd;
         if(p.d === "STAY") return;
         if(canMove(p.x, p.y, p.d)) {
             if(p.d==="UP") p.y--; else if(p.d==="DOWN") p.y++; else if(p.d==="LEFT") p.x--; else if(p.d==="RIGHT") p.x++;
-            if(p.x < 0) p.x = C - 1; else if(p.x >= C) p.x = 0;
+            if(p.x<0) p.x=C-1; else if(p.x>=C) p.x=0;
         }
     }
-
-    function reset() { 
-        p={x:9, y:11, d:"STAY", nd:"STAY", s:0, l:3, penalty:0, power:0, combo:0};
-        gs=[{x:9, y:7, c:"#f44", d:"UP"}, {x:10, y:7, c:"#f4f", d:"DOWN"}];
-        active=true; paused=false;
-        document.getElementById("over").style.display="none"; 
-        gen(); 
+    function moveGhost(g) {
+        const ds = ["UP","DOWN","LEFT","RIGHT"]; let ok = ds.filter(d => canMove(g.x, g.y, d));
+        g.d = ok[Math.floor(Math.random()*ok.length)];
+        if(g.d==="UP") g.y--; else if(g.d==="DOWN") g.y++; else if(g.d==="LEFT") g.x--; else if(g.d==="RIGHT") g.x++;
+        if(g.x<0) g.x=C-1; else if(g.x>=C) g.x=0;
     }
+    function handleInput(dir){ if(paused) togglePause(); p.nd=dir; initAudio(); }
 
     window.addEventListener("keydown", e => {
-        const k = {
-            "ArrowUp":"UP","w":"UP","ArrowDown":"DOWN","s":"DOWN",
-            "ArrowLeft":"LEFT","a":"LEFT","ArrowRight":"RIGHT","d":"RIGHT",
-            "p":"PAUSE","Escape":"PAUSE"
-        };
-        if(k[e.key] === "PAUSE") togglePause();
-        else if(k[e.key]) { handleInput(k[e.key]); e.preventDefault(); }
+        if (e.key === "p" || e.key === "Escape") togglePause();
+        const k = {"ArrowUp":"UP","w":"UP","ArrowDown":"DOWN","s":"DOWN","ArrowLeft":"LEFT","a":"LEFT","ArrowRight":"RIGHT","d":"RIGHT"};
+        if(k[e.key]) { handleInput(k[e.key]); e.preventDefault(); }
     });
 
-    setInterval(update, 130);
+    let tsX, tsY;
+    document.addEventListener('touchstart', e => { tsX = e.touches[0].clientX; tsY = e.touches[0].clientY; });
+    document.addEventListener('touchend', e => {
+        let dx = e.changedTouches[0].clientX - tsX, dy = e.changedTouches[0].clientY - tsY;
+        if(Math.abs(dx) > Math.abs(dy)) { if(Math.abs(dx)>20) handleInput(dx>0?"RIGHT":"LEFT"); }
+        else { if(Math.abs(dy)>20) handleInput(dy>0?"DOWN":"UP"); }
+    });
 </script>
 </body>
 </html>
