@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Snake Math Deluxe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #6a5acd;
+            --tablero: #fefae0;
+            --snake-head: #2ecc71;
+            --snake-body: #27ae60;
+            --accent: #ff9f43;
+            --correct: #2ecc71;
+            --wrong: #ff6b6b;
+            --food: #ff6b6b;
+        }
+
+        * { touch-action: none; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg);
+            margin: 0; padding: 10px;
+            font-family: 'Fredoka', sans-serif;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; color: white; overflow: hidden;
+        }
+
+        .btn-top {
+            position: absolute; top: 10px;
+            background: white; border: none; border-radius: 50%;
+            width: 45px; height: 45px; cursor: pointer;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+            text-decoration: none; z-index: 20; color: #2d3748;
+        }
+
+        .btn-home { left: 10px; }
+        .btn-pause { right: 10px; display: none; } /* Solo se ve al jugar */
+
+        #math-card {
+            background: white; color: #2d3748;
+            padding: 10px 30px; border-radius: 50px;
+            margin-bottom: 15px; font-size: clamp(1.8rem, 8vw, 2.5rem); font-weight: 600;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+            z-index: 5; min-height: 80px; display: flex; align-items: center;
+            text-align: center; justify-content: center; width: 95%; max-width: 500px;
+            border: 4px solid var(--accent);
+            animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #game-container {
+            position: relative; background: #483d8b;
+            padding: 12px; border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            width: 95vw; max-width: 420px; 
+        }
+
+        canvas {
+            display: block; background-color: var(--tablero);
+            width: 100%; height: auto; 
+            border-radius: 15px; aspect-ratio: 1 / 1;
+        }
+
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(45, 55, 72, 0.95); border-radius: 15px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 10; text-align: center; padding: 25px;
+        }
+
+        .selector-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            padding: 10px 5px; border: 2px solid var(--accent);
+            background: rgba(255,255,255,0.1); color: white; border-radius: 12px;
+            cursor: pointer; font-family: 'Fredoka'; font-size: 0.9rem; transition: 0.3s;
+        }
+
+        .option-btn.active { background: var(--accent); color: white; transform: translateY(-2px); box-shadow: 0 4px 0 #d35400; }
+
+        .play-btn {
+            padding: 18px 40px; background: var(--correct); color: white; border: none; 
+            border-radius: 15px; font-weight: 600; cursor: pointer; font-family: 'Fredoka'; font-size: 1.4rem;
+            box-shadow: 0 5px 0 #27ae60; margin-top: 15px; transition: 0.2s;
+        }
+
+        #score-tag {
+            background: var(--accent); padding: 5px 15px; border-radius: 15px;
+            font-weight: 600; margin-bottom: 10px; align-self: flex-end;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="main-index.html" class="btn-top btn-home">🏠</a>
+    <button id="pause-btn" class="btn-top btn-pause" onclick="togglePausa()">⏸️</button>
+
+    <div id="math-card">¡SNAKE MATH!</div>
+
+    <div id="game-container">
+        <div id="score-tag">PUNTOS: <span id="score-val">0</span></div>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        
+        <div id="menu-overlay" class="overlay">
+            <h2 id="status-title" style="color:var(--accent); margin:0 0 10px 0; font-size: 2rem;">¿LISTO?</h2>
+            <p style="margin-bottom: 15px; font-size: 0.9rem;">Atrapa el número correcto para crecer</p>
+
+            <div class="selector-grid">
+                <button class="option-btn active" onclick="setTabla(2, this)">×2</button>
+                <button class="option-btn" onclick="setTabla(3, this)">×3</button>
+                <button class="option-btn" onclick="setTabla(4, this)">×4</button>
+                <button class="option-btn" onclick="setTabla(5, this)">×5</button>
+                <button class="option-btn" onclick="setTabla(6, this)">×6</button>
+                <button class="option-btn" onclick="setTabla(7, this)">×7</button>
+                <button class="option-btn" onclick="setTabla(8, this)">×8</button>
+                <button class="option-btn" onclick="setTabla('mix', this)">MIX</button>
+            </div>
+
+            <div class="selector-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <button class="option-btn active" onclick="setSpeed(200, this)">LENTO</button>
+                <button class="option-btn" onclick="setSpeed(140, this)">MEDIO</button>
+                <button class="option-btn" onclick="setSpeed(90, this)">RÁPIDO</button>
+            </div>
+
+            <button class="play-btn" onclick="iniciarJuego()">¡EMPEZAR!</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const box = 20; 
+        const gridCount = canvas.width / box;
+
+        let audioCtx, currentTabla = 2, currentVelocity = 200;
+        let serpiente, direccion, siguienteDir, foods, currentTask, score, loop;
+        let juegoActivo = false;
+        let enPausa = false;
+
+        function playSound(type) {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+
+            switch(type) {
+                case 'pop':
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(400, now);
+                    gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.1);
+                    osc.start(); osc.stop(now + 0.1); break;
+                case 'correct':
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(523, now);
+                    osc.frequency.exponentialRampToValueAtTime(783, now + 0.1);
+                    gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(); osc.stop(now + 0.3); break;
+                case 'wrong':
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now);
+                    gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.4);
+                    osc.start(); osc.stop(now + 0.4); break;
+                case 'hit':
+                    osc.type = 'square'; osc.frequency.setValueAtTime(100, now);
+                    gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                    osc.start(); osc.stop(now + 0.2); break;
+                case 'start':
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(261, now);
+                    osc.frequency.exponentialRampToValueAtTime(523, now + 0.2);
+                    gain.gain.setValueAtTime(0.1, now); osc.start(); osc.stop(now + 0.3); break;
+            }
+        }
+
+        function setTabla(v, b) { currentTabla = v; updateBtns(b); }
+        function setSpeed(v, b) { currentVelocity = v; updateBtns(b); }
+        function updateBtns(b) {
+            b.parentElement.querySelectorAll('.option-btn').forEach(x => x.classList.remove('active'));
+            b.classList.add('active');
+            playSound('pop');
+        }
+
+        function togglePausa() {
+            if (!juegoActivo) return;
+            enPausa = !enPausa;
+            const btn = document.getElementById("pause-btn");
+            const overlay = document.getElementById("menu-overlay");
+            const title = document.getElementById("status-title");
+            
+            playSound('pop');
+
+            if (enPausa) {
+                clearInterval(loop);
+                btn.innerText = "▶️";
+                title.innerText = "PAUSA";
+                overlay.style.display = "flex";
+                overlay.querySelector('p').innerText = "Tómate un respiro...";
+                overlay.querySelector('.selector-grid').style.visibility = "hidden";
+                overlay.querySelectorAll('.selector-grid')[1].style.visibility = "hidden";
+                overlay.querySelector('.play-btn').style.display = "none";
+            } else {
+                btn.innerText = "⏸️";
+                overlay.style.display = "none";
+                overlay.querySelector('.selector-grid').style.visibility = "visible";
+                overlay.querySelectorAll('.selector-grid')[1].style.visibility = "visible";
+                overlay.querySelector('.play-btn').style.display = "block";
+                loop = setInterval(gameLoop, currentVelocity);
+            }
+        }
+
+        function generarOperacion() {
+            const t = currentTabla === 'mix' ? Math.floor(Math.random() * 8) + 2 : currentTabla;
+            const n = Math.floor(Math.random() * 9) + 1;
+            const res = t * n;
+            currentTask = { q: `${t} × ${n}`, a: res };
+            document.getElementById("math-card").innerText = currentTask.q;
+
+            foods = [{...getFreePos(), val: res, correct: true}];
+            while(foods.length < 3) {
+                let falsa = res + (Math.floor(Math.random() * 5) + 1) * (Math.random() > 0.5 ? 1 : -1);
+                if(falsa > 0 && !foods.some(f => f.val === falsa)) {
+                    foods.push({...getFreePos(), val: falsa, correct: false});
+                }
+            }
+        }
+
+        function getFreePos() {
+            let p;
+            while(true) {
+                p = { x: Math.floor(Math.random()*(gridCount-2)+1)*box, y: Math.floor(Math.random()*(gridCount-2)+1)*box };
+                if(!serpiente.some(s => s.x===p.x && s.y===p.y) && !foods?.some(f => f.x===p.x && f.y===p.y)) return p;
+            }
+        }
+
+        function gameLoop() {
+            if (!juegoActivo || enPausa) return;
+            direccion = siguienteDir;
+            let hX = serpiente[0].x, hY = serpiente[0].y;
+
+            if(direccion === "LEFT") hX -= box; 
+            else if(direccion === "UP") hY -= box;
+            else if(direccion === "RIGHT") hX += box; 
+            else if(direccion === "DOWN") hY += box;
+
+            let eatIdx = foods.findIndex(f => f.x === hX && f.y === hY);
+            if(eatIdx !== -1) {
+                if(foods[eatIdx].correct) {
+                    playSound('correct'); score += 10;
+                    document.getElementById("score-val").innerText = score;
+                    generarOperacion();
+                } else {
+                    playSound('wrong'); finalizarJuego("¡UPS! ERROR"); return;
+                }
+            } else { serpiente.pop(); }
+
+            if(hX < 0 || hY < 0 || hX >= canvas.width || hY >= canvas.height || serpiente.some(s => s.x === hX && s.y === hY)) {
+                playSound('hit'); finalizarJuego("¡CHOQUE!"); return;
+            }
+
+            serpiente.unshift({x: hX, y: hY});
+            dibujar();
+        }
+
+        function dibujar() {
+            ctx.fillStyle = "#fefae0";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            foods.forEach(f => {
+                ctx.fillStyle = "#ff6b6b";
+                ctx.beginPath(); ctx.arc(f.x + box/2, f.y + box/2, box/2 - 2, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = "white"; ctx.font = "bold 13px Fredoka"; ctx.textAlign = "center";
+                ctx.fillText(f.val, f.x + box/2, f.y + box/2 + 5);
+            });
+
+            serpiente.forEach((s, i) => {
+                const isHead = i === 0;
+                ctx.fillStyle = isHead ? "#2ecc71" : `rgb(39, ${174 - (i*3)}, 96)`;
+                ctx.beginPath(); ctx.roundRect(s.x+1, s.y+1, box-2, box-2, isHead ? 8 : 4); ctx.fill();
+                if(isHead) {
+                    ctx.fillStyle = "white";
+                    let e1, e2;
+                    if(direccion==="RIGHT"){ e1={x:14,y:5}; e2={x:14,y:15}; }
+                    else if(direccion==="LEFT"){ e1={x:6,y:5}; e2={x:6,y:15}; }
+                    else if(direccion==="UP"){ e1={x:5,y:6}; e2={x:15,y:6}; }
+                    else { e1={x:5,y:14}; e2={x:15,y:14}; }
+                    ctx.beginPath(); ctx.arc(s.x+e1.x, s.y+e1.y, 3, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(s.x+e2.x, s.y+e2.y, 3, 0, Math.PI*2); ctx.fill();
+                }
+            });
+        }
+
+        function iniciarJuego() {
+            playSound('start');
+            serpiente = [{x: 10*box, y: 10*box}, {x: 9*box, y: 10*box}, {x: 8*box, y: 10*box}];
+            direccion = "RIGHT"; siguienteDir = "RIGHT";
+            score = 0; document.getElementById("score-val").innerText = "0";
+            juegoActivo = true; enPausa = false;
+            document.getElementById("pause-btn").style.display = "flex";
+            document.getElementById("pause-btn").innerText = "⏸️";
+            const overlay = document.getElementById("menu-overlay");
+            overlay.style.display = "none";
+            overlay.querySelector('.selector-grid').style.visibility = "visible";
+            overlay.querySelectorAll('.selector-grid')[1].style.visibility = "visible";
+            overlay.querySelector('.play-btn').style.display = "block";
+            generarOperacion();
+            if(loop) clearInterval(loop);
+            loop = setInterval(gameLoop, currentVelocity);
+        }
+
+        function finalizarJuego(m) {
+            juegoActivo = false; clearInterval(loop);
+            document.getElementById("pause-btn").style.display = "none";
+            document.getElementById("status-title").innerText = m;
+            document.getElementById("menu-overlay").style.display = "flex";
+            document.getElementById("math-card").innerText = "GAME OVER";
+        }
+
+        window.addEventListener("keydown", e => {
+            if(enPausa) return;
+            const k = {"ArrowUp":"UP","w":"UP","ArrowDown":"DOWN","s":"DOWN","ArrowLeft":"LEFT","a":"LEFT","ArrowRight":"RIGHT","d":"RIGHT"};
+            if(k[e.key]) {
+                const n = k[e.key], o = {"UP":"DOWN","DOWN":"UP","LEFT":"RIGHT","RIGHT":"LEFT"};
+                if(n !== o[direccion]) siguienteDir = n;
+                e.preventDefault();
+            }
+        });
+
+        let tX, tY;
+        document.addEventListener('touchstart', e => { tX = e.touches[0].clientX; tY = e.touches[0].clientY; });
+        document.addEventListener('touchend', e => {
+            if(enPausa) return;
+            let dx = e.changedTouches[0].clientX - tX, dy = e.changedTouches[0].clientY - tY;
+            if(Math.abs(dx) > Math.abs(dy)) {
+                if(Math.abs(dx)>20) siguienteDir = dx>0 ? (direccion!=="LEFT"?"RIGHT":direccion) : (direccion!=="RIGHT"?"LEFT":direccion);
+            } else {
+                if(Math.abs(dy)>20) siguienteDir = dy>0 ? (direccion!=="UP"?"DOWN":direccion) : (direccion!=="DOWN"?"UP":direccion);
+            }
+        });
+
+        dibujar(); 
+    </script>
+</body>
+</html>
