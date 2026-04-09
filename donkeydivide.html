@@ -81,9 +81,9 @@
             </select>
             <label style="color:var(--accent); font-weight:600;">DIFICULTAD</label>
             <select id="speed-select">
-                <option value="0.8">Normal</option>
-                <option value="1.2">Rápido</option>
-                <option value="1.76">KONG</option>
+                <option value="0.6">Normal</option>
+                <option value="1.1">Rápido</option>
+                <option value="1.6">KONG</option>
             </select>
             <button class="btn-main" onclick="startGame()">¡A JUGAR!</button>
         </div>
@@ -119,7 +119,11 @@
             <div class="ctrl-btn" id="ctrl-right">▶</div>
         </div>
     </div>
-
+<div style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
+    <a href="main-index.html" class="btn-game" style="padding: 15px 30px; background: #4ECDC4; color: white; display: inline-block; border-radius: 50px; text-decoration: none; font-weight: bold;">
+        <i class="fas fa-home"></i> VOLVER AL MENÚ PRINCIPAL
+    </a>
+</div>
 <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
