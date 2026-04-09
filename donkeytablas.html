@@ -2,11 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Math Kong: Ultimate Mobile</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --sky: #0f172a; --accent: #fbbf24; --danger: #ef4444; --success: #22c55e; }
+        :root { --sky: #0f172a; --accent: #fbbf24; --danger: #ef4444; --success: #22c55e; --back: #4ECDC4; }
         body {
             margin: 0; background: #020617; font-family: 'Fredoka', sans-serif;
             display: flex; flex-direction: column; align-items: center;
@@ -41,7 +42,6 @@
         }
         canvas { width: 100%; height: 100%; display: block; }
 
-        /* MANDOS TÁCTILES COMPACTOS */
         #controls-container {
             flex: 1; width: 100%; max-width: 400px;
             display: flex; flex-direction: column; align-items: center;
@@ -68,6 +68,13 @@
             padding: 15px 30px; border-radius: 50px; font-size: 1.2rem;
             font-weight: bold; cursor: pointer; margin-top: 15px;
         }
+        /* ESTILO BOTÓN CASA */
+        .btn-home {
+            background: var(--back); color: white; text-decoration: none;
+            padding: 12px 20px; border-radius: 50px; font-weight: bold;
+            margin-top: 20px; display: inline-flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 0 #38a8a0;
+        }
     </style>
 </head>
 <body>
@@ -82,12 +89,13 @@
             </select>
             <label style="color:var(--accent); font-weight:600;">DIFICULTAD</label>
             <select id="speed-select">
-                <option value="0.8">Normal</option>
-                <option value="1.2">Rápido</option>
-                <option value="1.76">KONG</option>
+                <option value="0.6">Normal</option>
+                <option value="1.0">Rápido</option>
+                <option value="1.46">KONG</option>
             </select>
             <button class="btn-main" onclick="startGame()">¡A JUGAR!</button>
         </div>
+        <a href="main-index.html" class="btn-home"><i class="fas fa-home"></i> INICIO</a>
     </div>
 
     <div id="ui-top">
@@ -237,16 +245,13 @@
 
         player.x += player.vx; player.y += player.vy;
         
-        // Bloqueo lateral
         if (player.x < 0) player.x = 0; if (player.x > 380) player.x = 380;
-        // Bloqueo inferior para que no desaparezca por debajo de la plataforma base
         if (player.y > 530 - player.h) { player.y = 530 - player.h; player.vy = 0; player.grounded = true; }
 
         player.grounded = false;
         platforms.forEach(p => {
             if (player.vy >= 0 && player.x + player.w > p.x && player.x < p.x + p.w &&
                 player.y + player.h >= p.y && player.y + player.h <= p.y + 12) {
-                // Solo nos quedamos encima si no estamos pulsando abajo para bajar escaleras
                 if (!(player.climbing && (keys['arrowdown'] || keys['s']))) {
                     player.y = p.y - player.h; player.vy = 0; player.grounded = true;
                 }
