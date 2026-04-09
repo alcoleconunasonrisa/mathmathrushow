@@ -2,11 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Math Kong: Sumas y Restas</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --sky: #0f172a; --accent: #fbbf24; --danger: #ef4444; --success: #22c55e; }
+        :root { --sky: #0f172a; --accent: #fbbf24; --danger: #ef4444; --success: #22c55e; --back: #4ECDC4; }
         body {
             margin: 0; background: #020617; font-family: 'Fredoka', sans-serif;
             display: flex; flex-direction: column; align-items: center;
@@ -67,6 +68,12 @@
             padding: 15px 30px; border-radius: 50px; font-size: 1.2rem;
             font-weight: bold; cursor: pointer; margin-top: 15px;
         }
+        .btn-home {
+            background: var(--back); color: white; text-decoration: none;
+            padding: 12px 20px; border-radius: 50px; font-weight: bold;
+            margin-top: 20px; display: inline-flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 0 #38a8a0;
+        }
     </style>
 </head>
 <body>
@@ -74,10 +81,12 @@
     <div id="menu-screen">
         <h1 style="color: var(--accent); margin-bottom: 5px;">MATH KONG</h1>
         <div class="menu-card">
-            <label style="color:var(--accent); font-weight:600;">OPERACIONES</label>
-            <div style="background: white; color: black; padding: 10px; border-radius: 10px; margin: 10px 0;">
-                Sumas y Restas (1-9)
-            </div>
+            <label style="color:var(--accent); font-weight:600;">MODO DE JUEGO</label>
+            <select id="mode-select">
+                <option value="mix">Sumas y Restas</option>
+                <option value="add">Solo Sumas</option>
+                <option value="sub">Solo Restas</option>
+            </select>
             <label style="color:var(--accent); font-weight:600;">DIFICULTAD</label>
             <select id="speed-select">
                 <option value="0.8">Normal</option>
@@ -86,6 +95,7 @@
             </select>
             <button class="btn-main" onclick="startGame()">¡A JUGAR!</button>
         </div>
+        <a href="main-index.html" class="btn-home"><i class="fas fa-home"></i> INICIO</a>
     </div>
 
     <div id="ui-top">
@@ -125,7 +135,7 @@
     
     let score = 0, lives = 3, gameActive = false, isPaused = false;
     let currentTask = { q: "", a: 0 }, keys = {}, chests = [], spawnTimer = 0;
-    let gameSpeedMultiplier = 1, audioCtx = null;
+    let selectedMode = 'mix', gameSpeedMultiplier = 1, audioCtx = null;
 
     let musicTimer = 0;
     const pacMelody = [440, 880, 554, 880, 659, 1046, 659, 1046, 440, 880, 554, 880, 659, 1046, 659, 1046];
@@ -156,6 +166,7 @@
     }
 
     function startGame() {
+        selectedMode = document.getElementById('mode-select').value;
         gameSpeedMultiplier = parseFloat(document.getElementById('speed-select').value);
         document.getElementById('menu-screen').style.display = 'none';
         gameActive = true;
@@ -164,18 +175,19 @@
     }
 
     function generateTask() {
-        let n1 = Math.floor(Math.random() * 9) + 1;
-        let n2 = Math.floor(Math.random() * 9) + 1;
-        let isRes = Math.random() > 0.5;
+        let n1 = Math.floor(Math.random() * 10);
+        let n2 = Math.floor(Math.random() * 10);
+        let op = selectedMode;
 
-        if (isRes) {
-            // Resta: Asegurar que el primero sea mayor o igual al segundo
-            let mayor = Math.max(n1, n2);
-            let menor = Math.min(n1, n2);
-            currentTask = { q: `${mayor} - ${menor}`, a: mayor - menor };
-        } else {
-            // Suma
+        if (op === 'mix') op = Math.random() > 0.5 ? 'add' : 'sub';
+
+        if (op === 'add') {
             currentTask = { q: `${n1} + ${n2}`, a: n1 + n2 };
+        } else {
+            // Asegurar que la resta no de negativo
+            let max = Math.max(n1, n2);
+            let min = Math.min(n1, n2);
+            currentTask = { q: `${max} - ${min}`, a: max - min };
         }
         document.getElementById('math-card').innerText = currentTask.q;
     }
@@ -187,6 +199,7 @@
         if (!hasCorrect && (chests.length >= 2 || Math.random() > 0.5)) {
             val = currentTask.a;
         } else {
+            // Generar distractor cercano pero no negativo
             val = currentTask.a + (Math.floor(Math.random()*6)-3);
             if(val === currentTask.a || val < 0) val = currentTask.a + 2;
         }
