@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Math Kong: Sumas y Restas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --sky: #0f172a; --accent: #fbbf24; --danger: #ef4444; --success: #22c55e; }
+        body {
+            margin: 0; background: #020617; font-family: 'Fredoka', sans-serif;
+            display: flex; flex-direction: column; align-items: center;
+            color: white; overflow: hidden; touch-action: none; height: 100vh;
+        }
+        #menu-screen {
+            position: absolute; inset: 0; background: #0f172a;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; z-index: 100; padding: 20px;
+        }
+        .menu-card {
+            background: #1e293b; padding: 25px; border-radius: 20px;
+            border: 4px solid var(--accent); width: 90%; max-width: 350px; text-align: center;
+        }
+        select {
+            width: 100%; padding: 12px; margin: 10px 0 20px;
+            border-radius: 10px; border: none; font-size: 1rem; font-weight: 600;
+        }
+        #ui-top {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 95%; max-width: 400px; padding: 10px 0; z-index: 10;
+        }
+        #math-card {
+            background: white; color: #1e293b; padding: 5px 20px;
+            border-radius: 50px; font-size: 1.4rem; font-weight: bold;
+            border: 3px solid var(--accent); box-shadow: 0 4px 0 #b45309;
+        }
+        #game-wrapper {
+            position: relative; width: 100%; max-width: 400px;
+            height: 60vh; background: #0f172a; 
+            border: 3px solid #334155; border-radius: 15px; overflow: hidden;
+        }
+        canvas { width: 100%; height: 100%; display: block; }
+
+        #controls-container {
+            flex: 1; width: 100%; max-width: 400px;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; padding: 5px; gap: 5px;
+        }
+        .d-pad-row { display: flex; gap: 10px; }
+        
+        .ctrl-btn {
+            width: 60px; height: 55px; background: #1e293b; 
+            border: 2px solid #475569; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; color: white; touch-action: none;
+            user-select: none; -webkit-user-select: none;
+        }
+        .ctrl-btn:active { background: var(--accent); color: black; border-color: white; }
+        .btn-up { background: #334155; border-color: var(--accent); width: 80px; }
+
+        .overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.85);
+            display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 20;
+        }
+        .btn-main {
+            background: var(--accent); color: #000; border: none;
+            padding: 15px 30px; border-radius: 50px; font-size: 1.2rem;
+            font-weight: bold; cursor: pointer; margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="menu-screen">
+        <h1 style="color: var(--accent); margin-bottom: 5px;">MATH KONG</h1>
+        <div class="menu-card">
+            <label style="color:var(--accent); font-weight:600;">OPERACIONES</label>
+            <div style="background: white; color: black; padding: 10px; border-radius: 10px; margin: 10px 0;">
+                Sumas y Restas (1-9)
+            </div>
+            <label style="color:var(--accent); font-weight:600;">DIFICULTAD</label>
+            <select id="speed-select">
+                <option value="0.8">Normal</option>
+                <option value="1.2">Rápido</option>
+                <option value="1.76">KONG</option>
+            </select>
+            <button class="btn-main" onclick="startGame()">¡A JUGAR!</button>
+        </div>
+    </div>
+
+    <div id="ui-top">
+        <button class="ctrl-btn" style="width:40px; height:40px;" onclick="location.reload()">⚙️</button>
+        <div id="math-card">---</div>
+        <button class="ctrl-btn" style="width:40px; height:40px;" id="pause-btn">⏸️</button>
+    </div>
+
+    <div style="margin: 2px 0;">
+        ⭐ <span id="score">0</span> | ❤️ <span id="lives">3</span>
+    </div>
+
+    <div id="game-wrapper">
+        <canvas id="gameCanvas" width="400" height="550"></canvas>
+        <div id="pause-menu" class="overlay">
+            <h2>PAUSA</h2>
+            <button class="btn-main" onclick="togglePause()">REANUDAR</button>
+        </div>
+        <div id="game-over" class="overlay">
+            <h2 style="color:var(--danger)">¡FIN DE PARTIDA!</h2>
+            <button class="btn-main" onclick="location.reload()">REINTENTAR</button>
+        </div>
+    </div>
+
+    <div id="controls-container">
+        <div class="ctrl-btn btn-up" id="ctrl-up">▲</div>
+        <div class="d-pad-row">
+            <div class="ctrl-btn" id="ctrl-left">◀</div>
+            <div class="ctrl-btn" id="ctrl-down">▼</div>
+            <div class="ctrl-btn" id="ctrl-right">▶</div>
+        </div>
+    </div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    let score = 0, lives = 3, gameActive = false, isPaused = false;
+    let currentTask = { q: "", a: 0 }, keys = {}, chests = [], spawnTimer = 0;
+    let gameSpeedMultiplier = 1, audioCtx = null;
+
+    let musicTimer = 0;
+    const pacMelody = [440, 880, 554, 880, 659, 1046, 659, 1046, 440, 880, 554, 880, 659, 1046, 659, 1046];
+
+    function initAudio() {
+        if (audioCtx) return;
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    function playNote(freq, duration, type = 'square', vol = 0.05) {
+        if(!audioCtx || isPaused) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function updateMusic() {
+        if(!gameActive || isPaused) return;
+        musicTimer++;
+        if(musicTimer % 12 === 0) {
+            const note = pacMelody[(musicTimer / 12) % pacMelody.length];
+            playNote(note, 0.08, 'triangle', 0.03);
+        }
+    }
+
+    function startGame() {
+        gameSpeedMultiplier = parseFloat(document.getElementById('speed-select').value);
+        document.getElementById('menu-screen').style.display = 'none';
+        gameActive = true;
+        initAudio();
+        generateTask();
+    }
+
+    function generateTask() {
+        let n1 = Math.floor(Math.random() * 9) + 1;
+        let n2 = Math.floor(Math.random() * 9) + 1;
+        let isRes = Math.random() > 0.5;
+
+        if (isRes) {
+            // Resta: Asegurar que el primero sea mayor o igual al segundo
+            let mayor = Math.max(n1, n2);
+            let menor = Math.min(n1, n2);
+            currentTask = { q: `${mayor} - ${menor}`, a: mayor - menor };
+        } else {
+            // Suma
+            currentTask = { q: `${n1} + ${n2}`, a: n1 + n2 };
+        }
+        document.getElementById('math-card').innerText = currentTask.q;
+    }
+
+    function spawnChest() {
+        if(!gameActive || isPaused || chests.length >= 6) return;
+        const hasCorrect = chests.some(c => c.val === currentTask.a);
+        let val;
+        if (!hasCorrect && (chests.length >= 2 || Math.random() > 0.5)) {
+            val = currentTask.a;
+        } else {
+            val = currentTask.a + (Math.floor(Math.random()*6)-3);
+            if(val === currentTask.a || val < 0) val = currentTask.a + 2;
+        }
+        chests.push({ 
+            x: 200, y: 65, r: 15, 
+            vx: (Math.random() > 0.5 ? 1.6 : -1.6) * gameSpeedMultiplier, 
+            vy: 0, val: val 
+        });
+    }
+
+    const platforms = [
+        {x: 0, y: 530, w: 400, h: 15, dir: 1},    
+        {x: 0, y: 440, w: 340, h: 10, dir: 1},
+        {x: 60, y: 350, w: 340, h: 10, dir: -1},
+        {x: 0, y: 260, w: 340, h: 10, dir: 1},
+        {x: 60, y: 170, w: 340, h: 10, dir: -1},
+        {x: 120, y: 90, w: 160, h: 10, dir: 0}    
+    ];
+
+    const ladders = [
+        {x: 310, y: 440, w: 20, h: 90}, {x: 70, y: 350, w: 20, h: 90},
+        {x: 310, y: 260, w: 20, h: 90}, {x: 70, y: 170, w: 20, h: 90}, {x: 190, y: 90, w: 20, h: 80}
+    ];
+
+    const player = { x: 20, y: 490, w: 20, h: 28, vx: 0, vy: 0, grounded: false, onLadder: false, climbing: false };
+
+    function togglePause() {
+        if(!gameActive) return;
+        isPaused = !isPaused;
+        document.getElementById('pause-menu').style.display = isPaused ? 'flex' : 'none';
+    }
+    document.getElementById('pause-btn').addEventListener('click', togglePause);
+
+    function update() {
+        if(!gameActive || isPaused) return;
+        updateMusic();
+
+        player.onLadder = ladders.some(l => 
+            player.x + player.w > l.x && player.x < l.x + l.w &&
+            player.y + player.h > l.y && player.y < l.y + l.h
+        );
+
+        if(keys['arrowleft'] || keys['a']) player.vx = -3.8;
+        else if(keys['arrowright'] || keys['d']) player.vx = 3.8;
+        else player.vx = 0;
+
+        if(keys['arrowup'] || keys['w']) {
+            if(player.onLadder) { player.vy = -2.5; player.climbing = true; }
+            else if(player.grounded) { player.vy = -10; player.grounded = false; }
+        } else if(keys['arrowdown'] || keys['s']) {
+            if(player.onLadder) { player.vy = 2.5; player.climbing = true; }
+        } else if(player.climbing) { player.vy = 0; }
+
+        if(!player.onLadder) { player.climbing = false; player.vy += 0.5; }
+
+        player.x += player.vx; player.y += player.vy;
+        
+        if (player.x < 0) player.x = 0; if (player.x > 380) player.x = 380;
+        if (player.y > 530 - player.h) { player.y = 530 - player.h; player.vy = 0; player.grounded = true; }
+
+        player.grounded = false;
+        platforms.forEach(p => {
+            if (player.vy >= 0 && player.x + player.w > p.x && player.x < p.x + p.w &&
+                player.y + player.h >= p.y && player.y + player.h <= p.y + 12) {
+                if (!(player.climbing && (keys['arrowdown'] || keys['s']))) {
+                    player.y = p.y - player.h; player.vy = 0; player.grounded = true;
+                }
+            }
+        });
+
+        chests.forEach((c) => {
+            if (c.vy < 4) c.vy += 0.18; c.x += c.vx; c.y += c.vy;
+            let touching = false;
+            platforms.forEach(p => {
+                if (c.vy >= 0 && c.x > p.x && c.x < p.x + p.w && c.y + c.r > p.y && c.y + c.r < p.y + 12) {
+                    c.y = p.y - c.r; c.vy = 0; touching = true;
+                    if(p.dir !== 0) c.vx = (1.6 * gameSpeedMultiplier) * p.dir;
+                }
+            });
+            if(!touching && (c.x > 385 || c.x < 15)) c.vx *= -1;
+            if(c.y > 515) { chests.splice(chests.indexOf(c), 1); }
+
+            if(Math.hypot(c.x - (player.x + 10), c.y - (player.y + 14)) < 22) {
+                if(c.val === currentTask.a) { score += 100; playNote(880, 0.1, 'square', 0.1); generateTask(); }
+                else { lives--; score = Math.max(0, score - 50); playNote(110, 0.2, 'sawtooth', 0.1); }
+                chests.splice(chests.indexOf(c), 1);
+                document.getElementById('score').innerText = score;
+                document.getElementById('lives').innerText = lives;
+                if(lives <= 0) { gameActive = false; document.getElementById('game-over').style.display = 'flex'; }
+            }
+        });
+
+        spawnTimer++; if(spawnTimer > (100 / gameSpeedMultiplier)) { spawnChest(); spawnTimer = 0; }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, 400, 550);
+        ctx.fillStyle = "#475569";
+        ladders.forEach(l => {
+            for(let i=0; i<l.h; i+=10) ctx.fillRect(l.x, l.y+i, l.w, 2);
+            ctx.fillRect(l.x, l.y, 3, l.h); ctx.fillRect(l.x+l.w-3, l.y, 3, l.h);
+        });
+        ctx.fillStyle = "#ef4444"; platforms.forEach(p => ctx.fillRect(p.x, p.y, p.w, p.h));
+        ctx.fillStyle = "#3b82f6"; ctx.fillRect(player.x, player.y+5, player.w, player.h-5);
+        ctx.fillStyle = "white"; ctx.fillRect(player.x, player.y, player.w, 4);
+        ctx.font = "48px Arial"; ctx.textAlign="center"; ctx.fillText("🦍", 200, 75);
+        chests.forEach(c => {
+            ctx.fillStyle = "#facc15"; ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "black"; ctx.font = "bold 15px Fredoka"; ctx.fillText(c.val, c.x, c.y+5);
+        });
+    }
+
+    function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
+
+    function bindTouch(id, key) {
+        const el = document.getElementById(id);
+        el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; });
+        el.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; });
+    }
+
+    bindTouch('ctrl-left', 'arrowleft');
+    bindTouch('ctrl-right', 'arrowright');
+    bindTouch('ctrl-up', 'arrowup');
+    bindTouch('ctrl-down', 'arrowdown');
+
+    window.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
+    window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+    gameLoop();
+</script>
+</body>
+</html>
