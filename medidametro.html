@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Conversor Medidas - Flujo Continuo</title>
+    <title>Conversor Longitud - Metros</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #11998e, #38ef7d);
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
             height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden;
         }
         .container {
@@ -22,19 +22,19 @@
             align-items: center; justify-content: center; text-decoration: none; font-size: 1.5rem; border:none; cursor:pointer;
         }
         .instruccion {
-            background: #1b5e20; color: white; padding: 15px; border-radius: 12px;
+            background: #0d47a1; color: white; padding: 15px; border-radius: 12px;
             text-align: center; font-weight: bold; margin-bottom: 15px; font-size: 1.1rem;
             min-height: 60px; display: flex; align-items: center; justify-content: center;
         }
         .reto {
             font-size: 1.8rem; text-align: center; margin-bottom: 20px;
-            color: #1b5e20; font-weight: bold; background: #e8f5e9; padding: 10px; border-radius: 10px;
+            color: #0d47a1; font-weight: bold; background: #e3f2fd; padding: 10px; border-radius: 10px;
         }
         .tabla-unidades {
             display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; width: 100%; margin-bottom: 20px;
         }
         .cabecera {
-            background: #1b5e20; color: white; text-align: center; padding: 10px 0;
+            background: #0d47a1; color: white; text-align: center; padding: 10px 0;
             font-weight: bold; border-radius: 8px 8px 0 0; font-size: 0.8rem;
         }
         .celda {
@@ -43,7 +43,7 @@
             font-size: 1.5rem; font-weight: bold; border-radius: 0 0 8px 8px;
         }
         .celda.activa { border: 4px solid #1e3c72; background: #e3f2fd; }
-        .celda.correcta { background: #c8e6c9; border-color: #4caf50; color: #1b5e20; }
+        .celda.correcta { background: #bbdefb; border-color: #2196f3; color: #0d47a1; }
 
         .zona-inferior { display: flex; flex: 1; gap: 20px; overflow: hidden; }
         .teclado-container { flex: 1; display: flex; flex-direction: column; align-items: center; }
@@ -67,11 +67,11 @@
         .caja-resultado.error { background: #ffcdd2; border-color: #f44336; animation: shake 0.3s; }
 
         .btn-verificar {
-            width: 220px; padding: 15px; background: #1b5e20; color: white; border: none;
+            width: 220px; padding: 15px; background: #0d47a1; color: white; border: none;
             border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px #0a3d0a; margin-top: 10px; display: none;
+            box-shadow: 0 4px #062a5e; margin-top: 10px; display: none;
         }
-        .btn-verificar:active { transform: translateY(2px); box-shadow: 0 2px #0a3d0a; }
+        .btn-verificar:active { transform: translateY(2px); box-shadow: 0 2px #062a5e; }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -95,11 +95,12 @@
 <div class="container">
     <a href="main-index.html" class="btn-home">🏠</a>
     
-    <div id="menu" style="text-align: center; margin-top: 50px;">
-        <h1 style="margin-bottom: 30px; color: #1b5e20;">Unidades de Longitud</h1>
-        <button class="tecla" style="width: 280px; margin: 10px; background: #c8e6c9;" onclick="iniciar(1)">Nivel 1: Bajar (×10)</button><br>
-        <button class="tecla" style="width: 280px; margin: 10px; background: #fff9c4;" onclick="iniciar(2)">Nivel 2: Subir (÷10)</button><br>
-        <button class="tecla" style="width: 280px; margin: 10px; background: #ffccbc;" onclick="iniciar(3)">Nivel 3: Mixto / Decimales</button>
+    <div id="menu" style="text-align: center; margin-top: 30px;">
+        <h1 style="margin-bottom: 20px; color: #0d47a1;">Unidades de Longitud (Metros)</h1>
+        <button class="tecla" style="width: 280px; margin: 8px; background: #c8e6c9;" onclick="iniciar(0)">Nivel 0: Iniciación (Enteros)</button><br>
+        <button class="tecla" style="width: 280px; margin: 8px; background: #bbdefb;" onclick="iniciar(1)">Nivel 1: Bajar (×10)</button><br>
+        <button class="tecla" style="width: 280px; margin: 8px; background: #fff9c4;" onclick="iniciar(2)">Nivel 2: Subir (÷10)</button><br>
+        <button class="tecla" style="width: 280px; margin: 8px; background: #ffccbc;" onclick="iniciar(3)">Nivel 3: Mixto / Decimales</button>
     </div>
 
     <div id="juego" style="display: none; flex-direction: column; height: 100%;">
@@ -136,17 +137,17 @@
             <div class="resultado-final">
                 <p>Tu respuesta:</p>
                 <div id="res-box" class="caja-resultado"></div>
-                <p id="label-destino" style="font-weight: bold; color: #1b5e20; font-size: 1.2rem;"></p>
+                <p id="label-destino" style="font-weight: bold; color: #0d47a1; font-size: 1.2rem;"></p>
                 <button id="btn-verificar" class="btn-verificar" onclick="verificarResultado()">VERIFICAR ✅</button>
             </div>
         </div>
     </div>
 
     <div id="modal-victoria">
-        <h2 style="font-size: 2.5rem; color: #4caf50;">¡Excelente! 📏</h2>
+        <h2 style="font-size: 2.5rem; color: #2196f3;">¡Excelente! 📏</h2>
         <p id="res-final-txt" style="font-size: 1.4rem; margin: 20px; text-align: center;"></p>
-        <button class="btn-modal" style="background: #4caf50;" onclick="siguienteRetoMismoNivel()">Siguiente Reto</button>
-        <button class="btn-modal" style="background: #2196f3;" onclick="volverAMenu()">Cambiar Nivel</button>
+        <button class="btn-modal" style="background: #2196f3;" onclick="siguienteRetoMismoNivel()">Siguiente Reto</button>
+        <button class="btn-modal" style="background: #1e3c72;" onclick="volverAMenu()">Cambiar Nivel</button>
     </div>
 </div>
 
@@ -160,21 +161,38 @@
     let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function iniciar(nivel) {
-        nivelActual = nivel; // Guardamos el nivel para retos continuos
+        nivelActual = nivel;
         document.getElementById('menu').style.display = 'none';
         document.getElementById('modal-victoria').style.display = 'none';
         document.getElementById('juego').style.display = 'flex';
 
-        uOrig = Math.floor(Math.random() * 7);
-        if(nivel === 1) { uOrig = Math.floor(Math.random()*4); uDest = uOrig + Math.floor(Math.random()*2)+1; }
-        else if(nivel === 2) { uOrig = Math.floor(Math.random()*4)+3; uDest = uOrig - (Math.floor(Math.random()*2)+1); }
-        else { do { uDest = Math.floor(Math.random()*7); } while(uOrig === uDest); }
+        let numBase;
+        if (nivel === 0) {
+            uOrig = Math.floor(Math.random() * 7);
+            do { uDest = Math.floor(Math.random() * 7); } while(uOrig === uDest);
+            if (uOrig < uDest) {
+                numBase = Math.floor(Math.random() * 9) + 1;
+            } else {
+                let salto = uOrig - uDest;
+                numBase = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, salto);
+            }
+        } else if(nivel === 1) { 
+            uOrig = Math.floor(Math.random()*4); 
+            uDest = uOrig + Math.floor(Math.random()*2)+1; 
+            numBase = Math.floor(Math.random() * 9) + 1;
+        } else if(nivel === 2) { 
+            uOrig = Math.floor(Math.random()*4)+3; 
+            uDest = uOrig - (Math.floor(Math.random()*2)+1); 
+            numBase = Math.floor(Math.random() * 9) + 1;
+        } else { 
+            uOrig = Math.floor(Math.random() * 7);
+            do { uDest = Math.floor(Math.random()*7); } while(uOrig === uDest);
+            numBase = (Math.random() * 8 + 1).toFixed(1);
+        }
 
-        let numBase = (nivel === 3) ? (Math.random() * 8 + 1).toFixed(1) : (Math.floor(Math.random() * 9) + 1).toString();
         valOrig = numBase.toString().replace('.', ',');
-
         let distancia = uDest - uOrig;
-        valCorrectoReal = parseFloat(numBase) * Math.pow(10, distancia);
+        valCorrectoReal = parseFloat(numBase.toString().replace(',', '.')) * Math.pow(10, distancia);
 
         document.getElementById('reto').innerHTML = `${valOrig} ${unidades[uOrig]} ➔ ? ${unidades[uDest]}`;
         document.getElementById('label-destino').textContent = unidades[uDest];
@@ -184,31 +202,48 @@
 
     function prepararPasos() {
         pasos = []; indexPaso = 0; modoResultado = false; inputRes = "";
-        let partes = valOrig.split(',');
-        let parteEntera = partes[0];
-        let parteDecimal = partes[1] || "";
+        let valString = valOrig.replace(',', '.');
+        let partes = valString.split('.');
+        let enteroStr = partes[0];
+        let decimalStr = partes[1] || "";
 
-        pasos.push({ idx: uOrig, val: parteEntera, msg: `Escribe la parte entera (${parteEntera}) en ${unidades[uOrig]}` });
-
-        if (parteDecimal.length > 0) {
-            for (let i = 0; i < parteDecimal.length; i++) {
-                let targetIdx = uOrig + (i + 1);
-                if (targetIdx < 7) {
-                    pasos.push({ idx: targetIdx, val: parteDecimal[i], msg: `Escribe el decimal (${parteDecimal[i]}) en ${unidades[targetIdx]}` });
-                }
+        for (let i = 0; i < enteroStr.length; i++) {
+            let offset = (enteroStr.length - 1) - i;
+            let targetIdx = uOrig - offset;
+            if (targetIdx >= 0 && targetIdx < 7) {
+                pasos.push({ 
+                    idx: targetIdx, 
+                    val: enteroStr[i], 
+                    msg: `Coloca el ${enteroStr[i]} en ${unidades[targetIdx]}` 
+                });
             }
         }
 
-        if (uOrig < uDest) {
-            let ultimaOcupada = uOrig + parteDecimal.length;
-            for (let i = ultimaOcupada + 1; i <= uDest; i++) {
-                if (i <= 6) pasos.push({ idx: i, val: '0', msg: "Completa con un 0 hasta el destino" });
-            }
-        } else {
-            for (let i = uOrig - 1; i >= uDest; i--) {
-                pasos.push({ idx: i, val: '0', msg: "Sube colocando un 0" });
+        for (let i = 0; i < decimalStr.length; i++) {
+            let targetIdx = uOrig + (i + 1);
+            if (targetIdx < 7) {
+                pasos.push({ 
+                    idx: targetIdx, 
+                    val: decimalStr[i], 
+                    msg: `Coloca el decimal ${decimalStr[i]} en ${unidades[targetIdx]}` 
+                });
             }
         }
+
+        let indicesOcupados = pasos.map(p => p.idx);
+        let minOcupado = Math.min(...indicesOcupados);
+        let maxOcupado = Math.max(...indicesOcupados);
+
+        if (uDest > maxOcupado) {
+            for (let i = maxOcupado + 1; i <= uDest; i++) {
+                pasos.push({ idx: i, val: '0', msg: "Completa con 0 hasta el destino" });
+            }
+        } else if (uDest < minOcupado) {
+            for (let i = minOcupado - 1; i >= uDest; i--) {
+                pasos.push({ idx: i, val: '0', msg: "Completa con 0 hacia la izquierda" });
+            }
+        }
+
         actualizarUI();
     }
 
@@ -232,7 +267,7 @@
             document.getElementById('u' + pasos[indexPaso].idx).classList.add('activa');
         } else {
             modoResultado = true;
-            document.getElementById('instruccion').textContent = "¡Muy bien! Escribe el resultado final y verifica.";
+            document.getElementById('instruccion').textContent = "¡Muy bien! Escribe el resultado final.";
             document.getElementById('res-box').classList.add('activa');
             document.getElementById('btn-verificar').style.display = 'block';
         }
@@ -286,7 +321,7 @@
 
     function finalizar() {
         let finalStr = Number(valCorrectoReal.toFixed(10)).toString().replace('.', ',');
-        document.getElementById('res-final-txt').innerHTML = `<b>${valOrig} ${unidades[uOrig]}</b> son:<br><span style="color:#1b5e20; font-size:2.2rem">${finalStr} ${unidades[uDest]}</span>`;
+        document.getElementById('res-final-txt').innerHTML = `<b>${valOrig} ${unidades[uOrig]}</b> son:<br><span style="color:#0d47a1; font-size:2.2rem">${finalStr} ${unidades[uDest]}</span>`;
         document.getElementById('modal-victoria').style.display = 'flex';
     }
 
