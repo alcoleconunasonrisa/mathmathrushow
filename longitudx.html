@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Longitud Pro - Pizarra Dinámica</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        :root {
+            --primary: #0277bd;
+            --primary-dark: #01579b;
+            --secondary: #039be5;
+            --success: #43a047;
+            --error: #e53935;
+            --warning: #ff9800;
+            --bg-dark: #0a192f;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #05101e 50%, var(--bg-dark) 100%);
+            height: 100vh; 
+            height: 100dvh;
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: var(--primary);
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+        .home-btn:hover { transform: scale(1.1); background: var(--primary); color: white; }
+
+        .container {
+            width: 95%; 
+            max-width: 520px; 
+            height: 90vh;
+            background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%);
+            border-radius: 32px; 
+            padding: 20px;
+            display: flex; 
+            flex-direction: column;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+            position: relative; 
+            overflow: hidden;
+        }
+
+        @media (max-height: 700px) {
+            .container { height: 98vh; padding: 12px; }
+            .reto-text { font-size: 1.6rem !important; }
+            .t-key { padding: 10px !important; }
+        }
+
+        .nivel-selector { display: flex; gap: 8px; margin-bottom: 15px; flex-shrink: 0; background: #e1f5fe; padding: 6px; border-radius: 16px; }
+        .nivel-btn { flex: 1; padding: 12px 5px; border: none; border-radius: 12px; background: white; cursor: pointer; font-size: 0.85rem; font-weight: 700; color: var(--primary); transition: 0.3s; }
+        .nivel-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(2, 119, 189, 0.3); }
+
+        .barra-unidades { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; background: #e1f5fe; padding: 10px; border-radius: 16px; margin-bottom: 15px; position: relative; }
+        .u-tag { font-size: 0.7rem; font-weight: 800; text-align: center; color: var(--primary); padding: 8px 0; border-radius: 8px; transition: all 0.3s; position: relative; z-index: 2; }
+        .u-tag.active { transform: scale(1.15); z-index: 3; }
+        .u-tag.origen { background: linear-gradient(135deg, var(--success), #66bb6a) !important; color: white !important; box-shadow: 0 0 0 3px rgba(67,160,71,0.3); }
+        .u-tag.destino { background: linear-gradient(135deg, var(--warning), #ffb74d) !important; color: white !important; box-shadow: 0 0 0 3px rgba(255,152,0,0.3); }
+        .u-tag.intermedio { opacity: 0.6; background: #e3f2fd; }
+
+        .reto-sticky { background: #e3f2fd; border-radius: 24px; padding: 20px; text-align: center; border: 2px solid #90caf9; margin-bottom: 10px; }
+        .reto-text { font-size: 2.2rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 8px; }
+        .reto-sub { font-size: 0.85rem; color: var(--primary); font-weight: 600; margin-bottom: 8px; }
+        
+        .pizarra-operacion { background: #0d1117; color: #39d353; font-family: 'Courier New', monospace; padding: 15px; border-radius: 14px; font-size: 1.4rem; min-height: 60px; display: flex; align-items: center; justify-content: center; border: 2px solid #30363d; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); }
+        .cursor { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .flujo-juego { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding: 5px; scrollbar-width: none; }
+        .flujo-juego::-webkit-scrollbar { display: none; }
+        
+        .paso-card { background: white; border: 2px solid #eee; border-radius: 24px; padding: 20px; display: none; flex-direction: column; align-items: center; gap: 15px; animation: fadeInUp 0.4s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .paso-card.visible { display: flex; }
+        .paso-card.done { background: #f1f8e9; border-color: #a5d6a7; opacity: 0.7; }
+        .paso-card.shake { animation: shake 0.5s; }
+        
+        .paso-label { font-weight: 700; color: #666; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+        .paso-num { background: var(--primary); color: white; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+
+        .op-group { display: flex; gap: 12px; width: 100%; }
+        .btn-op { flex: 1; padding: 18px; border: none; border-radius: 16px; background: var(--primary); color: white; font-weight: 800; cursor: pointer; font-size: 1rem; transition: all 0.2s; position: relative; overflow: hidden; }
+        .btn-op:hover { filter: brightness(1.1); }
+        .btn-op:active { transform: translateY(2px); }
+        .btn-op.correct { background: var(--success); animation: pulse 0.5s; }
+        .btn-op.wrong { background: var(--error); animation: shake 0.5s; }
+
+        .display-valor { width: 100%; padding: 15px; font-size: 1.8rem; text-align: center; border: 2px dashed #ccc; border-radius: 16px; background: #fff; font-family: monospace; color: var(--primary-dark); transition: all 0.3s; min-height: 60px; display: flex; align-items: center; justify-content: center; }
+        .display-valor.active { border-color: var(--primary); border-style: solid; box-shadow: 0 0 0 3px rgba(2,119,189,0.1); }
+        .display-valor.correct { border-color: var(--success); background: #e8f5e9; color: var(--success); }
+        .display-valor.error { border-color: var(--error); background: #ffebee; color: var(--error); animation: shake 0.5s; }
+        
+        .mini-teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+        .t-key { padding: 18px; border: none; border-radius: 14px; background: #f8f9fa; font-size: 1.4rem; font-weight: 800; color: var(--primary-dark); cursor: pointer; box-shadow: 0 4px 0 #e0e0e0; transition: all 0.1s; }
+        .t-key:active { transform: translateY(3px); box-shadow: 0 1px 0 #e0e0e0; }
+        .t-key.wide { grid-column: span 2; }
+        .t-key.success { background: var(--success); color: white; box-shadow: 0 4px 0 #2e7d32; }
+        .t-key.danger { background: #ffcdd2; color: var(--error); box-shadow: 0 4px 0 #ef9a9a; }
+        .t-key.danger:active { box-shadow: 0 1px 0 #ef9a9a; }
+
+        .hint-box { background: #fff3e0; border-left: 4px solid var(--warning); padding: 12px; border-radius: 0 12px 12px 0; font-size: 0.85rem; color: #e65100; width: 100%; display: none; line-height: 1.5; }
+        .hint-box.visible { display: block; animation: slideIn 0.3s; }
+
+        #modal { display: none; position: absolute; inset: 0; background: rgba(255,255,255,0.98); flex-direction: column; align-items: center; justify-content: center; z-index: 100; border-radius: 32px; padding: 30px; backdrop-filter: blur(10px); }
+        #modal h1 { color: var(--success); font-size: 2.5rem; margin-bottom: 10px; }
+        .modal-stars { font-size: 3rem; margin: 15px 0; animation: bounce 1s infinite; }
+        
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #333; color: white; padding: 15px 30px; border-radius: 30px; transition: all 0.4s cubic-bezier(0.4,0,0.2,1); z-index: 2000; font-weight: 600; max-width: 90%; text-align: center; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--error); }
+        .toast.success { background: var(--success); }
+        .toast.info { background: var(--primary); }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes shake { 0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)} }
+        @keyframes pulse { 0%,100%{transform:scale(1)}50%{transform:scale(1.05)} }
+        @keyframes bounce { 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
+        @keyframes slideIn { from { opacity:0; transform:translateX(-10px) } to { opacity:1; transform:translateX(0) } }
+    </style>
+</head>
+<body>
+
+<a href="main-index.html" class="home-btn" title="Ir al Menú Principal">
+    <i class="fas fa-home"></i>
+</a>
+
+<div class="container">
+    <div class="header-fijo">
+        <div class="nivel-selector">
+            <button class="nivel-btn active" onclick="cambiarNivel('facil')" id="nivel-facil">Fácil</button>
+            <button class="nivel-btn" onclick="cambiarNivel('medio')" id="nivel-medio">Medio</button>
+            <button class="nivel-btn" onclick="cambiarNivel('dificil')" id="nivel-dificil">Difícil</button>
+        </div>
+
+        <div class="barra-unidades" id="barra-unidades">
+            <div class="u-tag" data-u="km">km</div>
+            <div class="u-tag" data-u="hm">hm</div>
+            <div class="u-tag" data-u="dam">dam</div>
+            <div class="u-tag" data-u="m">m</div>
+            <div class="u-tag" data-u="dm">dm</div>
+            <div class="u-tag" data-u="cm">cm</div>
+            <div class="u-tag" data-u="mm">mm</div>
+        </div>
+
+        <div class="reto-sticky">
+            <div id="txt-reto" class="reto-text">---</div>
+            <div class="reto-sub" id="reto-sub">Convierte la unidad de longitud</div>
+            <div id="pizarra" class="pizarra-operacion">Preparando...</div>
+        </div>
+    </div>
+
+    <div class="flujo-juego" id="scroll-area">
+        <div id="p1" class="paso-card visible">
+            <span class="paso-label"><span class="paso-num">1</span> Elige la Operación</span>
+            <div class="hint-box" id="hint1">
+                💡 <strong>Pista:</strong> Si conviertes a una unidad <strong>menor</strong> (ej: km → m), multiplicas. Si a una <strong>mayor</strong> (ej: mm → m), divides.
+            </div>
+            <div class="op-group">
+                <button class="btn-op" id="btn-mul" onclick="handleOp('*')">Multiplicar (×)</button>
+                <button class="btn-op" id="btn-div" onclick="handleOp('/')">Dividir (÷)</button>
+            </div>
+        </div>
+
+        <div id="p2" class="paso-card">
+            <span class="paso-label"><span class="paso-num">2</span> Escribe el Factor</span>
+            <div class="hint-box" id="hint2">
+                💡 Cada salto multiplica/divide por <strong>10</strong>. Con <span id="saltos-hint">?</span> saltos, el factor es 10<sup id="exp-hint">?</sup> = <strong id="factor-hint">?</strong>
+            </div>
+            <div id="factor-val" class="display-valor">?</div>
+            <div class="mini-teclado">
+                <button class="t-key" onclick="press('7')">7</button>
+                <button class="t-key" onclick="press('8')">8</button>
+                <button class="t-key" onclick="press('9')">9</button>
+                <button class="t-key" onclick="press('4')">4</button>
+                <button class="t-key" onclick="press('5')">5</button>
+                <button class="t-key" onclick="press('6')">6</button>
+                <button class="t-key" onclick="press('1')">1</button>
+                <button class="t-key" onclick="press('2')">2</button>
+                <button class="t-key" onclick="press('3')">3</button>
+                <button class="t-key" onclick="press('0')">0</button>
+                <button class="t-key wide danger" onclick="press('C')">⌫ Borrar</button>
+            </div>
+        </div>
+
+        <div id="p3" class="paso-card">
+            <span class="paso-label"><span class="paso-num">3</span> Resultado Final</span>
+            <div id="res-val" class="display-valor">?</div>
+            <div class="mini-teclado">
+                <button class="t-key" onclick="press('7')">7</button>
+                <button class="t-key" onclick="press('8')">8</button>
+                <button class="t-key" onclick="press('9')">9</button>
+                <button class="t-key" onclick="press('4')">4</button>
+                <button class="t-key" onclick="press('5')">5</button>
+                <button class="t-key" onclick="press('6')">6</button>
+                <button class="t-key" onclick="press('1')">1</button>
+                <button class="t-key" onclick="press('2')">2</button>
+                <button class="t-key" onclick="press('3')">3</button>
+                <button class="t-key" onclick="press(',')">,</button>
+                <button class="t-key" onclick="press('0')">0</button>
+                <button class="t-key danger" onclick="press('C')">⌫</button>
+                <button class="t-key wide success" onclick="validarFinal()">✓ VERIFICAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal">
+        <div class="modal-stars">⭐⭐⭐</div>
+        <h1>¡MUY BIEN!</h1>
+        <div id="feedback" style="margin: 20px 0; text-align: center; font-size: 1.1rem; line-height: 1.6;"></div>
+        <button class="btn-op" style="width: 80%;" onclick="nuevaPartida()">Siguiente Reto →</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    // ===== AUDIO =====
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let audioEnabled = true;
+
+    function playSound(type) {
+        if (!audioEnabled) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+            if (type === 'success') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            } else if (type === 'error') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.linearRampToValueAtTime(100, now + 0.2);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.25);
+                osc.start(now); osc.stop(now + 0.25);
+            } else if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                gain.gain.setValueAtTime(0.03, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now); osc.stop(now + 0.05);
+            }
+        } catch(e) { /* Audio no disponible */ }
+    }
+
+    // ===== ESTADO =====
+    const unidades = ["km", "hm", "dam", "m", "dm", "cm", "mm"];
+    let nivelActual = 'facil';
+    let uOrig, uDest, valOrig, factorCorrecto, opCorrecta, resCorrecto;
+    let etapa = 1;
+    let inputBuffer = "";
+    let simboloOp = "";
+    let hintShown = { 1: false, 2: false };
+
+    // ===== GENERACIÓN DE RETOS =====
+    function generarReto() {
+        let intentos = 0;
+        while (intentos++ < 100) {
+            uOrig = Math.floor(Math.random() * 7);
+            let salto, uDestTemp;
+            
+            if (nivelActual === 'facil') {
+                salto = Math.floor(Math.random() * 3) + 1; // 1-3 saltos
+                let dir = Math.random() > 0.5 ? 1 : -1;
+                uDestTemp = uOrig + (dir * salto);
+                if (uDestTemp < 0 || uDestTemp > 6 || uDestTemp === uOrig) continue;
+                
+                // Anti-decimales: si divide, valor debe ser múltiplo del factor
+                if (uDestTemp < uOrig) {
+                    let f = Math.pow(10, Math.abs(uDestTemp - uOrig));
+                    valOrig = (Math.floor(Math.random() * 99) + 1) * f;
+                } else {
+                    valOrig = Math.floor(Math.random() * 99) + 1;
+                }
+            } else if (nivelActual === 'medio') {
+                salto = Math.floor(Math.random() * 6) + 1; // 1-6 saltos
+                let dir = Math.random() > 0.5 ? 1 : -1;
+                uDestTemp = uOrig + (dir * salto);
+                if (uDestTemp < 0 || uDestTemp > 6 || uDestTemp === uOrig) continue;
+                valOrig = Math.floor(Math.random() * 900) + 10;
+            } else {
+                salto = Math.floor(Math.random() * 6) + 1; // 1-6 saltos
+                let dir = Math.random() > 0.5 ? 1 : -1;
+                uDestTemp = uOrig + (dir * salto);
+                if (uDestTemp < 0 || uDestTemp > 6 || uDestTemp === uOrig) continue;
+                let decimales = Math.random() > 0.5 ? 2 : 1;
+                valOrig = parseFloat((Math.random() * 990 + 1).toFixed(decimales));
+            }
+
+            uDest = uDestTemp;
+            factorCorrecto = Math.pow(10, Math.abs(uDest - uOrig));
+            opCorrecta = uDest > uOrig ? '*' : '/';
+            resCorrecto = opCorrecta === '*' ? valOrig * factorCorrecto : valOrig / factorCorrecto;
+            
+            if (!isFinite(resCorrecto) || isNaN(resCorrecto)) continue;
+            
+            if (nivelActual !== 'dificil') {
+                let resStr = resCorrecto.toString();
+                if (resStr.includes('.') && resStr.split('.')[1].length > 6) continue;
+            }
+            
+            break;
+        }
+    }
+
+    // ===== UI =====
+    function cambiarNivel(nivel) {
+        nivelActual = nivel;
+        document.querySelectorAll('.nivel-btn').forEach(b => b.classList.toggle('active', b.id === `nivel-${nivel}`));
+        nuevaPartida();
+        showToast(`Nivel: ${nivel.charAt(0).toUpperCase() + nivel.slice(1)}`, 'info');
+    }
+
+    function nuevaPartida() {
+        etapa = 1; inputBuffer = ""; simboloOp = "";
+        hintShown = { 1: false, 2: false };
+        
+        document.getElementById('modal').style.display = 'none';
+        document.getElementById('scroll-area').scrollTop = 0;
+        document.querySelectorAll('.paso-card').forEach(c => c.className = 'paso-card');
+        document.getElementById('p1').className = 'paso-card visible';
+        document.querySelectorAll('.display-valor').forEach(d => {
+            d.textContent = "?";
+            d.className = 'display-valor';
+        });
+        document.querySelectorAll('.btn-op').forEach(b => b.className = 'btn-op');
+        document.querySelectorAll('.hint-box').forEach(h => h.classList.remove('visible'));
+        
+        generarReto();
+        
+        let saltos = Math.abs(uDest - uOrig);
+        let direccion = uDest > uOrig ? "descendente" : "ascendente";
+        
+        document.getElementById('txt-reto').textContent = `${formatearNum(valOrig)} ${unidades[uOrig]} → ${unidades[uDest]}`;
+        document.getElementById('reto-sub').textContent = `${saltos} salto${saltos>1?'s':''} ${direccion} en la escalera`;
+        
+        document.querySelectorAll('.u-tag').forEach((t, i) => {
+            t.className = 'u-tag';
+            if (i === uOrig) t.classList.add('active', 'origen');
+            else if (i === uDest) t.classList.add('active', 'destino');
+            else if (i > Math.min(uOrig, uDest) && i < Math.max(uOrig, uDest)) t.classList.add('intermedio');
+        });
+
+        document.getElementById('saltos-hint').textContent = saltos;
+        document.getElementById('exp-hint').textContent = saltos;
+        document.getElementById('factor-hint').textContent = factorCorrecto.toLocaleString('es-ES');
+        
+        actualizarPizarra();
+    }
+
+    function formatearNum(n) {
+        return n.toString().replace('.', ',');
+    }
+
+    function actualizarPizarra() {
+        let txt = formatearNum(valOrig);
+        if (etapa >= 2) {
+            let factor = etapa === 2 ? (inputBuffer || '?') : factorCorrecto.toLocaleString('es-ES');
+            txt += ` ${simboloOp || (opCorrecta === '*' ? '×' : '÷')} ${factor}`;
+        }
+        if (etapa === 3) txt += ` = ${inputBuffer ? formatearNum(inputBuffer) : '?'}`;
+        
+        if ((etapa === 2 || etapa === 3) && !inputBuffer) {
+            txt += '<span class="cursor">_</span>';
+        }
+        
+        document.getElementById('pizarra').innerHTML = txt;
+    }
+
+    // ===== LÓGICA DEL JUEGO =====
+    function handleOp(op) {
+        playSound('click');
+        const btnMul = document.getElementById('btn-mul');
+        const btnDiv = document.getElementById('btn-div');
+        
+        if (op === opCorrecta) {
+            playSound('success');
+            simboloOp = op === '*' ? '×' : '÷';
+            (op === '*' ? btnMul : btnDiv).classList.add('correct');
+            document.getElementById('p1').classList.add('done');
+            etapa = 2;
+            document.getElementById('p2').classList.add('visible');
+            actualizarPizarra();
+            autoScroll();
+        } else {
+            playSound('error');
+            (op === '*' ? btnMul : btnDiv).classList.add('wrong');
+            setTimeout(() => {
+                btnMul.classList.remove('wrong');
+                btnDiv.classList.remove('wrong');
+            }, 600);
+            
+            if (!hintShown[1]) {
+                document.getElementById('hint1').classList.add('visible');
+                hintShown[1] = true;
+            }
+            showToast(op === '*' ? "¿Seguro que multiplicas? Revisa la dirección." : "¿Seguro que divides? Revisa la dirección.", 'error');
+        }
+    }
+
+    function press(n) {
+        playSound('click');
+        const display = etapa === 2 ? document.getElementById('factor-val') : document.getElementById('res-val');
+        
+        if (n === 'C') {
+            inputBuffer = inputBuffer.slice(0, -1);
+        } else {
+            if (n === ',' && inputBuffer.includes('.')) return;
+            if (n === ',' && inputBuffer === '') return;
+            if (n === '0' && inputBuffer === '0') return;
+            if (inputBuffer.replace('.', '').length > 12) return;
+            
+            inputBuffer += n.replace(',', '.');
+        }
+
+        display.textContent = inputBuffer ? formatearNum(inputBuffer) : "?";
+        display.classList.toggle('active', !!inputBuffer);
+        actualizarPizarra();
+
+        if (etapa === 2) {
+            let val = parseInt(inputBuffer);
+            if (val === factorCorrecto) {
+                display.classList.add('correct');
+                document.getElementById('p2').classList.add('done');
+                setTimeout(() => {
+                    etapa = 3; inputBuffer = "";
+                    document.getElementById('p3').classList.add('visible');
+                    actualizarPizarra();
+                    autoScroll();
+                    playSound('success');
+                }, 400);
+            } else if (inputBuffer.length >= String(factorCorrecto).length && val !== factorCorrecto) {
+                display.classList.add('error');
+                setTimeout(() => display.classList.remove('error'), 600);
+                if (!hintShown[2]) {
+                    document.getElementById('hint2').classList.add('visible');
+                    hintShown[2] = true;
+                }
+            }
+        }
+    }
+
+    function validarFinal() {
+        if (!inputBuffer) {
+            showToast("Escribe un resultado", 'error');
+            return;
+        }
+        
+        let userVal = parseFloat(inputBuffer);
+        if (isNaN(userVal)) {
+            showToast("Número no válido", 'error');
+            return;
+        }
+
+        let tolerancia = Math.max(0.0001, Math.abs(resCorrecto) * 0.001);
+        
+        if (Math.abs(userVal - resCorrecto) <= tolerancia) {
+            playSound('success');
+            
+            let resFormateado = Number.isInteger(resCorrecto) ? 
+                resCorrecto.toLocaleString('es-ES') : 
+                resCorrecto.toLocaleString('es-ES', {maximumFractionDigits: 6});
+            
+            document.getElementById('feedback').innerHTML = `
+                <div style="font-size: 1.3rem; color: #333; margin-bottom: 10px;">
+                    ${formatearNum(valOrig)} ${unidades[uOrig]} ${simboloOp} ${factorCorrecto.toLocaleString('es-ES')}
+                </div>
+                <div style="font-size: 2rem; color: var(--success); font-weight: 900; margin: 15px 0;">
+                    = ${resFormateado} ${unidades[uDest]}
+                </div>
+                <div style="font-size: 0.9rem; color: #888;">
+                    ${Math.abs(uDest-uOrig)} saltos × 10 = factor ${factorCorrecto.toLocaleString('es-ES')}
+                </div>
+            `;
+            document.getElementById('modal').style.display = 'flex';
+        } else {
+            playSound('error');
+            
+            let display = document.getElementById('res-val');
+            display.classList.add('error');
+            
+            let resEsperado = Number.isInteger(resCorrecto) ? 
+                resCorrecto.toLocaleString('es-ES') : 
+                resCorrecto.toLocaleString('es-ES', {maximumFractionDigits: 6});
+            
+            showToast(`Incorrecto. Era ${resEsperado} ${unidades[uDest]}`, 'error');
+            
+            setTimeout(() => {
+                display.classList.remove('error');
+                inputBuffer = "";
+                display.textContent = "?";
+                actualizarPizarra();
+            }, 2000);
+        }
+    }
+
+    function autoScroll() {
+        setTimeout(() => {
+            const target = etapa === 2 ? document.getElementById('p2') : document.getElementById('p3');
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 150);
+    }
+
+    function showToast(msg, type) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = `toast ${type} show`;
+        clearTimeout(t._timer);
+        t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // ===== TECLADO FÍSICO =====
+    document.addEventListener('keydown', (e) => {
+        if (document.getElementById('modal').style.display === 'flex') {
+            if (e.key === 'Enter' || e.key === ' ') nuevaPartida();
+            return;
+        }
+        
+        const key = e.key;
+        if (key >= '0' && key <= '9') press(key);
+        else if (key === ',' || key === '.') press(',');
+        else if (key === 'Backspace') press('C');
+        else if (key === 'Enter') {
+            if (etapa === 3) validarFinal();
+        }
+        else if ((key === '*' || key === 'x' || key === 'X') && etapa === 1) handleOp('*');
+        else if (key === '/' && etapa === 1) handleOp('/');
+        else if (key === 'Escape') nuevaPartida();
+    });
+
+    window.onload = nuevaPartida;
+</script>
+</body>
+</html>
