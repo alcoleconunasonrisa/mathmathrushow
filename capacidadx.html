@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Capacidad Pro - Pizarra Dinámica</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        :root {
+            --primary: #0277bd;
+            --primary-dark: #01579b;
+            --secondary: #039be5;
+            --success: #43a047;
+            --error: #e53935;
+            --warning: #ff9800;
+            --bg-dark: #0a192f;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #05101e 50%, var(--bg-dark) 100%);
+            height: 100vh; 
+            height: 100dvh;
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: var(--primary);
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+        .home-btn:hover { transform: scale(1.1); background: var(--primary); color: white; }
+
+        .container {
+            width: 95%; 
+            max-width: 520px; 
+            height: 90vh;
+            background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%);
+            border-radius: 32px; 
+            padding: 20px;
+            display: flex; 
+            flex-direction: column;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+            position: relative; 
+            overflow: hidden;
+        }
+
+        @media (max-height: 700px) {
+            .container { height: 98vh; padding: 12px; }
+            .reto-text { font-size: 1.6rem !important; }
+            .t-key { padding: 10px !important; }
+        }
+
+        .nivel-selector { display: flex; gap: 8px; margin-bottom: 15px; flex-shrink: 0; background: #e1f5fe; padding: 6px; border-radius: 16px; }
+        .nivel-btn { flex: 1; padding: 12px 5px; border: none; border-radius: 12px; background: white; cursor: pointer; font-size: 0.85rem; font-weight: 700; color: var(--primary); transition: 0.3s; }
+        .nivel-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(2, 119, 189, 0.3); }
+
+        .barra-unidades { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; background: #e1f5fe; padding: 10px; border-radius: 16px; margin-bottom: 15px; }
+        .u-tag { font-size: 0.7rem; font-weight: 800; text-align: center; color: var(--primary); padding: 8px 0; border-radius: 8px; transition: 0.3s; }
+        .u-tag.active { transform: scale(1.1); z-index: 2; }
+        .u-tag.origen { background: var(--success) !important; color: white !important; }
+        .u-tag.destino { background: var(--warning) !important; color: white !important; }
+
+        .reto-sticky { background: #e3f2fd; border-radius: 24px; padding: 20px; text-align: center; border: 2px solid #90caf9; margin-bottom: 10px; }
+        .reto-text { font-size: 2.2rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 8px; }
+        
+        .pizarra-operacion { background: #0d1117; color: #39d353; font-family: 'Courier New', monospace; padding: 15px; border-radius: 14px; font-size: 1.4rem; min-height: 60px; display: flex; align-items: center; justify-content: center; border: 2px solid #30363d; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); }
+
+        .flujo-juego { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding: 5px; scrollbar-width: none; }
+        .flujo-juego::-webkit-scrollbar { display: none; }
+        
+        .paso-card { background: white; border: 2px solid #eee; border-radius: 24px; padding: 20px; display: none; flex-direction: column; align-items: center; gap: 15px; animation: fadeInUp 0.4s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .paso-card.visible { display: flex; }
+        .paso-card.done { background: #f1f8e9; border-color: #a5d6a7; opacity: 0.7; }
+        
+        .paso-label { font-weight: 700; color: #666; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .op-group { display: flex; gap: 12px; width: 100%; }
+        .btn-op { flex: 1; padding: 18px; border: none; border-radius: 16px; background: var(--primary); color: white; font-weight: 800; cursor: pointer; font-size: 1rem; transition: 0.2s; }
+        .btn-op.correct { background: var(--success); }
+
+        .display-valor { width: 100%; padding: 15px; font-size: 1.8rem; text-align: center; border: 2px dashed #ccc; border-radius: 16px; background: #fff; font-family: monospace; color: var(--primary-dark); }
+        
+        .mini-teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+        .t-key { padding: 18px; border: none; border-radius: 14px; background: #f8f9fa; font-size: 1.4rem; font-weight: 800; color: var(--primary-dark); cursor: pointer; box-shadow: 0 4px 0 #e0e0e0; }
+        .t-key:active { transform: translateY(3px); box-shadow: 0 1px 0 #e0e0e0; }
+        .t-key.wide { grid-column: span 2; }
+        .t-key.success { background: var(--success); color: white; box-shadow: 0 4px 0 #2e7d32; }
+
+        #modal { display: none; position: absolute; inset: 0; background: rgba(255,255,255,0.98); flex-direction: column; align-items: center; justify-content: center; z-index: 100; border-radius: 32px; padding: 30px; backdrop-filter: blur(10px); }
+        
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #333; color: white; padding: 15px 30px; border-radius: 30px; transition: 0.4s; z-index: 2000; font-weight: 600; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--error); }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<a href="main-index.html" class="home-btn" title="Ir al Menú Principal">
+    <i class="fas fa-home"></i>
+</a>
+
+<div class="container">
+    <div class="header-fijo">
+        <div class="nivel-selector">
+            <button class="nivel-btn active" onclick="cambiarNivel('facil')" id="nivel-facil">Fácil</button>
+            <button class="nivel-btn" onclick="cambiarNivel('medio')" id="nivel-medio">Medio</button>
+            <button class="nivel-btn" onclick="cambiarNivel('dificil')" id="nivel-dificil">Difícil</button>
+        </div>
+
+        <div class="barra-unidades">
+            <div class="u-tag" data-u="kl">kl</div>
+            <div class="u-tag" data-u="hl">hl</div>
+            <div class="u-tag" data-u="dal">dal</div>
+            <div class="u-tag" data-u="l">l</div>
+            <div class="u-tag" data-u="dl">dl</div>
+            <div class="u-tag" data-u="cl">cl</div>
+            <div class="u-tag" data-u="ml">ml</div>
+        </div>
+
+        <div class="reto-sticky">
+            <div id="txt-reto" class="reto-text">---</div>
+            <div id="pizarra" class="pizarra-operacion">Preparando...</div>
+        </div>
+    </div>
+
+    <div class="flujo-juego" id="scroll-area">
+        <div id="p1" class="paso-card visible">
+            <span class="paso-label">1. Elige la Operación</span>
+            <div class="op-group">
+                <button class="btn-op" id="btn-mul" onclick="handleOp('*')">Multiplicar (×)</button>
+                <button class="btn-op" id="btn-div" onclick="handleOp('/')">Dividir (÷)</button>
+            </div>
+        </div>
+
+        <div id="p2" class="paso-card">
+            <span class="paso-label">2. Escribe el Factor</span>
+            <div id="factor-val" class="display-valor">?</div>
+            <div class="mini-teclado">
+                <button class="t-key" onclick="press('7')">7</button><button class="t-key" onclick="press('8')">8</button><button class="t-key" onclick="press('9')">9</button>
+                <button class="t-key" onclick="press('4')">4</button><button class="t-key" onclick="press('5')">5</button><button class="t-key" onclick="press('6')">6</button>
+                <button class="t-key" onclick="press('1')">1</button><button class="t-key" onclick="press('2')">2</button><button class="t-key" onclick="press('3')">3</button>
+                <button class="t-key" onclick="press('0')">0</button><button class="t-key wide" onclick="press('C')" style="color:var(--error)">Borrar</button>
+            </div>
+        </div>
+
+        <div id="p3" class="paso-card">
+            <span class="paso-label">3. Resultado Final</span>
+            <div id="res-val" class="display-valor">?</div>
+            <div class="mini-teclado">
+                <button class="t-key" onclick="press('7')">7</button><button class="t-key" onclick="press('8')">8</button><button class="t-key" onclick="press('9')">9</button>
+                <button class="t-key" onclick="press('4')">4</button><button class="t-key" onclick="press('5')">5</button><button class="t-key" onclick="press('6')">6</button>
+                <button class="t-key" onclick="press('1')">1</button><button class="t-key" onclick="press('2')">2</button><button class="t-key" onclick="press('3')">3</button>
+                <button class="t-key" onclick="press(',')">,</button><button class="t-key" onclick="press('0')">0</button><button class="t-key" onclick="press('C')">⌫</button>
+                <button class="t-key wide success" onclick="validarFinal()">VERIFICAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal">
+        <h1 style="color: var(--success); font-size: 3rem;">¡MUY BIEN!</h1>
+        <div id="feedback" style="margin: 25px 0; text-align: center; font-size: 1.2rem;"></div>
+        <button class="btn-op" style="width: 80%;" onclick="nuevaPartida()">Siguiente Reto</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSound(type) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'success') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'error') {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        } else if (type === 'click') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+        }
+    }
+
+    const unidades = ["kl", "hl", "dal", "l", "dl", "cl", "ml"];
+    let nivelActual = 'facil';
+    let uOrig, uDest, valOrig, factorCorrecto, opCorrecta, resCorrecto, etapa, inputBuffer;
+
+    function cambiarNivel(nivel) {
+        nivelActual = nivel;
+        document.querySelectorAll('.nivel-btn').forEach(b => b.classList.toggle('active', b.id === `nivel-${nivel}`));
+        nuevaPartida();
+    }
+
+    function generarReto() {
+        uOrig = Math.floor(Math.random() * 7);
+        let salto;
+        
+        if (nivelActual === 'facil') {
+            // Saltos de 1, 2 o 3 (10, 100, 1000)
+            salto = Math.floor(Math.random() * 3) + 1;
+            let direccion = Math.random() > 0.5 ? 1 : -1;
+            uDest = uOrig + (direccion * salto);
+            
+            if(uDest < 0 || uDest > 6) return generarReto();
+
+            // LÓGICA ANTI-DECIMALES PARA NIVEL FÁCIL
+            if (uDest < uOrig) { 
+                // Si va a dividir, el valor original debe ser múltiplo del factor
+                let factor = Math.pow(10, Math.abs(uDest - uOrig));
+                valOrig = (Math.floor(Math.random() * 9) + 1) * factor; 
+            } else {
+                valOrig = Math.floor(Math.random() * 90) + 1;
+            }
+
+        } else if (nivelActual === 'medio') {
+            salto = Math.floor(Math.random() * 6) + 1;
+            uDest = uOrig + (Math.random() > 0.5 ? 1 : -1) * salto;
+            if(uDest < 0 || uDest > 6) return generarReto();
+            valOrig = Math.floor(Math.random() * 90) + 1; 
+        } else {
+            salto = Math.floor(Math.random() * 6) + 1;
+            uDest = uOrig + (Math.random() > 0.5 ? 1 : -1) * salto;
+            if(uDest < 0 || uDest > 6) return generarReto();
+            valOrig = parseFloat((Math.random() * 90 + 1).toFixed(Math.random() > 0.5 ? 2 : 1));
+        }
+
+        factorCorrecto = Math.pow(10, Math.abs(uDest - uOrig));
+        opCorrecta = uDest > uOrig ? '*' : '/';
+        resCorrecto = opCorrecta === '*' ? valOrig * factorCorrecto : valOrig / factorCorrecto;
+    }
+
+    function nuevaPartida() {
+        etapa = 1; inputBuffer = ""; 
+        document.getElementById('modal').style.display = 'none';
+        document.querySelectorAll('.paso-card').forEach(c => c.classList.remove('visible', 'done'));
+        document.getElementById('p1').classList.add('visible');
+        document.querySelectorAll('.display-valor').forEach(d => d.textContent = "?");
+        document.querySelectorAll('.btn-op').forEach(b => b.classList.remove('correct'));
+        
+        generarReto();
+        document.getElementById('txt-reto').textContent = `${valOrig.toString().replace('.', ',')} ${unidades[uOrig]} → ${unidades[uDest]}`;
+        
+        document.querySelectorAll('.u-tag').forEach((t, i) => {
+            t.className = 'u-tag';
+            if(i === uOrig) t.classList.add('active', 'origen');
+            if(i === uDest) t.classList.add('active', 'destino');
+        });
+        actualizarPizarra();
+    }
+
+    function handleOp(op) {
+        playSound('click');
+        if (op === opCorrecta) {
+            playSound('success');
+            document.getElementById(op === '*' ? 'btn-mul' : 'btn-div').classList.add('correct');
+            document.getElementById('p1').classList.add('done');
+            etapa = 2;
+            document.getElementById('p2').classList.add('visible');
+            actualizarPizarra();
+            autoScroll();
+        } else {
+            playSound('error');
+            showToast("¡Dirección incorrecta!", "error");
+        }
+    }
+
+    function press(n) {
+        playSound('click');
+        if (n === 'C') inputBuffer = "";
+        else {
+            if (n === ',' && inputBuffer.includes('.')) return;
+            inputBuffer += n.replace(',', '.');
+        }
+
+        if (etapa === 2) {
+            document.getElementById('factor-val').textContent = inputBuffer || "?";
+            if (parseInt(inputBuffer) === factorCorrecto) {
+                playSound('success');
+                document.getElementById('p2').classList.add('done');
+                etapa = 3; inputBuffer = "";
+                document.getElementById('p3').classList.add('visible');
+                autoScroll();
+            }
+        } else {
+            document.getElementById('res-val').textContent = inputBuffer || "?";
+        }
+        actualizarPizarra();
+    }
+
+    function validarFinal() {
+        let userVal = parseFloat(inputBuffer);
+        if (Math.abs(userVal - resCorrecto) < 0.000001) {
+            playSound('success');
+            document.getElementById('feedback').innerHTML = `<p>Resultado exacto:</p><strong>${resCorrecto.toLocaleString('es-ES', {maximumFractionDigits: 6})} ${unidades[uDest]}</strong>`;
+            document.getElementById('modal').style.display = 'flex';
+        } else {
+            playSound('error');
+            showToast("Resultado incorrecto. ¡Prueba otra vez!", "error");
+        }
+    }
+
+    function actualizarPizarra() {
+        let opSym = opCorrecta === '*' ? '×' : '÷';
+        let txt = `${valOrig.toString().replace('.', ',')}`;
+        if(etapa >= 2) txt += ` ${opSym} ${etapa === 2 ? (inputBuffer || '?') : factorCorrecto.toLocaleString('es-ES')}`;
+        if(etapa === 3) txt += ` = ${inputBuffer.replace('.', ',') || '?'}`;
+        document.getElementById('pizarra').textContent = txt;
+    }
+
+    function autoScroll() {
+        const area = document.getElementById('scroll-area');
+        setTimeout(() => area.scrollTo({ top: area.scrollHeight, behavior: 'smooth' }), 100);
+    }
+
+    function showToast(msg, type) {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.className = `toast ${type} show`;
+        setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    window.onload = nuevaPartida;
+</script>
+</body>
+</html>
