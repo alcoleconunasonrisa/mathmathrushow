@@ -5,45 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Math Bomb Jack - Tablas Edition</title>
     <style>
+        /* Optimización de pantalla para evitar desplazamientos accidentales */
+        * { touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+        
         body { 
             text-align: center; font-family: 'Courier New', Courier, monospace; 
-            background: #050510; color: #00d2ff; margin: 0; overflow: hidden; 
-            touch-action: manipulation;
+            background: #050510; color: #00d2ff; margin: 0; 
+            overflow: hidden; width: 100vw; height: 100vh;
+            display: flex; flex-direction: column;
         }
+        
+        /* El canvas ahora es flexible para adaptarse a cualquier pantalla */
         canvas { 
             background: #0a0a1a; border: 2px solid #1e272e; 
-            display: block; margin: 5px auto; max-width: 100%; max-height: 70vh;
+            display: block; margin: 0 auto; 
+            max-width: 95%; max-height: 60vh; 
+            object-fit: contain;
         }
-        .hud { font-size: 18px; padding: 10px; background: rgba(30, 39, 46, 0.8); display: flex; justify-content: center; align-items: center; gap: 20px; }
-        .target { color: #f9d423; font-size: 26px; font-weight: bold; text-shadow: 0 0 10px rgba(249, 212, 35, 0.5); }
+
+        .hud { 
+            font-size: 16px; padding: 5px; 
+            background: rgba(30, 39, 46, 0.9); 
+            display: flex; justify-content: space-around; align-items: center; 
+            flex-wrap: wrap; z-index: 10;
+        }
+
+        .target { color: #f9d423; font-size: 22px; font-weight: bold; text-shadow: 0 0 10px rgba(249, 212, 35, 0.5); }
         .level-tag { color: #ff3f34; font-weight: bold; }
-        .home-btn { text-decoration: none; font-size: 24px; background: #1e272e; padding: 5px 12px; border-radius: 8px; border: 1px solid #00d2ff; color: #00d2ff; transition: 0.3s; }
+        .home-btn { text-decoration: none; font-size: 20px; background: #1e272e; padding: 4px 10px; border-radius: 8px; border: 1px solid #00d2ff; color: #00d2ff; }
         
         #overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 5, 16, 0.95); display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 100; overflow-y: auto;
+            background: rgba(5, 5, 16, 0.98); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 200; overflow-y: auto;
         }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; width: 90%; max-width: 500px; }
-        .submenu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; width: 90%; max-width: 400px; }
-        
-        .btn-mode { padding: 15px; font-size: 14px; background: #1e272e; color: #00d2ff; border: 2px solid #00d2ff; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-mode:hover { background: #00d2ff; color: #050510; }
-        .btn-sub { padding: 10px; font-size: 16px; background: #0a0a1a; color: #f9d423; border: 1px solid #f9d423; border-radius: 5px; cursor: pointer; }
-        .btn-sub:hover { background: #f9d423; color: #050510; }
 
-        .btn-action { padding: 20px 40px; font-size: 24px; background: #f9d423; color: #050510; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; margin-top: 20px; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; max-width: 400px; }
+        .submenu-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 90%; }
         
-        #touchControls { display: none; position: fixed; bottom: 20px; left: 0; right: 0; justify-content: space-around; width: 100%; padding: 0 10px; }
-        .touch-btn { width: 65px; height: 65px; background: rgba(255,255,255,0.1); border: 2px solid #00d2ff; border-radius: 50%; color: white; font-size: 30px; display: flex; align-items: center; justify-content: center; user-select: none; }
-        .jump-btn { width: 85px; height: 85px; background: rgba(255, 63, 52, 0.2); border-color: #ff3f34; }
+        .btn-mode { padding: 12px; font-size: 14px; background: #1e272e; color: #00d2ff; border: 2px solid #00d2ff; border-radius: 10px; font-weight: bold; }
+        .btn-sub { padding: 12px 5px; font-size: 16px; background: #0a0a1a; color: #f9d423; border: 1px solid #f9d423; border-radius: 5px; }
+
+        .btn-action { padding: 15px 30px; font-size: 20px; background: #f9d423; color: #050510; border: none; border-radius: 50px; font-weight: bold; margin-top: 15px; }
+        
+        /* Controles táctiles mejorados para pulgares */
+        #touchControls { 
+            display: none; width: 100%; padding: 15px 0;
+            justify-content: space-between; align-items: center;
+            background: rgba(10, 10, 26, 0.5);
+        }
+        
+        .touch-group { display: flex; gap: 25px; margin-left: 20px; }
+        
+        .touch-btn { 
+            width: 75px; height: 75px; 
+            background: rgba(0, 210, 255, 0.2); 
+            border: 3px solid #00d2ff; border-radius: 50%; 
+            color: white; font-size: 35px; 
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .jump-btn { 
+            width: 90px; height: 90px; 
+            background: rgba(255, 63, 52, 0.3); 
+            border-color: #ff3f34; margin-right: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .hud { font-size: 14px; }
+            .target { font-size: 18px; }
+            .touch-btn { width: 65px; height: 65px; }
+            .jump-btn { width: 80px; height: 80px; }
+        }
     </style>
 </head>
 <body>
 
     <div id="overlay">
-        <h1 id="statusTitle" style="color: #f9d423;">MATH BOMB JACK</h1>
-        <p id="statusDesc">Selecciona tu desafío:</p>
+        <h1 id="statusTitle" style="color: #f9d423; font-size: 28px; margin-bottom: 10px;">MATH BOMB JACK</h1>
+        <p id="statusDesc" style="margin-bottom: 20px;">Selecciona tu desafío:</p>
         
         <div id="menuModes" class="menu-grid">
             <button class="btn-mode" onclick="setMode('SUMA')">➕ SUMAS</button>
@@ -56,8 +96,8 @@
         <div id="submenu" style="display:none; text-align: center;">
             <p id="submenuTitle">Elige la tabla:</p>
             <div class="submenu-grid" id="tableButtons"></div>
-            <button class="btn-mode" style="margin-top:20px; width: 100%;" onclick="setMode(pendingMode, 'all')">TODAS LAS TABLAS</button>
-            <button class="btn-mode" style="margin-top:10px; border-color: #ff3f34; color: #ff3f34;" onclick="backToMain()">VOLVER</button>
+            <button class="btn-mode" style="margin-top:15px; width: 90%;" onclick="setMode(pendingMode, 'all')">TODAS LAS TABLAS</button>
+            <button class="btn-mode" style="margin-top:10px; width: 90%; border-color: #ff3f34; color: #ff3f34;" onclick="backToMain()">VOLVER</button>
         </div>
 
         <button class="btn-action" id="mainBtn" style="display:none;" onclick="startGame()">EMPEZAR NIVEL</button>
@@ -73,7 +113,7 @@
     <canvas id="gameCanvas" width="900" height="650"></canvas>
 
     <div id="touchControls">
-        <div style="display:flex; gap: 20px;">
+        <div class="touch-group">
             <div class="touch-btn" id="btnLeft">←</div>
             <div class="touch-btn" id="btnRight">→</div>
         </div>
@@ -162,30 +202,22 @@
                     { x: 280, y: y + 55, w: 120, h: 15 }, { x: 500, y: y + 55, w: 120, h: 15 }
                 );
             }
-            
             let numBombs = currentLevel * 5;
             let attempts = 0;
-            
             while (bombs.length < numBombs && attempts < 1000) {
                 attempts++;
                 let plat = platforms[Math.floor(Math.random() * (platforms.length - 1)) + 1];
                 let bx = plat.x + 15 + Math.random() * (plat.w - 30);
                 let by = plat.y - 25;
-                
                 let val;
-                // Ajuste crítico: Los valores de las bombas deben ser siempre resultados coherentes (1-10)
                 if (gameMode === 'MULT' || gameMode === 'DIV' || gameMode === 'MIX') {
                     let base = (selectedTable === 'all' || gameMode === 'MIX') ? (Math.floor(Math.random() * 10) + 1) : selectedTable;
                     let factor = Math.floor(Math.random() * 10) + 1;
-                    // En MULT y DIV el valor de la bomba es el resultado (cociente o producto)
-                    // Para que las divisiones sean simples, la bomba contendrá el COCIENTE (1-10)
                     val = (gameMode === 'DIV') ? factor : base * factor;
-                    
-                    if(gameMode === 'MIX') val = Math.floor(Math.random() * 100) + 1; // En mixto permitimos más rango
+                    if(gameMode === 'MIX') val = Math.floor(Math.random() * 100) + 1;
                 } else {
                     val = Math.floor(Math.random() * (20 + currentLevel * 2)) + 1;
                 }
-
                 if (!bombs.some(b => Math.sqrt(Math.pow(b.x - bx, 2) + Math.pow(b.y - by, 2)) < 45)) {
                     bombs.push({ x: bx, y: by, val: val, r: 16, active: true });
                 }
@@ -198,11 +230,9 @@
             if (activeBombs.length === 0) { victoryTransition(); return; }
             let chosenBomb = activeBombs[Math.floor(Math.random() * activeBombs.length)];
             targetValue = chosenBomb.val;
-            
             let modes = ['SUMA', 'RESTA', 'MULT', 'DIV'];
             let currentOp = gameMode === 'MIX' ? modes[Math.floor(Math.random() * 4)] : gameMode;
             let display = "";
-
             switch(currentOp) {
                 case 'SUMA':
                     let s1 = Math.floor(Math.random() * targetValue);
@@ -215,17 +245,11 @@
                 case 'MULT':
                     let divs = [];
                     for(let i=1; i<=10; i++) { if(targetValue % i === 0 && (targetValue/i) <= 10) divs.push(i); }
-                    if(divs.length > 0) {
-                        let d = divs[Math.floor(Math.random() * divs.length)];
-                        display = `${d} x ${targetValue / d}`;
-                    } else {
-                        display = `${targetValue} x 1`;
-                    }
+                    let d = divs.length > 0 ? divs[Math.floor(Math.random() * divs.length)] : 1;
+                    display = `${d} x ${targetValue / d}`;
                     break;
                 case 'DIV':
-                    // Garantizamos que el divisor sea de la tabla elegida o del 1-10
                     let divisor = (selectedTable === 'all') ? (Math.floor(Math.random() * 10) + 1) : selectedTable;
-                    // El dividendo es targetValue (resultado en la bomba) * divisor
                     display = `${targetValue * divisor} : ${divisor}`;
                     break;
             }
@@ -236,16 +260,15 @@
         function victoryTransition() {
             gameActive = false; currentLevel++; enemyBaseSpeed += 0.5;
             document.getElementById("overlay").style.display = "flex";
-            document.getElementById("statusTitle").innerText = "¡NIVEL COMPLETADO!";
-            document.getElementById("statusTitle").className = "win-text";
+            document.getElementById("statusTitle").innerText = "¡BIEN HECHO!";
+            document.getElementById("mainBtn").style.display = "block";
             playSound(600, 'sine', 0.2);
         }
 
         function gameOver() {
             gameActive = false; currentLevel = 1;
             document.getElementById("overlay").style.display = "flex";
-            document.getElementById("statusTitle").innerText = "GAME OVER";
-            document.getElementById("statusTitle").className = "game-over-text";
+            document.getElementById("statusTitle").innerText = "INTÉNTALO DE NUEVO";
             document.getElementById("menuModes").style.display = "grid";
             document.getElementById("mainBtn").style.display = "none";
             playSound(50, 'sawtooth', 0.5, 0.2);
@@ -254,7 +277,8 @@
         window.addEventListener("keydown", e => keys[e.code] = true);
         window.addEventListener("keyup", e => keys[e.code] = false);
 
-        if ('ontouchstart' in window) {
+        // Activar controles táctiles solo en dispositivos móviles/tablets
+        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
             document.getElementById("touchControls").style.display = "flex";
             const setupBtn = (id, key) => {
                 const btn = document.getElementById(id);
