@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Math Bomb Jack - Tablas Edition</title>
     <style>
-        /* Optimización de pantalla para evitar desplazamientos accidentales */
         * { touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
         
         body { 
@@ -65,13 +64,6 @@
             background: rgba(255, 63, 52, 0.3); 
             border-color: #ff3f34; margin-right: 20px;
         }
-
-        @media (max-width: 600px) {
-            .hud { font-size: 14px; }
-            .target { font-size: 18px; }
-            .touch-btn { width: 65px; height: 65px; }
-            .jump-btn { width: 80px; height: 80px; }
-        }
     </style>
 </head>
 <body>
@@ -85,7 +77,7 @@
             <button class="btn-mode" onclick="setMode('RESTA')">➖ RESTAS</button>
             <button class="btn-mode" onclick="showSubmenu('MULT')">✖️ TABLAS (X)</button>
             <button class="btn-mode" onclick="showSubmenu('DIV')">➗ DIVISIONES</button>
-            <button class="btn-mode" style="grid-column: span 2;" onclick="setMode('MIX')">🔀 MODO MIXTO TOTAL</button>
+            <button class="btn-mode" style="grid-column: span 2;" onclick="setMode('MIX')">🔀 REPASO MIXTO (NIVELES)</button>
         </div>
 
         <div id="submenu" style="display:none; text-align: center;">
@@ -120,9 +112,7 @@
         const ctx = canvas.getContext("2d");
         let audioCtx;
 
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 
         function playSound(freq, type, duration, vol = 0.1) {
             if (!audioCtx) return;
@@ -134,31 +124,53 @@
             gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
         }
 
-        // --- VARIABLES DE TIEMPO PARA FPS ---
-        let fps = 60;
-        let fpsInterval = 1000 / fps;
-        let then = Date.now();
-
+        let fps = 60, fpsInterval = 1000 / fps, then = Date.now();
         let score = 0, currentLevel = 1, gameActive = false, enemyBaseSpeed = 4;
         let gameMode = 'SUMA', selectedTable = 'all', pendingMode = '';
         let targetValue, player, enemy, platforms, bombs, keys = {};
         const gravity = 0.5, friction = 0.8;
 
+        const themeColors = ["#00d2ff", "#ff3f34", "#f9d423", "#34e7e4", "#a030ff", "#4cd137"];
+
+        function drawGameBackground() {
+            const color = themeColors[(currentLevel - 1) % themeColors.length];
+            ctx.fillStyle = "#050510";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = color;
+            ctx.globalAlpha = 0.1;
+            ctx.beginPath();
+            for(let x=0; x<canvas.width; x+=50) { ctx.moveTo(x,0); ctx.lineTo(x, canvas.height); }
+            for(let y=0; y<canvas.height; y+=50) { ctx.moveTo(0,y); ctx.lineTo(canvas.width, y); }
+            ctx.stroke();
+            
+            ctx.globalAlpha = 0.3;
+            ctx.lineWidth = 4;
+            ctx.strokeRect(20, 20, canvas.width-40, canvas.height-40);
+            ctx.globalAlpha = 1.0;
+            ctx.lineWidth = 1;
+        }
+
+        function setMode(mode, table = 'all') {
+            gameMode = mode; selectedTable = table; initAudio();
+            document.getElementById("menuModes").style.display = "none";
+            document.getElementById("submenu").style.display = "none";
+            document.getElementById("mainBtn").style.display = "block";
+            document.getElementById("statusDesc").innerText = `Modo: ${mode} ${table!=='all'?'(Tabla '+table+')':''}`;
+        }
+
         function showSubmenu(mode) {
             pendingMode = mode;
             document.getElementById("menuModes").style.display = "none";
             document.getElementById("submenu").style.display = "block";
-            document.getElementById("submenuTitle").innerText = mode === 'MULT' ? "Tabla a practicar (X):" : "Dividir por:";
             const container = document.getElementById("tableButtons");
             container.innerHTML = '';
             for(let i=1; i<=10; i++) {
                 let btn = document.createElement("button");
-                btn.className = "btn-sub";
-                btn.innerText = i;
+                btn.className = "btn-sub"; btn.innerText = i;
                 btn.onclick = () => setMode(mode, i);
                 container.appendChild(btn);
             }
@@ -169,17 +181,6 @@
             document.getElementById("submenu").style.display = "none";
         }
 
-        function setMode(mode, table = 'all') {
-            gameMode = mode;
-            selectedTable = table;
-            initAudio();
-            document.getElementById("menuModes").style.display = "none";
-            document.getElementById("submenu").style.display = "none";
-            document.getElementById("mainBtn").style.display = "block";
-            let desc = (table === 'all') ? `Modo: ${mode} (Todas)` : `Modo: ${mode} (Tabla del ${table})`;
-            document.getElementById("statusDesc").innerText = desc;
-        }
-
         function startGame() {
             document.getElementById("overlay").style.display = "none";
             if (currentLevel === 1) { score = 0; enemyBaseSpeed = 4; document.getElementById("score").innerText = "0"; }
@@ -187,8 +188,7 @@
             enemy = { x: 100, y: 100, r: 18, vx: enemyBaseSpeed, vy: enemyBaseSpeed };
             document.getElementById("levelNum").innerText = currentLevel;
             createLevelMap();
-            gameActive = true;
-            then = Date.now(); // Reiniciar el contador de tiempo al empezar
+            gameActive = true; then = Date.now();
             if (audioCtx.state === 'suspended') audioCtx.resume();
             requestAnimationFrame(draw);
         }
@@ -198,28 +198,26 @@
             platforms = [{ x: 0, y: 630, w: 900, h: 20 }];
             for (let i = 0; i < 5; i++) {
                 let y = 100 + (i * 110);
-                platforms.push(
-                    { x: 30, y: y, w: 120, h: 15 }, { x: 750, y: y, w: 120, h: 15 },
-                    { x: 280, y: y + 55, w: 120, h: 15 }, { x: 500, y: y + 55, w: 120, h: 15 }
-                );
+                platforms.push({ x: 30, y: y, w: 120, h: 15 }, { x: 750, y: y, w: 120, h: 15 }, { x: 280, y: y + 55, w: 120, h: 15 }, { x: 500, y: y + 55, w: 120, h: 15 });
             }
-            let numBombs = currentLevel * 5;
-            let attempts = 0;
-            while (bombs.length < numBombs && attempts < 1000) {
-                attempts++;
+            let numBombs = 5 + (currentLevel * 2); 
+            while (bombs.length < numBombs) {
                 let plat = platforms[Math.floor(Math.random() * (platforms.length - 1)) + 1];
                 let bx = plat.x + 15 + Math.random() * (plat.w - 30);
                 let by = plat.y - 25;
                 let val;
-                if (gameMode === 'MULT' || gameMode === 'DIV' || gameMode === 'MIX') {
-                    let base = (selectedTable === 'all' || gameMode === 'MIX') ? (Math.floor(Math.random() * 10) + 1) : selectedTable;
+                
+                if (gameMode === 'MIX') {
+                    val = Math.floor(Math.random() * (10 + currentLevel * 5)) + 1;
+                } else if (gameMode === 'MULT' || gameMode === 'DIV') {
+                    let base = (selectedTable === 'all') ? (Math.floor(Math.random() * 10) + 1) : selectedTable;
                     let factor = Math.floor(Math.random() * 10) + 1;
                     val = (gameMode === 'DIV') ? factor : base * factor;
-                    if(gameMode === 'MIX') val = Math.floor(Math.random() * 100) + 1;
                 } else {
-                    val = Math.floor(Math.random() * (20 + currentLevel * 2)) + 1;
+                    val = Math.floor(Math.random() * (15 + currentLevel * 3)) + 1;
                 }
-                if (!bombs.some(b => Math.sqrt(Math.pow(b.x - bx, 2) + Math.pow(b.y - by, 2)) < 45)) {
+
+                if (!bombs.some(b => Math.sqrt(Math.pow(b.x-bx,2)+Math.pow(b.y-by,2)) < 40)) {
                     bombs.push({ x: bx, y: by, val: val, r: 16, active: true });
                 }
             }
@@ -231,28 +229,25 @@
             if (activeBombs.length === 0) { victoryTransition(); return; }
             let chosenBomb = activeBombs[Math.floor(Math.random() * activeBombs.length)];
             targetValue = chosenBomb.val;
+            
             let modes = ['SUMA', 'RESTA', 'MULT', 'DIV'];
             let currentOp = gameMode === 'MIX' ? modes[Math.floor(Math.random() * 4)] : gameMode;
             let display = "";
+
             switch(currentOp) {
                 case 'SUMA':
                     let s1 = Math.floor(Math.random() * targetValue);
-                    display = `${s1} + ${targetValue - s1}`;
-                    break;
+                    display = `${s1} + ${targetValue - s1}`; break;
                 case 'RESTA':
                     let r2 = Math.floor(Math.random() * 10) + 1;
-                    display = `${targetValue + r2} - ${r2}`;
-                    break;
+                    display = `${targetValue + r2} - ${r2}`; break;
                 case 'MULT':
-                    let divs = [];
-                    for(let i=1; i<=10; i++) { if(targetValue % i === 0 && (targetValue/i) <= 10) divs.push(i); }
-                    let d = divs.length > 0 ? divs[Math.floor(Math.random() * divs.length)] : 1;
-                    display = `${d} x ${targetValue / d}`;
-                    break;
+                    let d = 1;
+                    for(let i=10; i>=1; i--) { if(targetValue % i === 0) { d = i; break; } }
+                    display = `${d} x ${targetValue / d}`; break;
                 case 'DIV':
-                    let divisor = (selectedTable === 'all') ? (Math.floor(Math.random() * 10) + 1) : selectedTable;
-                    display = `${targetValue * divisor} : ${divisor}`;
-                    break;
+                    let div = Math.floor(Math.random() * 9) + 1;
+                    display = `${targetValue * div} : ${div}`; break;
             }
             document.getElementById("equation").innerText = display;
             document.getElementById("count").innerText = activeBombs.length;
@@ -261,7 +256,7 @@
         function victoryTransition() {
             gameActive = false; currentLevel++; enemyBaseSpeed += 0.5;
             document.getElementById("overlay").style.display = "flex";
-            document.getElementById("statusTitle").innerText = "¡BIEN HECHO!";
+            document.getElementById("statusTitle").innerText = "¡NIVEL SUPERADO!";
             document.getElementById("mainBtn").style.display = "block";
             playSound(600, 'sine', 0.2);
         }
@@ -269,10 +264,23 @@
         function gameOver() {
             gameActive = false; currentLevel = 1;
             document.getElementById("overlay").style.display = "flex";
-            document.getElementById("statusTitle").innerText = "INTÉNTALO DE NUEVO";
+            document.getElementById("statusTitle").innerText = "¡VIRUS CAPTURADO!";
             document.getElementById("menuModes").style.display = "grid";
             document.getElementById("mainBtn").style.display = "none";
             playSound(50, 'sawtooth', 0.5, 0.2);
+        }
+
+        function drawPlayer(x, y, w, h) {
+            ctx.fillStyle = "#ff3f34"; ctx.fillRect(x, y, w, h);
+            ctx.fillStyle = "#34e7e4"; ctx.fillRect(x + 5, y + 4, w - 10, h / 2.5);
+            ctx.fillStyle = "white"; ctx.fillRect(x + 7, y + 6, 4, 2);
+            ctx.fillStyle = "#1e272e"; ctx.fillRect(x, y + h - 8, w, 3);
+            ctx.fillStyle = "#000"; ctx.fillRect(x + 2, y + h - 2, 6, 3);
+            ctx.fillRect(x + w - 8, y + h - 2, 6, 3);
+            
+            let swing = Math.abs(player.velX) > 0.1 ? Math.sin(Date.now() / 100) * 5 : 0;
+            ctx.fillStyle = "#ff3f34";
+            ctx.fillRect(x - 3, y + 10 + swing, 4, 10); ctx.fillRect(x + w, y + 10 - swing, 4, 10);
         }
 
         window.addEventListener("keydown", e => keys[e.code] = true);
@@ -290,9 +298,10 @@
 
         function update() {
             if (!gameActive) return;
-            if (keys["ArrowRight"]) { if (player.velX < player.speed) player.velX++; }
-            if (keys["ArrowLeft"]) { if (player.velX > -player.speed) player.velX--; }
+            if (keys["ArrowRight"] && player.velX < player.speed) player.velX++;
+            if (keys["ArrowLeft"] && player.velX > -player.speed) player.velX--;
             if (keys["ArrowUp"] && player.grounded) { player.velY = player.jumpStrength; player.grounded = false; playSound(200, 'triangle', 0.1); }
+            
             player.velX *= friction; player.velY += gravity; player.grounded = false;
             platforms.forEach(plat => {
                 if (player.x < plat.x + plat.w && player.x + player.w > plat.x && player.y + player.h > plat.y && player.y + player.h < plat.y + plat.h + player.velY) {
@@ -301,53 +310,41 @@
             });
             player.x += player.velX; player.y += player.velY;
             if (player.x < 0) player.x = canvas.width; if (player.x > canvas.width) player.x = 0;
+            
             enemy.x += enemy.vx; enemy.y += enemy.vy;
             if (enemy.x - enemy.r < 0 || enemy.x + enemy.r > canvas.width) enemy.vx *= -1;
             if (enemy.y - enemy.r < 0 || enemy.y + enemy.r > canvas.height) enemy.vy *= -1;
-            if (Math.sqrt(Math.pow((player.x + player.w/2) - enemy.x, 2) + Math.pow((player.y + player.h/2) - enemy.y, 2)) < player.w/2 + enemy.r) gameOver();
+            
+            if (Math.sqrt(Math.pow((player.x+player.w/2)-enemy.x,2)+Math.pow((player.y+player.h/2)-enemy.y,2)) < player.w/2+enemy.r) gameOver();
+            
             bombs.forEach(bomb => {
                 if (!bomb.active) return;
-                if (Math.sqrt(Math.pow((player.x + player.w/2) - bomb.x, 2) + Math.pow((player.y + player.h/2) - bomb.y, 2)) < player.w/2 + bomb.r) {
+                if (Math.sqrt(Math.pow((player.x+player.w/2)-bomb.x,2)+Math.pow((player.y+player.h/2)-bomb.y,2)) < player.w/2+bomb.r) {
                     if (bomb.val === targetValue) {
                         bomb.active = false; score += (100 * currentLevel); playSound(600, 'sine', 0.1);
                         document.getElementById("score").innerText = score; nextQuestion();
                     } else {
-                        playSound(100, 'square', 0.3, 0.2); score = Math.max(0, score - 50);
-                        document.getElementById("score").innerText = score; enemy.vx *= 1.05; enemy.vy *= 1.05;
+                        playSound(100, 'square', 0.3, 0.2); 
+                        enemyBaseSpeed *= 1.3; 
+                        enemy.vx = (enemy.vx > 0 ? 1 : -1) * enemyBaseSpeed;
+                        enemy.vy = (enemy.vy > 0 ? 1 : -1) * enemyBaseSpeed;
                         player.x = 450; player.y = 600;
                     }
                 }
             });
         }
 
-        function drawPlayer(x, y, w, h) {
-            ctx.fillStyle = "#ff3f34"; ctx.fillRect(x, y, w, h);
-            ctx.fillStyle = "#34e7e4"; ctx.fillRect(x + 5, y + 4, w - 10, h / 2.5);
-            ctx.fillStyle = "white"; ctx.fillRect(x + 7, y + 6, 4, 2);
-            ctx.fillStyle = "#1e272e"; ctx.fillRect(x, y + h - 8, w, 3);
-            ctx.fillStyle = "#000"; ctx.fillRect(x + 2, y + h - 2, 6, 3);
-            ctx.fillRect(x + w - 8, y + h - 2, 6, 3);
-            let swing = Math.abs(player.velX) > 0.1 ? Math.sin(Date.now() / 100) * 5 : 0;
-            ctx.fillStyle = "#ff3f34";
-            ctx.fillRect(x - 3, y + 10 + swing, 4, 10); ctx.fillRect(x + w, y + 10 - swing, 4, 10);
-        }
-
-        // --- FUNCIÓN DRAW ACTUALIZADA CON LIMITADOR ---
         function draw() {
             if (!gameActive) return;
-
-            let now = Date.now();
-            let elapsed = now - then;
-
-            // Si ha pasado el tiempo necesario para el siguiente frame a 60FPS
+            let now = Date.now(), elapsed = now - then;
             if (elapsed > fpsInterval) {
                 then = now - (elapsed % fpsInterval);
-
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
+                drawGameBackground();
+
                 platforms.forEach(p => { 
                     ctx.fillStyle = "#1e272e"; ctx.fillRect(p.x, p.y, p.w, p.h); 
-                    ctx.strokeStyle = "#00d2ff"; ctx.strokeRect(p.x, p.y, p.w, p.h); 
+                    ctx.strokeStyle = themeColors[(currentLevel - 1) % themeColors.length]; ctx.strokeRect(p.x, p.y, p.w, p.h); 
                 });
 
                 ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.r, 0, Math.PI*2);
@@ -363,10 +360,8 @@
                         ctx.fillStyle = "#000"; ctx.font = "bold 14px Arial"; ctx.textAlign = "center"; ctx.fillText(b.val, b.x, b.y + 5);
                     }
                 });
-
                 update(); 
             }
-
             requestAnimationFrame(draw);
         }
     </script>
