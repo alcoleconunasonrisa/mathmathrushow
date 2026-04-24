@@ -136,9 +136,23 @@
     let score = 0, lives = 3, gameActive = false, isPaused = false;
     let currentTask = { q: "", a: 0 }, keys = {}, chests = [], spawnTimer = 0;
     let selectedMode = 'mix', gameSpeedMultiplier = 1, audioCtx = null;
-
     let musicTimer = 0;
     const pacMelody = [440, 880, 554, 880, 659, 1046, 659, 1046, 440, 880, 554, 880, 659, 1046, 659, 1046];
+
+    // PLATAFORMAS CON HUECO CENTRAL (180 a 220)
+    const platforms = [
+        {x: 0, y: 530, w: 400, h: 15, dir: 1}, 
+        // Piso 1
+        {x: 0, y: 440, w: 180, h: 10, dir: 1}, {x: 220, y: 440, w: 120, h: 10, dir: 1},
+        // Piso 2
+        {x: 60, y: 350, w: 120, h: 10, dir: -1}, {x: 220, y: 350, w: 180, h: 10, dir: -1},
+        // Piso 3
+        {x: 0, y: 260, w: 180, h: 10, dir: 1}, {x: 220, y: 260, w: 120, h: 10, dir: 1},
+        // Piso 4
+        {x: 60, y: 170, w: 120, h: 10, dir: -1}, {x: 220, y: 170, w: 180, h: 10, dir: -1},
+        // Cima
+        {x: 120, y: 90, w: 160, h: 10, dir: 0}
+    ];
 
     function initAudio() {
         if (audioCtx) return;
@@ -178,13 +192,11 @@
         let n1 = Math.floor(Math.random() * 10);
         let n2 = Math.floor(Math.random() * 10);
         let op = selectedMode;
-
         if (op === 'mix') op = Math.random() > 0.5 ? 'add' : 'sub';
 
         if (op === 'add') {
             currentTask = { q: `${n1} + ${n2}`, a: n1 + n2 };
         } else {
-            // Asegurar que la resta no de negativo
             let max = Math.max(n1, n2);
             let min = Math.min(n1, n2);
             currentTask = { q: `${max} - ${min}`, a: max - min };
@@ -199,7 +211,6 @@
         if (!hasCorrect && (chests.length >= 2 || Math.random() > 0.5)) {
             val = currentTask.a;
         } else {
-            // Generar distractor cercano pero no negativo
             val = currentTask.a + (Math.floor(Math.random()*6)-3);
             if(val === currentTask.a || val < 0) val = currentTask.a + 2;
         }
@@ -210,21 +221,7 @@
         });
     }
 
-    const platforms = [
-        {x: 0, y: 530, w: 400, h: 15, dir: 1},    
-        {x: 0, y: 440, w: 340, h: 10, dir: 1},
-        {x: 60, y: 350, w: 340, h: 10, dir: -1},
-        {x: 0, y: 260, w: 340, h: 10, dir: 1},
-        {x: 60, y: 170, w: 340, h: 10, dir: -1},
-        {x: 120, y: 90, w: 160, h: 10, dir: 0}    
-    ];
-
-    const ladders = [
-        {x: 310, y: 440, w: 20, h: 90}, {x: 70, y: 350, w: 20, h: 90},
-        {x: 310, y: 260, w: 20, h: 90}, {x: 70, y: 170, w: 20, h: 90}, {x: 190, y: 90, w: 20, h: 80}
-    ];
-
-    const player = { x: 20, y: 490, w: 20, h: 28, vx: 0, vy: 0, grounded: false, onLadder: false, climbing: false };
+    const player = { x: 20, y: 490, w: 20, h: 28, vx: 0, vy: 0, grounded: false };
 
     function togglePause() {
         if(!gameActive) return;
@@ -237,24 +234,15 @@
         if(!gameActive || isPaused) return;
         updateMusic();
 
-        player.onLadder = ladders.some(l => 
-            player.x + player.w > l.x && player.x < l.x + l.w &&
-            player.y + player.h > l.y && player.y < l.y + l.h
-        );
-
         if(keys['arrowleft'] || keys['a']) player.vx = -3.8;
         else if(keys['arrowright'] || keys['d']) player.vx = 3.8;
         else player.vx = 0;
 
-        if(keys['arrowup'] || keys['w']) {
-            if(player.onLadder) { player.vy = -2.5; player.climbing = true; }
-            else if(player.grounded) { player.vy = -10; player.grounded = false; }
-        } else if(keys['arrowdown'] || keys['s']) {
-            if(player.onLadder) { player.vy = 2.5; player.climbing = true; }
-        } else if(player.climbing) { player.vy = 0; }
+        if((keys['arrowup'] || keys['w']) && player.grounded) {
+            player.vy = -10; player.grounded = false;
+        }
 
-        if(!player.onLadder) { player.climbing = false; player.vy += 0.5; }
-
+        player.vy += 0.5;
         player.x += player.vx; player.y += player.vy;
         
         if (player.x < 0) player.x = 0; if (player.x > 380) player.x = 380;
@@ -264,21 +252,27 @@
         platforms.forEach(p => {
             if (player.vy >= 0 && player.x + player.w > p.x && player.x < p.x + p.w &&
                 player.y + player.h >= p.y && player.y + player.h <= p.y + 12) {
-                if (!(player.climbing && (keys['arrowdown'] || keys['s']))) {
-                    player.y = p.y - player.h; player.vy = 0; player.grounded = true;
-                }
+                player.y = p.y - player.h; player.vy = 0; player.grounded = true;
             }
         });
 
         chests.forEach((c) => {
             if (c.vy < 4) c.vy += 0.18; c.x += c.vx; c.y += c.vy;
             let touching = false;
+            
             platforms.forEach(p => {
-                if (c.vy >= 0 && c.x > p.x && c.x < p.x + p.w && c.y + c.r > p.y && c.y + c.r < p.y + 12) {
-                    c.y = p.y - c.r; c.vy = 0; touching = true;
-                    if(p.dir !== 0) c.vx = (1.6 * gameSpeedMultiplier) * p.dir;
+                // Las bolas ignoran el hueco central (180 a 220)
+                let isSameLevel = Math.abs(c.y + c.r - p.y) < 12;
+                let overGap = (c.x > 180 && c.x < 220);
+                
+                if (c.vy >= 0 && isSameLevel) {
+                    if ((c.x > p.x && c.x < p.x + p.w) || overGap) {
+                        c.y = p.y - c.r; c.vy = 0; touching = true;
+                        if(p.dir !== 0) c.vx = (1.6 * gameSpeedMultiplier) * p.dir;
+                    }
                 }
             });
+
             if(!touching && (c.x > 385 || c.x < 15)) c.vx *= -1;
             if(c.y > 515) { chests.splice(chests.indexOf(c), 1); }
 
@@ -297,15 +291,14 @@
 
     function draw() {
         ctx.clearRect(0, 0, 400, 550);
-        ctx.fillStyle = "#475569";
-        ladders.forEach(l => {
-            for(let i=0; i<l.h; i+=10) ctx.fillRect(l.x, l.y+i, l.w, 2);
-            ctx.fillRect(l.x, l.y, 3, l.h); ctx.fillRect(l.x+l.w-3, l.y, 3, l.h);
-        });
-        ctx.fillStyle = "#ef4444"; platforms.forEach(p => ctx.fillRect(p.x, p.y, p.w, p.h));
+        ctx.fillStyle = "#ef4444"; 
+        platforms.forEach(p => ctx.fillRect(p.x, p.y, p.w, p.h));
+        
         ctx.fillStyle = "#3b82f6"; ctx.fillRect(player.x, player.y+5, player.w, player.h-5);
         ctx.fillStyle = "white"; ctx.fillRect(player.x, player.y, player.w, 4);
+        
         ctx.font = "48px Arial"; ctx.textAlign="center"; ctx.fillText("🦍", 200, 75);
+        
         chests.forEach(c => {
             ctx.fillStyle = "#facc15"; ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = "black"; ctx.font = "bold 15px Fredoka"; ctx.fillText(c.val, c.x, c.y+5);
