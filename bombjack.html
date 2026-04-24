@@ -15,7 +15,6 @@
             display: flex; flex-direction: column;
         }
         
-        /* El canvas ahora es flexible para adaptarse a cualquier pantalla */
         canvas { 
             background: #0a0a1a; border: 2px solid #1e272e; 
             display: block; margin: 0 auto; 
@@ -45,10 +44,8 @@
         
         .btn-mode { padding: 12px; font-size: 14px; background: #1e272e; color: #00d2ff; border: 2px solid #00d2ff; border-radius: 10px; font-weight: bold; }
         .btn-sub { padding: 12px 5px; font-size: 16px; background: #0a0a1a; color: #f9d423; border: 1px solid #f9d423; border-radius: 5px; }
-
         .btn-action { padding: 15px 30px; font-size: 20px; background: #f9d423; color: #050510; border: none; border-radius: 50px; font-weight: bold; margin-top: 15px; }
         
-        /* Controles táctiles mejorados para pulgares */
         #touchControls { 
             display: none; width: 100%; padding: 15px 0;
             justify-content: space-between; align-items: center;
@@ -56,7 +53,6 @@
         }
         
         .touch-group { display: flex; gap: 25px; margin-left: 20px; }
-        
         .touch-btn { 
             width: 75px; height: 75px; 
             background: rgba(0, 210, 255, 0.2); 
@@ -64,7 +60,6 @@
             color: white; font-size: 35px; 
             display: flex; align-items: center; justify-content: center;
         }
-
         .jump-btn { 
             width: 90px; height: 90px; 
             background: rgba(255, 63, 52, 0.3); 
@@ -143,6 +138,11 @@
             osc.stop(audioCtx.currentTime + duration);
         }
 
+        // --- VARIABLES DE TIEMPO PARA FPS ---
+        let fps = 60;
+        let fpsInterval = 1000 / fps;
+        let then = Date.now();
+
         let score = 0, currentLevel = 1, gameActive = false, enemyBaseSpeed = 4;
         let gameMode = 'SUMA', selectedTable = 'all', pendingMode = '';
         let targetValue, player, enemy, platforms, bombs, keys = {};
@@ -188,6 +188,7 @@
             document.getElementById("levelNum").innerText = currentLevel;
             createLevelMap();
             gameActive = true;
+            then = Date.now(); // Reiniciar el contador de tiempo al empezar
             if (audioCtx.state === 'suspended') audioCtx.resume();
             requestAnimationFrame(draw);
         }
@@ -277,7 +278,6 @@
         window.addEventListener("keydown", e => keys[e.code] = true);
         window.addEventListener("keyup", e => keys[e.code] = false);
 
-        // Activar controles táctiles solo en dispositivos móviles/tablets
         if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
             document.getElementById("touchControls").style.display = "flex";
             const setupBtn = (id, key) => {
@@ -332,24 +332,42 @@
             ctx.fillRect(x - 3, y + 10 + swing, 4, 10); ctx.fillRect(x + w, y + 10 - swing, 4, 10);
         }
 
+        // --- FUNCIÓN DRAW ACTUALIZADA CON LIMITADOR ---
         function draw() {
             if (!gameActive) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            platforms.forEach(p => { 
-                ctx.fillStyle = "#1e272e"; ctx.fillRect(p.x, p.y, p.w, p.h); 
-                ctx.strokeStyle = "#00d2ff"; ctx.strokeRect(p.x, p.y, p.w, p.h); 
-            });
-            ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.r, 0, Math.PI*2);
-            ctx.fillStyle = "#a030ff"; ctx.shadowBlur = 15; ctx.shadowColor = "#a030ff"; ctx.fill(); ctx.closePath(); ctx.shadowBlur = 0;
-            drawPlayer(player.x, player.y, player.w, player.h);
-            bombs.forEach(b => {
-                if (b.active) {
-                    ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
-                    ctx.fillStyle = "#f9d423"; ctx.shadowBlur = 10; ctx.shadowColor = "#f9d423"; ctx.fill(); ctx.shadowBlur = 0;
-                    ctx.fillStyle = "#000"; ctx.font = "bold 14px Arial"; ctx.textAlign = "center"; ctx.fillText(b.val, b.x, b.y + 5);
-                }
-            });
-            update(); requestAnimationFrame(draw);
+
+            let now = Date.now();
+            let elapsed = now - then;
+
+            // Si ha pasado el tiempo necesario para el siguiente frame a 60FPS
+            if (elapsed > fpsInterval) {
+                then = now - (elapsed % fpsInterval);
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                platforms.forEach(p => { 
+                    ctx.fillStyle = "#1e272e"; ctx.fillRect(p.x, p.y, p.w, p.h); 
+                    ctx.strokeStyle = "#00d2ff"; ctx.strokeRect(p.x, p.y, p.w, p.h); 
+                });
+
+                ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.r, 0, Math.PI*2);
+                ctx.fillStyle = "#a030ff"; ctx.shadowBlur = 15; ctx.shadowColor = "#a030ff"; ctx.fill(); 
+                ctx.closePath(); ctx.shadowBlur = 0;
+
+                drawPlayer(player.x, player.y, player.w, player.h);
+
+                bombs.forEach(b => {
+                    if (b.active) {
+                        ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+                        ctx.fillStyle = "#f9d423"; ctx.shadowBlur = 10; ctx.shadowColor = "#f9d423"; ctx.fill(); ctx.shadowBlur = 0;
+                        ctx.fillStyle = "#000"; ctx.font = "bold 14px Arial"; ctx.textAlign = "center"; ctx.fillText(b.val, b.x, b.y + 5);
+                    }
+                });
+
+                update(); 
+            }
+
+            requestAnimationFrame(draw);
         }
     </script>
 </body>
