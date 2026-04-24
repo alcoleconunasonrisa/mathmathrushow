@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Math Bomb Jack - Tablas Edition</title>
+    <style>
+        body { 
+            text-align: center; font-family: 'Courier New', Courier, monospace; 
+            background: #050510; color: #00d2ff; margin: 0; overflow: hidden; 
+            touch-action: manipulation;
+        }
+        canvas { 
+            background: #0a0a1a; border: 2px solid #1e272e; 
+            display: block; margin: 5px auto; max-width: 100%; max-height: 70vh;
+        }
+        .hud { font-size: 18px; padding: 10px; background: rgba(30, 39, 46, 0.8); display: flex; justify-content: center; align-items: center; gap: 20px; }
+        .target { color: #f9d423; font-size: 26px; font-weight: bold; text-shadow: 0 0 10px rgba(249, 212, 35, 0.5); }
+        .level-tag { color: #ff3f34; font-weight: bold; }
+        .home-btn { text-decoration: none; font-size: 24px; background: #1e272e; padding: 5px 12px; border-radius: 8px; border: 1px solid #00d2ff; color: #00d2ff; transition: 0.3s; }
+        
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 16, 0.95); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 100; overflow-y: auto;
+        }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; width: 90%; max-width: 500px; }
+        .submenu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; width: 90%; max-width: 400px; }
+        
+        .btn-mode { padding: 15px; font-size: 14px; background: #1e272e; color: #00d2ff; border: 2px solid #00d2ff; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-mode:hover { background: #00d2ff; color: #050510; }
+        .btn-sub { padding: 10px; font-size: 16px; background: #0a0a1a; color: #f9d423; border: 1px solid #f9d423; border-radius: 5px; cursor: pointer; }
+        .btn-sub:hover { background: #f9d423; color: #050510; }
+
+        .btn-action { padding: 20px 40px; font-size: 24px; background: #f9d423; color: #050510; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; margin-top: 20px; }
+        
+        #touchControls { display: none; position: fixed; bottom: 20px; left: 0; right: 0; justify-content: space-around; width: 100%; padding: 0 10px; }
+        .touch-btn { width: 65px; height: 65px; background: rgba(255,255,255,0.1); border: 2px solid #00d2ff; border-radius: 50%; color: white; font-size: 30px; display: flex; align-items: center; justify-content: center; user-select: none; }
+        .jump-btn { width: 85px; height: 85px; background: rgba(255, 63, 52, 0.2); border-color: #ff3f34; }
+    </style>
+</head>
+<body>
+
+    <div id="overlay">
+        <h1 id="statusTitle" style="color: #f9d423;">MATH BOMB JACK</h1>
+        <p id="statusDesc">Selecciona tu desafío:</p>
+        
+        <div id="menuModes" class="menu-grid">
+            <button class="btn-mode" onclick="setMode('SUMA')">➕ SUMAS</button>
+            <button class="btn-mode" onclick="setMode('RESTA')">➖ RESTAS</button>
+            <button class="btn-mode" onclick="showSubmenu('MULT')">✖️ TABLAS (X)</button>
+            <button class="btn-mode" onclick="showSubmenu('DIV')">➗ DIVISIONES</button>
+            <button class="btn-mode" style="grid-column: span 2;" onclick="setMode('MIX')">🔀 MODO MIXTO TOTAL</button>
+        </div>
+
+        <div id="submenu" style="display:none; text-align: center;">
+            <p id="submenuTitle">Elige la tabla:</p>
+            <div class="submenu-grid" id="tableButtons"></div>
+            <button class="btn-mode" style="margin-top:20px; width: 100%;" onclick="setMode(pendingMode, 'all')">TODAS LAS TABLAS</button>
+            <button class="btn-mode" style="margin-top:10px; border-color: #ff3f34; color: #ff3f34;" onclick="backToMain()">VOLVER</button>
+        </div>
+
+        <button class="btn-action" id="mainBtn" style="display:none;" onclick="startGame()">EMPEZAR NIVEL</button>
+    </div>
+
+    <div class="hud">
+        <a href="main-index.html" class="home-btn">🏠</a>
+        <div>NIVEL: <span id="levelNum" class="level-tag">1</span></div>
+        <div>BUSCA: <span id="equation" class="target">?</span></div>
+        <div>Bombas: <span id="count">5</span> | Puntos: <span id="score">0</span></div>
+    </div>
+    
+    <canvas id="gameCanvas" width="900" height="650"></canvas>
+
+    <div id="touchControls">
+        <div style="display:flex; gap: 20px;">
+            <div class="touch-btn" id="btnLeft">←</div>
+            <div class="touch-btn" id="btnRight">→</div>
+        </div>
+        <div class="touch-btn jump-btn" id="btnJump">↑</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playSound(freq, type, duration, vol = 0.1) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        let score = 0, currentLevel = 1, gameActive = false, enemyBaseSpeed = 4;
+        let gameMode = 'SUMA', selectedTable = 'all', pendingMode = '';
+        let targetValue, player, enemy, platforms, bombs, keys = {};
+        const gravity = 0.5, friction = 0.8;
+
+        function showSubmenu(mode) {
+            pendingMode = mode;
+            document.getElementById("menuModes").style.display = "none";
+            document.getElementById("submenu").style.display = "block";
+            document.getElementById("submenuTitle").innerText = mode === 'MULT' ? "Tabla a practicar (X):" : "Dividir por:";
+            const container = document.getElementById("tableButtons");
+            container.innerHTML = '';
+            for(let i=1; i<=10; i++) {
+                let btn = document.createElement("button");
+                btn.className = "btn-sub";
+                btn.innerText = i;
+                btn.onclick = () => setMode(mode, i);
+                container.appendChild(btn);
+            }
+        }
+
+        function backToMain() {
+            document.getElementById("menuModes").style.display = "grid";
+            document.getElementById("submenu").style.display = "none";
+        }
+
+        function setMode(mode, table = 'all') {
+            gameMode = mode;
+            selectedTable = table;
+            initAudio();
+            document.getElementById("menuModes").style.display = "none";
+            document.getElementById("submenu").style.display = "none";
+            document.getElementById("mainBtn").style.display = "block";
+            let desc = (table === 'all') ? `Modo: ${mode} (Todas)` : `Modo: ${mode} (Tabla del ${table})`;
+            document.getElementById("statusDesc").innerText = desc;
+        }
+
+        function startGame() {
+            document.getElementById("overlay").style.display = "none";
+            if (currentLevel === 1) { score = 0; enemyBaseSpeed = 4; document.getElementById("score").innerText = "0"; }
+            player = { x: 450, y: 600, w: 30, h: 35, velX: 0, velY: 0, speed: 5, jumpStrength: -12, grounded: false };
+            enemy = { x: 100, y: 100, r: 18, vx: enemyBaseSpeed, vy: enemyBaseSpeed };
+            document.getElementById("levelNum").innerText = currentLevel;
+            createLevelMap();
+            gameActive = true;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            requestAnimationFrame(draw);
+        }
+
+        function createLevelMap() {
+            bombs = [];
+            platforms = [{ x: 0, y: 630, w: 900, h: 20 }];
+            for (let i = 0; i < 5; i++) {
+                let y = 100 + (i * 110);
+                platforms.push(
+                    { x: 30, y: y, w: 120, h: 15 }, { x: 750, y: y, w: 120, h: 15 },
+                    { x: 280, y: y + 55, w: 120, h: 15 }, { x: 500, y: y + 55, w: 120, h: 15 }
+                );
+            }
+            
+            let numBombs = currentLevel * 5;
+            let attempts = 0;
+            
+            while (bombs.length < numBombs && attempts < 1000) {
+                attempts++;
+                let plat = platforms[Math.floor(Math.random() * (platforms.length - 1)) + 1];
+                let bx = plat.x + 15 + Math.random() * (plat.w - 30);
+                let by = plat.y - 25;
+                
+                let val;
+                // Ajuste crítico: Los valores de las bombas deben ser siempre resultados coherentes (1-10)
+                if (gameMode === 'MULT' || gameMode === 'DIV' || gameMode === 'MIX') {
+                    let base = (selectedTable === 'all' || gameMode === 'MIX') ? (Math.floor(Math.random() * 10) + 1) : selectedTable;
+                    let factor = Math.floor(Math.random() * 10) + 1;
+                    // En MULT y DIV el valor de la bomba es el resultado (cociente o producto)
+                    // Para que las divisiones sean simples, la bomba contendrá el COCIENTE (1-10)
+                    val = (gameMode === 'DIV') ? factor : base * factor;
+                    
+                    if(gameMode === 'MIX') val = Math.floor(Math.random() * 100) + 1; // En mixto permitimos más rango
+                } else {
+                    val = Math.floor(Math.random() * (20 + currentLevel * 2)) + 1;
+                }
+
+                if (!bombs.some(b => Math.sqrt(Math.pow(b.x - bx, 2) + Math.pow(b.y - by, 2)) < 45)) {
+                    bombs.push({ x: bx, y: by, val: val, r: 16, active: true });
+                }
+            }
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            let activeBombs = bombs.filter(b => b.active);
+            if (activeBombs.length === 0) { victoryTransition(); return; }
+            let chosenBomb = activeBombs[Math.floor(Math.random() * activeBombs.length)];
+            targetValue = chosenBomb.val;
+            
+            let modes = ['SUMA', 'RESTA', 'MULT', 'DIV'];
+            let currentOp = gameMode === 'MIX' ? modes[Math.floor(Math.random() * 4)] : gameMode;
+            let display = "";
+
+            switch(currentOp) {
+                case 'SUMA':
+                    let s1 = Math.floor(Math.random() * targetValue);
+                    display = `${s1} + ${targetValue - s1}`;
+                    break;
+                case 'RESTA':
+                    let r2 = Math.floor(Math.random() * 10) + 1;
+                    display = `${targetValue + r2} - ${r2}`;
+                    break;
+                case 'MULT':
+                    let divs = [];
+                    for(let i=1; i<=10; i++) { if(targetValue % i === 0 && (targetValue/i) <= 10) divs.push(i); }
+                    if(divs.length > 0) {
+                        let d = divs[Math.floor(Math.random() * divs.length)];
+                        display = `${d} x ${targetValue / d}`;
+                    } else {
+                        display = `${targetValue} x 1`;
+                    }
+                    break;
+                case 'DIV':
+                    // Garantizamos que el divisor sea de la tabla elegida o del 1-10
+                    let divisor = (selectedTable === 'all') ? (Math.floor(Math.random() * 10) + 1) : selectedTable;
+                    // El dividendo es targetValue (resultado en la bomba) * divisor
+                    display = `${targetValue * divisor} : ${divisor}`;
+                    break;
+            }
+            document.getElementById("equation").innerText = display;
+            document.getElementById("count").innerText = activeBombs.length;
+        }
+
+        function victoryTransition() {
+            gameActive = false; currentLevel++; enemyBaseSpeed += 0.5;
+            document.getElementById("overlay").style.display = "flex";
+            document.getElementById("statusTitle").innerText = "¡NIVEL COMPLETADO!";
+            document.getElementById("statusTitle").className = "win-text";
+            playSound(600, 'sine', 0.2);
+        }
+
+        function gameOver() {
+            gameActive = false; currentLevel = 1;
+            document.getElementById("overlay").style.display = "flex";
+            document.getElementById("statusTitle").innerText = "GAME OVER";
+            document.getElementById("statusTitle").className = "game-over-text";
+            document.getElementById("menuModes").style.display = "grid";
+            document.getElementById("mainBtn").style.display = "none";
+            playSound(50, 'sawtooth', 0.5, 0.2);
+        }
+
+        window.addEventListener("keydown", e => keys[e.code] = true);
+        window.addEventListener("keyup", e => keys[e.code] = false);
+
+        if ('ontouchstart' in window) {
+            document.getElementById("touchControls").style.display = "flex";
+            const setupBtn = (id, key) => {
+                const btn = document.getElementById(id);
+                btn.addEventListener("touchstart", (e) => { e.preventDefault(); keys[key] = true; });
+                btn.addEventListener("touchend", (e) => { e.preventDefault(); keys[key] = false; });
+            };
+            setupBtn("btnLeft", "ArrowLeft"); setupBtn("btnRight", "ArrowRight"); setupBtn("btnJump", "ArrowUp");
+        }
+
+        function update() {
+            if (!gameActive) return;
+            if (keys["ArrowRight"]) { if (player.velX < player.speed) player.velX++; }
+            if (keys["ArrowLeft"]) { if (player.velX > -player.speed) player.velX--; }
+            if (keys["ArrowUp"] && player.grounded) { player.velY = player.jumpStrength; player.grounded = false; playSound(200, 'triangle', 0.1); }
+            player.velX *= friction; player.velY += gravity; player.grounded = false;
+            platforms.forEach(plat => {
+                if (player.x < plat.x + plat.w && player.x + player.w > plat.x && player.y + player.h > plat.y && player.y + player.h < plat.y + plat.h + player.velY) {
+                    player.grounded = true; player.velY = 0; player.y = plat.y - player.h;
+                }
+            });
+            player.x += player.velX; player.y += player.velY;
+            if (player.x < 0) player.x = canvas.width; if (player.x > canvas.width) player.x = 0;
+            enemy.x += enemy.vx; enemy.y += enemy.vy;
+            if (enemy.x - enemy.r < 0 || enemy.x + enemy.r > canvas.width) enemy.vx *= -1;
+            if (enemy.y - enemy.r < 0 || enemy.y + enemy.r > canvas.height) enemy.vy *= -1;
+            if (Math.sqrt(Math.pow((player.x + player.w/2) - enemy.x, 2) + Math.pow((player.y + player.h/2) - enemy.y, 2)) < player.w/2 + enemy.r) gameOver();
+            bombs.forEach(bomb => {
+                if (!bomb.active) return;
+                if (Math.sqrt(Math.pow((player.x + player.w/2) - bomb.x, 2) + Math.pow((player.y + player.h/2) - bomb.y, 2)) < player.w/2 + bomb.r) {
+                    if (bomb.val === targetValue) {
+                        bomb.active = false; score += (100 * currentLevel); playSound(600, 'sine', 0.1);
+                        document.getElementById("score").innerText = score; nextQuestion();
+                    } else {
+                        playSound(100, 'square', 0.3, 0.2); score = Math.max(0, score - 50);
+                        document.getElementById("score").innerText = score; enemy.vx *= 1.05; enemy.vy *= 1.05;
+                        player.x = 450; player.y = 600;
+                    }
+                }
+            });
+        }
+
+        function drawPlayer(x, y, w, h) {
+            ctx.fillStyle = "#ff3f34"; ctx.fillRect(x, y, w, h);
+            ctx.fillStyle = "#34e7e4"; ctx.fillRect(x + 5, y + 4, w - 10, h / 2.5);
+            ctx.fillStyle = "white"; ctx.fillRect(x + 7, y + 6, 4, 2);
+            ctx.fillStyle = "#1e272e"; ctx.fillRect(x, y + h - 8, w, 3);
+            ctx.fillStyle = "#000"; ctx.fillRect(x + 2, y + h - 2, 6, 3);
+            ctx.fillRect(x + w - 8, y + h - 2, 6, 3);
+            let swing = Math.abs(player.velX) > 0.1 ? Math.sin(Date.now() / 100) * 5 : 0;
+            ctx.fillStyle = "#ff3f34";
+            ctx.fillRect(x - 3, y + 10 + swing, 4, 10); ctx.fillRect(x + w, y + 10 - swing, 4, 10);
+        }
+
+        function draw() {
+            if (!gameActive) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            platforms.forEach(p => { 
+                ctx.fillStyle = "#1e272e"; ctx.fillRect(p.x, p.y, p.w, p.h); 
+                ctx.strokeStyle = "#00d2ff"; ctx.strokeRect(p.x, p.y, p.w, p.h); 
+            });
+            ctx.beginPath(); ctx.arc(enemy.x, enemy.y, enemy.r, 0, Math.PI*2);
+            ctx.fillStyle = "#a030ff"; ctx.shadowBlur = 15; ctx.shadowColor = "#a030ff"; ctx.fill(); ctx.closePath(); ctx.shadowBlur = 0;
+            drawPlayer(player.x, player.y, player.w, player.h);
+            bombs.forEach(b => {
+                if (b.active) {
+                    ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+                    ctx.fillStyle = "#f9d423"; ctx.shadowBlur = 10; ctx.shadowColor = "#f9d423"; ctx.fill(); ctx.shadowBlur = 0;
+                    ctx.fillStyle = "#000"; ctx.font = "bold 14px Arial"; ctx.textAlign = "center"; ctx.fillText(b.val, b.x, b.y + 5);
+                }
+            });
+            update(); requestAnimationFrame(draw);
+        }
+    </script>
+</body>
+</html>
