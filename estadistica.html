@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Estadística Master Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root {
+            --primary: #6200ea;
+            --primary-dark: #311b92;
+            --success: #43a047;
+            --error: #e53935;
+            --bg-dark: #0f0a1e;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a103d 100%);
+            height: 100dvh; display: flex; justify-content: center; align-items: center;
+            overflow: hidden; color: #333;
+        }
+
+        .container {
+            width: 98%; max-width: 1100px; height: 95vh;
+            background: #ffffff; border-radius: 32px; padding: 20px;
+            display: flex; flex-direction: column;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+            position: relative;
+        }
+
+        /* Botón Home */
+        .btn-home {
+            position: absolute; top: 15px; right: 15px;
+            background: #f0f0f0; border: none; width: 45px; height: 45px;
+            border-radius: 50%; cursor: pointer; z-index: 400;
+            color: var(--primary); display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; transition: 0.2s;
+        }
+
+        #main-index {
+            position: absolute; inset: 0; background: white; z-index: 500;
+            border-radius: 32px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 30px; text-align: center;
+        }
+
+        /* DISEÑO DE DOS COLUMNAS PARA PC */
+        .game-layout {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        @media (min-width: 850px) {
+            .game-layout {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+            .pantalla-datos {
+                width: 40%;
+                position: sticky;
+                top: 0;
+            }
+            .flujo {
+                width: 60%;
+            }
+        }
+
+        .pantalla-datos {
+            background: #f3e5f5; border-radius: 24px; padding: 20px;
+            text-align: center; border: 2px solid #e1bee7;
+        }
+
+        .grid-numeros { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; min-height: 45px; align-items: center; }
+        
+        .num-tag {
+            background: var(--primary); color: white; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 10px; font-weight: 900; font-size: 1rem;
+            cursor: pointer; transition: 0.2s; border: none;
+            box-shadow: 0 4px 0 var(--primary-dark);
+        }
+        .num-tag.disabled { opacity: 0.15; pointer-events: none; transform: scale(0.8); box-shadow: none; }
+
+        .flujo { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 10px; 
+            scrollbar-width: none; 
+            height: 100%;
+        }
+        .flujo::-webkit-scrollbar { display: none; }
+
+        .paso-card {
+            background: #f8f9fa; border: 2px solid #eee; border-radius: 20px;
+            padding: 20px; margin-bottom: 15px; display: none;
+            animation: slideIn 0.3s ease;
+        }
+        .paso-card.active { display: flex; flex-direction: column; border-color: var(--primary); background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .paso-card.done { display: flex; flex-direction: column; opacity: 0.4; border-color: var(--success); pointer-events: none; }
+
+        .titulo-paso { font-size: 0.85rem; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 10px; }
+
+        .pizarra {
+            background: #0d1117; color: #39d353; font-family: 'Courier New', monospace;
+            padding: 15px; border-radius: 12px; font-size: 1.8rem; text-align: center;
+            border: 2px solid #30363d; margin-bottom: 15px;
+        }
+
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 350px; margin: 0 auto; }
+        .t-btn {
+            padding: 15px; border: none; border-radius: 12px; background: #eee;
+            font-weight: 800; font-size: 1.2rem; cursor: pointer;
+        }
+        .t-btn.send { background: var(--success); color: white; grid-column: span 2; }
+
+        .btn-nivel {
+            width: 100%; max-width: 300px; padding: 18px; margin: 8px 0; border: none;
+            border-radius: 18px; color: white; font-weight: 800;
+            font-size: 1.1rem; cursor: pointer; transition: 0.2s;
+        }
+        .n-1 { background: var(--success); }
+        .n-2 { background: #ff9800; }
+        .n-3 { background: var(--error); }
+
+        #modal {
+            display: none; position: absolute; inset: 0; background: white;
+            flex-direction: column; align-items: center; justify-content: center;
+            border-radius: 32px; z-index: 600; text-align: center; padding: 20px;
+            overflow-y: auto;
+        }
+
+        .resumen-final {
+            background: #f0f7ff; width: 100%; max-width: 400px; border-radius: 20px;
+            padding: 15px; margin: 20px 0; border: 2px dashed var(--primary);
+        }
+        .resumen-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ddd; }
+        .resumen-item:last-child { border: none; }
+        .resumen-datos { font-size: 0.9rem; color: #555; background: #fff; padding: 10px; border-radius: 10px; margin-top: 10px; border: 1px solid #e0e0e0; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+        .shake { animation: shake 0.3s; border-color: var(--error) !important; color: var(--error) !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <button class="btn-home" onclick="volverAlInicio()">
+        <i class="fas fa-home"></i>
+    </button>
+
+    <div id="main-index">
+        <i class="fas fa-brain" style="font-size: 4rem; color: var(--primary); margin-bottom: 20px;"></i>
+        <h1>Estadística</h1>
+        <p style="color: #666; margin-bottom: 25px;">Selecciona tu dificultad</p>
+        <button class="btn-nivel n-1" onclick="empezarJuego(1)">NIVEL 1</button>
+        <button class="btn-nivel n-2" onclick="empezarJuego(2)">NIVEL 2</button>
+        <button class="btn-nivel n-3" onclick="empezarJuego(3)">NIVEL 3</button>
+        <button class="btn-home" onclick="volverAlInicio()">
+        <i class="fas fa-home"></i>
+    </div>
+
+    <div class="game-layout">
+        <div class="pantalla-datos">
+            <div id="info-n" style="font-size: 0.7rem; font-weight: bold; color: var(--primary); margin-bottom: 10px;">CARGANDO...</div>
+            <div class="grid-numeros" id="fichas-interactivas"></div>
+            <div style="font-size: 0.7rem; font-weight: bold; color: var(--success); margin-top: 20px; margin-bottom: 10px;">DATOS ORDENADOS</div>
+            <div class="grid-numeros" id="grid-ordenado"></div>
+        </div>
+
+        <div class="flujo" id="flujo">
+            <div id="p-orden" class="paso-card">
+                <div class="titulo-paso">Paso 1: Ordenar</div>
+                <p style="text-align: center; color: #666;">Toca los números de arriba en orden de menor a mayor.</p>
+            </div>
+
+            <div id="p-moda" class="paso-card">
+                <div class="titulo-paso">Paso 2: La Moda</div>
+                <p style="font-size: 0.8rem; text-align: center; color: #888; margin-bottom: 10px;">¿Cuál se repite más?</p>
+                <div class="pizarra" id="piz-moda">?</div>
+                <div class="teclado" id="tec-moda"></div>
+            </div>
+
+            <div id="p-rango" class="paso-card">
+                <div class="titulo-paso">Paso 3: El Rango</div>
+                <p style="font-size: 0.8rem; text-align: center; color: #888; margin-bottom: 10px;">Resta el mayor menos el menor</p>
+                <div class="pizarra" id="piz-rango">?</div>
+                <div class="teclado" id="tec-rango"></div>
+            </div>
+
+            <div id="p-mediana" class="paso-card">
+                <div class="titulo-paso">Paso 4: La Mediana</div>
+                <div id="guia-mediana" style="font-size: 0.8rem; text-align: center; color: #888; margin-bottom: 10px;"></div>
+                <div class="pizarra" id="piz-mediana">?</div>
+                <div class="teclado" id="tec-mediana"></div>
+            </div>
+
+            <div id="p-media" class="paso-card">
+                <div class="titulo-paso">Paso 5: La Media</div>
+                <div id="guia-media" style="font-size: 0.8rem; text-align: center; margin-bottom: 10px; color: var(--primary); font-weight: bold;"></div>
+                <div class="pizarra" id="piz-media">?</div>
+                <div class="teclado" id="tec-media"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal">
+        <i class="fas fa-trophy" style="font-size: 4rem; color: #ffca28; margin-bottom: 10px;"></i>
+        <h2>¡Excelente Trabajo!</h2>
+        
+        <div class="resumen-final" id="resumen-final"></div>
+
+        <div style="display: flex; flex-direction: column; width: 100%; align-items: center; gap: 10px;">
+            <button class="btn-nivel n-1" onclick="reiniciarMismoNivel()">HACER OTRO</button>
+            <button class="btn-nivel n-2" style="background:#666" onclick="volverAlInicio()">IR AL MENÚ</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let datos = [], ordenados = [];
+    let nivelActual = 1;
+    let soluciones = {};
+    let buffers = { moda: "", rango: "", mediana: "", media: "" };
+    let ordenIndex = 0;
+    let subPasoMedia = 1;
+
+    const beep = (freq, type = 'sine', duration = 0.1) => {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type; osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(); osc.stop(ctx.currentTime + duration);
+    };
+
+    function volverAlInicio() {
+        window.location.href = "main-index.html";
+    }
+
+    function reiniciarMismoNivel() {
+        document.getElementById('modal').style.display = 'none';
+        ordenIndex = 0;
+        subPasoMedia = 1;
+        buffers = { moda: "", rango: "", mediana: "", media: "" };
+        ['moda', 'rango', 'mediana', 'media'].forEach(p => document.getElementById(`piz-${p}`).innerText = "?");
+        document.querySelectorAll('.paso-card').forEach(c => { c.classList.remove('active', 'done'); c.style.display = 'none'; });
+        document.getElementById('grid-ordenado').innerHTML = "";
+        empezarJuego(nivelActual);
+    }
+
+    function empezarJuego(n) {
+        nivelActual = n;
+        document.getElementById('main-index').style.display = 'none';
+        generarDatosYValidarModa();
+        renderTeclados();
+        document.getElementById('p-orden').classList.add('active');
+        document.getElementById('p-orden').style.display = 'flex';
+    }
+
+    function generarDatosYValidarModa() {
+        let esValido = false;
+        while (!esValido) {
+            generarDatosBase();
+            let counts = {};
+            datos.forEach(x => counts[x] = (counts[x] || 0) + 1);
+            let maxFreq = Math.max(...Object.values(counts));
+            let modas = Object.keys(counts).filter(k => counts[k] === maxFreq);
+            if (modas.length === 1 && maxFreq > 1) {
+                soluciones.moda = modas[0];
+                esValido = true;
+            }
+        }
+        dibujarFichas();
+    }
+
+    function generarDatosBase() {
+        let bases = nivelActual === 1 ? [5, 6] : (nivelActual === 2 ? [7, 8] : [9, 10]);
+        let cant = bases[Math.floor(Math.random() * bases.length)];
+        if(nivelActual === 1) {
+            let suma = 0; datos = [];
+            for(let i=0; i<cant-1; i++) {
+                let v = Math.floor(Math.random() * 8) + 2;
+                datos.push(v); suma += v;
+            }
+            let ultimo = cant - (suma % cant);
+            datos.push(ultimo === 0 ? cant : ultimo);
+        } else {
+            datos = Array.from({length: cant}, () => Math.floor(Math.random() * (nivelActual * 7)) + 2);
+        }
+        ordenados = [...datos].sort((a,b) => a-b);
+        soluciones.n = cant;
+        soluciones.rango = ordenados[cant-1] - ordenados[0];
+        soluciones.suma = datos.reduce((a,b) => a+b, 0);
+        soluciones.media = parseFloat((soluciones.suma / cant).toFixed(1));
+        
+        if(cant % 2 !== 0) {
+            soluciones.mediana = ordenados[Math.floor(cant/2)];
+            document.getElementById('guia-mediana').innerText = "Valor central";
+        } else {
+            let m1 = ordenados[(cant/2)-1], m2 = ordenados[cant/2];
+            soluciones.mediana = parseFloat(((m1 + m2) / 2).toFixed(1));
+            document.getElementById('guia-mediana').innerText = `Media de los centrales: (${m1}+${m2})/2`;
+        }
+        document.getElementById('info-n').innerText = `TOTAL: ${cant} NÚMEROS`;
+        document.getElementById('guia-media').innerText = `Suma todos los datos`;
+    }
+
+    function dibujarFichas() {
+        const cont = document.getElementById('fichas-interactivas');
+        cont.innerHTML = "";
+        [...datos].sort(() => Math.random() - 0.5).forEach(n => {
+            const btn = document.createElement('button');
+            btn.className = 'num-tag'; btn.innerText = n;
+            btn.onclick = () => {
+                if(n === ordenados[ordenIndex]) {
+                    beep(600); btn.classList.add('disabled');
+                    document.getElementById('grid-ordenado').innerHTML += `<div class="num-tag" style="background:var(--success)">${n}</div>`;
+                    ordenIndex++;
+                    if(ordenIndex === datos.length) {
+                        document.getElementById('p-orden').classList.replace('active', 'done');
+                        activarSiguientePaso();
+                    }
+                } else {
+                    beep(150, 'sawtooth'); btn.classList.add('shake');
+                    setTimeout(() => btn.classList.remove('shake'), 400);
+                }
+            };
+            cont.appendChild(btn);
+        });
+    }
+
+    function renderTeclados() {
+        ['moda', 'rango', 'mediana', 'media'].forEach(p => {
+            const tec = document.getElementById(`tec-${p}`);
+            let html = "";
+            for(let n=1; n<=9; n++) html += `<button class="t-btn" onclick="press('${p}', '${n}')">${n}</button>`;
+            html += `<button class="t-btn" onclick="press('${p}', 'C')" style="color:var(--error)">C</button>`;
+            html += `<button class="t-btn" onclick="press('${p}', '0')">0</button>`;
+            html += (p === 'media' || p === 'mediana') ? `<button class="t-btn" onclick="press('${p}', '.')">.</button>` : `<button class="t-btn" style="visibility:hidden"></button>`;
+            html += `<button class="t-btn send" onclick="validar('${p}')">OK</button>`;
+            tec.innerHTML = html;
+        });
+    }
+
+    function press(p, v) {
+        if(v === 'C') buffers[p] = "";
+        else if(buffers[p].length < 6) buffers[p] += v;
+        document.getElementById(`piz-${p}`).innerText = buffers[p] || "?";
+    }
+
+    function activarSiguientePaso() {
+        // Ahora siempre incluimos la mediana en la secuencia
+        const secuencia = ['moda', 'rango', 'mediana', 'media'];
+        let proximo = secuencia.find(p => !document.getElementById(`p-${p}`).classList.contains('done'));
+        if(proximo) {
+            const card = document.getElementById(`p-${proximo}`);
+            card.style.display = 'flex';
+            card.classList.add('active');
+            setTimeout(() => card.scrollIntoView({behavior:'smooth', block:'center'}), 100);
+        } else {
+            mostrarResumenFinal();
+        }
+    }
+
+    function mostrarResumenFinal() {
+        beep(800, 'sine', 0.5);
+        const resumenDiv = document.getElementById('resumen-final');
+        let html = `<strong>Tus resultados:</strong><br><br>`;
+        html += `<div class="resumen-item"><span>Moda:</span> <b>${soluciones.moda}</b></div>`;
+        html += `<div class="resumen-item"><span>Rango:</span> <b>${soluciones.rango}</b></div>`;
+        html += `<div class="resumen-item"><span>Mediana:</span> <b>${soluciones.mediana}</b></div>`;
+        html += `<div class="resumen-item"><span>Media:</span> <b>${soluciones.media}</b></div>`;
+        html += `<div class="resumen-datos"><strong>Datos analizados:</strong><br>${ordenados.join(' - ')}</div>`;
+        resumenDiv.innerHTML = html;
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function validar(p) {
+        let correct = false;
+        const val = parseFloat(buffers[p]);
+        if(p === 'media') {
+            if(subPasoMedia === 1) {
+                if(val === soluciones.suma) { subPasoMedia = 2; beep(700); document.getElementById('guia-media').innerText = `¿Cuántos números hay en total?`; buffers[p] = ""; document.getElementById(`piz-${p}`).innerText = "?"; return; }
+            } else if(subPasoMedia === 2) {
+                if(val === soluciones.n) { subPasoMedia = 3; beep(700); document.getElementById('guia-media').innerText = `Divide ${soluciones.suma} entre ${soluciones.n}`; buffers[p] = ""; document.getElementById(`piz-${p}`).innerText = "?"; return; }
+            } else { correct = Math.abs(val - soluciones.media) < 0.11; }
+        } else {
+            correct = Math.abs(val - soluciones[p]) < 0.01;
+        }
+        if(correct) {
+            beep(600);
+            document.getElementById(`p-${p}`).classList.replace('active', 'done');
+            activarSiguientePaso();
+        } else {
+            beep(100, 'square');
+            const piz = document.getElementById(`piz-${p}`);
+            piz.classList.add('shake');
+            setTimeout(() => { piz.classList.remove('shake'); buffers[p] = ""; piz.innerText = "?"; }, 500);
+        }
+    }
+</script>
+</body>
+</html>
