@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Reloj Maestro: Hub de Aprendizaje</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root {
+            --primary-analog: #2196f3;
+            --primary-digital: #673ab7;
+            --success: #2e7d32;
+            --error: #d32f2f;
+            --bg: #f0f4f8;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            height: 100dvh; display: flex; justify-content: center; align-items: center;
+            overflow: hidden; color: #333;
+        }
+
+        .container {
+            width: 98%; max-width: 1100px; height: 95vh;
+            background: white; border-radius: 24px; padding: 15px;
+            display: flex; flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* VISTAS */
+        .view { display: none; height: 100%; width: 100%; }
+        .view.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        /* MENÚ DE SELECCIÓN DE MODO */
+        #mode-selection, #difficulty-selection {
+            padding: 40px 20px; text-align: center; overflow-y: auto;
+        }
+
+        .card {
+            width: 100%; max-width: 450px; margin: 12px; padding: 25px;
+            border-radius: 20px; border: 2px solid #eee; cursor: pointer;
+            transition: all 0.2s; display: flex; align-items: center; gap: 20px;
+            background: white;
+        }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        .card-analog { border-left: 10px solid var(--primary-analog); }
+        .card-digital { border-left: 10px solid var(--primary-digital); }
+        .card-mix { border-left: 10px solid #ff5722; }
+
+        /* BOTÓN SALIR / INDEX */
+        .btn-exit-main {
+            position: absolute; top: 20px; right: 20px;
+            padding: 10px 20px; background: #333; color: white;
+            border-radius: 12px; text-decoration: none; font-weight: bold;
+            display: flex; align-items: center; gap: 10px; transition: 0.3s;
+        }
+        .btn-exit-main:hover { background: #000; transform: scale(1.05); }
+
+        /* ESTILOS DE JUEGO */
+        .game-layout { display: none; grid-template-columns: 1fr 400px; gap: 15px; height: 100%; }
+        .game-layout.active { display: grid; }
+
+        @media (max-width: 850px) {
+            .game-layout.active { grid-template-columns: 1fr; grid-template-rows: auto 1fr; overflow-y: auto; }
+            .btn-exit-main { top: 10px; right: 10px; padding: 8px 12px; font-size: 0.8rem; }
+        }
+
+        .clock-area { background: #f8f9fa; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .analog-clock { width: 280px; height: 280px; border: 10px solid #333; border-radius: 50%; position: relative; background: white; }
+        .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom; background: #333; border-radius: 10px; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .hour-hand { width: 8px; height: 65px; z-index: 3; }
+        .min-hand { width: 5px; height: 100px; z-index: 2; background: var(--primary-analog); }
+        .center-dot { position: absolute; top: 50%; left: 50%; width: 16px; height: 16px; background: #333; border-radius: 50%; transform: translate(-50%, -50%); z-index: 4; }
+        .number { position: absolute; width: 100%; height: 100%; text-align: center; font-weight: 800; padding: 8px; }
+
+        .digital-box { background: #222; color: #0f0; font-family: monospace; padding: 15px 30px; border-radius: 12px; font-size: 3rem; margin-bottom: 15px; border: 4px solid #444; }
+        .input-box { width: 85px; height: 75px; border: 4px solid #ddd; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; background: #fff; transition: 0.3s; }
+        .input-box.active { border-color: var(--primary-digital); background: #f3e5f5; box-shadow: 0 0 15px rgba(103,58,183,0.2); }
+        .input-box.correct { border-color: var(--success); color: var(--success); background: #e8f5e9; }
+
+        .t-btn { padding: 15px; border: 1px solid #ddd; border-radius: 12px; background: white; font-weight: bold; cursor: pointer; font-size: 1.2rem; }
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 280px; }
+        .btn-check { width: 100%; padding: 18px; border: none; border-radius: 50px; background: var(--success); color: white; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
+        
+        #modal { display: none; position: absolute; inset: 0; background: rgba(255,255,255,0.98); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; border-radius: 24px; text-align: center; }
+        .shake { animation: shake 0.4s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+        .badge-turno { padding: 8px 15px; border-radius: 10px; font-weight: bold; margin-bottom: 10px; border: 2px solid; }
+        .dia { background: #fff9c4; color: #fbc02d; border-color: #fbc02d; }
+        .noche { background: #cfd8dc; color: #455a64; border-color: #455a64; }
+    </style>
+</head>
+<body>
+
+<!-- SONIDOS -->
+<audio id="snd-success" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+<audio id="snd-error" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
+
+<div class="container">
+    
+    <!-- 1. SELECCIÓN DE MODO (Actúa como Index) -->
+    <div id="mode-selection" class="view active">
+        <!-- BOTÓN PARA VOLVER AL ARCHIVO PRINCIPAL -->
+        <a href="main-index.html" class="btn-exit-main">
+            <i class="fas fa-sign-out-alt"></i> Salir al Menú
+        </a>
+
+        <i class="fas fa-clock" style="font-size: 4rem; color: var(--primary-analog); margin-bottom: 15px;"></i>
+        <h1>Reloj Maestro</h1>
+        <p style="color: #666; margin-bottom: 30px;">Selecciona el modo de juego</p>
+        
+        <div class="card card-analog" onclick="selectMode('A2D')">
+            <i class="fas fa-eye" style="font-size: 2rem; color: var(--primary-analog);"></i>
+            <div style="text-align: left;">
+                <div style="font-weight: 800;">Analógico a Digital</div>
+                <div style="font-size: 0.8rem; color: #666;">Lee las manecillas y escribe el número.</div>
+            </div>
+        </div>
+
+        <div class="card card-digital" onclick="selectMode('D2A')">
+            <i class="fas fa-hand-pointer" style="font-size: 2rem; color: var(--primary-digital);"></i>
+            <div style="text-align: left;">
+                <div style="font-weight: 800;">Digital a Analógico</div>
+                <div style="font-size: 0.8rem; color: #666;">Mueve las agujas según la hora digital.</div>
+            </div>
+        </div>
+
+        <div class="card card-mix" onclick="selectMode('MIX')">
+            <i class="fas fa-random" style="font-size: 2rem; color: #ff5722;"></i>
+            <div style="text-align: left;">
+                <div style="font-weight: 800;">Modo Mix</div>
+                <div style="font-size: 0.8rem; color: #666;">¡Desafíos aleatorios de ambos tipos!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. SELECCIÓN DE DIFICULTAD -->
+    <div id="difficulty-selection" class="view">
+        <button onclick="showView('mode-selection')" style="border:none; background:none; cursor:pointer; color: #666; align-self: flex-start;"><i class="fas fa-arrow-left"></i> Volver</button>
+        <h2 style="margin: 20px 0;">Elige tu nivel</h2>
+        
+        <div class="card" style="border-left: 10px solid #4caf50;" onclick="startGame(1)">
+            <i class="fas fa-hourglass-start" style="font-size: 2rem; color: #4caf50;"></i>
+            <div style="text-align: left;">
+                <div style="font-weight: 800;">PRINCIPIANTE</div>
+                <div style="font-size: 0.8rem; color: #666;">En punto, medias y cuartos.</div>
+            </div>
+        </div>
+
+        <div class="card" style="border-left: 10px solid #ff9800;" onclick="startGame(2)">
+            <i class="fas fa-bolt" style="font-size: 2rem; color: #ff9800;"></i>
+            <div style="text-align: left;">
+                <div style="font-weight: 800;">PRO / AVANZADO</div>
+                <div style="font-size: 0.8rem; color: #666;">Intervalos precisos de 5 minutos.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. INTERFAZ DE JUEGO -->
+    <div id="game-ui" class="game-layout">
+        <div class="clock-area">
+            <button onclick="location.reload()" style="position:absolute; top:15px; left:15px; background:#ddd; border:none; padding:10px 15px; border-radius:10px; cursor:pointer;"><i class="fas fa-home"></i></button>
+            <div id="badge-container"></div>
+            <div class="analog-clock" id="clock-face">
+                <div class="center-dot"></div>
+                <div id="h-hand" class="hand hour-hand"></div>
+                <div id="m-hand" class="hand min-hand"></div>
+            </div>
+            <div id="hand-selectors" style="margin-top: 20px; display: none; gap: 10px;">
+                <button onclick="switchHand('H')" id="btn-h" class="t-btn">HORAS</button>
+                <button onclick="switchHand('M')" id="btn-m" class="t-btn">MINUTOS</button>
+            </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:10px;">
+            <div style="background: #fff3e0; color: #e65100; padding: 10px 20px; border-radius: 20px; font-weight: bold;">RACHA: <span id="racha-val">0</span> 🔥</div>
+            <div id="game-objective-text" style="font-weight: bold; color: #666;">¿QUÉ HORA ES?</div>
+            <div id="input-container"></div>
+            <div id="keyboard-container" style="display:none;">
+                <div class="teclado" id="teclado-digital"></div>
+            </div>
+            <button id="main-check-btn" class="btn-check" style="display:none;" onclick="validateD2A()">COMPROBAR</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE ÉXITO -->
+    <div id="modal">
+        <i class="fas fa-check-circle" style="font-size: 5rem; color: var(--success);"></i>
+        <h2 style="margin: 15px 0;">¡Perfecto!</h2>
+        <p id="feedback-text" style="color: #666; margin-bottom: 25px;"></p>
+        <button class="btn-check" style="width: 200px;" onclick="nextChallenge()">SIGUIENTE</button>
+    </div>
+</div>
+
+<script>
+    let currentMode = ''; 
+    let currentLevel = 1;
+    let currentType = ''; 
+    let racha = 0;
+    let targetH, targetM, isPM;
+    let userH = 12, userM = 0;
+    let currentActiveHand = 'M';
+    let digitalBuffer = "";
+    let digitalStep = 'H';
+
+    const sndSuccess = document.getElementById('snd-success');
+    const sndError = document.getElementById('snd-error');
+
+    const clockFace = document.getElementById('clock-face');
+    for(let i=1; i<=12; i++) {
+        const n = document.createElement('div');
+        n.className = 'number';
+        n.style.transform = `rotate(${i * 30}deg)`;
+        n.innerHTML = `<span style="display:block; transform:rotate(-${i*30}deg)">${i}</span>`;
+        clockFace.appendChild(n);
+    }
+
+    function playSound(type) {
+        if(type === 'win') { sndSuccess.currentTime = 0; sndSuccess.play(); }
+        else { sndError.currentTime = 0; sndError.play(); }
+    }
+
+    function selectMode(m) {
+        currentMode = m;
+        showView('difficulty-selection');
+    }
+
+    function startGame(lvl) {
+        currentLevel = lvl;
+        showView('game-ui');
+        document.getElementById('game-ui').classList.add('active');
+        nextChallenge();
+    }
+
+    function showView(id) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('game-ui').classList.remove('active');
+        document.getElementById(id).classList.add('active');
+    }
+
+    function nextChallenge() {
+        document.getElementById('modal').style.display = 'none';
+        currentType = currentMode === 'MIX' ? (Math.random() > 0.5 ? 'A2D' : 'D2A') : currentMode;
+        
+        targetH = Math.floor(Math.random() * 12); 
+        isPM = Math.random() > 0.5;
+        targetM = currentLevel === 1 ? [0, 15, 30, 45][Math.floor(Math.random() * 4)] : Math.floor(Math.random() * 12) * 5;
+
+        setupUI();
+    }
+
+    function setupUI() {
+        const inputCont = document.getElementById('input-container');
+        const keyCont = document.getElementById('keyboard-container');
+        const checkBtn = document.getElementById('main-check-btn');
+        const selectors = document.getElementById('hand-selectors');
+        const badgeCont = document.getElementById('badge-container');
+
+        inputCont.innerHTML = "";
+        badgeCont.innerHTML = "";
+        keyCont.style.display = "none";
+        checkBtn.style.display = "none";
+        selectors.style.display = "none";
+        
+        if (currentType === 'A2D') {
+            badgeCont.innerHTML = `<div class="badge-turno ${isPM ? 'noche' : 'dia'}">${isPM ? 'TARDE / NOCHE' : 'MAÑANA'}</div>`;
+            inputCont.innerHTML = `<div style="display:flex; align-items:center; gap:10px;"><div class="input-box active" id="in-h">??</div><span style="font-size:2rem; font-weight:bold;">:</span><div class="input-box" id="in-m">??</div></div>`;
+            keyCont.style.display = "block";
+            renderKeyboard();
+            renderClock(targetH === 0 ? 12 : targetH, targetM);
+            digitalStep = 'H';
+            digitalBuffer = "";
+        } else {
+            inputCont.innerHTML = `<div class="digital-box">${(targetH === 0 ? 12 : targetH).toString().padStart(2,'0')}:${targetM.toString().padStart(2,'0')}</div>`;
+            selectors.style.display = "flex";
+            checkBtn.style.display = "block";
+            userH = 12; userM = 0;
+            renderClock(userH, userM);
+            switchHand('M');
+        }
+    }
+
+    function renderClock(h, m) {
+        document.getElementById('m-hand').style.transform = `translateX(-50%) rotate(${m * 6}deg)`;
+        document.getElementById('h-hand').style.transform = `translateX(-50%) rotate(${(h * 30) + (m * 0.5)}deg)`;
+    }
+
+    function renderKeyboard() {
+        const tec = document.getElementById('teclado-digital');
+        let h = "";
+        for(let i=1; i<=9; i++) h += `<button class="t-btn" onclick="pressKey('${i}')">${i}</button>`;
+        h += `<button class="t-btn" onclick="pressKey('0')">0</button>`;
+        h += `<button class="t-btn" style="grid-column: span 2; color:var(--error)" onclick="pressKey('C')">C</button>`;
+        tec.innerHTML = h;
+    }
+
+    function pressKey(v) {
+        const elH = document.getElementById('in-h'), elM = document.getElementById('in-m');
+        const activeEl = digitalStep === 'H' ? elH : elM;
+        if(v === 'C') { digitalBuffer = ""; activeEl.innerText = "??"; return; }
+        if(digitalBuffer.length < 2) {
+            digitalBuffer += v;
+            activeEl.innerText = digitalBuffer.padStart(2, '0');
+            if(digitalBuffer.length === 2) {
+                const val = parseInt(digitalBuffer), sol = digitalStep === 'H' ? (isPM ? targetH + 12 : targetH) : targetM;
+                if(val === sol) {
+                    activeEl.classList.replace('active', 'correct');
+                    if(digitalStep === 'H') { digitalStep = 'M'; digitalBuffer = ""; elM.classList.add('active'); }
+                    else { success(); }
+                } else {
+                    playSound('error');
+                    activeEl.classList.add('shake');
+                    setTimeout(() => { activeEl.classList.remove('shake'); digitalBuffer = ""; activeEl.innerText = "??"; }, 400);
+                }
+            }
+        }
+    }
+
+    function switchHand(m) {
+        currentActiveHand = m;
+        document.getElementById('btn-h').style.background = m === 'H' ? '#333' : 'white';
+        document.getElementById('btn-h').style.color = m === 'H' ? 'white' : '#333';
+        document.getElementById('btn-m').style.background = m === 'M' ? '#2196f3' : 'white';
+        document.getElementById('btn-m').style.color = m === 'M' ? 'white' : '#333';
+    }
+
+    clockFace.addEventListener('mousedown', handleClockInput);
+    clockFace.addEventListener('touchstart', (e) => { e.preventDefault(); handleClockInput(e.touches[0]); });
+
+    function handleClockInput(e) {
+        if(currentType !== 'D2A') return;
+        const rect = clockFace.getBoundingClientRect(), cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+        let deg = Math.atan2(e.clientY - cy, e.clientX - cx) * (180 / Math.PI) + 90;
+        deg = deg < 0 ? deg + 360 : deg;
+        if (currentActiveHand === 'M') {
+            userM = Math.round((deg / 6) / (currentLevel === 1 ? 15 : 5)) * (currentLevel === 1 ? 15 : 5);
+            if(userM === 60) userM = 0;
+        } else {
+            userH = Math.round(deg / 30) % 12;
+            if(userH === 0) userH = 12;
+        }
+        renderClock(userH, userM);
+    }
+
+    function validateD2A() {
+        if(userH === (targetH === 0 ? 12 : targetH) && userM === targetM) { success(); }
+        else { 
+            playSound('error');
+            document.getElementById('clock-face').classList.add('shake'); 
+            setTimeout(() => document.getElementById('clock-face').classList.remove('shake'), 400); 
+        }
+    }
+
+    function success() {
+        playSound('win');
+        racha++; document.getElementById('racha-val').innerText = racha;
+        document.getElementById('feedback-text').innerText = `¡Correcto! Son las ${(targetH === 0 ? 12 : targetH).toString().padStart(2,'0')}:${targetM.toString().padStart(2,'0')}`;
+        document.getElementById('modal').style.display = 'flex';
+    }
+</script>
+</body>
+</html>
