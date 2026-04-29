@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Estadística Master Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root {
+            --primary: #6200ea;
+            --success: #2e7d32;
+            --error: #d32f2f;
+            --bg: #f5f7fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            height: 100dvh; display: flex; justify-content: center; align-items: center;
+            overflow: hidden; color: #333;
+        }
+
+        .container {
+            width: 98%; max-width: 1100px; height: 98vh;
+            background: white; border-radius: 24px; padding: 15px;
+            display: flex; flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .btn-home {
+            position: absolute; top: 15px; right: 15px;
+            background: #eee; border: none; width: 40px; height: 40px;
+            border-radius: 50%; cursor: pointer; z-index: 1000;
+        }
+
+        #main-index {
+            position: absolute; inset: 0; background: white; z-index: 900;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border-radius: 24px;
+        }
+
+        .game-layout { 
+            display: grid; 
+            grid-template-columns: 300px 1fr; 
+            gap: 15px; 
+            height: 100%; 
+            overflow: hidden; 
+        }
+
+        @media (max-width: 850px) {
+            .game-layout { grid-template-columns: 1fr; }
+            .sidebar { border-right: none; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+            #contenedor-teclado { position: sticky; bottom: 0; width: 100%; background: white; }
+        }
+
+        .sidebar {
+            background: #f8f9fa; border-radius: 20px; padding: 15px;
+            border: 1px solid #e0e0e0; display: flex; flex-direction: column; gap: 10px;
+            overflow-y: auto; height: 100%;
+        }
+
+        .grid-numeros { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+        .num-tag {
+            background: white; border: 2px solid var(--primary); color: var(--primary);
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem;
+        }
+        .num-tag.disabled { background: #e0e0e0; border-color: #bdbdbd; color: #9e9e9e; cursor: default; }
+
+        .flujo { 
+            overflow-y: auto; 
+            padding: 10px;
+            scroll-behavior: smooth;
+        }
+
+        .paso-card {
+            background: white; border: 1px solid #eee; border-radius: 20px;
+            padding: 15px; margin-bottom: 20px; display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .paso-card.active { display: block; border: 2px solid var(--primary); }
+        .paso-card.done { display: block; opacity: 0.8; border-color: var(--success); }
+
+        .titulo-paso { color: var(--primary); font-weight: 800; font-size: 0.8rem; margin-bottom: 10px; text-transform: uppercase; }
+
+        .tabla-frecuencias { width: 100%; border-collapse: collapse; }
+        .tabla-frecuencias th { font-size: 0.75rem; padding: 8px; border-bottom: 2px solid #eee; }
+        .tabla-frecuencias td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #f0f0f0; }
+
+        .fraccion { display: inline-flex; flex-direction: column; vertical-align: middle; align-items: center; }
+        .linea-f { border-top: 2px solid #333; width: 100%; margin: 2px 0; }
+
+        .input-box {
+            width: 48px; height: 38px; border: 2px solid #ddd; border-radius: 8px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-weight: bold; background: #fff; transition: all 0.2s; font-size: 1rem;
+        }
+        .input-box.active { border-color: var(--primary); background: #f3e5f5; transform: scale(1.1); box-shadow: 0 0 12px rgba(98,0,234,0.3); }
+        .input-box.correct { border-color: var(--success); color: var(--success); background: #e8f5e9; }
+
+        #contenedor-teclado {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .t-btn { 
+            padding: 12px; border: none; border-radius: 10px; 
+            background: white; border: 1px solid #ddd; 
+            font-weight: bold; cursor: pointer; font-size: 1.1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .t-btn:active { background: #eee; transform: translateY(2px); }
+
+        #modal {
+            display: none; position: absolute; inset: 0; background: white;
+            z-index: 2000; flex-direction: column; align-items: center; 
+            border-radius: 24px; padding: 20px; overflow-y: auto; text-align: center;
+        }
+
+        .shake { animation: shake 0.3s; border-color: var(--error) !important; color: var(--error) !important; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        
+        .btn-nivel { width: 220px; padding: 15px; margin: 5px; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<audio id="snd-success" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+<audio id="snd-error" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
+
+<div class="container">
+<button class="btn-home" onclick="window.location.href='main-index.html'">
+    <i class="fas fa-home"></i>
+</button>
+    <!-- MENU PRINCIPAL -->
+    <div id="main-index">
+        <h1 style="margin-bottom: 10px;">Estadística Master Pro</h1>
+        <p style="color: #666; margin-bottom: 20px;">Frecuencia absoluta y relativa</p>
+        <button class="btn-nivel" style="background:#4caf50" onclick="iniciar(6)">NIVEL 1 </button>
+        <button class="btn-nivel" style="background:#2196f3" onclick="iniciar(8)">NIVEL 2 </button>
+        <button class="btn-nivel" style="background:#9c27b0" onclick="iniciar(10)">NIVEL 3 </button>
+    </div>
+
+    <div class="game-layout">
+        <div class="sidebar">
+            <div style="font-size: 0.7rem; font-weight: 800; color: #666;">DATOS DESORDENADOS</div>
+            <div id="grid-bruto" class="grid-numeros"></div>
+            <hr>
+            <div style="font-size: 0.7rem; font-weight: 800; color: var(--success);">DATOS ORDENADOS</div>
+            <div id="grid-orden" class="grid-numeros"></div>
+
+            <div id="contenedor-teclado" style="display:none;">
+                <div style="font-size: 0.65rem; font-weight: 800; margin-bottom: 8px; color: #999; text-align: center;">TECLADO</div>
+                <div class="teclado" id="teclado-comun"></div>
+            </div>
+        </div>
+
+        <div class="flujo" id="flujo-contenedor">
+            <div id="p-orden" class="paso-card">
+                <div class="titulo-paso">Paso 1: Ordenar Datos</div>
+                <p style="font-size: 0.85rem; color: #666;">Toca los números de la izquierda en orden de menor a mayor.</p>
+            </div>
+
+            <div id="p-tabla" class="paso-card">
+                <div class="titulo-paso">Paso 2: Tabla de Frecuencias</div>
+                <table class="tabla-frecuencias">
+                    <thead><tr><th>Dato</th><th>Frecuencia Absoluta</th><th>Frecuencia Relativa</th></tr></thead>
+                    <tbody id="body-tabla"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FINAL -->
+    <div id="modal">
+        <i class="fas fa-check-circle" style="font-size: 4rem; color: #4caf50; margin-top: 30px; margin-bottom: 15px;"></i>
+        <h2 style="font-size: 1.8rem;">¡Excelente Trabajo!</h2>
+        <p style="color: #666; margin-bottom: 20px;">Has completado el ejercicio correctamente.</p>
+        
+        <div id="tabla-final-res" style="width: 100%; margin-bottom: 30px;"></div>
+        
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%;">
+            <button class="btn-nivel" style="background:var(--success);" onclick="otroIgual()">
+                <i class="fas fa-redo"></i> HACER OTRO IGUAL
+            </button>
+            <button class="btn-nivel" style="background:var(--primary);" onclick="location.reload()">
+                <i class="fas fa-layer-group"></i> CAMBIAR NIVEL
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let n_total, datos = [], ordenados = [], unicos = [];
+    let sol = {};
+    let pasoActual = '';
+    let tablaQueue = []; 
+    let currentTableCell = 0;
+    let buffer = "";
+    let nivelActual = 6;
+
+    const sndSuccess = document.getElementById('snd-success');
+    const sndError = document.getElementById('snd-error');
+
+    function playSnd(s) { s.currentTime = 0; s.play().catch(()=>{}); }
+
+    function iniciar(cant) {
+        nivelActual = cant;
+        n_total = cant;
+        document.getElementById('main-index').style.display = 'none';
+        document.getElementById('modal').style.display = 'none';
+        
+        // Reset visual
+        document.getElementById('grid-bruto').innerHTML = '';
+        document.getElementById('grid-orden').innerHTML = '';
+        document.getElementById('body-tabla').innerHTML = '';
+        document.getElementById('p-orden').className = 'paso-card active';
+        document.getElementById('p-tabla').className = 'paso-card';
+        document.getElementById('p-tabla').style.display = 'none';
+        
+        // Generar datos
+        datos = Array.from({length: cant}, () => Math.floor(Math.random() * 8) + 2);
+        let counts = {}; datos.forEach(x => counts[x] = (counts[x] || 0) + 1);
+        sol.counts = counts;
+
+        ordenados = [...datos].sort((a,b) => a-b);
+        unicos = [...new Set(ordenados)].sort((a,b) => a-b);
+        
+        indiceOrden = 0;
+        currentTableCell = 0;
+        buffer = "";
+
+        renderLayout();
+        activarPaso('p-orden');
+    }
+
+    function otroIgual() {
+        iniciar(nivelActual);
+    }
+
+    function renderLayout() {
+        const bruto = document.getElementById('grid-bruto');
+        [...datos].sort(() => Math.random()-0.5).forEach(n => {
+            const div = document.createElement('div');
+            div.className = 'num-tag';
+            div.innerText = n;
+            div.onclick = () => clicarDato(n, div);
+            bruto.appendChild(div);
+        });
+
+        const tbody = document.getElementById('body-tabla');
+        tablaQueue = [];
+        unicos.forEach(u => {
+            const tr = document.createElement('tr');
+            const idF = `f-${u}`;
+            const idH_num = `hn-${u}`;
+            const idH_den = `hd-${u}`;
+            
+            tr.innerHTML = `
+                <td><b>${u}</b></td>
+                <td><div class="input-box" id="${idF}">?</div></td>
+                <td>
+                    <div class="fraccion">
+                        <div class="input-box" id="${idH_num}">?</div>
+                        <div class="linea-f"></div>
+                        <div class="input-box" id="${idH_den}">?</div>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+            tablaQueue.push({ id: idF, sol: sol.counts[u] });
+            tablaQueue.push({ id: idH_num, sol: sol.counts[u] });
+            tablaQueue.push({ id: idH_den, sol: n_total });
+        });
+
+        renderTeclado();
+    }
+
+    function renderTeclado() {
+        const tec = document.getElementById('teclado-comun');
+        let html = "";
+        for(let i=1; i<=9; i++) html += `<button class="t-btn" onclick="tecla('${i}')">${i}</button>`;
+        html += `<button class="t-btn" onclick="tecla('0')">0</button>`;
+        html += `<button class="t-btn" onclick="tecla('.')">.</button>`;
+        html += `<button class="t-btn" onclick="tecla('C')" style="color:var(--error)">C</button>`;
+        tec.innerHTML = html;
+    }
+
+    let indiceOrden = 0;
+    function clicarDato(val, el) {
+        if(pasoActual !== 'p-orden') return;
+        if(val === ordenados[indiceOrden]) {
+            playSnd(sndSuccess);
+            el.classList.add('disabled');
+            el.onclick = null;
+            document.getElementById('grid-orden').innerHTML += `<div class="num-tag" style="border-color:var(--success); color:var(--success)">${val}</div>`;
+            indiceOrden++;
+            if(indiceOrden === n_total) completarPaso('p-orden', 'p-tabla');
+        } else {
+            playSnd(sndError);
+            el.classList.add('shake');
+            setTimeout(() => el.classList.remove('shake'), 400);
+        }
+    }
+
+    function activarPaso(id) {
+        pasoActual = id;
+        const el = document.getElementById(id);
+        el.style.display = 'block';
+        el.classList.add('active');
+        
+        if(id === 'p-tabla') {
+            document.getElementById('contenedor-teclado').style.display = 'block';
+            focusNextTabla();
+        }
+    }
+
+    function focusNextTabla() {
+        document.querySelectorAll('.input-box').forEach(b => b.classList.remove('active'));
+        if(currentTableCell < tablaQueue.length) {
+            const item = tablaQueue[currentTableCell];
+            const el = document.getElementById(item.id);
+            el.classList.add('active');
+            buffer = "";
+        }
+    }
+
+    function completarPaso(id, siguienteId) {
+        document.getElementById(id).classList.replace('active', 'done');
+        if(siguienteId) activarPaso(siguienteId);
+        else finalizar();
+    }
+
+    function tecla(v) {
+        if(pasoActual === 'p-tabla') {
+            const item = tablaQueue[currentTableCell];
+            const el = document.getElementById(item.id);
+            if(v === 'C') buffer = "";
+            else buffer += v;
+            el.innerText = buffer;
+
+            if(parseFloat(buffer) === item.sol) {
+                playSnd(sndSuccess);
+                el.classList.replace('active', 'correct');
+                currentTableCell++;
+                if(currentTableCell < tablaQueue.length) focusNextTabla();
+                else completarPaso('p-tabla', null);
+            } else if(buffer.length >= item.sol.toString().length) {
+                playSnd(sndError);
+                el.classList.add('shake');
+                setTimeout(() => { el.classList.remove('shake'); el.innerText = "?"; buffer = ""; }, 400);
+            }
+        }
+    }
+
+    function finalizar() {
+        document.getElementById('contenedor-teclado').style.display = 'none';
+        const tablaRes = document.querySelector('.tabla-frecuencias').cloneNode(true);
+        document.getElementById('tabla-final-res').innerHTML = '';
+        document.getElementById('tabla-final-res').appendChild(tablaRes);
+        document.getElementById('modal').style.display = 'flex';
+    }
+</script>
+
+</body>
+</html>
