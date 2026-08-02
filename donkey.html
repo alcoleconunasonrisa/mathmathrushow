@@ -285,6 +285,9 @@
         let gameSpeedMultiplier = 1;
         let keys = {};
         
+        // Control del tiempo de renderizado
+        let lastTime = 0;
+
         // --- ESTRUCTURA EXACTA Y ORIGINAL DE DONKEYSUM ---
         const platforms = [
             {x: 0, y: 530, w: 400, h: 15, dir: 1}, 
@@ -345,6 +348,9 @@
             
             generateTask();
             gameActive = true; 
+            
+            // Inicializar tiempo base para Delta Time
+            lastTime = performance.now();
             requestAnimationFrame(gameLoop);
         }
 
@@ -413,8 +419,8 @@
             playSound(880, 'sine', 0.3, 0.1);
         }
 
-        // --- FÍSICAS Y MOTOR ORIGINAL DE DONKEYSUM ---
-        function update() {
+        // --- FÍSICAS Y MOTOR AJUSTADO CON DELTA TIME ---
+        function update(dt) {
             if (!gameActive) return;
 
             // Controles del jugador
@@ -427,9 +433,10 @@
                 playSound(300, 'triangle', 0.08);
             }
 
-            player.vy += 0.5;
-            player.x += player.vx; 
-            player.y += player.vy;
+            // Aplicar dt al movimiento y la gravedad
+            player.vy += 0.5 * dt;
+            player.x += player.vx * dt; 
+            player.y += player.vy * dt;
             
             if (player.x < 0) player.x = 0; 
             if (player.x > 380) player.x = 380;
@@ -452,13 +459,12 @@
             // Actualización de Cofres/Bolas Donkeysum
             for (let i = chests.length - 1; i >= 0; i--) {
                 let c = chests[i];
-                if (c.vy < 4) c.vy += 0.18; 
-                c.x += c.vx; 
-                c.y += c.vy;
+                if (c.vy < 4) c.vy += 0.18 * dt; 
+                c.x += c.vx * dt; 
+                c.y += c.vy * dt;
                 let touching = false;
                 
                 platforms.forEach(p => {
-                    // Hueco central original entre 180 y 220
                     let isSameLevel = Math.abs(c.y + c.r - p.y) < 12;
                     let overGap = (c.x > 180 && c.x < 220);
                     
@@ -483,7 +489,6 @@
                         document.getElementById('score').innerText = score;
                         chests.splice(i, 1);
                         
-                        // Sistema de Puntuación para subida de nivel
                         if (score >= currentLevel * 500) {
                             victoryTransition();
                         } else {
@@ -504,7 +509,8 @@
                 }
             }
 
-            spawnTimer++; 
+            // El temporizador de generación de objetos se ajusta al tiempo real
+            spawnTimer += dt; 
             if(spawnTimer > (100 / gameSpeedMultiplier)) { 
                 spawnChest(); 
                 spawnTimer = 0; 
@@ -533,9 +539,16 @@
             });
         }
 
-        function gameLoop() {
+        function gameLoop(timestamp) {
             if (gameActive) {
-                update();
+                // Cálculo de delta time normalizado a 60 FPS (~16.67ms por frame)
+                let dt = (timestamp - lastTime) / 16.667;
+                lastTime = timestamp;
+
+                // Prevenir saltos bruscos al cambiar de pestaña o sufrir un lag spike
+                if (dt > 3) dt = 1;
+
+                update(dt);
                 draw();
                 requestAnimationFrame(gameLoop);
             }
