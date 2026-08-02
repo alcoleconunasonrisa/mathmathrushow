@@ -2,84 +2,383 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Meta Viewport optimizado para responsiveness en todos los dispositivos -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#0077b6">
+    <meta name="description" content="Resolutor Pro - Aplicación interactiva de matemáticas para primaria">
     <title>Resolutor Pro - Matemáticas Divertidas</title>
     <style>
         :root {
             --primary: #00b4db;
+            --primary-dark: #008cae;
             --secondary: #0077b6;
-            --success: #43a047;
-            --danger: #e53935;
-            --warning: #fbc02d;
+            --secondary-dark: #005a8a;
+            --success: #2e7d32;
+            --success-light: #e8f5e9;
+            --danger: #c62828;
+            --danger-light: #ffebee;
+            --warning: #f57f17;
+            --warning-light: #fffde7;
             --bg-card: #f8f9fa;
+            --text-main: #2c3e50;
+            --text-muted: #546e7a;
+            --border-color: #e0e0e0;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+            --shadow-lg: 0 12px 28px rgba(0,0,0,0.18);
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
         body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            min-height: 100vh;
+            min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
         }
         
         .container {
-            width: 98%; max-width: 1000px; height: 95vh;
-            background: white; border-radius: 28px; padding: 1.2rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            display: flex; flex-direction: column; position: relative;
+            width: 100%;
+            max-width: 960px;
+            height: auto;
+            max-height: 96vh;
+            max-height: 96dvh;
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
         }
 
         .instruccion {
-            background: var(--secondary); color: white; padding: 12px;
-            border-radius: 15px; text-align: center; margin-bottom: 0.8rem;
-            font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background: var(--secondary);
+            color: #ffffff;
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            font-weight: 700;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1rem;
+            flex-shrink: 0;
+            letter-spacing: 0.2px;
         }
 
-        .contenido-juego { display: flex; flex: 1; gap: 1rem; overflow: hidden; }
+        .contenido-juego { 
+            display: flex; 
+            flex: 1; 
+            gap: 1.25rem; 
+            overflow: hidden; 
+            min-height: 0; /* Crucial para flexbox scrolling */
+        }
 
-        .pantalla { display: none; flex: 1.8; flex-direction: column; border-radius: 20px; background: var(--bg-card); padding: 1.5rem; overflow-y: auto; border: 2px solid #eee; }
-        .pantalla.active { display: flex; }
+        .pantalla { 
+            display: none; 
+            flex: 1.8; 
+            flex-direction: column; 
+            border-radius: var(--radius-md); 
+            background: var(--bg-card); 
+            padding: 1.25rem; 
+            overflow-y: auto; 
+            border: 1px solid var(--border-color);
+            -webkit-overflow-scrolling: touch;
+        }
 
-        .btn-nivel { width: 100%; max-width: 300px; padding: 18px; margin: 10px; border: none; border-radius: 15px; color: white; font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: 0.3s; box-shadow: 0 5px #777; }
-        .btn-nivel:active { transform: translateY(3px); box-shadow: 0 2px #777; }
+        .pantalla.active { 
+            display: flex; 
+        }
 
+        /* Botones generales accesibles y adaptables */
+        .btn-nivel { 
+            width: 100%; 
+            max-width: 320px; 
+            min-height: 52px;
+            padding: 14px 20px; 
+            margin: 8px; 
+            border: none; 
+            border-radius: var(--radius-md); 
+            color: #ffffff; 
+            font-weight: 700; 
+            font-size: 1.1rem; 
+            cursor: pointer; 
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease; 
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2); 
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            touch-action: manipulation;
+        }
+
+        .btn-nivel:hover {
+            filter: brightness(1.05);
+        }
+
+        .btn-nivel:active { 
+            transform: translateY(3px); 
+            box-shadow: 0 1px 0 rgba(0,0,0,0.2); 
+        }
+
+        /* Enunciados pedagógicamente perfeccionados */
         .enunciado-box { 
-            background: white; padding: 1.5rem; border-radius: 18px; 
-            border-left: 8px solid var(--warning); margin-bottom: 1.2rem; 
-            font-size: 1.2rem; line-height: 1.5; color: #333;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            background: #ffffff; 
+            padding: 1.25rem 1.5rem; 
+            border-radius: var(--radius-md); 
+            border-left: 6px solid var(--warning); 
+            margin-bottom: 1rem; 
+            font-size: clamp(1.05rem, 2.2vw, 1.25rem); 
+            line-height: 1.6; 
+            color: var(--text-main);
+            box-shadow: var(--shadow-sm);
         }
 
-        .avatar-icon { font-size: 3rem; display: block; margin-bottom: 10px; }
-        .highlight-word { color: var(--secondary); font-weight: 800; }
+        .avatar-icon { 
+            font-size: 2.5rem; 
+            display: inline-block; 
+            margin-right: 8px;
+            vertical-align: middle;
+        }
 
-        .fila-dato { display: flex; align-items: center; background: white; padding: 12px; border-radius: 15px; margin-bottom: 10px; border: 2px solid #eee; transition: 0.3s; }
-        .etiqueta-dato { flex: 1; font-size: 1.05rem; color: #555; }
+        .highlight-word { 
+            color: var(--secondary); 
+            font-weight: 800; 
+            background: rgba(0, 119, 182, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .highlight-data {
+            color: #d84315;
+            font-weight: 800;
+        }
+
+        .pregunta-matematica {
+            margin-top: 10px;
+            font-weight: 700;
+            color: var(--secondary);
+            display: block;
+        }
+
+        .fila-dato { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            background: #ffffff; 
+            padding: 10px 14px; 
+            border-radius: var(--radius-sm); 
+            margin-bottom: 10px; 
+            border: 1px solid var(--border-color); 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            gap: 10px;
+        }
+
+        .etiqueta-dato { 
+            flex: 1; 
+            font-size: clamp(0.95rem, 2vw, 1.05rem); 
+            color: var(--text-muted); 
+            font-weight: 600;
+        }
 
         .celda {
-            width: 48px; height: 55px; border: 2px solid #ccc; border-radius: 10px;
-            background: white; text-align: center; line-height: 52px;
-            font-size: 2rem; font-weight: bold; transition: 0.2s;
+            width: 44px; 
+            height: 50px; 
+            border: 2px solid #b0bec5; 
+            border-radius: 8px;
+            background: #ffffff; 
+            text-align: center; 
+            line-height: 46px;
+            font-size: 1.8rem; 
+            font-weight: 700; 
+            transition: all 0.2s ease;
+            user-select: none;
         }
-        .celda.activa { border: 3px solid var(--primary); background: #e0f7fa; transform: scale(1.05); }
-        .celda.correcta { border-color: var(--success); color: var(--success); background: #e8f5e9; }
-        .celda.incorrecta { border-color: var(--danger); background: #ffebee; color: var(--danger); animation: shake 0.4s; }
 
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+        .celda.activa { 
+            border-color: var(--primary); 
+            background: #e0f7fa; 
+            transform: scale(1.05); 
+            box-shadow: 0 0 0 3px rgba(0, 180, 219, 0.25);
+        }
 
-        .zona-teclado { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fff; border-radius: 20px; border: 2px solid #eee; }
-        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 280px; padding: 15px; }
-        .tecla { padding: 18px 0; font-size: 1.5rem; border: none; border-radius: 15px; background: #f0f0f0; font-weight: bold; box-shadow: 0 5px #bbb; cursor: pointer; transition: 0.1s; }
-        .tecla:active { transform: translateY(4px); box-shadow: 0 1px #bbb; }
+        .celda.correcta { 
+            border-color: var(--success); 
+            color: var(--success); 
+            background: var(--success-light); 
+        }
 
-        .tablero { font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: flex-end; font-size: 3rem; font-weight: bold; color: #222; }
-        .fila-linea { border-bottom: 6px solid #333; width: 100%; margin: 10px 0; border-radius: 3px; }
+        .celda.incorrecta { 
+            border-color: var(--danger); 
+            background: var(--danger-light); 
+            color: var(--danger); 
+            animation: shake 0.4s ease-in-out; 
+        }
+
+        @keyframes shake { 
+            0%, 100% { transform: translateX(0); } 
+            20%, 60% { transform: translateX(-6px); } 
+            40%, 80% { transform: translateX(6px); } 
+        }
+
+        /* Zona del teclado responsive */
+        .zona-teclado { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            background: #ffffff; 
+            border-radius: var(--radius-md); 
+            border: 1px solid var(--border-color); 
+            padding: 10px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .teclado { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 8px; 
+            width: 100%; 
+            max-width: 280px; 
+        }
+
+        .tecla { 
+            padding: 14px 0; 
+            font-size: 1.4rem; 
+            border: none; 
+            border-radius: var(--radius-sm); 
+            background: #f0f4f8; 
+            color: var(--text-main);
+            font-weight: 700; 
+            box-shadow: 0 4px 0 #cfd8dc; 
+            cursor: pointer; 
+            transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s; 
+            touch-action: manipulation;
+        }
+
+        .tecla:hover {
+            background: #e1e8ed;
+        }
+
+        .tecla:active { 
+            transform: translateY(3px); 
+            box-shadow: 0 1px 0 #cfd8dc; 
+        }
+
+        .tablero { 
+            font-family: 'Courier New', Courier, monospace; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-end; 
+            font-size: clamp(2.2rem, 5vw, 3rem); 
+            font-weight: 700; 
+            color: #1a237e; 
+            background: #ffffff;
+            padding: 15px 25px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .fila-linea { 
+            border-bottom: 4px solid var(--text-main); 
+            width: 100%; 
+            margin: 8px 0; 
+            border-radius: 2px; 
+        }
         
-        #caja-solucion { display: none; background: #e8f5e9; padding: 20px; border-radius: 15px; border: 3px solid var(--success); margin-top: 20px; text-align: center; }
+        #caja-solucion { 
+            display: none; 
+            background: var(--success-light); 
+            padding: 18px; 
+            border-radius: var(--radius-md); 
+            border: 2px solid var(--success); 
+            margin-top: 15px; 
+            text-align: center; 
+            box-shadow: var(--shadow-sm);
+        }
 
-        #modal-victoria { display: none; position: absolute; inset: 0; background: rgba(255,255,255,0.98); z-index: 100; flex-direction: column; justify-content: center; align-items: center; border-radius: 28px; }
+        #modal-victoria { 
+            display: none; 
+            position: absolute; 
+            inset: 0; 
+            background: rgba(255,255,255,0.98); 
+            z-index: 100; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            border-radius: var(--radius-lg); 
+            padding: 20px;
+        }
 
-        @media (max-width: 768px) { .contenido-juego { flex-direction: column; } .zona-teclado { flex: 1.5; border-top: 5px solid var(--primary); } .tablero { font-size: 2.2rem; } }
+        /* Adaptación profesional para pantallas pequeñas / móviles */
+        @media (max-width: 768px) { 
+            body { padding: 6px; }
+            .container { 
+                height: 100%; 
+                max-height: 100vh;
+                max-height: 100dvh;
+                border-radius: var(--radius-md); 
+                padding: 0.8rem;
+            }
+            .contenido-juego { 
+                flex-direction: column; 
+                gap: 0.8rem;
+            } 
+            .pantalla {
+                padding: 0.9rem;
+            }
+            .zona-teclado { 
+                flex: none; 
+                border-top: 4px solid var(--primary); 
+                padding: 8px;
+            } 
+            .teclado {
+                max-width: 100%;
+                gap: 6px;
+            }
+            .tecla {
+                padding: 10px 0;
+                font-size: 1.25rem;
+            }
+            .celda {
+                width: 38px;
+                height: 44px;
+                line-height: 40px;
+                font-size: 1.5rem;
+            }
+            .tablero { 
+                font-size: 2.2rem; 
+                padding: 10px 18px;
+            } 
+        }
+
+        /* Ajustes para dispositivos ultra-pequeños */
+        @media (max-width: 360px) {
+            .btn-nivel { font-size: 0.95rem; padding: 10px; }
+            .celda { width: 32px; height: 38px; line-height: 34px; font-size: 1.3rem; }
+        }
     </style>
 </head>
 <body>
@@ -87,67 +386,81 @@
 <div class="container">
     <div id="instruccion" class="instruccion">¡Bienvenido! Elige un nivel para empezar</div>
     
-  <div id="pantalla-menu" class="pantalla active" style="justify-content: center; align-items: center; text-align: center;">
-    <h1 style="color:var(--secondary); margin-bottom:25px; font-size: 2.5rem;">Aprende Problemas 🚀</h1>
-    
-    <button class="btn-nivel" style="background:var(--success)" onclick="empezarJuego(1)">Nivel 1 (Fácil)</button>
-    <button class="btn-nivel" style="background:#fb8c00" onclick="empezarJuego(2)">Nivel 2 (Medio)</button>
-    <button class="btn-nivel" style="background:var(--danger)" onclick="empezarJuego(3)">Nivel 3 (Difícil)</button>
-    
-    <hr style="width: 80%; margin: 20px auto; border: 0; border-top: 1px solid #ddd;">
+    <div id="pantalla-menu" class="pantalla active" style="justify-content: center; align-items: center; text-align: center;">
+        <h1 style="color:var(--secondary); margin-bottom:20px; font-size: clamp(1.8rem, 4vw, 2.5rem);">Aprende Problemas 🚀</h1>
+        
+        <button class="btn-nivel" style="background:var(--success)" onclick="empezarJuego(1)">Nivel 1 (Fácil)</button>
+        <button class="btn-nivel" style="background:#fb8c00" onclick="empezarJuego(2)">Nivel 2 (Medio)</button>
+        <button class="btn-nivel" style="background:var(--danger)" onclick="empezarJuego(3)">Nivel 3 (Difícil)</button>
+        
+        <hr style="width: 80%; margin: 20px auto; border: 0; border-top: 1px solid var(--border-color);">
 
-    <button class="btn-nivel" style="background:#607d8b; max-width: 250px; font-size: 1rem; box-shadow: 0 5px #455a64;" 
-            onclick="window.location.href='main-index.html'">
-        🏠 Volver al Inicio
-    </button>
-</div>
+        <button class="btn-nivel" style="background:#607d8b; max-width: 250px; font-size: 1rem; box-shadow: 0 4px #455a64;" 
+                onclick="window.location.href='main-index.html'">
+            🏠 Volver al Inicio
+        </button>
+    </div>
+
     <div id="pantalla-juego" class="contenido-juego" style="display:none;">
         <div id="vista-planteamiento" class="pantalla active">
             <div id="enunciado" class="enunciado-box"></div>
-            <div class="fila-dato"><span id="label-d1" class="etiqueta-dato"></span><div id="box-d1" style="display:flex; gap:5px"></div></div>
-            <div class="fila-dato"><span id="label-d2" class="etiqueta-dato"></span><div id="box-d2" style="display:flex; gap:5px"></div></div>
+            <div class="fila-dato">
+                <span id="label-d1" class="etiqueta-dato"></span>
+                <div id="box-d1" style="display:flex; gap:5px"></div>
+            </div>
+            <div class="fila-dato">
+                <span id="label-d2" class="etiqueta-dato"></span>
+                <div id="box-d2" style="display:flex; gap:5px"></div>
+            </div>
             
-            <div id="area-op" style="margin-top:1.5rem; display:none;">
-                <p style="margin-bottom:12px; font-weight:bold; color:var(--secondary); text-align:center;">¿Qué operación debemos hacer?</p>
-                <div style="display:flex; gap:10px;">
+            <div id="area-op" style="margin-top:1.2rem; display:none;">
+                <p style="margin-bottom:12px; font-weight:bold; color:var(--secondary); text-align:center; font-size:1.1rem;">¿Qué operación debemos hacer?</p>
+                <div style="display:flex; gap:10px; justify-content:center;">
                     <button id="btn-suma" class="btn-nivel" style="background:var(--success); margin:0;" onclick="seleccionarOp('+')">SUMAR (+)</button>
                     <button id="btn-resta" class="btn-nivel" style="background:var(--danger); margin:0;" onclick="seleccionarOp('-')">RESTAR (-)</button>
                 </div>
-                <div id="msg-error-op" style="display:none; color:var(--danger); padding:10px; background:#ffebee; margin-top:10px; border-radius:12px; text-align:center; font-weight:bold;">❌ Esa no es la operación correcta. ¡Piénsalo otra vez!</div>
+                <div id="msg-error-op" style="display:none; color:var(--danger); padding:10px; background:var(--danger-light); margin-top:10px; border-radius:12px; text-align:center; font-weight:bold;">❌ Esa no es la operación correcta. ¡Piénsalo otra vez!</div>
             </div>
         </div>
 
         <div id="vista-calculo" class="pantalla">
-            <div id="resumen-calculo" style="background:#e3f2fd; padding:12px; border-radius:12px; margin-bottom:1.5rem; text-align:center; font-weight:bold; color:var(--secondary);"></div>
+            <div id="resumen-calculo" style="background:#e3f2fd; padding:12px; border-radius:12px; margin-bottom:1.2rem; text-align:center; font-weight:bold; color:var(--secondary); border: 1px solid #bbdefb;"></div>
             <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;">
                 <div class="tablero">
                     <div id="num1-tablero"></div>
                     <div id="num2-tablero"></div>
                     <div class="fila-linea"></div>
-                    <div id="fila-resultado" style="display:flex; gap:10px"></div>
+                    <div id="fila-resultado" style="display:flex; gap:8px"></div>
                 </div>
                 <div id="caja-solucion">
-                    <h2 style="color:var(--success)">🌟 ¡Excelente!</h2>
-                    <p id="texto-solucion-final" style="font-size:1.2rem; font-weight:bold; margin:12px 0; color:#444;"></p>
-                    <button class="btn-nivel" style="background:var(--success); width:auto; padding:10px 30px; margin-top:10px;" onclick="mostrarVictoria()">Continuar</button>
+                    <h2 style="color:var(--success); font-size:1.5rem;">🌟 ¡Excelente!</h2>
+                    <p id="texto-solucion-final" style="font-size:1.15rem; font-weight:bold; margin:12px 0; color:var(--text-main);"></p>
+                    <button class="btn-nivel" style="background:var(--success); width:auto; padding:10px 25px; margin-top:5px;" onclick="mostrarVictoria()">Continuar</button>
                 </div>
             </div>
         </div>
 
         <div class="zona-teclado">
             <div class="teclado">
-                <button class="tecla" onclick="inputNum(1)">1</button><button class="tecla" onclick="inputNum(2)">2</button><button class="tecla" onclick="inputNum(3)">3</button>
-                <button class="tecla" onclick="inputNum(4)">4</button><button class="tecla" onclick="inputNum(5)">5</button><button class="tecla" onclick="inputNum(6)">6</button>
-                <button class="tecla" onclick="inputNum(7)">7</button><button class="tecla" onclick="inputNum(8)">8</button><button class="tecla" onclick="inputNum(9)">9</button>
-                <button class="tecla" style="background:#ffcdd2" onclick="borrar()">C</button><button class="tecla" onclick="inputNum(0)">0</button>
-                <button class="tecla" style="background:#e1f5fe" onclick="irMenu()">🏠</button>
+                <button class="tecla" onclick="inputNum(1)">1</button>
+                <button class="tecla" onclick="inputNum(2)">2</button>
+                <button class="tecla" onclick="inputNum(3)">3</button>
+                <button class="tecla" onclick="inputNum(4)">4</button>
+                <button class="tecla" onclick="inputNum(5)">5</button>
+                <button class="tecla" onclick="inputNum(6)">6</button>
+                <button class="tecla" onclick="inputNum(7)">7</button>
+                <button class="tecla" onclick="inputNum(8)">8</button>
+                <button class="tecla" onclick="inputNum(9)">9</button>
+                <button class="tecla" style="background:#ffcdd2; color:#b71c1c;" onclick="borrar()">C</button>
+                <button class="tecla" onclick="inputNum(0)">0</button>
+                <button class="tecla" style="background:#e1f5fe; color:#0277bd;" onclick="irMenu()">🏠</button>
             </div>
         </div>
     </div>
 
     <div id="modal-victoria">
-        <div style="font-size: 5rem; margin-bottom: 20px;">🏆</div>
-        <h2 style="font-size: 2.5rem; color: var(--success); margin-bottom:20px; text-align:center;">¡Problema Resuelto!</h2>
+        <div style="font-size: 4.5rem; margin-bottom: 15px;">🏆</div>
+        <h2 style="font-size: clamp(1.8rem, 4vw, 2.3rem); color: var(--success); margin-bottom:15px; text-align:center;">¡Problema Resuelto!</h2>
         <button class="btn-nivel" style="background:var(--success)" onclick="empezarJuego(nivelActual)">Siguiente Problema</button>
         <button class="btn-nivel" style="background:var(--secondary)" onclick="irMenu()">Cambiar Nivel</button>
     </div>
@@ -156,14 +469,45 @@
 <script>
     let nivelActual = 1, fase = "D1", PROBLEMA = {}, celdasActivas = [], subIndice = 0;
 
+    // Configuración con gramática, concordancia e intencionalidad didáctica enriquecida
     const configProblemas = {
-        nombres: ["María", "Lucas", "Emma", "Leo", "Sofía", "Hugo", "Dani", "Carla"],
+        nombres: ["María", "Lucas", "Emma", "Leo", "Sofía", "Hugo", "Dani", "Carla", "Valeria", "Mateo"],
         temas: [
-            { obj: "caramelo", plural: "caramelos", icono: "🍬", vSuma: "le dan", vResta: "se come", solSuma: "Ahora tiene X Y.", solResta: "Le quedan X Y." },
-            { obj: "pájaro", plural: "pájaros", icono: "🐦", vSuma: "llegan", vResta: "se van volando", solSuma: "En total hay X Y.", solResta: "Quedan X Y." },
-            { obj: "euro", plural: "euros", icono: "💰", vSuma: "ahorra", vResta: "se gasta", solSuma: "Tiene guardados X Y.", solResta: "Le sobran X Y." },
-            { obj: "manzana", plural: "manzanas", icono: "🍎", vSuma: "recoge", vResta: "regala", solSuma: "Tiene un total de X Y.", solResta: "Ahora tiene X Y." },
-            { obj: "globo", plural: "globos", icono: "🎈", vSuma: "infla", vResta: "se explotan", solSuma: "Tiene listos X Y.", solResta: "Le quedan X Y." }
+            { 
+                obj: "caramelo", plural: "caramelos", icono: "🍬", 
+                vSuma: "recibe de regalo", vResta: "regala a sus amigos", 
+                pregSuma: "¿Cuántos caramelos tiene ahora en total?",
+                pregResta: "¿Cuántos caramelos le quedan al final?",
+                solSuma: "Ahora tiene X Y en total.", solResta: "Le quedan X Y." 
+            },
+            { 
+                obj: "pájaro", plural: "pájaros", icono: "🐦", 
+                vSuma: "se unen al grupo", vResta: "echan a volar y se van", 
+                pregSuma: "¿Cuántos pájaros hay ahora en total?",
+                pregResta: "¿Cuántos pájaros quedan en el árbol?",
+                solSuma: "En total hay X Y.", solResta: "Quedan X Y." 
+            },
+            { 
+                obj: "euro", plural: "euros", icono: "💰", 
+                vSuma: "consigue ahorrar", vResta: "gasta en el juego", 
+                pregSuma: "¿Cuánto dinero tiene guardado ahora?",
+                pregResta: "¿Cuánto dinero le queda guardado?",
+                solSuma: "Tiene guardados X Y.", solResta: "Le sobran X Y." 
+            },
+            { 
+                obj: "manzana", plural: "manzanas", icono: "🍎", 
+                vSuma: "recoge del huerto", vResta: "comparte con su familia", 
+                pregSuma: "¿Cuántas manzanas tiene en total?",
+                pregResta: "¿Cuántas manzanas le quedan ahora?",
+                solSuma: "Tiene un total de X Y.", solResta: "Ahora tiene X Y." 
+            },
+            { 
+                obj: "globo", plural: "globos", icono: "🎈", 
+                vSuma: "infla con emoción", vResta: "se le escapan al cielo", 
+                pregSuma: "¿Cuántos globos tiene listos para la fiesta?",
+                pregResta: "¿Cuántos globos le quedan en total?",
+                solSuma: "Tiene listos X Y.", solResta: "Le quedan X Y." 
+            }
         ]
     };
 
@@ -185,7 +529,7 @@
         document.getElementById('vista-calculo').style.display = "none";
         document.getElementById('area-op').style.display = "none";
         document.getElementById('caja-solucion').style.display = "none";
-        document.getElementById('instruccion').textContent = "Paso 1: Escribe los datos que aparecen arriba";
+        document.getElementById('instruccion').textContent = "Paso 1: Escribe los datos del problema";
         
         // Configuración lógica del problema
         const tipo = Math.random() > 0.5 ? 'suma' : 'resta';
@@ -194,6 +538,7 @@
         const [v1, v2] = generarNumeros(n, tipo === 'resta');
         
         const accion = tipo === 'suma' ? tema.vSuma : tema.vResta;
+        const pregunta = tipo === 'suma' ? tema.pregSuma : tema.pregResta;
         const solBase = tipo === 'suma' ? tema.solSuma : tema.solResta;
 
         PROBLEMA = {
@@ -204,17 +549,18 @@
             accionEtiqueta: accion
         };
 
-        // Renderizado de enunciado vistoso
+        // Renderizado de enunciado con redacción clara, resaltado didáctico y pregunta explícita
         const p1 = parseInt(v1) === 1 ? tema.obj : tema.plural;
         const p2 = parseInt(v2) === 1 ? tema.obj : tema.plural;
         PROBLEMA.nombreFinal = parseInt(PROBLEMA.res) === 1 ? tema.obj : tema.plural;
 
         document.getElementById('enunciado').innerHTML = `
             <span class="avatar-icon">${tema.icono}</span>
-            ${nombre} tenía <strong>${v1}</strong> ${p1} y luego <span class="highlight-word">${accion}</span> <strong>${v2}</strong> ${p2}.
-            <br><br>¿Cuántos ${tema.plural} tiene al final?`;
+            <strong>${nombre}</strong> tenía al principio <span class="highlight-data">${v1}</span> ${p1}. 
+            Después, <span class="highlight-word">${accion}</span> <span class="highlight-data">${v2}</span> ${p2}.
+            <span class="pregunta-matematica">${pregunta}</span>`;
         
-        document.getElementById('label-d1').textContent = `Dato 1 (Tenía):`;
+        document.getElementById('label-d1').textContent = `Dato 1 (Tenía al principio):`;
         document.getElementById('label-d2').textContent = `Dato 2 (${accion.charAt(0).toUpperCase() + accion.slice(1)}):`;
         
         document.getElementById('box-d1').innerHTML = "";
@@ -233,7 +579,7 @@
 
     function activarGrupo(grupo) {
         celdasActivas = Array.from(grupo);
-        subIndice = celdasActivas.length - 1; // Empezamos por la derecha (unidades)
+        subIndice = celdasActivas.length - 1; // Empezamos por las unidades (derecha a izquierda)
         celdasActivas.forEach(c => c.classList.remove('activa'));
         if(celdasActivas[subIndice]) celdasActivas[subIndice].classList.add('activa');
     }
@@ -282,7 +628,7 @@
             document.getElementById('instruccion').textContent = "Paso 3: ¡Calcula el resultado final!";
             document.getElementById('num1-tablero').textContent = PROBLEMA.n1;
             document.getElementById('num2-tablero').textContent = PROBLEMA.op + " " + PROBLEMA.n2;
-            document.getElementById('resumen-calculo').textContent = `Operación: ${PROBLEMA.n1} ${PROBLEMA.op} ${PROBLEMA.n2}`;
+            document.getElementById('resumen-calculo').textContent = `Operación a resolver: ${PROBLEMA.n1} ${PROBLEMA.op} ${PROBLEMA.n2}`;
             
             fase = "CALC";
             const resCont = document.getElementById('fila-resultado'); resCont.innerHTML = "";
@@ -306,6 +652,15 @@
         document.getElementById('pantalla-menu').style.display = "flex"; 
         document.getElementById('instruccion').textContent = "Elige un nivel para empezar"; 
     }
+
+    // Soporte para entrada desde teclado físico / accesible
+    document.addEventListener('keydown', (e) => {
+        if (e.key >= '0' && e.key <= '9') {
+            inputNum(parseInt(e.key));
+        } else if (e.key === 'Backspace' || e.key === 'Delete') {
+            borrar();
+        }
+    });
 </script>
 </body>
 </html>
