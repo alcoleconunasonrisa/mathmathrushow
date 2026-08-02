@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Math Rush: Juegos de Matemáticas</title>
+    <!-- Viewport accesible y adaptado para móviles y tablets -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#050510">
+    <style>
+        :root {
+            --primary: #00d2ff;
+            --secondary: #f9d423;
+            --success: #22c55e;
+            --danger: #ff3f34;
+            --bg-dark: #050510;
+            --panel-bg: rgba(30, 39, 46, 0.95);
+            --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            --font-mono: 'Courier New', Courier, monospace;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--primary);
+            font-family: var(--font-family);
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        /* Botón de Inicio */
+        .btn-home {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #1e272e;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.95rem;
+            z-index: 1000;
+            transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-home:hover, .btn-home:focus-visible {
+            background: var(--primary);
+            color: var(--bg-dark);
+            transform: scale(1.03);
+            outline: none;
+        }
+
+        /* Menú Estilo Arcade / Overlay */
+        #overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 5, 16, 0.98);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .submenu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
+            gap: 8px;
+            width: 100%;
+            max-width: 500px;
+            margin-top: 10px;
+        }
+
+        .btn-mode {
+            padding: 14px 10px;
+            font-size: clamp(0.85rem, 2vw, 1rem);
+            font-weight: bold;
+            background: #1e272e;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            touch-action: manipulation;
+            min-height: 48px;
+        }
+
+        .btn-mode:hover, .btn-mode:focus-visible {
+            background: var(--primary);
+            color: var(--bg-dark);
+            box-shadow: 0 0 12px rgba(0, 210, 255, 0.5);
+            outline: none;
+        }
+
+        .btn-mode-full {
+            grid-column: 1 / -1;
+        }
+
+        .btn-sub {
+            padding: 12px 5px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background: #0a0a1a;
+            color: var(--secondary);
+            border: 1px solid var(--secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            touch-action: manipulation;
+            min-height: 44px;
+        }
+
+        .btn-sub:hover, .btn-sub:focus-visible {
+            background: var(--secondary);
+            color: var(--bg-dark);
+            outline: none;
+        }
+
+        .btn-action {
+            padding: 14px 36px;
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+            background: var(--secondary);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(249, 212, 35, 0.4);
+            transition: all 0.2s ease;
+            touch-action: manipulation;
+            min-height: 48px;
+        }
+
+        .btn-action:hover, .btn-action:focus-visible {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(249, 212, 35, 0.8);
+            outline: none;
+        }
+
+        /* Contenedor Principal */
+        .container {
+            width: 100%;
+            max-width: 900px;
+            min-height: 85vh;
+            background: rgba(10, 10, 26, 0.85);
+            border: 2px solid #1e272e;
+            border-radius: 1.5rem;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .timer-bar-container {
+            width: 100%;
+            height: 10px;
+            background: #1e272e;
+            border-radius: 6px;
+            margin-bottom: 0.8rem;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        #timer-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, var(--success), var(--danger));
+            transition: width 0.1s linear;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            background: var(--panel-bg);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid #1e272e;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .score-box {
+            color: white;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-weight: bold;
+        }
+
+        #game-container, #resultados-finales {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .game-layout {
+            display: flex;
+            flex-direction: row;
+            gap: 2rem;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .display-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .op-card {
+            font-family: var(--font-mono);
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 800;
+            color: var(--secondary);
+            background: #0a0a1a;
+            width: 100%;
+            padding: 1.2rem;
+            border-radius: 1.5rem;
+            text-align: center;
+            border: 2px solid var(--secondary);
+            box-shadow: 0 0 15px rgba(249, 212, 35, 0.2);
+            text-shadow: 0 0 10px rgba(249, 212, 35, 0.4);
+            word-break: break-word;
+        }
+
+        .input-card {
+            font-family: var(--font-mono);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            color: var(--primary);
+            background: #050510;
+            width: 100%;
+            height: clamp(65px, 10vh, 90px);
+            border-radius: 1.5rem;
+            border: 2px dashed var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+        }
+
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .key {
+            font-family: var(--font-mono);
+            background: #1e272e;
+            border: 1px solid var(--primary);
+            padding: 0.8rem;
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            font-weight: bold;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: transform 0.05s ease, background-color 0.1s ease;
+            color: var(--primary);
+            touch-action: manipulation;
+            min-height: 52px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .key:active {
+            transform: translateY(2px);
+            background: var(--primary);
+            color: var(--bg-dark);
+        }
+
+        .key.delete {
+            grid-column: span 2;
+            background: rgba(255, 63, 52, 0.15);
+            border-color: var(--danger);
+            color: var(--danger);
+            font-size: clamp(1rem, 3vw, 1.2rem);
+        }
+
+        .key.delete:active {
+            background: var(--danger);
+            color: white;
+        }
+
+        .resumen-final {
+            background: var(--panel-bg);
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 1.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .resumen-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid #1e272e;
+            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+            color: white;
+        }
+
+        .correct { 
+            animation: pulseGreen 0.3s forwards; 
+            border-color: var(--success) !important; 
+            color: var(--success) !important; 
+        }
+        
+        .wrong { 
+            animation: shake 0.3s forwards; 
+            border-color: var(--danger) !important; 
+            color: var(--danger) !important; 
+        }
+
+        @keyframes pulseGreen { 
+            0%, 100% { background: #0a0a1a; } 
+            50% { background: rgba(34, 197, 94, 0.3); } 
+        }
+        
+        @keyframes shake { 
+            0%, 100% { transform: translateX(0); } 
+            25% { transform: translateX(-8px); } 
+            75% { transform: translateX(8px); } 
+        }
+
+        /* Adaptación Responsive para Móviles y Plegables */
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+            .container { 
+                padding: 1rem; 
+                min-height: 96dvh; 
+                justify-content: space-around;
+            }
+            .game-layout { 
+                flex-direction: column; 
+                gap: 1rem; 
+            }
+            .menu-grid { 
+                grid-template-columns: 1fr; 
+            }
+            .btn-mode-full { 
+                grid-column: span 1; 
+            }
+            .btn-home {
+                top: 10px;
+                left: 10px;
+                padding: 6px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<a href="main-index.html" class="btn-home" id="btn-home-action">🏠 INICIO</a>
+
+<!-- MENU ESTILO ARCADE -->
+<div id="overlay">
+    <h1 id="statusTitle" style="color: var(--secondary); font-size: clamp(1.8rem, 5vw, 2.2rem); margin-bottom: 8px; text-shadow: 0 0 10px rgba(249, 212, 35, 0.4); text-align: center;">MATH RUSH</h1>
+    <p id="statusDesc" style="margin-bottom: 25px; color: #a0a0a0; text-align: center;">Selecciona una operación:</p>
+    
+    <div id="menuModes" class="menu-grid">
+        <button class="btn-mode" onclick="showSubmenu('SUM')">➕ SUMAS</button>
+        <button class="btn-mode" onclick="showSubmenu('RES')">➖ RESTAS</button>
+        <button class="btn-mode" onclick="showSubmenu('MULT')">✖️ MULTIPLICACIONES</button>
+        <button class="btn-mode" onclick="showSubmenu('DIV')">➗ DIVISIONES</button>
+        <button class="btn-mode btn-mode-full" onclick="setMode('comb_sum_res', 'all', 'Operaciones Combinadas (a ± b ± c)')">🔀 COMBINADAS (a ± b ± c)</button>
+    </div>
+
+    <div id="submenu" style="display:none; text-align: center; width: 100%; max-width: 500px;">
+        <p id="submenuTitle" style="margin-bottom: 12px; color: var(--secondary); font-weight: bold;"></p>
+        
+        <div id="presetButtons" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
+        
+        <div id="tableContainerWrapper" style="display:none;">
+            <p style="font-size: 12px; color: #888; margin-top: 8px; margin-bottom: 6px;">O elige un número/tabla específico:</p>
+            <div class="submenu-grid" id="tableButtons"></div>
+        </div>
+        
+        <button class="btn-mode" style="margin-top:15px; width: 100%; border-color: var(--danger); color: var(--danger);" onclick="backToMain()">VOLVER</button>
+    </div>
+
+    <button class="btn-action" id="mainBtn" style="display:none;" onclick="startGame()">🚀 EMPEZAR</button>
+</div>
+
+<!-- CONTENEDOR PRINCIPAL DEL JUEGO -->
+<div class="container">
+    <div class="timer-bar-container">
+        <div id="timer-bar"></div>
+    </div>
+
+    <div class="header">
+        <div class="score-box">Puntos: <span id="puntos-totales" style="color: var(--secondary);">0</span></div>
+        <div id="timer-text" style="font-weight: bold; font-size: 1.4rem; color: var(--danger); font-family: var(--font-mono);">01:00</div>
+        <div style="font-size: 1.1rem; color: white;">🏆 Récord: <span id="mejor-puntuacion" style="color: var(--primary);">0</span></div>
+    </div>
+
+    <!-- ÁREA DE JUEGO -->
+    <div id="game-container">
+        <div class="game-layout">
+            <div class="display-section">
+                <div class="op-card" id="operacion">?</div>
+                <div class="input-card" id="respuesta-display"></div>
+            </div>
+
+            <div class="numpad">
+                <button class="key" onclick="pressKey(7)">7</button>
+                <button class="key" onclick="pressKey(8)">8</button>
+                <button class="key" onclick="pressKey(9)">9</button>
+                <button class="key" onclick="pressKey(4)">4</button>
+                <button class="key" onclick="pressKey(5)">5</button>
+                <button class="key" onclick="pressKey(6)">6</button>
+                <button class="key" onclick="pressKey(1)">1</button>
+                <button class="key" onclick="pressKey(2)">2</button>
+                <button class="key" onclick="pressKey(3)">3</button>
+                <button class="key" onclick="pressKey(0)">0</button>
+                <button class="key delete" onclick="deleteKey()">⌫ BORRAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA DE RESULTADOS -->
+    <div id="resultados-finales" style="display: none;">
+        <h2 style="font-size: clamp(1.5rem, 4vw, 2.2rem); margin-bottom: 1.5rem; color: var(--secondary); text-align: center;">RESUMEN DE ACTIVIDAD</h2>
+        <div class="resumen-final">
+            <div class="resumen-item"><span><strong>Actividad:</strong></span><span id="res-actividad" style="color: var(--primary);">---</span></div>
+            <div class="resumen-item"><span><strong>Puntos:</strong></span><span id="res-puntos" style="color: var(--secondary);">0</span></div>
+            <div class="resumen-item"><span><strong>Aciertos:</strong></span><span id="res-aciertos" style="color: var(--success);">0</span></div>
+            <div class="resumen-item"><span><strong>Errores:</strong></span><span id="res-errores" style="color: var(--danger);">0</span></div>
+            <div class="resumen-item"><span><strong>Efectividad:</strong></span><span id="res-porcentaje">0%</span></div>
+        </div>
+        <button class="btn-action" onclick="resetToMenu()">🔄 MENÚ PRINCIPAL</button>
+    </div>
+</div>
+
+<script>
+    let audioCtx = null;
+    let tiempo = 60;
+    let score = 0;
+    let aciertos = 0;
+    let errores = 0;
+    let correctAns = 0;
+    let currentInput = "";
+    let gameActive = false;
+    let timerInterval = null;
+    
+    let selectedMode = "comb_sum_res";
+    let selectedTable = "all";
+    let readableModeName = "Operaciones Combinadas (a ± b ± c)";
+
+    document.getElementById('btn-home-action').onclick = (e) => {
+        resetToMenu();
+    };
+
+    function getStorageKey() {
+        return `mejorPunt_${selectedMode}_${selectedTable}`;
+    }
+
+    function updateRecordDisplay() {
+        try {
+            const record = localStorage.getItem(getStorageKey()) || 0;
+            document.getElementById('mejor-puntuacion').innerText = record;
+        } catch(e) {
+            document.getElementById('mejor-puntuacion').innerText = "0";
+        }
+    }
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function playSound(type) {
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            if(type === 'acierto') {
+                osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            } else if(type === 'error') {
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.35);
+            } else {
+                osc.frequency.setValueAtTime(700, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+            }
+        } catch(e) { console.error("Error al reproducir audio:", e); }
+    }
+
+    // Soporte para teclado físico (PC/Laptop/Tablet keyboard)
+    document.addEventListener('keydown', (e) => {
+        if (!gameActive) {
+            if (e.key === 'Enter') {
+                const mainBtn = document.getElementById('mainBtn');
+                if (mainBtn && mainBtn.style.display !== 'none') {
+                    mainBtn.click();
+                }
+            }
+            return;
+        }
+
+        if (e.key >= '0' && e.key <= '9') {
+            pressKey(parseInt(e.key, 10));
+        } else if (e.key === 'Backspace' || e.key === 'Delete') {
+            deleteKey();
+        }
+    });
+
+    function showSubmenu(category) {
+        document.getElementById("menuModes").style.display = "none";
+        document.getElementById("submenu").style.display = "block";
+        
+        const presetContainer = document.getElementById("presetButtons");
+        const tableContainer = document.getElementById("tableButtons");
+        const tableWrapper = document.getElementById("tableContainerWrapper");
+        const title = document.getElementById("submenuTitle");
+        
+        presetContainer.innerHTML = '';
+        tableContainer.innerHTML = '';
+        tableWrapper.style.display = "none";
+
+        if(category === 'SUM') {
+            title.innerText = "Niveles de Sumas:";
+            presetContainer.innerHTML = `
+                <button class="btn-mode" onclick="setMode('sum_facil', 'all', 'Sumas Fáciles (1 dígito)')">Fácil (Dígitos 1 a 9)</button>
+                <button class="btn-mode" onclick="setMode('sum_medio', 'all', 'Sumas Medias (2 dígitos)')">Medio (Números 10 a 50)</button>
+                <button class="btn-mode" onclick="setMode('sum_dificil', 'all', 'Sumas Avanzadas')">Avanzado (Hasta 100)</button>
+            `;
+        } else if(category === 'RES') {
+            title.innerText = "Niveles de Restas:";
+            presetContainer.innerHTML = `
+                <button class="btn-mode" onclick="setMode('res_facil', 'all', 'Restas Fáciles (Sin llevadas)')">Fácil (Resultados positivos pequeños)</button>
+                <button class="btn-mode" onclick="setMode('res_medio', 'all', 'Restas Medias')">Medio (Números hasta 50)</button>
+                <button class="btn-mode" onclick="setMode('res_dificil', 'all', 'Restas Avanzadas')">Avanzado (Hasta 100)</button>
+            `;
+        } else if(category === 'MULT') {
+            title.innerText = "Opciones de Multiplicación:";
+            tableWrapper.style.display = "block";
+            presetContainer.innerHTML = `
+                <button class="btn-mode" onclick="setMode('mult_1_5', 'all', 'Tablas 1, 2, 3 y 5')">Tablas del 1, 2, 3 y 5</button>
+                <button class="btn-mode" onclick="setMode('mult_6_9', 'all', 'Tablas del 6 al 9')">Tablas del 6 al 9</button>
+                <button class="btn-mode" onclick="setMode('mult_1_10', 'all', 'Todas las Tablas (1-10)')">Todas las Tablas (1 a 10)</button>
+            `;
+            for(let i=1; i<=10; i++) {
+                let btn = document.createElement("button");
+                btn.className = "btn-sub"; btn.innerText = i;
+                btn.onclick = () => setMode('mult_custom', i, `Tabla del ${i}`);
+                tableContainer.appendChild(btn);
+            }
+        } else if(category === 'DIV') {
+            title.innerText = "Opciones de División:";
+            tableWrapper.style.display = "block";
+            presetContainer.innerHTML = `
+                <button class="btn-mode" onclick="setMode('div_1_5', 'all', 'Divisiones del 1, 2, 3 y 5')">Divisiones del 1, 2, 3 y 5</button>
+                <button class="btn-mode" onclick="setMode('div_6_9', 'all', 'Divisiones del 6 al 9')">Divisiones del 6 al 9</button>
+                <button class="btn-mode" onclick="setMode('div_1_10', 'all', 'Todas las Divisiones (1-10)')">Todas las Divisiones (1 a 10)</button>
+            `;
+            for(let i=1; i<=10; i++) {
+                let btn = document.createElement("button");
+                btn.className = "btn-sub"; btn.innerText = i;
+                btn.onclick = () => setMode('div_custom', i, `Divisiones entre ${i}`);
+                tableContainer.appendChild(btn);
+            }
+        }
+    }
+
+    function backToMain() {
+        document.getElementById("menuModes").style.display = "grid";
+        document.getElementById("submenu").style.display = "none";
+        document.getElementById("mainBtn").style.display = "none";
+    }
+
+    function setMode(mode, table = 'all', readableName = '') {
+        selectedMode = mode;
+        selectedTable = table;
+        readableModeName = readableName;
+        
+        initAudio();
+        updateRecordDisplay();
+
+        document.getElementById("menuModes").style.display = "none";
+        document.getElementById("submenu").style.display = "none";
+        document.getElementById("mainBtn").style.display = "block";
+        document.getElementById("statusDesc").innerText = `Seleccionado: ${readableModeName}`;
+    }
+
+    function startGame() {
+        initAudio();
+        document.getElementById("overlay").style.display = "none";
+        document.getElementById('resultados-finales').style.display = 'none';
+        document.getElementById('game-container').style.display = 'flex';
+        
+        tiempo = 60;
+        score = 0;
+        aciertos = 0;
+        errores = 0;
+        document.getElementById('puntos-totales').innerText = "0";
+
+        gameActive = true;
+        nextQuestion();
+        startTimer();
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        document.getElementById('timer-bar').style.width = "100%";
+        document.getElementById('timer-text').innerText = "01:00";
+        
+        timerInterval = setInterval(() => {
+            tiempo--;
+            document.getElementById('timer-bar').style.width = (tiempo / 60) * 100 + "%";
+            document.getElementById('timer-text').innerText = `00:${tiempo < 10 ? '0' : ''}${tiempo}`;
+            if (tiempo <= 0) endGame();
+        }, 1000);
+    }
+
+    function nextQuestion() {
+        currentInput = "";
+        document.getElementById('respuesta-display').innerText = "";
+        document.getElementById('operacion').className = "op-card";
+
+        let n1, n2;
+
+        switch(selectedMode) {
+            // --- SUMAS ---
+            case 'sum_facil':
+                n1 = Math.floor(Math.random() * 9) + 1;
+                n2 = Math.floor(Math.random() * 9) + 1;
+                correctAns = n1 + n2;
+                document.getElementById('operacion').innerText = `${n1} + ${n2}`;
+                break;
+            case 'sum_medio':
+                n1 = Math.floor(Math.random() * 40) + 10;
+                n2 = Math.floor(Math.random() * 40) + 10;
+                correctAns = n1 + n2;
+                document.getElementById('operacion').innerText = `${n1} + ${n2}`;
+                break;
+            case 'sum_dificil':
+                n1 = Math.floor(Math.random() * 50) + 20;
+                n2 = Math.floor(Math.random() * 50) + 20;
+                correctAns = n1 + n2;
+                document.getElementById('operacion').innerText = `${n1} + ${n2}`;
+                break;
+
+            // --- RESTAS ---
+            case 'res_facil':
+                n1 = Math.floor(Math.random() * 9) + 2;
+                n2 = Math.floor(Math.random() * n1) + 1;
+                correctAns = n1 - n2;
+                document.getElementById('operacion').innerText = `${n1} - ${n2}`;
+                break;
+            case 'res_medio':
+                n1 = Math.floor(Math.random() * 40) + 10;
+                n2 = Math.floor(Math.random() * (n1 - 5)) + 5;
+                correctAns = n1 - n2;
+                document.getElementById('operacion').innerText = `${n1} - ${n2}`;
+                break;
+            case 'res_dificil':
+                n1 = Math.floor(Math.random() * 70) + 30;
+                n2 = Math.floor(Math.random() * (n1 - 10)) + 10;
+                correctAns = n1 - n2;
+                document.getElementById('operacion').innerText = `${n1} - ${n2}`;
+                break;
+
+            // --- MULTIPLICACIONES ---
+            case 'mult_1_5':
+                const t1 = [1, 2, 3, 5];
+                n1 = t1[Math.floor(Math.random() * t1.length)];
+                n2 = Math.floor(Math.random() * 10) + 1;
+                correctAns = n1 * n2;
+                document.getElementById('operacion').innerText = `${n1} × ${n2}`;
+                break;
+            case 'mult_6_9':
+                const t2 = [6, 7, 8, 9];
+                n1 = t2[Math.floor(Math.random() * t2.length)];
+                n2 = Math.floor(Math.random() * 10) + 1;
+                correctAns = n1 * n2;
+                document.getElementById('operacion').innerText = `${n1} × ${n2}`;
+                break;
+            case 'mult_1_10':
+                n1 = Math.floor(Math.random() * 10) + 1;
+                n2 = Math.floor(Math.random() * 10) + 1;
+                correctAns = n1 * n2;
+                document.getElementById('operacion').innerText = `${n1} × ${n2}`;
+                break;
+            case 'mult_custom':
+                n1 = parseInt(selectedTable, 10);
+                n2 = Math.floor(Math.random() * 10) + 1;
+                correctAns = n1 * n2;
+                document.getElementById('operacion').innerText = `${n1} × ${n2}`;
+                break;
+
+            // --- DIVISIONES ---
+            case 'div_1_5':
+                const d1 = [1, 2, 3, 5];
+                n2 = d1[Math.floor(Math.random() * d1.length)];
+                correctAns = Math.floor(Math.random() * 10) + 1;
+                n1 = n2 * correctAns;
+                document.getElementById('operacion').innerText = `${n1} ÷ ${n2}`;
+                break;
+            case 'div_6_9':
+                const d2 = [6, 7, 8, 9];
+                n2 = d2[Math.floor(Math.random() * d2.length)];
+                correctAns = Math.floor(Math.random() * 10) + 1;
+                n1 = n2 * correctAns;
+                document.getElementById('operacion').innerText = `${n1} ÷ ${n2}`;
+                break;
+            case 'div_1_10':
+                n2 = Math.floor(Math.random() * 10) + 1;
+                correctAns = Math.floor(Math.random() * 10) + 1;
+                n1 = n2 * correctAns;
+                document.getElementById('operacion').innerText = `${n1} ÷ ${n2}`;
+                break;
+            case 'div_custom':
+                n2 = parseInt(selectedTable, 10);
+                correctAns = Math.floor(Math.random() * 10) + 1;
+                n1 = n2 * correctAns;
+                document.getElementById('operacion').innerText = `${n1} ÷ ${n2}`;
+                break;
+
+            // --- COMBINADAS ---
+            case 'comb_sum_res':
+            default:
+                let a = Math.floor(Math.random() * 9) + 5;
+                let b = Math.floor(Math.random() * 9) + 1;
+                let op1 = Math.random() > 0.5 ? '+' : '-';
+                let tempResult = (op1 === '+') ? (a + b) : (a - b);
+                
+                let c = Math.floor(Math.random() * 9) + 1;
+                let op2 = Math.random() > 0.5 ? '+' : '-';
+                if (op2 === '-' && (tempResult - c) < 0) op2 = '+';
+                
+                correctAns = (op2 === '+') ? (tempResult + c) : (tempResult - c);
+                document.getElementById('operacion').innerText = `${a} ${op1} ${b} ${op2} ${c}`;
+                break;
+        }
+    }
+
+    function pressKey(num) {
+        if(!gameActive) return;
+        initAudio();
+        playSound('tecla');
+        
+        if (currentInput.length >= correctAns.toString().length + 1) return;
+
+        currentInput += num;
+        document.getElementById('respuesta-display').innerText = currentInput;
+        
+        if(currentInput.length === correctAns.toString().length) {
+            checkAnswer();
+        }
+    }
+
+    function deleteKey() {
+        if(!gameActive) return;
+        currentInput = "";
+        document.getElementById('respuesta-display').innerText = "";
+    }
+
+    function checkAnswer() {
+        const val = parseInt(currentInput, 10);
+        const card = document.getElementById('operacion');
+        const puntosSumar = (selectedMode === 'comb_sum_res' || selectedMode.includes('dificil')) ? 15 : 10;
+
+        if(val === correctAns) {
+            score += puntosSumar; 
+            aciertos++;
+            playSound('acierto');
+            card.classList.add('correct');
+        } else {
+            score = Math.max(0, score - 5); 
+            errores++;
+            playSound('error');
+            card.classList.add('wrong');
+        }
+        document.getElementById('puntos-totales').innerText = score;
+        setTimeout(nextQuestion, 300);
+    }
+
+    function endGame() {
+        gameActive = false;
+        clearInterval(timerInterval);
+        
+        document.getElementById('game-container').style.display = 'none';
+        document.getElementById('resultados-finales').style.display = 'flex';
+
+        document.getElementById('res-actividad').innerText = readableModeName;
+        document.getElementById('res-puntos').innerText = score;
+        document.getElementById('res-aciertos').innerText = aciertos;
+        document.getElementById('res-errores').innerText = errores;
+        
+        const total = aciertos + errores;
+        document.getElementById('res-porcentaje').innerText = (total > 0 ? Math.round((aciertos / total) * 100) : 0) + "%";
+
+        // Guardar Récord específico
+        try {
+            const key = getStorageKey();
+            const currentBest = localStorage.getItem(key) || 0;
+            if(score > parseInt(currentBest, 10)) {
+                localStorage.setItem(key, score);
+                updateRecordDisplay();
+            }
+        } catch(e) {
+            console.warn("LocalStorage no disponible:", e);
+        }
+    }
+
+    function resetToMenu() {
+        gameActive = false;
+        clearInterval(timerInterval);
+        document.getElementById('game-container').style.display = 'flex';
+        document.getElementById('resultados-finales').style.display = 'none';
+        
+        document.getElementById('overlay').style.display = 'flex';
+        document.getElementById('menuModes').style.display = 'grid';
+        document.getElementById('submenu').style.display = 'none';
+        document.getElementById('mainBtn').style.display = 'none';
+        document.getElementById("statusDesc").innerText = "Selecciona una operación:";
+        
+        updateRecordDisplay();
+    }
+
+    // Inicializar récord visual
+    updateRecordDisplay();
+</script>
+</body>
+</html>
