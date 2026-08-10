@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Suite Educativa de Restas Interactivas</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&family=Outfit:wght@400;700;900&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ==========================================================================
+           GLOBAL & NAVIGATION STYLES
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --nav-bg: #1e293b;
+            --nav-accent: #f43f5e;
+            --secondary-accent: #38bdf8;
+        }
+
+        body {
+            font-family: 'Outfit', 'Quicksand', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation Bar */
+        .app-header {
+            background-color: var(--nav-bg);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-home-link {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-home-link:hover {
+            background: var(--nav-accent);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .app-title {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--nav-accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-menu-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-menu-toggle:hover {
+            background: var(--nav-accent);
+            color: white;
+        }
+
+        /* Container where views render */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 100%;
+        }
+
+        /* Game Views */
+        .game-view {
+            display: none !important;
+            width: 100%;
+            flex: 1;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .game-view.active {
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Main Menu View */
+        #view-main-menu {
+            padding: 30px 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .menu-header h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #f43f5e, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .menu-header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .card-game {
+            background: #1e293b;
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-game:hover {
+            transform: translateY(-5px);
+            border-color: var(--nav-accent);
+            box-shadow: 0 10px 25px rgba(244, 63, 94, 0.25);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .card-btn {
+            align-self: flex-start;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--nav-accent);
+            transition: all 0.2s;
+        }
+
+        .card-game:hover .card-btn {
+            background: var(--nav-accent);
+            color: white;
+        }
+
+        /* Controls / Indicators */
+        .pc-keyboard-indicator {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive Top Bar */
+        @media (max-width: 600px) {
+            .app-header {
+                padding: 10px 12px;
+            }
+            .app-title {
+                font-size: 0.95rem;
+            }
+            .btn-menu-toggle {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+            .menu-header h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* ==========================================================================
+           GAME 1 STYLES (Cesta de Manzanas)
+           ========================================================================== */
+        #view-game1 {
+            background: #87ceeb;
+            color: #2c3e50;
+            font-family: 'Quicksand', sans-serif;
+            min-height: calc(100vh - 55px);
+            padding-bottom: 20px;
+            width: 100%;
+        }
+
+        #view-game1 .header-g1 {
+            background: white;
+            padding: 10px 20px;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            width: fit-content;
+            margin: 10px auto 5px;
+        }
+
+        #view-game1 .target-text { font-weight: bold; font-size: 0.9rem; }
+        #view-game1 .target-number {
+            font-size: 2.5rem;
+            color: #ff4d4d;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        #view-game1 .basket-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        #view-game1 .basket {
+            width: 180px;
+            height: 120px;
+            background: #8b4513;
+            border-radius: 10px 10px 70px 70px;
+            border: 5px solid #5d2e0a;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px;
+            gap: 4px;
+            justify-content: center;
+            align-content: flex-end;
+            min-height: 120px;
+        }
+
+        #view-game1 .apple {
+            width: 28px;
+            height: 28px;
+            background: #ff4d4d;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow: inset -3px -3px 0 rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+        }
+
+        #view-game1 .apple:active { transform: scale(0.9); }
+
+        #view-game1 .apple::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 11px;
+            width: 3px;
+            height: 6px;
+            background: #4a2c00;
+        }
+
+        #view-game1 .counter {
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 5px 0;
+            color: #5d2e0a;
+        }
+
+        #view-game1 .controls { margin-bottom: 10px; text-align: center; }
+
+        #view-game1 #g1-check-btn {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #1a252f;
+        }
+
+        #view-game1 #g1-feedback-msg {
+            margin-top: 8px;
+            padding: 5px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        #view-game1 .ground-area {
+            background: #9cdb43;
+            width: 100%;
+            min-height: 120px;
+            max-height: 200px;
+            border-top: 5px solid #86c038;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            overflow-y: auto;
+            margin-top: auto;
+        }
+
+        #view-game1 .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1100;
+        }
+
+        #view-game1 .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 80%;
+            box-shadow: 0 0 20px #2ecc71;
+            color: #2c3e50;
+        }
+
+        #view-game1 .operation-display {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #2c3e50;
+            margin: 20px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 2px dashed #bdc3c7;
+        }
+
+        /* ==========================================================================
+           GAME 2 STYLES (Laboratorio de Resta / Gemas)
+           ========================================================================== */
+        #view-game2 {
+            background-color: #0f172a;
+            background-image: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 100%);
+            min-height: calc(100vh - 55px);
+            color: white;
+            padding: 15px;
+            width: 100%;
+        }
+
+        #view-game2 .hud {
+            display: flex; justify-content: center; gap: 40px;
+            width: 100%; max-width: 800px; margin-top: 10px; margin-bottom: 15px;
+            background: rgba(255,255,255,0.05); padding: 10px 30px;
+            border-radius: 50px; border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        #view-game2 .stat-value { font-size: 1.8rem; font-weight: 900; line-height: 1; }
+        #view-game2 .stat-label { font-size: 0.7rem; text-transform: uppercase; color: #f43f5e; letter-spacing: 2px; }
+
+        #view-game2 #gameConsole {
+            width: 100%; max-width: 800px; height: 50px;
+            background: rgba(0,0,0,0.4); border-radius: 12px; margin-bottom: 15px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; border: 2px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease; text-align: center; padding: 0 10px;
+        }
+
+        #view-game2 #gameConsole.error-active {
+            border-color: #f43f5e;
+            background: rgba(244, 63, 94, 0.15);
+            animation: shake 0.4s ease-in-out;
+        }
+
+        #view-game2 .target-orb {
+            width: 100px; height: 100px;
+            background: radial-gradient(circle at 30% 30%, #4ade80, #15803d);
+            border-radius: 50%; margin: 0 auto 5px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3rem; font-weight: 900; font-family: 'Orbitron', sans-serif;
+            box-shadow: 0 0 30px rgba(74, 222, 128, 0.4);
+        }
+
+        #view-game2 .lab-bench {
+            background: #1e293b; padding: 25px; border-radius: 30px;
+            display: flex; justify-content: space-around; align-items: center;
+            width: 100%; max-width: 850px; margin-bottom: 20px;
+        }
+
+        #view-game2 .tank, #view-game2 .drop-zone {
+            width: 170px; height: 210px;
+            border: 4px solid rgba(255,255,255,0.2);
+            border-radius: 15px 15px 50px 50px;
+            background: rgba(255,255,255,0.03);
+            display: flex; flex-wrap: wrap; padding: 10px;
+            align-content: flex-start; justify-content: center; gap: 5px;
+        }
+
+        #view-game2 .drop-zone { border-style: dashed; border-radius: 20px; }
+
+        #view-game2 .label-num {
+            margin-top: 10px; font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem; font-weight: 900; text-align: center;
+        }
+
+        #view-game2 .gem {
+            width: 28px; height: 28px;
+            background: #f43f5e;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+
+        #view-game2 .gem.draggable { 
+            cursor: grab; 
+            touch-action: none; 
+            position: relative; 
+            z-index: 10;
+        }
+
+        #view-game2 .gem.dragging {
+            position: fixed; pointer-events: none;
+            z-index: 9999; transform: scale(1.3); opacity: 0.8;
+        }
+
+        #view-game2 .btn-action {
+            background: linear-gradient(180deg, #f43f5e, #9f1239);
+            border: none; padding: 18px 50px; color: white; font-size: 1.5rem;
+            font-weight: 900; border-radius: 20px; cursor: pointer;
+            box-shadow: 0 6px 0 #4c0519;
+            transition: transform 0.1s;
+        }
+
+        #view-game2 .btn-action:active { transform: translateY(4px); box-shadow: 0 2px 0 #4c0519; }
+
+        #view-game2 .modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            background: white; color: black; padding: 35px; border-radius: 30px;
+            text-align: center; z-index: 1100; width: 90%; max-width: 500px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        #view-game2 .modal.show { transform: translate(-50%, -50%) scale(1); }
+
+        /* ==========================================================================
+           GAME 3 STYLES (Restas con Ceros Obligatorios)
+           ========================================================================== */
+        #view-game3 {
+            background: linear-gradient(135deg, #43a047, #1b5e20);
+            min-height: calc(100vh - 55px);
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        #view-game3 .container-g3 {
+            width: 98%; max-width: 950px; min-height: 500px; max-height: 90vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative; color: #333;
+        }
+
+        .header-game-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .instruccion {
+            background: #2e7d32; color: white; padding: 12px;
+            border-radius: 12px; text-align: center;
+            font-weight: bold; font-size: 1.1rem; flex: 1;
+        }
+
+        #view-game3 .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+
+        #view-game3 .zona-operacion {
+            flex: 1.8; overflow-y: auto; padding: 15px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        #view-game3 .zona-teclado {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        .tablero { font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: flex-end; }
+        
+        .fila { display: flex; height: 50px; justify-content: flex-end; align-items: center; }
+        .fila-linea { border-bottom: 4px solid #333; width: 100%; margin: 5px 0; }
+
+        .num, .celda {
+            width: 45px; height: 48px; line-height: 48px; text-align: center; 
+            font-size: 2rem; font-weight: bold;
+        }
+
+        .signo { font-size: 2rem; font-weight: bold; margin-right: 15px; }
+
+        .celda { border: 2px solid #ccc; border-radius: 6px; background: #fff; line-height: 44px; }
+        .celda.activa { border: 3px solid #4CAF50; background: #E8F5E9; }
+        .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 250px; }
+        .tecla { padding: 15px 0; font-size: 1.4rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; color: #333; }
+        .tecla:active { box-shadow: 0 2px #ccc; transform: translateY(2px); }
+
+        .pantalla { display: none; height: 100%; width: 100%; }
+        .pantalla.active { display: flex; flex-direction: column; }
+        
+        .btn-nivel { width: 100%; max-width: 350px; padding: 12px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem; }
+
+        #view-game3 #modal-victoria3 {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            #view-game3 .contenido-juego { flex-direction: column; }
+            #view-game3 .zona-teclado { border-left: none; border-top: 2px solid #eee; }
+            #view-game3 .num, #view-game3 .celda { width: 38px; height: 42px; font-size: 1.8rem; }
+        }
+
+        /* ==========================================================================
+           GAME 4 STYLES (Restas con Llevadas y Ceros)
+           ========================================================================== */
+        #view-game4 {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            min-height: calc(100vh - 55px);
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        #view-game4 .container-g4 {
+            width: 98%; max-width: 950px; min-height: 500px; max-height: 90vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative; color: #333;
+        }
+
+        #view-game4 .instruccion {
+            background: #1e3c72; color: white; padding: 12px;
+            border-radius: 12px; text-align: center;
+            font-weight: bold; font-size: 1.1rem; flex: 1;
+        }
+
+        #view-game4 .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+
+        #view-game4 .zona-operacion {
+            flex: 1.8; overflow-y: auto; padding: 15px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        #view-game4 .zona-teclado {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        #view-game4 .celda.activa { border: 3px solid #FF9800; background: #FFF3E0; }
+
+        #view-game4 #modal-victoria4 {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            #view-game4 .contenido-juego { flex-direction: column; }
+            #view-game4 .zona-teclado { border-left: none; border-top: 2px solid #eee; }
+            #view-game4 .num, #view-game4 .celda { width: 38px; height: 42px; font-size: 1.8rem; }
+        }
+
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Navigation Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <a href="main-index.html" class="btn-home-link" title="Ir al Inicio de la Web">
+                <i class="fas fa-home"></i>
+            </a>
+            <div class="app-title">
+                <i class="fas fa-minus-circle"></i> Suite de Restas Interactivas
+            </div>
+        </div>
+        <button class="btn-menu-toggle" onclick="showView('view-main-menu')">
+            <i class="fas fa-th-large"></i> Menú Juegos
+        </button>
+    </header>
+
+    <div class="main-container">
+
+        <!-- ==========================================
+             MAIN MENU VIEW
+             ========================================== -->
+        <div id="view-main-menu" class="game-view active">
+            <div class="menu-header">
+                <h1>Selecciona un Juego de Resta</h1>
+                <p>Elige la actividad que deseas practicar. Puedes usar el teclado físico o la pantalla.</p>
+            </div>
+            
+            <div style="display: flex; justify-content: center; width: 100%;">
+                <div class="pc-keyboard-indicator">
+                   
+                </div>
+            </div>
+
+            <div class="menu-grid">
+                
+                <div class="card-game" onclick="showView('view-game1')">
+                    <div>
+                        <div class="card-icon" style="color: #ff4d4d;"><i class="fas fa-shopping-basket"></i></div>
+                        <div class="card-title">Aprendresta - Operación Final</div>
+                        <div class="card-desc">Visual e intuitivo. Quita las manzanas de la cesta y déjalas en el suelo para conseguir el resultado exacto.</div>
+                    </div>
+                    <div class="card-btn">Jugar <i class="fas fa-arrow-right"></i></div>
+                </div>
+
+                <div class="card-game" onclick="showView('view-game2')">
+                    <div>
+                        <div class="card-icon" style="color: #38bdf8;"><i class="fas fa-flask"></i></div>
+                        <div class="card-title">Desactivador Numérico</div>
+                        <div class="card-desc">El laboratorio de la resta. Arrastra las gemas sobrantes a la zona de desactivación para alcanzar el objetivo.</div>
+                    </div>
+                    <div class="card-btn">Jugar <i class="fas fa-arrow-right"></i></div>
+                </div>
+
+                <div class="card-game" onclick="showView('view-game3')">
+                    <div>
+                        <div class="card-icon" style="color: #43a047;"><i class="fas fa-square-minus"></i></div>
+                        <div class="card-title">Restas sin Llevadas (con Ceros)</div>
+                        <div class="card-desc">Práctica formal por columnas (2, 3 y 4 cifras). Es obligatorio completar todas las posiciones, incluidos los ceros.</div>
+                    </div>
+                    <div class="card-btn">Jugar <i class="fas fa-arrow-right"></i></div>
+                </div>
+
+                <div class="card-game" onclick="showView('view-game4')">
+                    <div>
+                        <div class="card-icon" style="color: #1e3c72;"><i class="fas fa-layer-group"></i></div>
+                        <div class="card-title">Restas con Llevadas y Ceros</div>
+                        <div class="card-desc">Desafío avanzado de restas tradicionales con llevadas en varias columnas, completando ceros cuando corresponda.</div>
+                    </div>
+                    <div class="card-btn">Jugar <i class="fas fa-arrow-right"></i></div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==========================================
+             GAME 1: Aprendresta - Cesta de Manzanas
+             ========================================== -->
+        <div id="view-game1" class="game-view">
+            <div class="header-g1">
+                <div class="target-text">DEJA EN LA CESTA:</div>
+                <span class="target-number" id="g1-targetNum">0</span>
+            </div>
+
+            <div class="basket-container">
+                <div class="basket" id="g1-basket"></div>
+                <div class="counter" id="g1-basketCount">0</div>
+            </div>
+
+            <div class="controls">
+                <button id="g1-check-btn" onclick="g1_verify()">¡LISTO!</button>
+                <div id="g1-feedback-msg"></div>
+            </div>
+
+            <div class="ground-area" id="g1-ground"></div>
+
+            <div class="modal" id="g1-winModal">
+                <div class="modal-content">
+                    <h2 style="color: #2ecc71; margin: 0;">¡LO HAS HECHO GENIAL! 🌟</h2>
+                    <div class="operation-display" id="g1-opResult">0 - 0 = 0</div>
+                    <p id="g1-textExplanation" style="font-weight: bold; color: #7f8c8d;"></p>
+                    <button onclick="g1_initGame()" style="background: #2ecc71; color: white; border: none; padding: 12px 30px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1.2rem;">SIGUIENTE RETO</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             GAME 2: Desactivador Numérico - Laboratorio
+             ========================================== -->
+        <div id="view-game2" class="game-view">
+            <div class="hud">
+                <div class="stat"><div class="stat-label">Nivel</div><div class="stat-value" id="g2-lvlVal">1</div></div>
+                <div class="stat"><div class="stat-label">Racha</div><div class="stat-value" id="g2-streakVal">0</div></div>
+            </div>
+
+            <div id="gameConsole">DESACTIVA LAS GEMAS SOBRANTES</div>
+
+            <div class="target-container">
+                <div class="target-orb" id="g2-targetNum">0</div>
+                <p style="color: #4ade80; text-align: center; font-weight: bold; font-size: 0.8rem; margin-top: 4px;">OBJETIVO FINAL</p>
+            </div>
+
+            <div class="lab-bench">
+                <div><div class="tank" id="g2-mainTank"></div><div class="label-num" id="g2-valRemaining" style="color: #4ade80;">0</div></div>
+                <div style="font-size: 3rem; color: #f43f5e; font-weight: bold;">−</div>
+                <div><div class="drop-zone" id="g2-dropZone"></div><div class="label-num" id="g2-valRemoved" style="color: #64748b;">0</div></div>
+            </div>
+
+            <button class="btn-action" onclick="g2_verifySubtraction()">¡COMPROBAR RESTA!</button>
+
+            <div class="modal" id="g2-resultModal">
+                <h2 style="color: #4ade80">¡OPERACIÓN CORRECTA!</h2>
+                <div id="g2-equationDisplay" style="font-size: 2.5rem; margin: 20px 0; font-family: 'Orbitron';"></div>
+                <button class="btn-action" style="background: #0f172a; box-shadow: 0 6px 0 #000;" onclick="g2_nextLevel()">CONTINUAR</button>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             GAME 3: Restas sin Llevadas (con Ceros)
+             ========================================== -->
+        <div id="view-game3" class="game-view">
+            <div class="container-g3">
+                <div id="g3-menu" class="pantalla active" style="justify-content: center;">
+                    <h1 style="text-align:center; color:#2e7d32; margin-bottom:15px;">Resta sin Llevadas</h1>
+                    <button class="btn-nivel" style="background:#43a047" onclick="g3_iniciar(1)">Nivel 1: 2 Cifras</button>
+                    <button class="btn-nivel" style="background:#fb8c00" onclick="g3_iniciar(2)">Nivel 2: 3 Cifras</button>
+                    <button class="btn-nivel" style="background:#e53935" onclick="g3_iniciar(3)">Nivel 3: 4 Cifras</button>
+                    <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="showView('view-main-menu')">🏠 Volver al Menú Principal</button>
+                </div>
+
+                <div id="g3-juego" class="pantalla">
+                    <div class="header-game-bar">
+                        <div id="g3-instruccion" class="instruccion">¡A restar! (Sin llevadas)</div>
+                    </div>
+                    <div class="contenido-juego">
+                        <div class="zona-operacion" id="g3-scroll-area">
+                            <div id="g3-tablero" class="tablero"></div>
+                        </div>
+                        <div class="zona-teclado">
+                            <div class="teclado">
+                                <button class="tecla" onclick="g3_entrada(1)">1</button>
+                                <button class="tecla" onclick="g3_entrada(2)">2</button>
+                                <button class="tecla" onclick="g3_entrada(3)">3</button>
+                                <button class="tecla" onclick="g3_entrada(4)">4</button>
+                                <button class="tecla" onclick="g3_entrada(5)">5</button>
+                                <button class="tecla" onclick="g3_entrada(6)">6</button>
+                                <button class="tecla" onclick="g3_entrada(7)">7</button>
+                                <button class="tecla" onclick="g3_entrada(8)">8</button>
+                                <button class="tecla" onclick="g3_entrada(9)">9</button>
+                                <button class="tecla" style="background:#ffcdd2" onclick="g3_borrar()">C</button>
+                                <button class="tecla" onclick="g3_entrada(0)">0</button>
+                                <button class="tecla" style="background:#eee" onclick="g3_volverAlMenuNiveles()">🏠</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="modal-victoria3">
+                    <h2 style="font-size: 2.5rem; color: #43a047;">¡Resta completada! 🏆</h2>
+                    <button class="btn-nivel" style="background:#43a047; max-width: 250px; margin-top:20px;" onclick="g3_volverAJugarMismoNivel()">Jugar otra vez</button>
+                    <button class="btn-nivel" style="background:#1e3c72; max-width: 250px;" onclick="g3_volverAlMenuNiveles()">Volver a Niveles</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             GAME 4: Restas con Llevadas y Ceros
+             ========================================== -->
+        <div id="view-game4" class="game-view">
+            <div class="container-g4">
+                <div id="g4-menu" class="pantalla active" style="justify-content: center;">
+                    <h1 style="text-align:center; color:#1e3c72; margin-bottom:15px;">Resta con Llevadas</h1>
+                    <button class="btn-nivel" style="background:#43a047" onclick="g4_iniciar(1)">Nivel 1: 2 Cifras</button>
+                    <button class="btn-nivel" style="background:#fb8c00" onclick="g4_iniciar(2)">Nivel 2: 3 Cifras</button>
+                    <button class="btn-nivel" style="background:#e53935" onclick="g4_iniciar(3)">Nivel 3: 4 Cifras</button>
+                    <button class="btn-nivel" style="background:#555; margin-top: 15px;" onclick="showView('view-main-menu')">🏠 Volver al Menú Principal</button>
+                </div>
+
+                <div id="g4-juego" class="pantalla">
+                    <div class="header-game-bar">
+                        <div id="g4-instruccion" class="instruccion">¡A restar!</div>
+                    </div>
+                    <div class="contenido-juego">
+                        <div class="zona-operacion" id="g4-scroll-area">
+                            <div id="g4-tablero" class="tablero"></div>
+                        </div>
+                        <div class="zona-teclado">
+                            <div class="teclado">
+                                <button class="tecla" onclick="g4_entrada(1)">1</button>
+                                <button class="tecla" onclick="g4_entrada(2)">2</button>
+                                <button class="tecla" onclick="g4_entrada(3)">3</button>
+                                <button class="tecla" onclick="g4_entrada(4)">4</button>
+                                <button class="tecla" onclick="g4_entrada(5)">5</button>
+                                <button class="tecla" onclick="g4_entrada(6)">6</button>
+                                <button class="tecla" onclick="g4_entrada(7)">7</button>
+                                <button class="tecla" onclick="g4_entrada(8)">8</button>
+                                <button class="tecla" onclick="g4_entrada(9)">9</button>
+                                <button class="tecla" style="background:#ffcdd2" onclick="g4_borrar()">C</button>
+                                <button class="tecla" onclick="g4_entrada(0)">0</button>
+                                <button class="tecla" style="background:#eee" onclick="g4_volverAlMenuNiveles()">🏠</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="modal-victoria4">
+                    <h2 style="font-size: 2.5rem; color: #43a047;">¡Resta completada! 🏆</h2>
+                    <button class="btn-nivel" style="background:#43a047; max-width: 250px; margin-top:20px;" onclick="g4_volverAJugarMismoNivel()">Jugar otra vez</button>
+                    <button class="btn-nivel" style="background:#1e3c72; max-width: 250px;" onclick="g4_volverAlMenuNiveles()">Volver a Niveles</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==========================================================================
+         JAVASCRIPT LOGIC
+         ========================================================================== -->
+    <script>
+        let currentActiveView = 'view-main-menu';
+
+        // Navigation Controller
+        function showView(viewId) {
+            document.querySelectorAll('.game-view').forEach(view => {
+                view.classList.remove('active');
+            });
+            const target = document.getElementById(viewId);
+            if (target) {
+                target.classList.add('active');
+                currentActiveView = viewId;
+                window.scrollTo(0, 0);
+
+                // Initialize specific game if needed
+                if (viewId === 'view-game1') g1_initGame();
+                if (viewId === 'view-game2') g2_initLevel();
+                if (viewId === 'view-game3') g3_volverAlMenuNiveles();
+                if (viewId === 'view-game4') g4_volverAlMenuNiveles();
+            }
+        }
+
+        // PHYSICAL KEYBOARD LISTENER (PC) - Works on active game
+        document.addEventListener('keydown', function(e) {
+            if (e.key >= '0' && e.key <= '9') {
+                const num = parseInt(e.key);
+                if (currentActiveView === 'view-game3') g3_entrada(num);
+                if (currentActiveView === 'view-game4') g4_entrada(num);
+            } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key.toLowerCase() === 'c') {
+                if (currentActiveView === 'view-game3') g3_borrar();
+                if (currentActiveView === 'view-game4') g4_borrar();
+            } else if (e.key === 'Enter') {
+                if (currentActiveView === 'view-game1') g1_verify();
+                if (currentActiveView === 'view-game2') g2_verifySubtraction();
+            }
+        });
+
+        /* ==========================================================================
+           GAME 1 LOGIC (Aprendresta - Cesta de Manzanas)
+           ========================================================================== */
+        let g1_target = 0;
+        let g1_totalInitial = 0;
+
+        function g1_initGame() {
+            document.getElementById('g1-winModal').style.display = 'none';
+            const feedback = document.getElementById('g1-feedback-msg');
+            feedback.style.display = 'none';
+            
+            const basket = document.getElementById('g1-basket');
+            const ground = document.getElementById('g1-ground');
+            basket.innerHTML = '';
+            ground.innerHTML = '';
+
+            g1_target = Math.floor(Math.random() * 6) + 2; 
+            g1_totalInitial = g1_target + Math.floor(Math.random() * 5) + 2; 
+            
+            document.getElementById('g1-targetNum').innerText = g1_target;
+
+            for(let i=0; i < g1_totalInitial; i++) {
+                const apple = document.createElement('div');
+                apple.className = 'apple';
+                apple.onclick = () => g1_moveApple(apple);
+                basket.appendChild(apple);
+            }
+            g1_updateUI();
+        }
+
+        function g1_moveApple(apple) {
+            const feedback = document.getElementById('g1-feedback-msg');
+            feedback.style.display = 'none';
+            const basket = document.getElementById('g1-basket');
+            const ground = document.getElementById('g1-ground');
+
+            if (apple.parentElement === basket) {
+                ground.appendChild(apple);
+            } else {
+                basket.appendChild(apple);
+            }
+            g1_updateUI();
+        }
+
+        function g1_updateUI() {
+            const basket = document.getElementById('g1-basket');
+            document.getElementById('g1-basketCount').innerText = basket.children.length;
+        }
+
+        function g1_verify() {
+            const basket = document.getElementById('g1-basket');
+            const feedback = document.getElementById('g1-feedback-msg');
+            const current = basket.children.length;
+            const removed = g1_totalInitial - current;
+            feedback.style.display = 'block';
+
+            if (current === g1_target) {
+                document.getElementById('g1-opResult').innerText = `${g1_totalInitial} - ${removed} = ${g1_target}`;
+                document.getElementById('g1-textExplanation').innerText = `Había ${g1_totalInitial}, has quitado ${removed} y ahora quedan ${g1_target}.`;
+                document.getElementById('g1-winModal').style.display = 'flex';
+            } else {
+                feedback.style.background = '#e74c3c';
+                feedback.style.color = 'white';
+                if (current > g1_target) {
+                    feedback.innerText = `¡Aún sobran! Tienes que quitar ${current - g1_target} más.`;
+                } else {
+                    feedback.innerText = `¡Has quitado demasiadas! Devuelve ${g1_target - current} a la cesta.`;
+                }
+            }
+        }
+
+        /* ==========================================================================
+           GAME 2 LOGIC (Desactivador Numérico - Gemas)
+           ========================================================================== */
+        let g2_state = { level: 1, streak: 0, target: 0, initial: 0 };
+        const g2_audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function g2_playSound(type) {
+            try {
+                const osc = g2_audioCtx.createOscillator();
+                const gain = g2_audioCtx.createGain();
+                osc.connect(gain); gain.connect(g2_audioCtx.destination);
+                osc.type = type === 'success' ? 'sine' : 'sawtooth';
+                osc.frequency.setValueAtTime(type === 'success' ? 523 : 100, g2_audioCtx.currentTime);
+                osc.start(); osc.stop(g2_audioCtx.currentTime + 0.2);
+            } catch(e){}
+        }
+
+        function g2_initLevel() {
+            g2_state.target = Math.floor(Math.random() * 5) + 3 + g2_state.level;
+            let toRemove = Math.floor(Math.random() * 6) + 2;
+            g2_state.initial = g2_state.target + toRemove;
+
+            document.getElementById('g2-targetNum').innerText = g2_state.target;
+            document.getElementById('g2-lvlVal').innerText = g2_state.level;
+            
+            const tank = document.getElementById('g2-mainTank');
+            const dropZone = document.getElementById('g2-dropZone');
+            tank.innerHTML = ''; dropZone.innerHTML = '';
+
+            for(let i=0; i < g2_state.initial; i++) {
+                const gem = document.createElement('div');
+                gem.className = 'gem draggable';
+                g2_setupUniversalDrag(gem);
+                tank.appendChild(gem);
+            }
+            g2_updateStats();
+        }
+
+        function g2_setupUniversalDrag(el) {
+            let offsetX, offsetY;
+
+            const startDrag = (e) => {
+                const point = e.touches ? e.touches[0] : e;
+                const rect = el.getBoundingClientRect();
+                offsetX = point.clientX - rect.left;
+                offsetY = point.clientY - rect.top;
+                el.classList.add('dragging');
+                
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('touchmove', drag, { passive: false });
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchend', endDrag);
+            };
+
+            const drag = (e) => {
+                if (e.type === 'touchmove') e.preventDefault();
+                const point = e.touches ? e.touches[0] : e;
+                el.style.left = (point.clientX - offsetX) + 'px';
+                el.style.top = (point.clientY - offsetY) + 'px';
+            };
+
+            const endDrag = (e) => {
+                const point = e.changedTouches ? e.changedTouches[0] : e;
+                el.classList.remove('dragging');
+                el.style.left = ''; el.style.top = '';
+
+                const tank = document.getElementById('g2-mainTank');
+                const dropZone = document.getElementById('g2-dropZone');
+                
+                const rectT = tank.getBoundingClientRect();
+                const rectD = dropZone.getBoundingClientRect();
+
+                if (point.clientX > rectT.left && point.clientX < rectT.right &&
+                    point.clientY > rectT.top && point.clientY < rectT.bottom) {
+                    tank.appendChild(el);
+                } else if (point.clientX > rectD.left && point.clientX < rectD.right &&
+                           point.clientY > rectD.top && point.clientY < rectD.bottom) {
+                    dropZone.appendChild(el);
+                }
+
+                g2_updateStats();
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchend', endDrag);
+            };
+
+            el.addEventListener('mousedown', startDrag);
+            el.addEventListener('touchstart', startDrag);
+        }
+
+        function g2_updateStats() {
+            const remaining = document.getElementById('g2-mainTank').querySelectorAll('.gem').length;
+            const removed = document.getElementById('g2-dropZone').querySelectorAll('.gem').length;
+            document.getElementById('g2-valRemaining').innerText = remaining;
+            document.getElementById('g2-valRemoved').innerText = removed;
+
+            const consoleEl = document.getElementById('gameConsole');
+            consoleEl.classList.remove('error-active');
+
+            if (remaining > g2_state.target) {
+                consoleEl.innerText = `FALTAN POR QUITAR ${remaining - g2_state.target} GEMAS`;
+                consoleEl.style.color = "white";
+            } else if (remaining < g2_state.target) {
+                consoleEl.innerText = `HAS QUITADO DEMASIADAS (${g2_state.target - remaining} DE MÁS)`;
+                consoleEl.style.color = "#f43f5e";
+            } else {
+                consoleEl.innerText = "¡CANTIDAD EXACTA! COMPRUEBA AHORA";
+                consoleEl.style.color = "#4ade80";
+            }
+        }
+
+        function g2_verifySubtraction() {
+            const remaining = document.getElementById('g2-mainTank').querySelectorAll('.gem').length;
+            const removed = document.getElementById('g2-dropZone').querySelectorAll('.gem').length;
+            const consoleEl = document.getElementById('gameConsole');
+            
+            if (remaining === g2_state.target) {
+                g2_playSound('success');
+                g2_state.streak++;
+                document.getElementById('g2-streakVal').innerText = g2_state.streak;
+                document.getElementById('g2-equationDisplay').innerText = `${g2_state.initial} − ${removed} = ${remaining}`;
+                document.getElementById('g2-resultModal').classList.add('show');
+                consoleEl.style.color = "#4ade80";
+                consoleEl.innerText = "¡DESACTIVACIÓN COMPLETA!";
+            } else {
+                g2_playSound('error');
+                g2_state.streak = 0;
+                document.getElementById('g2-streakVal').innerText = 0;
+                consoleEl.classList.add('error-active');
+                consoleEl.innerText = "REVISA LA MEZCLA: OBJETIVO NO CUMPLIDO";
+                consoleEl.style.color = "#f43f5e";
+            }
+        }
+
+        function g2_nextLevel() {
+            g2_state.level++;
+            document.getElementById('g2-resultModal').classList.remove('show');
+            g2_initLevel();
+        }
+
+        /* ==========================================================================
+           GAME 3 LOGIC (Restas sin Llevadas)
+           ========================================================================== */
+        let g3_n1, g3_n2, g3_nivelActual = 1;
+        let g3_valorObjetivo = "", g3_celdasActuales = [], g3_indexInput = 0;
+
+        const g3_nivelesConfig = {
+            1: { cifras: 2 },
+            2: { cifras: 3 },
+            3: { cifras: 4 }
+        };
+
+        function g3_iniciar(n) {
+            g3_nivelActual = n;
+            const cifras = g3_nivelesConfig[n].cifras;
+            
+            let num1Str = "";
+            let num2Str = "";
+
+            for(let i=0; i<cifras; i++) {
+                let d1 = Math.floor(Math.random() * 9) + (i === 0 ? 1 : 0);
+                let d2 = Math.floor(Math.random() * (d1 + 1));
+                num1Str += d1.toString();
+                num2Str += d2.toString();
+            }
+
+            g3_n1 = parseInt(num1Str);
+            g3_n2 = parseInt(num2Str);
+            if(g3_n1 === g3_n2) g3_n1 += 1;
+
+            let resultado = g3_n1 - g3_n2;
+            g3_valorObjetivo = resultado.toString().padStart(num1Str.length, "0");
+            
+            document.getElementById('g3-menu').classList.remove('active');
+            document.getElementById('g3-juego').classList.add('active');
+            document.getElementById('modal-victoria3').style.display = 'none';
+            document.getElementById('g3-instruccion').textContent = "Resta todas las columnas, incluso si el resultado es cero.";
+            
+            const tablero = document.getElementById('g3-tablero');
+            tablero.innerHTML = '';
+            
+            tablero.appendChild(g3_crearFilaNumeros(g3_n1.toString()));
+            
+            const n2Str = g3_n2.toString().padStart(g3_n1.toString().length, "0");
+            const fila2 = g3_crearFilaNumeros(n2Str);
+            const signo = document.createElement('span');
+            signo.className = 'signo'; signo.textContent = '−';
+            fila2.prepend(signo);
+            tablero.appendChild(fila2);
+            
+            const linea = document.createElement('div');
+            linea.className = 'fila-linea';
+            tablero.appendChild(linea);
+
+            const filaRes = document.createElement('div');
+            filaRes.className = 'fila';
+            g3_celdasActuales = [];
+
+            for (let i = 0; i < g3_valorObjetivo.length; i++) {
+                const c = document.createElement('div');
+                c.className = 'celda';
+                filaRes.appendChild(c);
+                g3_celdasActuales.push(c);
+            }
+            tablero.appendChild(filaRes);
+            
+            g3_indexInput = g3_celdasActuales.length - 1;
+            g3_actualizarCursor();
+        }
+
+        function g3_actualizarCursor() {
+            if (g3_indexInput >= 0) {
+                g3_celdasActuales.forEach(c => c && c.classList.remove('activa'));
+                g3_celdasActuales[g3_indexInput].classList.add('activa');
+            } else {
+                setTimeout(() => { 
+                    document.getElementById('modal-victoria3').style.display = 'flex'; 
+                    g2_playSound('success'); 
+                }, 500);
+            }
+        }
+
+        function g3_crearFilaNumeros(numStr) {
+            const fila = document.createElement('div');
+            fila.className = 'fila';
+            for (let char of numStr) {
+                const n = document.createElement('div');
+                n.className = 'num'; n.textContent = char;
+                fila.appendChild(n);
+            }
+            return fila;
+        }
+
+        function g3_entrada(n) {
+            if (g3_indexInput < 0 || !g3_celdasActuales[g3_indexInput]) return;
+            const celda = g3_celdasActuales[g3_indexInput];
+            
+            if (n.toString() === g3_valorObjetivo[g3_indexInput]) {
+                g2_playSound('success');
+                celda.textContent = n;
+                celda.className = 'celda correcta';
+                g3_indexInput--;
+                g3_actualizarCursor();
+            } else {
+                g2_playSound('error');
+                celda.classList.add('incorrecta');
+                celda.textContent = n;
+                setTimeout(() => { 
+                    celda.classList.remove('incorrecta'); 
+                    if (!celda.classList.contains('correcta')) celda.textContent = ''; 
+                }, 400);
+            }
+        }
+
+        function g3_borrar() {
+            const c = g3_celdasActuales[g3_indexInput];
+            if(c && !c.classList.contains('correcta')) c.textContent = "";
+        }
+
+        function g3_volverAlMenuNiveles() {
+            document.getElementById('modal-victoria3').style.display = 'none';
+            document.getElementById('g3-juego').classList.remove('active');
+            document.getElementById('g3-menu').classList.add('active');
+        }
+
+        function g3_volverAJugarMismoNivel() { g3_iniciar(g3_nivelActual); }
+
+        /* ==========================================================================
+           GAME 4 LOGIC (Restas con Llevadas y Ceros)
+           ========================================================================== */
+        let g4_n1, g4_n2, g4_nivelActual = 1;
+        let g4_valorObjetivo = "", g4_celdasActuales = [], g4_indexInput = 0;
+
+        const g4_nivelesConfig = {
+            1: { min: 20, max: 99 },
+            2: { min: 200, max: 999 },
+            3: { min: 2000, max: 9999 }
+        };
+
+        function g4_iniciar(n) {
+            g4_nivelActual = n;
+            const conf = g4_nivelesConfig[n];
+            
+            let valA = Math.floor(Math.random() * (conf.max - conf.min + 1)) + conf.min;
+            let valB = Math.floor(Math.random() * (conf.max - conf.min + 1)) + conf.min;
+            g4_n1 = Math.max(valA, valB);
+            g4_n2 = Math.min(valA, valB);
+            if(g4_n1 === g4_n2) g4_n1 += 5;
+
+            let resultado = g4_n1 - g4_n2;
+            let n1Str = g4_n1.toString();
+            
+            g4_valorObjetivo = resultado.toString().padStart(n1Str.length, "0");
+            
+            document.getElementById('g4-menu').classList.remove('active');
+            document.getElementById('g4-juego').classList.add('active');
+            document.getElementById('modal-victoria4').style.display = 'none';
+            document.getElementById('g4-instruccion').textContent = "Completa todas las columnas, incluso los ceros.";
+            
+            const tablero = document.getElementById('g4-tablero');
+            tablero.innerHTML = '';
+            
+            tablero.appendChild(g4_crearFilaNumeros(n1Str));
+            
+            const n2Str = g4_n2.toString().padStart(n1Str.length, "0");
+            const fila2 = g4_crearFilaNumeros(n2Str);
+            const signo = document.createElement('span');
+            signo.className = 'signo'; signo.textContent = '−';
+            fila2.prepend(signo);
+            tablero.appendChild(fila2);
+            
+            const linea = document.createElement('div');
+            linea.className = 'fila-linea';
+            tablero.appendChild(linea);
+
+            const filaRes = document.createElement('div');
+            filaRes.className = 'fila';
+            g4_celdasActuales = [];
+
+            for (let i = 0; i < n1Str.length; i++) {
+                const c = document.createElement('div');
+                c.className = 'celda';
+                filaRes.appendChild(c);
+                g4_celdasActuales.push(c);
+            }
+            tablero.appendChild(filaRes);
+            
+            g4_indexInput = g4_celdasActuales.length - 1;
+            g4_actualizarCursor();
+        }
+
+        function g4_actualizarCursor() {
+            if (g4_indexInput >= 0) {
+                g4_celdasActuales.forEach(c => c && c.classList.remove('activa'));
+                g4_celdasActuales[g4_indexInput].classList.add('activa');
+            } else {
+                setTimeout(() => { 
+                    document.getElementById('modal-victoria4').style.display = 'flex'; 
+                    g2_playSound('success'); 
+                }, 500);
+            }
+        }
+
+        function g4_crearFilaNumeros(numStr) {
+            const fila = document.createElement('div');
+            fila.className = 'fila';
+            for (let char of numStr) {
+                const n = document.createElement('div');
+                n.className = 'num'; n.textContent = char;
+                fila.appendChild(n);
+            }
+            return fila;
+        }
+
+        function g4_entrada(n) {
+            if (g4_indexInput < 0 || !g4_celdasActuales[g4_indexInput]) return;
+            const celda = g4_celdasActuales[g4_indexInput];
+            
+            if (n.toString() === g4_valorObjetivo[g4_indexInput]) {
+                g2_playSound('success');
+                celda.textContent = n;
+                celda.className = 'celda correcta';
+                g4_indexInput--;
+                g4_actualizarCursor();
+            } else {
+                g2_playSound('error');
+                celda.classList.add('incorrecta');
+                celda.textContent = n;
+                setTimeout(() => { 
+                    celda.classList.remove('incorrecta'); 
+                    if (!celda.classList.contains('correcta')) celda.textContent = ''; 
+                }, 400);
+            }
+        }
+
+        function g4_borrar() {
+            const c = g4_celdasActuales[g4_indexInput];
+            if(c && !c.classList.contains('correcta')) c.textContent = "";
+        }
+
+        function g4_volverAlMenuNiveles() {
+            document.getElementById('modal-victoria4').style.display = 'none';
+            document.getElementById('g4-juego').classList.remove('active');
+            document.getElementById('g4-menu').classList.add('active');
+        }
+
+        function g4_volverAJugarMismoNivel() { g4_iniciar(g4_nivelActual); }
+
+        // Initialize on load
+        window.onload = function() {
+            showView('view-main-menu');
+        };
+    </script>
+</body>
+</html>
