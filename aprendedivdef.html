@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Suite Educativa de Restas e Interactivas</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&family=Outfit:wght@400;700;900&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ==========================================================================
+           GLOBAL & NAVIGATION STYLES
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        :root {
+            --nav-bg: #1e293b;
+            --nav-accent: #f43f5e;
+            --secondary-accent: #38bdf8;
+            --grass: #9cdb43;
+            --sky: #87ceeb;
+            --apple: #ff4d4d;
+            --basket: #8b4513;
+            --error: #f43f5e;
+            --success: #4ade80;
+            --primary: #fbbf24;
+            --secondary: #a29bfe;
+            --primary-mult: #22d3ee;
+        }
+
+        body {
+            font-family: 'Outfit', 'Quicksand', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation Bar */
+        .app-header {
+            background-color: var(--nav-bg);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-home-link {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-home-link:hover {
+            background: var(--nav-accent);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .app-title {
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            font-weight: 900;
+            color: var(--nav-accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-menu-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-menu-toggle:hover {
+            background: var(--nav-accent);
+            color: white;
+        }
+
+        /* Container where views render */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 100%;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px;
+        }
+
+        /* Game Views */
+        .game-view {
+            display: none !important;
+            width: 100%;
+            max-width: 1000px;
+            flex: 1;
+            animation: fadeIn 0.3s ease-in-out;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .game-view.active {
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Main Menu View */
+        #view-main-menu {
+            padding: 20px 10px;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .menu-title {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-weight: 900;
+            color: var(--secondary-accent);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .menu-card {
+            background: #1e293b;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary-accent);
+            box-shadow: 0 15px 30px rgba(56, 189, 248, 0.2);
+        }
+
+        .menu-card i {
+            font-size: 2.5rem;
+            color: var(--secondary-accent);
+            margin-bottom: 15px;
+        }
+
+        .menu-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #f8fafc;
+        }
+
+        .menu-card p {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+
+        /* --- ESTILOS JUEGO 1 Y 2 (LABORATORIO & FACTORÍA) --- */
+        .hud {
+            display: flex; 
+            justify-content: space-around; 
+            gap: 20px;
+            width: 100%; 
+            max-width: 800px; 
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.05); 
+            padding: 10px 20px;
+            border-radius: 50px; 
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .stat { text-align: center; }
+        .stat-value { font-size: clamp(1.4rem, 4vw, 1.8rem); font-weight: 900; line-height: 1; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--primary); letter-spacing: 1px; }
+
+        .mission-info {
+            text-align: center; 
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.05); 
+            padding: 15px;
+            border-radius: 20px; 
+            border: 2px solid var(--primary);
+            width: 100%; 
+            max-width: 800px; 
+            transition: all 0.3s ease;
+        }
+        .mission-info.error-pulse {
+            border-color: var(--error); 
+            background: rgba(244, 63, 94, 0.1);
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .lab-bench {
+            background: #1e293b; 
+            padding: 20px; 
+            border-radius: 30px;
+            width: 100%; 
+            max-width: 900px; 
+            margin-bottom: 15px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        .jars-area { 
+            display: flex; 
+            justify-content: center; 
+            gap: 12px; 
+            flex-wrap: wrap; 
+            margin-bottom: 20px; 
+        }
+        .jar {
+            width: clamp(80px, 20vw, 120px); 
+            min-height: clamp(100px, 25vw, 140px); 
+            background: rgba(255,255,255,0.03);
+            border: 3px solid rgba(255,255,255,0.2); 
+            border-radius: 10px 10px 30px 30px;
+            display: flex; 
+            flex-wrap: wrap; 
+            padding: 8px; 
+            align-content: flex-start;
+            justify-content: center; 
+            gap: 4px; 
+            transition: border-color 0.2s;
+        }
+        .gem {
+            width: 22px; 
+            height: 22px; 
+            background: var(--primary);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            touch-action: none;
+        }
+        .gem-mult {
+            width: 22px; 
+            height: 22px; 
+            background: var(--primary-mult);
+            border-radius: 4px; 
+            box-shadow: 0 0 8px var(--primary-mult);
+            touch-action: none;
+        }
+        .draggable { cursor: grab; touch-action: none; position: relative; z-index: 10; }
+        .dragging { position: fixed; pointer-events: none; z-index: 9999; transform: scale(1.3); opacity: 0.85; }
+        
+        .gem-source {
+            background: rgba(0,0,0,0.3); 
+            padding: 15px; 
+            border-radius: 20px;
+            min-height: 90px; 
+            width: 100%; 
+            display: flex; 
+            flex-wrap: wrap;
+            gap: 8px; 
+            justify-content: center; 
+            border: 2px dashed rgba(255,255,255,0.1);
+        }
+
+        .btn-action {
+            background: linear-gradient(180deg, var(--success), #059669);
+            border: none; 
+            padding: 12px 30px; 
+            color: white; 
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+            font-weight: 900; 
+            border-radius: 20px; 
+            cursor: pointer;
+            box-shadow: 0 6px 0 #065f46; 
+            transition: transform 0.1s;
+        }
+        .btn-action:active { transform: translateY(4px); box-shadow: 0 2px 0 #065f46; }
+
+        .modal-overlay {
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%) scale(0);
+            background: white; 
+            color: black; 
+            padding: 25px; 
+            border-radius: 30px;
+            text-align: center; 
+            z-index: 2000; 
+            width: 90%; 
+            max-width: 450px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .modal-overlay.show { transform: translate(-50%, -50%) scale(1); }
+
+        /* --- ESTILOS JUEGOS DE DIVISIÓN POR PASOS (3, 4, 5) --- */
+        .div-container {
+            width: 100%; 
+            max-width: 950px; 
+            background: white; 
+            color: #333;
+            border-radius: 24px; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column;
+            position: relative; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            box-sizing: border-box;
+        }
+        .instruccion-div {
+            background: #1a2980; 
+            color: white; 
+            padding: 10px; 
+            border-radius: 12px;
+            text-align: center; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+            font-size: clamp(1rem, 3vw, 1.2rem);
+        }
+        .contenido-juego { 
+            display: flex; 
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 15px; 
+            width: 100%; 
+            justify-content: center;
+        }
+        .zona-operacion {
+            flex: 1 1 300px; 
+            max-height: 400px;
+            overflow-y: auto; 
+            padding: 15px; 
+            border: 2px solid #f0f0f0;
+            border-radius: 15px; 
+            background: #fafafa;
+            display: flex;
+            justify-content: center;
+        }
+        .zona-teclado {
+            flex: 0 0 auto; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center;
+            align-items: center; 
+            background: #fff; 
+            padding: 5px; 
+            margin: 0 auto;
+        }
+        .tablero { display: flex; justify-content: flex-start; font-family: 'Courier New', monospace; overflow-x: auto; }
+        .division-grid { display: grid; grid-template-columns: auto auto; align-items: start; }
+        .area-izquierda { display: flex; flex-direction: column; padding-right: 15px; }
+        .fila { display: flex; height: 48px; justify-content: flex-start; align-items: center; }
+        .divisor-box { border-left: 4px solid #333; border-bottom: 4px solid #333; padding: 2px 12px; font-size: clamp(1.5rem, 5vw, 2rem); font-weight: bold; min-width: 60px; }
+        .cociente-box { padding: 5px 12px; font-size: clamp(1.5rem, 5vw, 2rem); font-weight: bold; display: flex; flex-wrap: wrap; }
+        
+        .num, .celda { 
+            width: clamp(32px, 8vw, 42px); 
+            height: clamp(38px, 9vw, 48px); 
+            line-height: clamp(38px, 9vw, 48px); 
+            text-align: center; 
+            font-size: clamp(1.4rem, 4vw, 2rem); 
+            font-weight: bold; 
+            margin: 0 1px; 
+        }
+        .celda { border: 2px solid #ccc; border-radius: 8px; background: #fff; line-height: clamp(34px, 8vw, 44px); }
+        .celda.activa { border: 3px solid #FF9800; background: #FFF3E0; box-shadow: 0 0 8px rgba(255,152,0,0.4); }
+        .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+        .bajada { color: #ef6c00; border-color: #ef6c00; }
+        .signo-resta { width: 24px; text-align: center; font-size: 1.5rem; color: #d32f2f; font-weight: bold; }
+        .fila-linea { border-bottom: 2px solid #333; margin: 2px 0 5px 0; align-self: flex-start; }
+
+        .teclado-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 260px; }
+        .tecla-div { padding: 12px 0; font-size: 1.4rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; color: #333; }
+        .tecla-div:active { box-shadow: 0 1px #ccc; transform: translateY(3px); }
+
+        .pantalla-sub { display: none; height: 100%; width: 100%; flex-direction: column; justify-content: center; }
+        .pantalla-sub.active { display: flex; }
+        .btn-nivel-sub { width: 100%; max-width: 400px; padding: 12px; margin: 5px auto; border: none; border-radius: 16px; color: white; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+
+        /* --- ESTILOS JUEGO 6 (DIVISIONES x10, 100, 1000) --- */
+        .game-wrapper-10 { 
+            display: flex; 
+            flex-direction: row; 
+            flex-wrap: wrap; 
+            gap: 20px; 
+            align-items: center; 
+            justify-content: center; 
+            width: 100%; 
+            color: #333; 
+        }
+        .seccion-izquierda-10 { flex: 1 1 260px; display: flex; flex-direction: column; justify-content: center; }
+        .seccion-derecha-10 { flex: 0 0 auto; display: flex; justify-content: center; width: 100%; max-width: 280px; }
+        
+        .operacion-horizontal { 
+            font-size: clamp(2rem, 6vw, 3rem); 
+            font-weight: 800; 
+            color: #721e1e; 
+            text-align: center; 
+            margin-bottom: 15px; 
+            padding: 15px; 
+            background: #f8f9fa; 
+            border-radius: 20px; 
+            border: 3px dashed #e2e8f0; 
+        }
+        .input-libre { 
+            font-size: clamp(2rem, 6vw, 3.2rem); 
+            width: 100%; 
+            min-height: 80px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-bottom: 5px solid #721e1e; 
+            color: #721e1e; 
+            font-weight: bold; 
+        }
+        .placeholder { color: #cbd5e1; font-size: clamp(1.2rem, 4vw, 1.6rem); }
+        .teclado-10 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; background: #f1f5f9; padding: 15px; border-radius: 20px; }
+        .tecla-10 { height: 50px; font-size: 1.5rem; border: none; border-radius: 12px; background: #fff; color: #334155; font-weight: 700; cursor: pointer; box-shadow: 0 4px 0 #cbd5e1; display: flex; align-items: center; justify-content: center; }
+        .tecla-10:active { transform: translateY(2px); box-shadow: 0 1px 0 #cbd5e1; }
+        .tecla-check { grid-column: span 3; background: #ef4444; color: white; height: 50px; font-size: 1.2rem; margin-top: 5px; box-shadow: 0 4px 0 #b91c1c; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-6px);} 75% {transform: translateX(6px);} }
+        .incorrecto { animation: shake 0.4s; color: #ef4444 !important; border-color: #ef4444 !important; }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-left">
+            <a href="main-index.html" class="btn-home-link" title="Volver al Inicio">
+                <i class="fas fa-home"></i>
+            </a>
+            <div class="app-title">
+                <i class="fas fa-calculator"></i>
+                <span id="app-title-text">Laboratorio de Operaciones</span>
+            </div>
+        </div>
+        <button class="btn-menu-toggle" onclick="showMainMenu()">
+            <i class="fas fa-th-large"></i> Menú
+        </button>
+    </header>
+
+    <div class="main-container">
+
+        <!-- MENÚ PRINCIPAL -->
+        <div id="view-main-menu" class="game-view active">
+            <h2 class="menu-title">Selecciona una Actividad</h2>
+            <div class="menu-grid">
+                <div class="menu-card" onclick="openGame('game-lab-div')">
+                    <i class="fas fa-flask"></i>
+                    <h3>Laboratorio de División</h3>
+                    <p>Sincroniza y reparte gemas de materia en sus contenedores.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-fact-mult')">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Factoría de Multiplicación</h3>
+                    <p>Genera celdas de energía agrupándolas correctamente.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-div-pro')">
+                    <i class="fas fa-divide"></i>
+                    <h3>División Pro</h3>
+                    <p>Resuelve divisiones paso a paso por 1 cifra con niveles infinitos.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-div-2c')">
+                    <i class="fas fa-list-ol"></i>
+                    <h3>División 2 Cifras</h3>
+                    <p>Aprende el método con restas intermedias guiadas paso a paso.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-div-mister')">
+                    <i class="fas fa-crown"></i>
+                    <h3>División Maestra</h3>
+                    <p>Desafíos avanzados con dividendos y divisores grandes.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-div-10')">
+                    <i class="fas fa-angle-double-right"></i>
+                    <h3>División x10, 100, 1000</h3>
+                    <p>Mueve la coma o quita ceros rápidamente.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- JUEGO 1: LABORATORIO DE DIVISIÓN -->
+        <!-- =================================================================== -->
+        <div id="game-lab-div" class="game-view">
+            <div class="hud">
+                <div class="stat"><div class="stat-label">Misión</div><div class="stat-value" id="g1-lvlVal">1</div></div>
+                <div class="stat"><div class="stat-label">Racha</div><div class="stat-value" id="g1-streakVal">0</div></div>
+            </div>
+            <div class="mission-info" id="g1-infoPanel">
+                <h2 id="g1-instruction" style="font-size: 1.1rem; color: var(--primary);">Cargando protocolo...</h2>
+            </div>
+            <div class="lab-bench">
+                <div class="jars-area" id="g1-jarsArea"></div>
+                <div style="text-align: center; color: #94a3b8; font-size: 0.7rem; margin-bottom: 10px;">RESERVA / SOBRANTE</div>
+                <div class="gem-source" id="g1-gemSource"></div>
+            </div>
+            <button class="btn-action" onclick="g1_verifyMission()">¡COMPROBAR REPARTO!</button>
+
+            <div class="modal-overlay" id="g1-resultModal">
+                <h2 style="color: var(--success)">¡SINCRO COMPLETADA!</h2>
+                <div id="g1-divisionDisplay" style="font-size: 2rem; margin: 15px 0; font-family: 'Orbitron';"></div>
+                <p id="g1-resRemainText" style="font-weight: bold; color: #b45309; margin-bottom: 20px;"></p>
+                <button class="btn-action" onclick="g1_nextMission()">SIGUIENTE</button>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- JUEGO 2: FACTORÍA DE MULTIPLICACIÓN -->
+        <!-- =================================================================== -->
+        <div id="game-fact-mult" class="game-view">
+            <div class="hud">
+                <div class="stat"><div class="stat-label">Nivel</div><div class="stat-value" id="g2-lvlVal">1</div></div>
+                <div class="stat"><div class="stat-label">Racha</div><div class="stat-value" id="g2-streakVal">0</div></div>
+            </div>
+            <div class="mission-info" id="g2-infoPanel">
+                <h2 id="g2-instruction" style="font-size: 1.1rem; color: var(--primary-mult);">Iniciando Generador...</h2>
+            </div>
+            <div class="lab-bench">
+                <div class="jars-area" id="g2-jarsArea"></div>
+                <div style="text-align: center; color: #94a3b8; font-size: 0.7rem; margin-bottom: 10px;">SUMINISTRO DE ENERGÍA</div>
+                <div class="gem-source" id="g2-gemSource"></div>
+            </div>
+            <button class="btn-action" onclick="g2_verifyMission()">¡ACTIVAR FACTORÍA!</button>
+
+            <div class="modal-overlay" id="g2-resultModal">
+                <h2 style="color: #059669">¡ENERGÍA GENERADA!</h2>
+                <div id="g2-mathDisplay" style="font-size: 2rem; margin: 15px 0; font-family: 'Orbitron';"></div>
+                <p id="g2-totalText" style="font-weight: bold; color: #0891b2; margin-bottom: 20px;"></p>
+                <button class="btn-action" onclick="g2_nextMission()">SIGUIENTE NIVEL</button>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- JUEGO 3: DIVISIÓN PRO -->
+        <!-- =================================================================== -->
+        <div id="game-div-pro" class="game-view">
+            <div class="div-container">
+                <div id="g3-menu" class="pantalla-sub active">
+                    <h1 style="text-align:center; color:#1a2980; margin-bottom:15px; font-size: 1.8rem;">Elegir Nivel</h1>
+                    <button class="btn-nivel-sub" style="background:#43a047" onclick="g3_iniciar(1)">Nivel 1: Iniciación (1 cifra)</button>
+                    <button class="btn-nivel-sub" style="background:#2e7d32" onclick="g3_iniciar(2)">Nivel 2: Básico (2 cifras)</button>
+                    <button class="btn-nivel-sub" style="background:#fb8c00" onclick="g3_iniciar(3)">Nivel 3: Intermedio (+ Resto)</button>
+                    <button class="btn-nivel-sub" style="background:#ef6c00" onclick="g3_iniciar(4)">Nivel 4: Avanzado (3 cifras)</button>
+                    <button class="btn-nivel-sub" style="background:#e53935" onclick="g3_iniciar(5)">Nivel 5: Experto (4 cifras)</button>
+                    <button class="btn-nivel-sub" style="background:#8e24aa" onclick="g3_iniciar(6)">Nivel 6: Cero al Cociente</button>
+                </div>
+
+                <div id="g3-juego" class="pantalla-sub">
+                    <div id="g3-instruccion" class="instruccion-div">¡Prepárate!</div>
+                    <div class="contenido-juego">
+                        <div class="zona-operacion" id="g3-scroll-area">
+                            <div class="tablero">
+                                <div class="division-grid">
+                                    <div class="area-izquierda" id="g3-bloque-izquierdo"></div>
+                                    <div class="area-derecha">
+                                        <div class="divisor-box" id="g3-divisor-display"></div>
+                                        <div class="cociente-box" id="g3-cociente-display"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="zona-teclado">
+                            <div class="teclado-grid">
+                                <button class="tecla-div" onclick="g3_entrada(1)">1</button>
+                                <button class="tecla-div" onclick="g3_entrada(2)">2</button>
+                                <button class="tecla-div" onclick="g3_entrada(3)">3</button>
+                                <button class="tecla-div" onclick="g3_entrada(4)">4</button>
+                                <button class="tecla-div" onclick="g3_entrada(5)">5</button>
+                                <button class="tecla-div" onclick="g3_entrada(6)">6</button>
+                                <button class="tecla-div" onclick="g3_entrada(7)">7</button>
+                                <button class="tecla-div" onclick="g3_entrada(8)">8</button>
+                                <button class="tecla-div" onclick="g3_entrada(9)">9</button>
+                                <button class="tecla-div" style="background:#ffcdd2" onclick="g3_borrar()">C</button>
+                                <button class="tecla-div" onclick="g3_entrada(0)">0</button>
+                                <button class="tecla-div" style="background:#eee" onclick="g3_volverAlMenuNiveles()">🏠</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-overlay" id="g3-modal-victoria">
+                    <h2 style="font-size: 2rem; color: #43a047;">¡Excelente! 🏆</h2>
+                    <p id="g3-feedback-victoria" style="font-size: 1.1rem; color: #666; margin: 15px 0;"></p>
+                    <button class="btn-action" onclick="g3_volverAJugarMismoNivel()">🔄 Jugar otra vez</button>
+                    <button class="btn-action" style="background:#1a2980; margin-top:10px;" onclick="g3_volverAlMenuNiveles()">Volver al Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- JUEGO 4: DIVISIÓN 2 CIFRAS -->
+        <!-- =================================================================== -->
+        <div id="game-div-2c" class="game-view">
+            <div class="div-container">
+                <div id="g4-menu" class="pantalla-sub active">
+                    <h1 style="text-align:center; color:#1e3c72; margin-bottom:15px; font-size: 1.8rem;">División Paso a Paso (2 Cifras)</h1>
+                    <button class="btn-nivel-sub" style="background:#43a047" onclick="g4_iniciar(1)">Nivel 1: Divisor 10-12</button>
+                    <button class="btn-nivel-sub" style="background:#fb8c00" onclick="g4_iniciar(2)">Nivel 2: Intermedio</button>
+                    <button class="btn-nivel-sub" style="background:#e53935" onclick="g4_iniciar(3)">Nivel 3: Experto</button>
+                </div>
+
+                <div id="g4-juego" class="pantalla-sub">
+                    <div id="g4-instruccion" class="instruccion-div" style="background:#1e3c72">¡A dividir!</div>
+                    <div class="contenido-juego">
+                        <div class="zona-operacion" id="g4-scroll-area">
+                            <div class="tablero">
+                                <div class="division-grid">
+                                    <div class="area-izquierda" id="g4-bloque-izquierdo"></div>
+                                    <div class="area-derecha">
+                                        <div class="divisor-box" id="g4-divisor-display"></div>
+                                        <div class="cociente-box" id="g4-cociente-display"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="zona-teclado">
+                            <div class="teclado-grid">
+                                <button class="tecla-div" onclick="g4_entrada(1)">1</button>
+                                <button class="tecla-div" onclick="g4_entrada(2)">2</button>
+                                <button class="tecla-div" onclick="g4_entrada(3)">3</button>
+                                <button class="tecla-div" onclick="g4_entrada(4)">4</button>
+                                <button class="tecla-div" onclick="g4_entrada(5)">5</button>
+                                <button class="tecla-div" onclick="g4_entrada(6)">6</button>
+                                <button class="tecla-div" onclick="g4_entrada(7)">7</button>
+                                <button class="tecla-div" onclick="g4_entrada(8)">8</button>
+                                <button class="tecla-div" onclick="g4_entrada(9)">9</button>
+                                <button class="tecla-div" style="background:#ffcdd2" onclick="g4_borrar()">C</button>
+                                <button class="tecla-div" onclick="g4_entrada(0)">0</button>
+                                <button class="tecla-div" style="background:#eee" onclick="g4_volverAlMenuNiveles()">🏠</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-overlay" id="g4-modal-victoria">
+                    <h2 style="font-size: 2rem; color: #43a047;">¡Perfecto! 🏆</h2>
+                    <button class="btn-action" style="margin-top:20px;" onclick="g4_volverAJugarMismoNivel()">Jugar otra vez</button>
+                    <button class="btn-action" style="background:#1e3c72; margin-top:10px;" onclick="g4_volverAlMenuNiveles()">Volver al Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- JUEGO 5: DIVISIÓN MAESTRA -->
+        <!-- =================================================================== -->
+        <div id="game-div-mister" class="game-view">
+            <div class="div-container">
+                <div id="g5-menu" class="pantalla-sub active">
+                    <h1 style="text-align:center; color:#0f2027; margin-bottom:15px; font-size: 1.8rem;">División Maestra</h1>
+                    <button class="btn-nivel-sub" style="background:#43a047" onclick="g5_iniciar(1)">Nivel 1: Divisor 2 cif. / Dividendo 3</button>
+                    <button class="btn-nivel-sub" style="background:#fb8c00" onclick="g5_iniciar(2)">Nivel 2: Divisor 2 cif. / Dividendo 5</button>
+                    <button class="btn-nivel-sub" style="background:#e53935" onclick="g5_iniciar(3)">Nivel 3: Divisor 2 cif. / Dividendo 7</button>
+                    <button class="btn-nivel-sub" style="background:#6a1b9a" onclick="g5_iniciar(4)">Nivel PRO: Divisor 3 cif. / Dividendo 8</button>
+                </div>
+
+                <div id="g5-juego" class="pantalla-sub">
+                    <div id="g5-instruccion" class="instruccion-div" style="background:#203a43">¡A dividir!</div>
+                    <div class="contenido-juego">
+                        <div class="zona-operacion" id="g5-scroll-area">
+                            <div class="tablero">
+                                <div class="division-grid">
+                                    <div class="area-izquierda" id="g5-bloque-izquierdo"></div>
+                                    <div class="area-derecha">
+                                        <div class="divisor-box" id="g5-divisor-display"></div>
+                                        <div class="cociente-box" id="g5-cociente-display"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="zona-teclado">
+                            <div class="teclado-grid">
+                                <button class="tecla-div" onclick="g5_entrada(1)">1</button>
+                                <button class="tecla-div" onclick="g5_entrada(2)">2</button>
+                                <button class="tecla-div" onclick="g5_entrada(3)">3</button>
+                                <button class="tecla-div" onclick="g5_entrada(4)">4</button>
+                                <button class="tecla-div" onclick="g5_entrada(5)">5</button>
+                                <button class="tecla-div" onclick="g5_entrada(6)">6</button>
+                                <button class="tecla-div" onclick="g5_entrada(7)">7</button>
+                                <button class="tecla-div" onclick="g5_entrada(8)">8</button>
+                                <button class="tecla-div" onclick="g5_entrada(9)">9</button>
+                                <button class="tecla-div" style="background:#ffcdd2" onclick="g5_borrar()">C</button>
+                                <button class="tecla-div" onclick="g5_entrada(0)">0</button>
+                                <button class="tecla-div" style="background:#eee" onclick="g5_volverAlMenuNiveles()">🏠</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-overlay" id="g5-modal-victoria">
+                    <h2 style="font-size: 2rem; color: #43a047;">¡Increíble! 🏆</h2>
+                    <p id="g5-feedback-final" style="font-size: 1.3rem; margin: 15px 0; color:#333;"></p>
+                    <button class="btn-action" onclick="g5_volverAJugarMismoNivel()">Siguiente división</button>
+                    <button class="btn-action" style="background:#1e3c72; margin-top:10px;" onclick="g5_volverAlMenuNiveles()">Cambiar Nivel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- JUEGO 6: DIVISIÓN POR 10, 100, 1000 -->
+        <!-- =================================================================== -->
+        <div id="game-div-10" class="game-view">
+            <div class="div-container" style="max-width: 850px;">
+                <div id="g6-menu" class="pantalla-sub active">
+                    <h1 style="text-align:center; color:#721e1e; margin-bottom: 20px; font-size: 1.8rem;">Divisiones :10, :100, :1000</h1>
+                    <button class="btn-nivel-sub" style="background:#ef4444" onclick="g6_iniciar(1)">NIVEL 1<br><small style="font-weight: normal; font-size: 0.85rem;">Números Naturales</small></button>
+                    <button class="btn-nivel-sub" style="background:#f59e0b" onclick="g6_iniciar(2)">NIVEL 2<br><small style="font-weight: normal; font-size: 0.85rem;">Números Decimales</small></button>
+                </div>
+
+                <div id="g6-juego" class="pantalla-sub">
+                    <div id="g6-instruccion" class="instruccion-div" style="background:#fff0f0; color:#721e1e; border:1px solid #ffd0d0;">Divide: quita ceros o mueve la coma</div>
+                    
+                    <div class="game-wrapper-10">
+                        <div class="seccion-izquierda-10">
+                            <div id="g6-horizontal" class="operacion-horizontal"></div>
+                            <div id="g6-input-res" class="input-libre"></div>
+                        </div>
+
+                        <div class="seccion-derecha-10">
+                            <div class="teclado-10">
+                                <button class="tecla-10" onclick="g6_inputNum(7)">7</button>
+                                <button class="tecla-10" onclick="g6_inputNum(8)">8</button>
+                                <button class="tecla-10" onclick="g6_inputNum(9)">9</button>
+                                <button class="tecla-10" onclick="g6_inputNum(4)">4</button>
+                                <button class="tecla-10" onclick="g6_inputNum(5)">5</button>
+                                <button class="tecla-10" onclick="g6_inputNum(6)">6</button>
+                                <button class="tecla-10" onclick="g6_inputNum(1)">1</button>
+                                <button class="tecla-10" onclick="g6_inputNum(2)">2</button>
+                                <button class="tecla-10" onclick="g6_inputNum(3)">3</button>
+                                <button class="tecla-10" style="background:#f8fafc; color:#ef4444;" onclick="g6_inputNum(',')">,</button>
+                                <button class="tecla-10" onclick="g6_inputNum(0)">0</button>
+                                <button class="tecla-10" style="background:#fee2e2; color:#dc2626; font-size:1.2rem;" onclick="g6_borrar()">⌫</button>
+                                <button class="tecla-10 tecla-check" onclick="g6_validar()">LISTO ✓</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-overlay" id="g6-modal-victoria">
+                    <div style="font-size: 3rem; margin-bottom: 5px;">🌟</div>
+                    <h2 style="color: #ef4444; font-size: 2rem; margin-bottom: 10px;">¡Muy bien!</h2>
+                    <div id="g6-mensaje-final" style="margin-bottom: 20px; font-size: 1.4rem; color: #334155;"></div>
+                    <button class="btn-action" style="background:#10b981;" onclick="g6_siguiente()">Siguiente ejercicio</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- LÓGICA DE CONTROL Y JUEGOS -->
+    <!-- =================================================================== -->
+    <script>
+        // Navegación General
+        function openGame(gameId) {
+            document.querySelectorAll('.game-view').forEach(view => view.classList.remove('active'));
+            const targetView = document.getElementById(gameId);
+            if (targetView) {
+                targetView.classList.add('active');
+                
+                // Inicializar juego correspondiente
+                if(gameId === 'game-lab-div') g1_initMission();
+                if(gameId === 'game-fact-mult') g2_initMission();
+                if(gameId === 'game-div-pro') g3_volverAlMenuNiveles();
+                if(gameId === 'game-div-2c') g4_volverAlMenuNiveles();
+                if(gameId === 'game-div-mister') g5_volverAlMenuNiveles();
+                if(gameId === 'game-div-10') g6_volverAlMenuNiveles();
+            }
+        }
+
+        function showMainMenu() {
+            document.querySelectorAll('.game-view').forEach(view => view.classList.remove('active'));
+            document.getElementById('view-main-menu').classList.add('active');
+        }
+
+        // Sistema de Audio
+        let audioCtx = null;
+        function playSoundCommon(type) {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain); 
+                gain.connect(audioCtx.destination);
+                osc.type = (type === 'success' || type === 'acierto') ? 'sine' : 'sawtooth';
+                osc.frequency.setValueAtTime((type === 'success' || type === 'acierto') ? 600 : 180, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                osc.start(); 
+                osc.stop(audioCtx.currentTime + 0.15);
+            } catch(e) {
+                // Fallback si la API de audio no es soportada
+            }
+        }
+
+        /* =====================================================================
+           CONTROL DE TECLADO FÍSICO AUTOMÁTICO (PC / TECLADOS EXTERNOS)
+           ===================================================================== */
+        document.addEventListener('keydown', function(event) {
+            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
+
+            const activeView = document.querySelector('.game-view.active');
+            if (!activeView) return;
+
+            const key = event.key;
+
+            // Manejo del Juego 3 (División Pro)
+            if (activeView.id === 'game-div-pro') {
+                const subJuego = document.getElementById('g3-juego');
+                if (subJuego && subJuego.classList.contains('active')) {
+                    if (key >= '0' && key <= '9') {
+                        g3_entrada(parseInt(key, 10));
+                    } else if (key === 'Backspace' || key === 'Delete') {
+                        g3_borrar();
+                    }
+                }
+            }
+
+            // Manejo del Juego 4 (División 2 Cifras)
+            if (activeView.id === 'game-div-2c') {
+                const subJuego = document.getElementById('g4-juego');
+                if (subJuego && subJuego.classList.contains('active')) {
+                    if (key >= '0' && key <= '9') {
+                        g4_entrada(parseInt(key, 10));
+                    } else if (key === 'Backspace' || key === 'Delete') {
+                        g4_borrar();
+                    }
+                }
+            }
+
+            // Manejo del Juego 5 (División Maestra)
+            if (activeView.id === 'game-div-mister') {
+                const subJuego = document.getElementById('g5-juego');
+                if (subJuego && subJuego.classList.contains('active')) {
+                    if (key >= '0' && key <= '9') {
+                        g5_entrada(parseInt(key, 10));
+                    } else if (key === 'Backspace' || key === 'Delete') {
+                        g5_borrar();
+                    }
+                }
+            }
+
+            // Manejo del Juego 6 (División x10, 100, 1000)
+            if (activeView.id === 'game-div-10') {
+                const subJuego = document.getElementById('g6-juego');
+                if (subJuego && subJuego.classList.contains('active')) {
+                    if (key >= '0' && key <= '9') {
+                        g6_inputNum(parseInt(key, 10));
+                    } else if (key === ',' || key === '.') {
+                        g6_inputNum(',');
+                    } else if (key === 'Backspace' || key === 'Delete') {
+                        g6_borrar();
+                    } else if (key === 'Enter') {
+                        g6_validar();
+                    }
+                }
+            }
+        });
+
+        /* ---------------------------------------------------------------------
+           LÓGICA JUEGO 1: LABORATORIO DE DIVISIÓN
+           --------------------------------------------------------------------- */
+        const g1_missions = [
+            { total: 12, jars: 3, expected: 4, remain: 0, text: "Reparte 12 gemas en 3 frascos por igual." },
+            { total: 10, jars: 3, expected: 3, remain: 1, text: "Reparte 10 gemas en 3 frascos. ¿Cuántas sobran?" },
+            { total: 14, jars: 4, expected: 3, remain: 2, text: "Divide 14 gemas entre 4 contenedores." },
+            { total: 15, jars: 2, expected: 7, remain: 1, text: "Reparte 15 gemas en 2 frascos." },
+            { total: 20, jars: 5, expected: 4, remain: 0, text: "Sincroniza 20 gemas en 5 frascos." }
+        ];
+        let g1_state = { currentIdx: 0, streak: 0 };
+
+        function g1_initMission() {
+            const m = g1_missions[g1_state.currentIdx];
+            const infoPanel = document.getElementById('g1-infoPanel');
+            infoPanel.classList.remove('error-pulse');
+            document.getElementById('g1-instruction').innerText = m.text;
+            document.getElementById('g1-instruction').style.color = "var(--primary)";
+            document.getElementById('g1-lvlVal').innerText = g1_state.currentIdx + 1;
+            
+            const source = document.getElementById('g1-gemSource');
+            const jarsArea = document.getElementById('g1-jarsArea');
+            source.innerHTML = ''; jarsArea.innerHTML = '';
+
+            for(let i=0; i<m.total; i++) {
+                const gem = document.createElement('div');
+                gem.className = 'gem draggable';
+                g1_setupUniversalDrag(gem);
+                source.appendChild(gem);
+            }
+
+            for(let i=0; i<m.jars; i++) {
+                const jar = document.createElement('div');
+                jar.className = 'jar';
+                jarsArea.appendChild(jar);
+            }
+        }
+
+        function g1_setupUniversalDrag(el) {
+            let offsetX, offsetY;
+            const startDrag = (e) => {
+                const point = e.touches ? e.touches[0] : e;
+                const rect = el.getBoundingClientRect();
+                offsetX = point.clientX - rect.left;
+                offsetY = point.clientY - rect.top;
+                el.classList.add('dragging');
+                
+                el.style.left = (point.clientX - offsetX) + 'px';
+                el.style.top = (point.clientY - offsetY) + 'px';
+
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('touchmove', drag, { passive: false });
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchend', endDrag);
+            };
+
+            const drag = (e) => {
+                if (e.type === 'touchmove') e.preventDefault();
+                const point = e.touches ? e.touches[0] : e;
+                el.style.left = (point.clientX - offsetX) + 'px';
+                el.style.top = (point.clientY - offsetY) + 'px';
+            };
+
+            const endDrag = (e) => {
+                const point = e.changedTouches ? e.changedTouches[0] : e;
+                el.classList.remove('dragging');
+                el.style.left = ''; 
+                el.style.top = '';
+
+                const jars = document.querySelectorAll('#g1-jarsArea .jar');
+                const source = document.getElementById('g1-gemSource');
+                const infoPanel = document.getElementById('g1-infoPanel');
+                let placed = false;
+
+                jars.forEach(jar => {
+                    const rect = jar.getBoundingClientRect();
+                    if (point.clientX >= rect.left && point.clientX <= rect.right &&
+                        point.clientY >= rect.top && point.clientY <= rect.bottom) {
+                        jar.appendChild(el);
+                        placed = true;
+                    }
+                });
+
+                if (!placed) source.appendChild(el);
+                infoPanel.classList.remove('error-pulse');
+                document.getElementById('g1-instruction').innerText = g1_missions[g1_state.currentIdx].text;
+                document.getElementById('g1-instruction').style.color = "var(--primary)";
+
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchend', endDrag);
+            };
+
+            el.addEventListener('mousedown', startDrag);
+            el.addEventListener('touchstart', startDrag, { passive: true });
+        }
+
+        function g1_verifyMission() {
+            const m = g1_missions[g1_state.currentIdx];
+            const jars = document.querySelectorAll('#g1-jarsArea .jar');
+            const reserve = document.getElementById('g1-gemSource').children.length;
+            const infoPanel = document.getElementById('g1-infoPanel');
+            const instruction = document.getElementById('g1-instruction');
+            let counts = Array.from(jars).map(j => j.children.length);
+            
+            const allEqual = counts.every(c => c === counts[0] && c > 0);
+            const correctAmount = counts[0] === m.expected;
+            const correctRemain = reserve === m.remain;
+
+            if (allEqual && correctAmount && correctRemain) {
+                playSoundCommon('success');
+                g1_state.streak++;
+                document.getElementById('g1-streakVal').innerText = g1_state.streak;
+                document.getElementById('g1-divisionDisplay').innerText = `${m.total} ÷ ${m.jars} = ${m.expected}`;
+                document.getElementById('g1-resRemainText').innerText = m.remain > 0 ? `SOBRAN: ${m.remain}` : "REPARTO EXACTO";
+                document.getElementById('g1-resultModal').classList.add('show');
+            } else {
+                playSoundCommon('error');
+                g1_state.streak = 0;
+                document.getElementById('g1-streakVal').innerText = 0;
+                infoPanel.classList.add('error-pulse');
+                instruction.style.color = "var(--error)";
+                
+                if (!allEqual) instruction.innerText = "¡ERROR! EL REPARTO NO ES IGUAL EN TODOS LOS FRASCOS";
+                else instruction.innerText = "¡ERROR! LA CANTIDAD POR FRASCO O EL SOBRANTE ES INCORRECTO";
+            }
+        }
+
+        function g1_nextMission() {
+            g1_state.currentIdx = (g1_state.currentIdx + 1) % g1_missions.length;
+            document.getElementById('g1-resultModal').classList.remove('show');
+            g1_initMission();
+        }
+
+
+        /* ---------------------------------------------------------------------
+           LÓGICA JUEGO 2: FACTORÍA DE MULTIPLICACIÓN
+           --------------------------------------------------------------------- */
+        const g2_missions = [
+            { groups: 3, perGroup: 4, text: "Crea 3 grupos con 4 celdas de energía cada uno." },
+            { groups: 2, perGroup: 6, text: "Configura 2 contenedores con 6 celdas cada uno." },
+            { groups: 5, perGroup: 2, text: "Necesitamos 5 grupos de 2 celdas." },
+            { groups: 4, perGroup: 3, text: "Prepara 4 reactores con 3 unidades cada uno." },
+            { groups: 6, perGroup: 3, text: "Sincroniza 6 grupos de 3 celdas energéticas." }
+        ];
+        let g2_state = { currentIdx: 0, streak: 0 };
+
+        function g2_initMission() {
+            const m = g2_missions[g2_state.currentIdx];
+            const infoPanel = document.getElementById('g2-infoPanel');
+            infoPanel.classList.remove('error-pulse');
+            document.getElementById('g2-instruction').innerText = m.text;
+            document.getElementById('g2-instruction').style.color = "var(--primary-mult)";
+            document.getElementById('g2-lvlVal').innerText = g2_state.currentIdx + 1;
+
+            const source = document.getElementById('g2-gemSource');
+            const jarsArea = document.getElementById('g2-jarsArea');
+            source.innerHTML = ''; jarsArea.innerHTML = '';
+
+            const totalNeeded = m.groups * m.perGroup;
+            const totalAvailable = totalNeeded + 5;
+
+            for(let i=0; i<totalAvailable; i++) {
+                const gem = document.createElement('div');
+                gem.className = 'gem-mult draggable';
+                g2_setupUniversalDrag(gem);
+                source.appendChild(gem);
+            }
+
+            for(let i=0; i<m.groups; i++) {
+                const jar = document.createElement('div');
+                jar.className = 'jar';
+                jarsArea.appendChild(jar);
+            }
+        }
+
+        function g2_setupUniversalDrag(el) {
+            let offsetX, offsetY;
+            const startDrag = (e) => {
+                const point = e.touches ? e.touches[0] : e;
+                const rect = el.getBoundingClientRect();
+                offsetX = point.clientX - rect.left;
+                offsetY = point.clientY - rect.top;
+                el.classList.add('dragging');
+                
+                el.style.left = (point.clientX - offsetX) + 'px';
+                el.style.top = (point.clientY - offsetY) + 'px';
+
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('touchmove', drag, { passive: false });
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchend', endDrag);
+            };
+
+            const drag = (e) => {
+                if (e.type === 'touchmove') e.preventDefault();
+                const point = e.touches ? e.touches[0] : e;
+                el.style.left = (point.clientX - offsetX) + 'px';
+                el.style.top = (point.clientY - offsetY) + 'px';
+            };
+
+            const endDrag = (e) => {
+                const point = e.changedTouches ? e.changedTouches[0] : e;
+                el.classList.remove('dragging');
+                el.style.left = ''; 
+                el.style.top = '';
+
+                const jars = document.querySelectorAll('#g2-jarsArea .jar');
+                const source = document.getElementById('g2-gemSource');
+                const infoPanel = document.getElementById('g2-infoPanel');
+                let placed = false;
+
+                jars.forEach(jar => {
+                    const rect = jar.getBoundingClientRect();
+                    if (point.clientX >= rect.left && point.clientX <= rect.right &&
+                        point.clientY >= rect.top && point.clientY <= rect.bottom) {
+                        jar.appendChild(el);
+                        placed = true;
+                    }
+                });
+
+                if (!placed) source.appendChild(el);
+                infoPanel.classList.remove('error-pulse');
+                document.getElementById('g2-instruction').innerText = g2_missions[g2_state.currentIdx].text;
+                document.getElementById('g2-instruction').style.color = "var(--primary-mult)";
+
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchend', endDrag);
+            };
+
+            el.addEventListener('mousedown', startDrag);
+            el.addEventListener('touchstart', startDrag, { passive: true });
+        }
+
+        function g2_verifyMission() {
+            const m = g2_missions[g2_state.currentIdx];
+            const jars = document.querySelectorAll('#g2-jarsArea .jar');
+            const infoPanel = document.getElementById('g2-infoPanel');
+            const instruction = document.getElementById('g2-instruction');
+
+            let counts = Array.from(jars).map(j => j.children.length);
+            const totalPlaced = counts.reduce((a, b) => a + b, 0);
+
+            const allCorrectSize = counts.every(c => c === m.perGroup);
+            const correctTotal = totalPlaced === (m.groups * m.perGroup);
+
+            if (allCorrectSize && correctTotal) {
+                playSoundCommon('success');
+                g2_state.streak++;
+                document.getElementById('g2-streakVal').innerText = g2_state.streak;
+                document.getElementById('g2-mathDisplay').innerText = `${m.groups} x ${m.perGroup} = ${totalPlaced}`;
+                document.getElementById('g2-totalText').innerText = `TOTAL: ${totalPlaced} CELDAS`;
+                document.getElementById('g2-resultModal').classList.add('show');
+            } else {
+                playSoundCommon('error');
+                g2_state.streak = 0;
+                document.getElementById('g2-streakVal').innerText = 0;
+                infoPanel.classList.add('error-pulse');
+                instruction.style.color = "var(--error)";
+
+                if (!allCorrectSize) instruction.innerText = `¡REVISA! CADA GRUPO DEBE TENER EXACTAMENTE ${m.perGroup}`;
+                else instruction.innerText = "¡ERROR EN LA CONFIGURACIÓN!";
+            }
+        }
+
+        function g2_nextMission() {
+            g2_state.currentIdx = (g2_state.currentIdx + 1) % g2_missions.length;
+            document.getElementById('g2-resultModal').classList.remove('show');
+            g2_initMission();
+        }
+
+
+        /* ---------------------------------------------------------------------
+           LÓGICA JUEGO 3: DIVISIÓN PRO
+           --------------------------------------------------------------------- */
+        let g3_dividendo, g3_divisor, g3_cifras = [];
+        let g3_cursorCifra = 0, g3_restoActual = "", g3_valorAdividir = "", g3_fase = "", g3_indexInput = 0, g3_celdasActuales = [], g3_valorObjetivo = "";
+        let g3_nivelActual = 1;
+
+        const g3_nivelesConfig = {
+            1: { min: 6, max: 20, divMin: 2, divMax: 5 }, 
+            2: { min: 21, max: 99, divMin: 2, divMax: 6 }, 
+            3: { min: 40, max: 99, divMin: 3, divMax: 9 }, 
+            4: { min: 100, max: 999, divMin: 3, divMax: 7 }, 
+            5: { min: 1000, max: 9999, divMin: 4, divMax: 9 },
+            6: { min: 400, max: 999, divMin: 3, divMax: 5 }
+        };
+
+        function g3_generarDivision(n) {
+            const conf = g3_nivelesConfig[n];
+            let diso = Math.floor(Math.random() * (conf.divMax - conf.divMin + 1)) + conf.divMin;
+            let divi;
+
+            if (n === 6) {
+                let c1 = Math.floor(Math.random() * 2) + 1;
+                let parte1 = diso * c1;
+                let parte3 = Math.floor(Math.random() * (diso - 1)) + 1;
+                divi = parseInt(parte1.toString() + "0" + parte3.toString());
+            } else if (n === 3) {
+                divi = Math.floor(Math.random() * (conf.max - conf.min + 1)) + conf.min;
+                if (divi % diso === 0) divi++;
+            } else {
+                let cocienteBase = Math.floor(Math.random() * (conf.max / diso)) + 2;
+                divi = cocienteBase * diso;
+                if (divi < conf.min) divi += (diso * Math.floor(conf.min/diso));
+            }
+            return [divi, diso];
+        }
+
+        function g3_iniciar(n) {
+            g3_nivelActual = n;
+            const [divi, diso] = g3_generarDivision(n);
+            g3_dividendo = divi.toString();
+            g3_divisor = diso;
+            g3_cifras = g3_dividendo.split('');
+            
+            document.getElementById('g3-menu').classList.remove('active');
+            document.getElementById('g3-juego').classList.add('active');
+            document.getElementById('g3-modal-victoria').classList.remove('show');
+            document.getElementById('g3-divisor-display').textContent = g3_divisor;
+            document.getElementById('g3-cociente-display').innerHTML = '';
+            
+            const area = document.getElementById('g3-bloque-izquierdo');
+            area.innerHTML = `<div class="fila" id="g3-fila-principal"></div>`;
+            g3_cifras.forEach((c, i) => area.firstChild.innerHTML += `<div class="num" id="g3-d-${i}">${c}</div>`);
+            
+            g3_cursorCifra = 0; g3_restoActual = "";
+            g3_siguienteTurno();
+        }
+
+        function g3_siguienteTurno() {
+            if (g3_cursorCifra >= g3_cifras.length) {
+                setTimeout(() => {
+                    document.getElementById('g3-feedback-victoria').textContent = `¡Has resuelto ${g3_dividendo} ÷ ${g3_divisor}!`;
+                    document.getElementById('g3-modal-victoria').classList.add('show');
+                    playSoundCommon('acierto');
+                }, 500);
+                return;
+            }
+            if (g3_cursorCifra === 0) {
+                if (parseInt(g3_cifras[0]) < g3_divisor && g3_cifras.length > 1) {
+                    g3_valorAdividir = g3_cifras[0] + g3_cifras[1];
+                    g3_marcar(0); g3_marcar(1); g3_cursorCifra = 2;
+                } else {
+                    g3_valorAdividir = g3_cifras[0];
+                    g3_marcar(0); g3_cursorCifra = 1;
+                }
+                g3_prepararCociente();
+            } else {
+                g3_fase = "BAJAR";
+                const cifraABajar = g3_cifras[g3_cursorCifra];
+                g3_marcar(g3_cursorCifra);
+                document.getElementById('g3-instruccion').textContent = `Baja el ${cifraABajar}`;
+                const filas = document.querySelectorAll('#g3-bloque-izquierdo .fila');
+                const ultimaFilaResto = filas[filas.length - 1];
+                const c = document.createElement('div');
+                c.className = 'celda activa bajada';
+                c.textContent = "";
+                ultimaFilaResto.appendChild(c);
+                g3_celdasActuales = [c];
+                g3_valorObjetivo = cifraABajar;
+                g3_indexInput = 0;
+                g3_valorAdividir = (g3_restoActual === "0" ? "" : g3_restoActual) + cifraABajar;
+                g3_cursorCifra++;
+            }
+            g3_autoScroll();
+        }
+
+        function g3_marcar(i) {
+            const el = document.getElementById(`g3-d-${i}`);
+            if(el) { el.style.color = "#FF9800"; el.style.borderTop = "5px solid #FF9800"; }
+        }
+
+        function g3_prepararCociente() {
+            g3_fase = "COCIENTE";
+            let num = parseInt(g3_valorAdividir);
+            g3_valorObjetivo = Math.floor(num / g3_divisor).toString();
+            g3_indexInput = 0; g3_celdasActuales = [];
+            document.getElementById('g3-instruccion').textContent = `¿Cuántas veces cabe ${g3_divisor} en ${num}?`;
+            const caja = document.getElementById('g3-cociente-display');
+            const c = document.createElement('div');
+            c.className = 'celda activa';
+            caja.appendChild(c);
+            g3_celdasActuales.push(c);
+        }
+
+        function g3_prepararResto() {
+            g3_fase = "RESTO";
+            const resto = (parseInt(g3_valorAdividir) % g3_divisor).toString();
+            g3_valorObjetivo = resto;
+            g3_indexInput = 0; g3_celdasActuales = [];
+            document.getElementById('g3-instruccion').textContent = `¿Cuánto sobra?`;
+            const area = document.getElementById('g3-bloque-izquierdo');
+            const filaResto = document.createElement('div');
+            filaResto.className = 'fila';
+            const posicionFinal = g3_cursorCifra - 1;
+            const espacios = posicionFinal - (g3_valorObjetivo.length - 1);
+            for(let i=0; i < espacios; i++) filaResto.innerHTML += `<div class="num"></div>`;
+            for(let i=0; i < g3_valorObjetivo.length; i++) {
+                const c = document.createElement('div');
+                c.className = 'celda';
+                filaResto.appendChild(c);
+                g3_celdasActuales.push(c);
+            }
+            area.appendChild(filaResto);
+            g3_celdasActuales[0].classList.add('activa');
+            g3_restoActual = resto;
+            g3_autoScroll();
+        }
+
+        function g3_entrada(n) {
+            if (g3_indexInput >= g3_celdasActuales.length) return;
+            const celda = g3_celdasActuales[g3_indexInput];
+            celda.textContent = n;
+            if (n.toString() === g3_valorObjetivo[g3_indexInput]) {
+                playSoundCommon('acierto');
+                celda.className = 'celda correcta';
+                g3_indexInput++;
+                if (g3_indexInput < g3_celdasActuales.length) g3_celdasActuales[g3_indexInput].classList.add('activa');
+                else {
+                    if (g3_fase === "COCIENTE") setTimeout(g3_prepararResto, 500);
+                    else if (g3_fase === "RESTO") setTimeout(g3_siguienteTurno, 500);
+                    else if (g3_fase === "BAJAR") setTimeout(g3_prepararCociente, 500);
+                }
+            } else {
+                playSoundCommon('error');
+                celda.classList.add('incorrecta');
+                setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
+            }
+        }
+
+        function g3_borrar() { const c = g3_celdasActuales[g3_indexInput]; if(c && !c.classList.contains('correcta')) c.textContent = ""; }
+        function g3_autoScroll() { const s = document.getElementById('g3-scroll-area'); s.scrollTop = s.scrollHeight; }
+
+        function g3_volverAlMenuNiveles() {
+            document.getElementById('g3-modal-victoria').classList.remove('show');
+            document.getElementById('g3-juego').classList.remove('active');
+            document.getElementById('g3-menu').classList.add('active');
+        }
+
+        function g3_volverAJugarMismoNivel() { g3_iniciar(g3_nivelActual); }
+
+
+        /* ---------------------------------------------------------------------
+           LÓGICA JUEGO 4: DIVISIÓN 2 CIFRAS
+           --------------------------------------------------------------------- */
+        let g4_dividendo, g4_divisor, g4_cifras = [];
+        let g4_cursorCifra = 0, g4_restoActual = "", g4_valorAdividir = "", g4_fase = "", g4_indexInput = 0, g4_celdasActuales = [], g4_valorObjetivo = "";
+        let g4_nivelActual = 1;
+
+        const g4_nivelesConfig = {
+            1: { minDiv: 10, maxDiv: 12, minCoc: 10, maxCoc: 30 },
+            2: { minDiv: 13, maxDiv: 25, minCoc: 20, maxCoc: 50 },
+            3: { minDiv: 26, maxDiv: 45, minCoc: 30, maxCoc: 99 }
+        };
+
+        function g4_generarDivision(n) {
+            const conf = g4_nivelesConfig[n];
+            const diso = Math.floor(Math.random() * (conf.maxDiv - conf.minDiv + 1)) + conf.minDiv;
+            const cociente = Math.floor(Math.random() * (conf.maxCoc - conf.minCoc + 1)) + conf.minCoc;
+            const resto = Math.floor(Math.random() * diso);
+            const divi = (diso * cociente) + resto;
+            return [divi, diso];
+        }
+
+        function g4_iniciar(n) {
+            g4_nivelActual = n;
+            const [divi, diso] = g4_generarDivision(n);
+            g4_dividendo = divi.toString(); g4_divisor = diso; g4_cifras = g4_dividendo.split('');
+            
+            document.getElementById('g4-menu').classList.remove('active');
+            document.getElementById('g4-juego').classList.add('active');
+            document.getElementById('g4-modal-victoria').classList.remove('show');
+            document.getElementById('g4-divisor-display').textContent = g4_divisor;
+            document.getElementById('g4-cociente-display').innerHTML = '';
+            
+            const area = document.getElementById('g4-bloque-izquierdo');
+            area.innerHTML = `<div class="fila" id="g4-fila-principal"><div class="signo-resta"></div></div>`;
+            g4_cifras.forEach((c, i) => area.firstChild.innerHTML += `<div class="num" id="g4-d-${i}">${c}</div>`);
+            
+            g4_cursorCifra = 0; g4_restoActual = "";
+            g4_siguienteTurno();
+        }
+
+        function g4_siguienteTurno() {
+            if (g4_cursorCifra >= g4_cifras.length) {
+                setTimeout(() => { document.getElementById('g4-modal-victoria').classList.add('show'); playSoundCommon('acierto'); }, 500);
+                return;
+            }
+            if (g4_cursorCifra === 0) {
+                let tomado = g4_cifras[0] + g4_cifras[1];
+                if (parseInt(tomado) < g4_divisor) {
+                    g4_valorAdividir = tomado + g4_cifras[2];
+                    g4_marcar(0); g4_marcar(1); g4_marcar(2); g4_cursorCifra = 3;
+                } else {
+                    g4_valorAdividir = tomado;
+                    g4_marcar(0); g4_marcar(1); g4_cursorCifra = 2;
+                }
+                g4_prepararCociente();
+            } else {
+                g4_fase = "BAJAR";
+                const cifra = g4_cifras[g4_cursorCifra]; g4_marcar(g4_cursorCifra);
+                document.getElementById('g4-instruccion').textContent = `Baja el ${cifra}`;
+                const area = document.getElementById('g4-bloque-izquierdo');
+                const filas = area.getElementsByClassName('fila');
+                const ultimaFila = filas[filas.length-1];
+                
+                const c = g4_crearCelda(cifra, true);
+                ultimaFila.appendChild(c);
+                g4_celdasActuales = [c]; g4_valorObjetivo = cifra; g4_indexInput = 0;
+                g4_valorAdividir = (g4_restoActual === "0" ? "" : g4_restoActual) + cifra;
+                g4_cursorCifra++;
+            }
+            g4_autoScroll();
+        }
+
+        function g4_prepararCociente() {
+            g4_fase = "COCIENTE";
+            let q = Math.floor(parseInt(g4_valorAdividir) / g4_divisor);
+            g4_valorObjetivo = q.toString();
+            document.getElementById('g4-instruccion').textContent = `¿${g4_divisor} en ${g4_valorAdividir}?`;
+            const c = g4_crearCelda(g4_valorObjetivo, true);
+            document.getElementById('g4-cociente-display').appendChild(c);
+            g4_celdasActuales = [c]; g4_indexInput = 0;
+        }
+
+        function g4_prepararMultiplicacion() {
+            g4_fase = "MULTIPLICAR";
+            const producto = (parseInt(g4_valorObjetivo) * g4_divisor).toString();
+            const valObjPrevio = g4_valorObjetivo;
+            g4_valorObjetivo = producto;
+            document.getElementById('g4-instruccion').textContent = `${valObjPrevio} × ${g4_divisor} = ${producto}`;
+            
+            const area = document.getElementById('g4-bloque-izquierdo');
+            const filaProd = document.createElement('div');
+            filaProd.className = 'fila';
+            filaProd.innerHTML = '<span class="signo-resta">-</span>';
+            
+            const espaciosNecesarios = (g4_cursorCifra) - producto.length;
+            for(let i=0; i<espaciosNecesarios; i++) filaProd.appendChild(g4_crearEspacio());
+            
+            g4_celdasActuales = [];
+            for(let i=0; i<producto.length; i++) {
+                const c = g4_crearCelda(producto[i]);
+                filaProd.appendChild(c);
+                g4_celdasActuales.push(c);
+            }
+            area.appendChild(filaProd);
+            
+            const linea = document.createElement('div');
+            linea.className = 'fila-linea';
+            linea.style.marginLeft = (espaciosNecesarios * 34 + 24) + "px";
+            linea.style.width = (producto.length * 34) + "px";
+            area.appendChild(linea);
+
+            g4_celdasActuales[0].classList.add('activa');
+            g4_indexInput = 0;
+            g4_autoScroll();
+        }
+
+        function g4_prepararRestaFinal() {
+            g4_fase = "RESTA_PASO";
+            const resto = (parseInt(g4_valorAdividir) - parseInt(g4_valorObjetivo)).toString();
+            g4_restoActual = resto;
+            g4_valorObjetivo = resto;
+            
+            document.getElementById('g4-instruccion').textContent = `¿Cuánto sobra?`;
+            const area = document.getElementById('g4-bloque-izquierdo');
+            const filaResta = document.createElement('div');
+            filaResta.className = 'fila';
+            filaResta.innerHTML = '<div class="signo-resta"></div>';
+            
+            const espaciosNecesarios = (g4_cursorCifra) - resto.length;
+            for(let i=0; i<espaciosNecesarios; i++) filaResta.appendChild(g4_crearEspacio());
+
+            g4_celdasActuales = [];
+            for(let i=0; i<resto.length; i++) {
+                const c = g4_crearCelda(resto[i]);
+                filaResta.appendChild(c);
+                g4_celdasActuales.push(c);
+            }
+            area.appendChild(filaResta);
+            g4_celdasActuales[0].classList.add('activa');
+            g4_indexInput = 0;
+            g4_autoScroll();
+        }
+
+        function g4_entrada(n) {
+            if (g4_indexInput >= g4_celdasActuales.length) return;
+            const celda = g4_celdasActuales[g4_indexInput];
+            celda.textContent = n;
+            if (n.toString() === g4_valorObjetivo[g4_indexInput]) {
+                playSoundCommon('acierto');
+                celda.className = 'celda correcta';
+                g4_indexInput++;
+                if (g4_indexInput < g4_celdasActuales.length) g4_celdasActuales[g4_indexInput].classList.add('activa');
+                else {
+                    if (g4_fase === "COCIENTE") setTimeout(g4_prepararMultiplicacion, 500);
+                    else if (g4_fase === "MULTIPLICAR") setTimeout(g4_prepararRestaFinal, 500);
+                    else if (g4_fase === "RESTA_PASO") setTimeout(g4_siguienteTurno, 500);
+                    else if (g4_fase === "BAJAR") setTimeout(g4_prepararCociente, 500);
+                }
+            } else {
+                playSoundCommon('error');
+                celda.classList.add('incorrecta');
+                setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
+            }
+        }
+
+        function g4_crearCelda(res, activa=false) {
+            const c = document.createElement('div');
+            c.className = 'celda' + (activa ? ' activa' : '');
+            return c;
+        }
+
+        function g4_crearEspacio() {
+            const e = document.createElement('div');
+            e.className = 'num'; return e;
+        }
+
+        function g4_marcar(i) {
+            const el = document.getElementById(`g4-d-${i}`);
+            if(el) { el.style.color = "#FF9800"; el.style.borderTop = "4px solid #FF9800"; }
+        }
+
+        function g4_borrar() { const c = g4_celdasActuales[g4_indexInput]; if(c && !c.classList.contains('correcta')) c.textContent = ""; }
+        function g4_autoScroll() { const s = document.getElementById('g4-scroll-area'); s.scrollTop = s.scrollHeight; }
+
+        function g4_volverAlMenuNiveles() {
+            document.getElementById('g4-modal-victoria').classList.remove('show');
+            document.getElementById('g4-juego').classList.remove('active');
+            document.getElementById('g4-menu').classList.add('active');
+        }
+
+        function g4_volverAJugarMismoNivel() { g4_iniciar(g4_nivelActual); }
+
+
+        /* ---------------------------------------------------------------------
+           LÓGICA JUEGO 5: DIVISIÓN MAESTRA
+           --------------------------------------------------------------------- */
+        let g5_dividendo, g5_divisor, g5_cifras = [];
+        let g5_cursorCifra = 0, g5_restoActual = "", g5_valorAdividir = "", g5_fase = "", g5_indexInput = 0, g5_celdasActuales = [], g5_valorObjetivo = "";
+        let g5_nivelActual = 1;
+
+        function g5_generarValores(nivel) {
+            let divi, diso;
+            if (nivel === 1) {
+                diso = Math.floor(Math.random() * 90) + 10;
+                divi = Math.floor(Math.random() * 900) + 100;
+            } else if (nivel === 2) {
+                diso = Math.floor(Math.random() * 90) + 10;
+                divi = Math.floor(Math.random() * 90000) + 10000;
+            } else if (nivel === 3) {
+                diso = Math.floor(Math.random() * 90) + 10;
+                divi = Math.floor(Math.random() * 9000000) + 1000000;
+            } else {
+                diso = Math.floor(Math.random() * 900) + 100;
+                divi = Math.floor(Math.random() * 90000000) + 10000000;
+            }
+            return [divi, diso];
+        }
+
+        function g5_iniciar(n) {
+            g5_nivelActual = n;
+            const [divi, diso] = g5_generarValores(n);
+            g5_dividendo = divi.toString(); g5_divisor = diso; g5_cifras = g5_dividendo.split('');
+            
+            document.getElementById('g5-menu').classList.remove('active');
+            document.getElementById('g5-juego').classList.add('active');
+            document.getElementById('g5-modal-victoria').classList.remove('show');
+            document.getElementById('g5-divisor-display').textContent = g5_divisor;
+            document.getElementById('g5-cociente-display').innerHTML = '';
+            
+            const area = document.getElementById('g5-bloque-izquierdo');
+            area.innerHTML = `<div class="fila" id="g5-fila-principal"></div>`;
+            g5_cifras.forEach((c, i) => area.firstChild.innerHTML += `<div class="num" id="g5-d-${i}">${c}</div>`);
+            
+            g5_cursorCifra = 0; g5_restoActual = "";
+            g5_siguienteTurno();
+        }
+
+        function g5_siguienteTurno() {
+            if (g5_cursorCifra >= g5_cifras.length) {
+                setTimeout(() => { 
+                    document.getElementById('g5-feedback-final').textContent = `${g5_dividendo} ÷ ${g5_divisor}`;
+                    document.getElementById('g5-modal-victoria').classList.add('show'); 
+                    playSoundCommon('acierto'); 
+                }, 500);
+                return;
+            }
+
+            if (g5_cursorCifra === 0) {
+                let numCifrasDivisor = g5_divisor.toString().length;
+                let tomado = g5_dividendo.substring(0, numCifrasDivisor);
+                if (parseInt(tomado) < g5_divisor) {
+                    numCifrasDivisor++;
+                    tomado = g5_dividendo.substring(0, numCifrasDivisor);
+                }
+                g5_valorAdividir = tomado;
+                for(let i = 0; i < numCifrasDivisor; i++) g5_marcar(i);
+                g5_cursorCifra = numCifrasDivisor;
+                g5_prepararCociente();
+            } else {
+                g5_fase = "BAJAR";
+                const cifra = g5_cifras[g5_cursorCifra]; g5_marcar(g5_cursorCifra);
+                document.getElementById('g5-instruccion').textContent = `Baja el ${cifra}`;
+                const area = document.getElementById('g5-bloque-izquierdo');
+                const filas = area.getElementsByClassName('fila');
+                const ultimaFila = filas[filas.length-1];
+                const c = g5_crearCelda("", true);
+                ultimaFila.appendChild(c);
+                g5_celdasActuales = [c]; g5_valorObjetivo = cifra; g5_indexInput = 0;
+                g5_valorAdividir = (g5_restoActual === "0" ? "" : g5_restoActual) + cifra;
+                g5_cursorCifra++;
+            }
+            g5_autoScroll();
+        }
+
+        function g5_prepararCociente() {
+            g5_fase = "COCIENTE";
+            let q = Math.floor(parseInt(g5_valorAdividir) / g5_divisor);
+            g5_valorObjetivo = q.toString();
+            document.getElementById('g5-instruccion').textContent = `¿Cuántas veces cabe ${g5_divisor} en ${g5_valorAdividir}?`;
+            const c = g5_crearCelda("", true);
+            document.getElementById('g5-cociente-display').appendChild(c);
+            g5_celdasActuales = [c]; g5_indexInput = 0;
+        }
+
+        function g5_prepararRestoFinal() {
+            g5_fase = "RESTO";
+            const numAdividir = parseInt(g5_valorAdividir);
+            const restoNum = numAdividir % g5_divisor;
+            let longitudObjetivo = g5_valorAdividir.length;
+            let restoStr = restoNum.toString().padStart(longitudObjetivo, "0");
+            
+            g5_restoActual = restoNum.toString(); 
+            g5_valorObjetivo = restoStr; 
+            
+            document.getElementById('g5-instruccion').textContent = `¿Cuánto sobra?`;
+            const area = document.getElementById('g5-bloque-izquierdo');
+            const filaResta = document.createElement('div');
+            filaResta.className = 'fila';
+            
+            const espaciosNecesarios = (g5_cursorCifra) - restoStr.length;
+            for(let i=0; i<espaciosNecesarios; i++) filaResta.appendChild(g5_crearEspacio());
+
+            g5_celdasActuales = [];
+            for(let i=0; i<restoStr.length; i++) {
+                const c = g5_crearCelda("");
+                filaResta.appendChild(c);
+                g5_celdasActuales.push(c);
+            }
+            area.appendChild(filaResta);
+            
+            g5_indexInput = g5_celdasActuales.length - 1;
+            g5_celdasActuales[g5_indexInput].classList.add('activa');
+            g5_autoScroll();
+        }
+
+        function g5_entrada(n) {
+            if (g5_indexInput < 0 || g5_indexInput >= g5_celdasActuales.length) return;
+            const celda = g5_celdasActuales[g5_indexInput];
+            
+            if (n.toString() === g5_valorObjetivo[g5_indexInput]) {
+                playSoundCommon('acierto');
+                celda.textContent = n;
+                celda.className = 'celda correcta';
+                
+                if (g5_fase === "RESTO") {
+                    g5_indexInput--; 
+                    if (g5_indexInput >= 0) {
+                        g5_celdasActuales[g5_indexInput].classList.add('activa');
+                    } else {
+                        setTimeout(g5_siguienteTurno, 400);
+                    }
+                } else {
+                    g5_indexInput++; 
+                    if (g5_indexInput < g5_celdasActuales.length) {
+                        g5_celdasActuales[g5_indexInput].classList.add('activa');
+                    } else {
+                        if (g5_fase === "COCIENTE") setTimeout(g5_prepararRestoFinal, 400);
+                        else if (g5_fase === "BAJAR") setTimeout(g5_prepararCociente, 400);
+                    }
+                }
+            } else {
+                playSoundCommon('error');
+                celda.classList.add('incorrecta');
+                celda.textContent = n;
+                setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
+            }
+        }
+
+        function g5_crearCelda(texto, activa=false) {
+            const c = document.createElement('div');
+            c.className = 'celda' + (activa ? ' activa' : '');
+            c.textContent = texto;
+            return c;
+        }
+
+        function g5_crearEspacio() {
+            const e = document.createElement('div');
+            e.className = 'num'; return e;
+        }
+
+        function g5_marcar(i) {
+            const el = document.getElementById(`g5-d-${i}`);
+            if(el) { el.style.color = "#FF9800"; el.style.borderTop = "4px solid #FF9800"; }
+        }
+
+        function g5_borrar() { const c = g5_celdasActuales[g5_indexInput]; if(c && !c.classList.contains('correcta')) c.textContent = ""; }
+        function g5_autoScroll() { const s = document.getElementById('g5-scroll-area'); s.scrollTop = s.scrollHeight; }
+
+        function g5_volverAlMenuNiveles() {
+            document.getElementById('g5-modal-victoria').classList.remove('show');
+            document.getElementById('g5-juego').classList.remove('active');
+            document.getElementById('g5-menu').classList.add('active');
+        }
+
+        function g5_volverAJugarMismoNivel() { g5_iniciar(g5_nivelActual); }
+
+
+        /* ---------------------------------------------------------------------
+           LÓGICA JUEGO 6: DIVISIÓN POR 10, 100, 1000
+           --------------------------------------------------------------------- */
+        let g6_nivelActual = 1;
+        let g6_n1, g6_n2, g6_resCorrecto;
+
+        function g6_iniciar(n) {
+            g6_nivelActual = n;
+            document.getElementById('g6-menu').classList.remove('active');
+            document.getElementById('g6-juego').classList.add('active');
+            g6_generar();
+        }
+
+        function g6_generar() {
+            const display = document.getElementById('g6-input-res');
+            display.innerHTML = '<span class="placeholder">¿Resultado?</span>';
+            display.classList.remove('incorrecto');
+            document.getElementById('g6-modal-victoria').classList.remove('show');
+
+            const potencias = [10, 100, 1000];
+            g6_n2 = potencias[Math.floor(Math.random() * potencias.length)];
+            
+            if (g6_nivelActual === 1) {
+                g6_n1 = Math.floor(Math.random() * 8900) + 110;
+                g6_resCorrecto = (g6_n1 / g6_n2).toString().replace('.', ',');
+            } else {
+                let base = (Math.random() * 800 + 20).toFixed(1);
+                g6_n1 = base.replace('.', ',');
+                let calc = parseFloat(base) / g6_n2;
+                g6_resCorrecto = Number(calc.toFixed(4)).toString().replace('.', ',');
+            }
+            
+            document.getElementById('g6-horizontal').textContent = `${g6_n1} : ${g6_n2}`;
+        }
+
+        function g6_inputNum(v) {
+            const display = document.getElementById('g6-input-res');
+            if (display.querySelector('.placeholder')) display.textContent = "";
+            display.classList.remove('incorrecto');
+            
+            if (v === ',') {
+                if (!display.textContent.includes(',')) {
+                    display.textContent = display.textContent === "" ? "0," : display.textContent + ",";
+                }
+            } else {
+                if (display.textContent.length < 12) display.textContent += v;
+            }
+        }
+
+        function g6_borrar() {
+            const display = document.getElementById('g6-input-res');
+            if (display.querySelector('.placeholder')) return;
+            display.textContent = display.textContent.slice(0, -1);
+            if (display.textContent === "") display.innerHTML = '<span class="placeholder">¿Resultado?</span>';
+        }
+
+        function g6_validar() {
+            const display = document.getElementById('g6-input-res');
+            let userVal = display.querySelector('.placeholder') ? "" : display.textContent;
+            
+            if (userVal !== "") {
+                let userNorm = parseFloat(userVal.replace(',', '.'));
+                let correctNorm = parseFloat(g6_resCorrecto.replace(',', '.'));
+
+                if (userNorm === correctNorm) {
+                    playSoundCommon('acierto');
+                    document.getElementById('g6-mensaje-final').innerHTML = `${g6_n1} : ${g6_n2} = <br><strong>${g6_resCorrecto}</strong>`;
+                    document.getElementById('g6-modal-victoria').classList.add('show');
+                } else {
+                    playSoundCommon('error');
+                    display.classList.add('incorrecto');
+                    setTimeout(() => display.classList.remove('incorrecto'), 450);
+                }
+            }
+        }
+
+        function g6_siguiente() { g6_generar(); }
+
+        function g6_volverAlMenuNiveles() {
+            document.getElementById('g6-modal-victoria').classList.remove('show');
+            document.getElementById('g6-juego').classList.remove('active');
+            document.getElementById('g6-menu').classList.add('active');
+        }
+    </script>
+</body>
+</html>
