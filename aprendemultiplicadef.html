@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Juegos Educativos de Multiplicación - Suite Completa</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&family=Outfit:wght@400;700;900&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ==========================================================================
+           GLOBAL & NAVIGATION STYLES
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --nav-bg: #1e293b;
+            --nav-accent: #38bdf8;
+            --primary: #22d3ee;
+            --success: #4ade80;
+            --error: #f43f5e;
+        }
+
+        body {
+            font-family: 'Outfit', 'Quicksand', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation Bar */
+        .app-header {
+            background-color: var(--nav-bg);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-home-link {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-home-link:hover {
+            background: var(--nav-accent);
+            color: #0f172a;
+            transform: scale(1.05);
+        }
+
+        .app-title {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--nav-accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-menu-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-menu-toggle:hover {
+            background: var(--nav-accent);
+            color: #0f172a;
+        }
+
+        /* Container where games render */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 100%;
+        }
+
+        /* Game Views */
+        .game-view {
+            display: none !important;
+            width: 100%;
+            flex: 1;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .game-view.active {
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Main Menu View */
+        #view-main-menu {
+            padding: 30px 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .menu-header h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .menu-header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .card-game {
+            background: #1e293b;
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-game:hover {
+            transform: translateY(-5px);
+            border-color: var(--nav-accent);
+            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .card-btn {
+            align-self: flex-start;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--nav-accent);
+            transition: all 0.2s;
+        }
+
+        .card-game:hover .card-btn {
+            background: var(--nav-accent);
+            color: #0f172a;
+        }
+
+        /* Responsive Top Bar */
+        @media (max-width: 600px) {
+            .app-header {
+                padding: 10px 12px;
+            }
+            .app-title {
+                font-size: 0.95rem;
+            }
+            .btn-menu-toggle {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+            .menu-header h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* ==========================================================================
+           GAME 1 STYLES (Manzanas)
+           ========================================================================== */
+        #view-game1 {
+            background: #87ceeb;
+            color: #2c3e50;
+            font-family: 'Quicksand', sans-serif;
+            min-height: calc(100vh - 55px);
+            padding-bottom: 20px;
+        }
+
+        #view-game1 .header-g1 {
+            background: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        #view-game1 .mission-text { font-weight: 900; font-size: 1.1rem; }
+        #view-game1 .target-hl { color: #ff4d4d; font-size: 1.4rem; }
+
+        #view-game1 .game-area {
+            display: flex;
+            flex-grow: 1;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            padding: 10px;
+            flex-wrap: wrap;
+        }
+
+        #view-game1 .basket-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #view-game1 .basket {
+            width: 130px;
+            height: 90px;
+            background: #8b4513;
+            border-radius: 10px 10px 60px 60px;
+            border: 4px solid #5d2e0a;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 8px;
+            gap: 4px;
+            justify-content: center;
+            align-content: flex-end;
+            cursor: pointer;
+        }
+
+        #view-game1 .apple {
+            width: 24px;
+            height: 24px;
+            background: #ff4d4d;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow: inset -3px -3px 0 rgba(0,0,0,0.1);
+        }
+
+        #view-game1 .apple::before {
+            content: '';
+            position: absolute;
+            top: -4px; left: 10px;
+            width: 3px; height: 6px;
+            background: #4a2c00;
+        }
+
+        #view-game1 .counter { font-size: 1.8rem; font-weight: 900; color: #5d2e0a; margin-top: 5px; }
+
+        #view-game1 .controls { margin-bottom: 10px; text-align: center; }
+
+        #view-game1 #check-btn {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #1a252f;
+        }
+
+        #view-game1 #feedback-msg {
+            margin-top: 5px;
+            padding: 5px 15px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        #view-game1 .ground-area {
+            background: #9cdb43;
+            width: 100%;
+            min-height: 120px;
+            max-height: 22vh;
+            border-top: 5px solid #86c038;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            overflow-y: auto;
+        }
+
+        #view-game1 .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1100;
+        }
+
+        #view-game1 .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        #view-game1 .operation-box {
+            font-size: 3rem;
+            font-weight: 900;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border: 3px dashed #bdc3c7;
+        }
+
+        /* ==========================================================================
+           GAME 2 STYLES (Factoría Energy Gems)
+           ========================================================================== */
+        #view-game2 {
+            background-color: #0f172a;
+            background-image: radial-gradient(circle at 50% 50%, #164e63 0%, #0f172a 100%);
+            min-height: calc(100vh - 55px);
+            padding: 15px;
+            font-family: 'Outfit', sans-serif;
+            color: white;
+        }
+
+        #view-game2 .hud {
+            display: flex; justify-content: center; gap: 40px;
+            width: 100%; max-width: 800px; margin-top: 15px; margin-bottom: 15px;
+            background: rgba(255,255,255,0.05); padding: 10px 30px;
+            border-radius: 50px; border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        #view-game2 .stat-value { font-size: 1.8rem; font-weight: 900; line-height: 1; }
+        #view-game2 .stat-label { font-size: 0.7rem; text-transform: uppercase; color: #22d3ee; letter-spacing: 2px; }
+
+        #view-game2 .mission-info {
+            text-align: center; margin-bottom: 15px;
+            background: rgba(255,255,255,0.05); padding: 15px;
+            border-radius: 20px; border: 2px solid #22d3ee;
+            width: 100%; max-width: 800px;
+            transition: all 0.3s ease;
+        }
+
+        #view-game2 .mission-info.error-pulse {
+            border-color: #f43f5e;
+            background: rgba(244, 63, 94, 0.1);
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        #view-game2 .lab-bench {
+            background: #1e293b; padding: 25px; border-radius: 30px;
+            width: 100%; max-width: 900px; margin-bottom: 15px;
+        }
+
+        #view-game2 .jars-area {
+            display: flex; justify-content: center; gap: 15px;
+            flex-wrap: wrap; margin-bottom: 20px;
+        }
+
+        #view-game2 .jar {
+            width: 120px; min-height: 140px;
+            background: rgba(255,255,255,0.03);
+            border: 3px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            display: flex; flex-wrap: wrap; padding: 10px;
+            align-content: flex-start; justify-content: center; gap: 4px;
+            transition: border-color 0.2s;
+        }
+
+        #view-game2 .gem {
+            width: 24px; height: 24px;
+            background: #22d3ee;
+            border-radius: 4px;
+            box-shadow: 0 0 10px #22d3ee;
+        }
+
+        #view-game2 .gem.draggable { cursor: grab; touch-action: none; position: relative; z-index: 10; }
+        #view-game2 .gem.dragging { position: fixed; pointer-events: none; z-index: 9999; transform: scale(1.4); opacity: 0.8; }
+
+        #view-game2 .gem-source {
+            background: rgba(0,0,0,0.3); padding: 20px; border-radius: 20px;
+            min-height: 100px; width: 100%; display: flex;
+            flex-wrap: wrap; gap: 8px; justify-content: center;
+            border: 2px dashed rgba(255,255,255,0.1);
+        }
+
+        #view-game2 .btn-action {
+            background: linear-gradient(180deg, #4ade80, #059669);
+            border: none; padding: 15px 45px; color: white; font-size: 1.3rem;
+            font-weight: 900; border-radius: 20px; cursor: pointer;
+            box-shadow: 0 6px 0 #065f46; transition: transform 0.1s;
+        }
+
+        #view-game2 .btn-action:active { transform: translateY(4px); box-shadow: 0 2px 0 #065f46; }
+
+        #view-game2 .modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            background: white; color: black; padding: 35px; border-radius: 30px;
+            text-align: center; z-index: 1100; width: 90%; max-width: 500px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        #view-game2 .modal.show { transform: translate(-50%, -50%) scale(1); }
+
+        /* ==========================================================================
+           GAME 3 & 4 STYLES (1 Cifra & 2 Cifras)
+           ========================================================================== */
+        .g34-body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            min-height: calc(100vh - 55px);
+            display: flex; justify-content: center; align-items: center; padding: 10px;
+            width: 100%;
+        }
+
+        .g34-container {
+            width: 98%; max-width: 950px; min-height: 85vh;
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; position: relative; color: #333;
+        }
+
+        .g34-instruccion {
+            background: #1e3c72; color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+        }
+
+        .g34-contenido { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+
+        .g34-zona-operacion {
+            flex: 1.8; overflow-y: auto; padding: 15px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; justify-content: center; align-items: flex-start;
+        }
+
+        .g34-zona-teclado {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        .g34-tablero { font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: flex-end; }
+
+        .g34-fila { display: flex; height: 45px; justify-content: flex-end; align-items: center; }
+        .g34-fila-linea { border-bottom: 4px solid #333; width: 100%; margin: 5px 0; }
+
+        .g34-num, .g34-celda {
+            width: 40px; height: 42px; line-height: 42px; text-align: center; 
+            font-size: 1.8rem; font-weight: bold;
+        }
+
+        .g34-signo { font-size: 1.8rem; font-weight: bold; margin-right: 10px; }
+
+        .g34-celda { border: 2px solid #ccc; border-radius: 6px; background: #fff; line-height: 38px; cursor: pointer; }
+        .g34-celda.activa { border: 3px solid #FF9800; background: #FFF3E0; }
+        .g34-celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .g34-celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        .g34-teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 250px; }
+        .g34-tecla { padding: 15px 0; font-size: 1.4rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; }
+        .g34-tecla:active { box-shadow: 0 2px #ccc; transform: translateY(2px); }
+
+        .g34-pantalla { display: none; height: 100%; width: 100%; }
+        .g34-pantalla.active { display: flex; flex-direction: column; }
+
+        .g34-btn-nivel { width: 100%; max-width: 350px; padding: 12px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
+
+        .g34-modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            .g34-contenido { flex-direction: column; }
+            .g34-zona-teclado { border-left: none; border-top: 2px solid #eee; }
+            .g34-num, .g34-celda { width: 34px; height: 38px; font-size: 1.6rem; }
+        }
+
+        /* ==========================================================================
+           GAME 5 STYLES (Multiplicaciones x10, x100, x1000)
+           ========================================================================== */
+        #view-game5 {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            min-height: calc(100vh - 55px);
+            display: flex; justify-content: center; align-items: center; padding: 15px;
+            width: 100%;
+        }
+
+        #view-game5 .container-g5 {
+            width: 95%; max-width: 850px; min-height: 85vh;
+            background: #ffffff; border-radius: 24px; padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            position: relative; display: flex; flex-direction: column; color: #333;
+        }
+
+        #view-game5 .game-wrapper {
+            display: flex; flex: 1; gap: 40px; align-items: center;
+        }
+
+        #view-game5 .seccion-izquierda {
+            flex: 1.3; display: flex; flex-direction: column; justify-content: center;
+        }
+
+        #view-game5 .seccion-derecha {
+            flex: 0.7; display: flex; justify-content: center;
+        }
+
+        #view-game5 .instruccion-g5 {
+            background: #eff6ff; color: #1e3a8a; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 25px;
+            font-weight: bold; border: 1px solid #bfdbfe; font-size: 1.1rem;
+        }
+
+        #view-game5 .operacion-horizontal {
+            font-size: 3.2rem; font-weight: 800; color: #1e3a8a;
+            text-align: center; margin-bottom: 25px; padding: 25px;
+            background: #f8fafc; border-radius: 20px; border: 3px dashed #cbd5e1;
+        }
+
+        #view-game5 .input-libre {
+            font-size: 3.5rem; width: 100%; min-height: 100px;
+            display: flex; align-items: center; justify-content: center;
+            border-bottom: 6px solid #1e3a8a; color: #1e3a8a; font-weight: bold;
+        }
+
+        #view-game5 .placeholder { color: #cbd5e1; font-size: 1.8rem; }
+
+        #view-game5 .teclado-g5 {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 15px; width: 100%; max-width: 300px;
+            background: #f1f5f9; padding: 20px; border-radius: 24px;
+        }
+
+        #view-game5 .tecla-g5 {
+            aspect-ratio: 1/1; font-size: 1.8rem; border: none; border-radius: 15px;
+            background: #fff; color: #334155; font-weight: 700; 
+            cursor: pointer; box-shadow: 0 4px 0 #cbd5e1;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.1s;
+        }
+        #view-game5 .tecla-g5:active { transform: translateY(3px); box-shadow: 0 1px 0 #cbd5e1; }
+
+        #view-game5 .tecla-operacion { background: #f8fafc; color: #3b82f6; }
+        #view-game5 .tecla-del { background: #fee2e2; color: #dc2626; font-size: 1.3rem; }
+        #view-game5 .tecla-check { 
+            grid-column: span 3; background: #3b82f6; color: white;
+            height: 70px; font-size: 1.4rem; margin-top: 10px;
+            box-shadow: 0 5px 0 #1d4ed8; aspect-ratio: auto;
+        }
+        #view-game5 .tecla-check:active { box-shadow: 0 1px 0 #1d4ed8; }
+
+        #view-game5 .pantalla-g5 { display: none; height: 100%; width: 100%; }
+        #view-game5 .pantalla-g5.active { display: flex; flex-direction: column; }
+
+        #view-game5 .btn-nivel-g5 { 
+            width: 100%; padding: 25px; margin: 12px 0; border: none; 
+            border-radius: 18px; color: white; font-weight: bold; font-size: 1.4rem;
+            cursor: pointer; box-shadow: 0 5px 0 rgba(0,0,0,0.2); transition: 0.2s;
+        }
+        #view-game5 .btn-nivel-g5:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+
+        #view-game5 .incorrecto { animation: shake 0.4s; color: #dc2626 !important; border-color: #dc2626 !important; }
+
+        #view-game5 #modal-victoria-g5 {
+            display: none; position: absolute; inset: 0; background: rgba(255,255,255,0.98);
+            z-index: 200; flex-direction: column; justify-content: center; align-items: center;
+            border-radius: 24px; text-align: center; padding: 20px;
+        }
+
+        @media (max-width: 700px) {
+            #view-game5 .game-wrapper { flex-direction: column; gap: 20px; }
+            #view-game5 .container-g5 { height: 98vh; padding: 15px; }
+            #view-game5 .operacion-horizontal { font-size: 2.2rem; padding: 15px; }
+            #view-game5 .input-libre { font-size: 2.5rem; min-height: 70px; }
+            #view-game5 .teclado-g5 { padding: 10px; gap: 8px; }
+            #view-game5 .tecla-g5 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Shared Header Nav -->
+    <header class="app-header">
+        <div class="header-left">
+            <a href="main-index.html" class="btn-home-link" title="Inicio / Volver al Índice Principal">
+                <i class="fas fa-house"></i>
+            </a>
+            <button class="btn-menu-toggle" onclick="showMainMenu()">
+                <i class="fas fa-th"></i>
+                <span>Menú Principal</span>
+            </button>
+            <div class="app-title">
+                <i class="fas fa-graduation-cap"></i>
+                <span id="header-game-title">Juegos de Multiplicación</span>
+            </div>
+        </div>
+        <div class="header-right"></div>
+    </header>
+
+    <div class="main-container">
+
+        <!-- ===================================================================
+             MAIN MENU VIEW
+             =================================================================== -->
+        <div id="view-main-menu" class="game-view active">
+            <div class="menu-header">
+                <h1>Juegos de Multiplicación</h1>
+                <p>Selecciona una actividad para comenzar a aprender jugando</p>
+            </div>
+
+            <div class="menu-grid">
+                <!-- Card 1 -->
+                <div class="card-game" onclick="switchGame(1)">
+                    <div>
+                        <div class="card-icon">🍎</div>
+                        <div class="card-title">Multiplicación con Manzanas</div>
+                        <div class="card-desc">Visualiza grupos y repartos de manzanas en cestas para comprender el concepto de multiplicar.</div>
+                    </div>
+                    <div class="card-btn">Jugar <i class="fas fa-arrow-right"></i></div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="card-game" onclick="switchGame(2)">
+                    <div>
+                        <div class="card-icon">⚡</div>
+                        <div class="card-title">Factoría de Multiplicación</div>
+                        <div class="card-desc">Genera energía configurando contenedores con celdas energéticas interactivas.</div>
+                    </div>
+                    <div class="card-btn">Jugar <i class="fas fa-arrow-right"></i></div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card-game" onclick="switchGame(3)">
+                    <div>
+                        <div class="card-icon">🔢</div>
+                        <div class="card-title">Multiplicación 1 Cifra</div>
+                        <div class="card-desc">Practica paso a paso multiplicaciones en formato vertical con una cifra.</div>
+                    </div>
+                    <div class="card-btn">Jugar <i class="fas fa-arrow-right"></i></div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="card-game" onclick="switchGame(4)">
+                    <div>
+                        <div class="card-icon">✖️</div>
+                        <div class="card-title">Multiplicación 2 Cifras</div>
+                        <div class="card-desc">Domina las multiplicaciones por dos cifras: unidades, decenas y suma final.</div>
+                    </div>
+                    <div class="card-btn">Jugar <i class="fas fa-arrow-right"></i></div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="card-game" onclick="switchGame(5)">
+                    <div>
+                        <div class="card-icon">🚀</div>
+                        <div class="card-title">Multiplicaciones x10, x100, x1000</div>
+                        <div class="card-desc">Aprende la regla rápida para multiplicar números naturales y decimales por potencias de 10.</div>
+                    </div>
+                    <div class="card-btn">Jugar <i class="fas fa-arrow-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ===================================================================
+             GAME 1 VIEW (Manzanas Visuales)
+             =================================================================== -->
+        <div id="view-game1" class="game-view">
+            <div class="header-g1">
+                <div class="mission-text" id="g1_missionText">Cargando...</div>
+            </div>
+
+            <div class="game-area" id="g1_basketZone"></div>
+
+            <div class="controls">
+                <button id="check-btn" onclick="g1_verify()">¡COMPROBAR MULTIPLICACIÓN!</button>
+                <div id="g1_feedback-msg"></div>
+            </div>
+
+            <div class="ground-area" id="g1_ground"></div>
+
+            <div class="modal" id="g1_winModal">
+                <div class="modal-content">
+                    <h2 style="color: #2ecc71">¡RETO COMPLETADO! 🌟</h2>
+                    <div class="operation-box" id="g1_opDisplay">0 x 0 = 0</div>
+                    <p id="g1_textDesc" style="font-weight: bold; color: #7f8c8d;"></p>
+                    <button onclick="g1_initGame()" style="background: #2ecc71; color: white; border: none; padding: 10px 25px; border-radius: 10px; cursor: pointer; font-size: 1.2rem; font-weight: bold; margin-top: 15px;">SIGUIENTE NIVEL</button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ===================================================================
+             GAME 2 VIEW (Factoría)
+             =================================================================== -->
+        <div id="view-game2" class="game-view">
+            <div class="hud">
+                <div class="stat"><div class="stat-label">Nivel</div><div class="stat-value" id="g2_lvlVal">1</div></div>
+                <div class="stat"><div class="stat-label">Racha</div><div class="stat-value" id="g2_streakVal">0</div></div>
+            </div>
+
+            <div class="mission-info" id="g2_infoPanel">
+                <h2 id="g2_instruction" style="font-size: 1.2rem; color: var(--primary);">Iniciando Generador...</h2>
+            </div>
+
+            <div class="lab-bench">
+                <div class="jars-area" id="g2_jarsArea"></div>
+                <div style="text-align: center; color: #94a3b8; font-size: 0.7rem; margin-bottom: 10px;">SUMINISTRO DE ENERGÍA</div>
+                <div class="gem-source" id="g2_gemSource"></div>
+            </div>
+
+            <button class="btn-action" onclick="g2_verifyMission()">¡ACTIVAR FACTORÍA!</button>
+
+            <div class="modal" id="g2_resultModal">
+                <h2 style="color: #059669">¡ENERGÍA GENERADA!</h2>
+                <div id="g2_mathDisplay" style="font-size: 2.2rem; margin: 20px 0; font-family: 'Orbitron';"></div>
+                <p id="g2_totalText" style="font-weight: bold; color: #0891b2; margin-bottom: 20px;"></p>
+                <button class="btn-action" onclick="g2_nextMission()">SIGUIENTE NIVEL</button>
+            </div>
+        </div>
+
+
+        <!-- ===================================================================
+             GAME 3 VIEW (1 Cifra paso a paso)
+             =================================================================== -->
+        <div id="view-game3" class="game-view">
+            <div class="g34-body">
+                <div class="g34-container">
+                    <div id="g3_menu" class="g34-pantalla active" style="justify-content: center;">
+                        <h1 style="text-align:center; color:#1e3c72; margin-bottom:15px;">Multiplicación (1 Cifra)</h1>
+                        <button class="g34-btn-nivel" style="background:#43a047" onclick="g3_iniciar(1)">Nivel 1: Tablas 2 al 5</button>
+                        <button class="g34-btn-nivel" style="background:#fb8c00" onclick="g3_iniciar(2)">Nivel 2: Tablas 6 al 9</button>
+                        <button class="g34-btn-nivel" style="background:#e53935" onclick="g3_iniciar(3)">Nivel 3: Números Grandes</button>
+                    </div>
+
+                    <div id="g3_juego" class="g34-pantalla">
+                        <div id="g3_instruccion" class="g34-instruccion">¡A multiplicar!</div>
+                        <div class="g34-contenido">
+                            <div class="g34-zona-operacion" id="g3_scroll-area">
+                                <div id="g3_tablero" class="g34-tablero"></div>
+                            </div>
+                            <div class="g34-zona-teclado" id="g3_zona_teclado">
+                                <div class="g34-teclado">
+                                    <button class="g34-tecla" onclick="g3_entrada(1)">1</button>
+                                    <button class="g34-tecla" onclick="g3_entrada(2)">2</button>
+                                    <button class="g34-tecla" onclick="g3_entrada(3)">3</button>
+                                    <button class="g34-tecla" onclick="g3_entrada(4)">4</button>
+                                    <button class="g34-tecla" onclick="g3_entrada(5)">5</button>
+                                    <button class="g34-tecla" onclick="g3_entrada(6)">6</button>
+                                    <button class="g34-tecla" onclick="g3_entrada(7)">7</button>
+                                    <button class="g34-tecla" onclick="g3_entrada(8)">8</button>
+                                    <button class="g34-tecla" onclick="g3_entrada(9)">9</button>
+                                    <button class="g34-tecla" style="background:#ffcdd2" onclick="g3_borrar()">C</button>
+                                    <button class="g34-tecla" onclick="g3_entrada(0)">0</button>
+                                    <button class="g34-tecla" style="background:#eee" onclick="g3_volverAlMenuNiveles()">🏠</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="g3_modal-victoria" class="g34-modal-victoria">
+                        <h2 style="font-size: 2.5rem; color: #43a047;">¡Excelente trabajo! 🏆</h2>
+                        <button class="g34-btn-nivel" style="background:#43a047; max-width: 250px; margin-top:20px;" onclick="g3_volverAJugarMismoNivel()">Jugar otra vez</button>
+                        <button class="g34-btn-nivel" style="background:#1e3c72; max-width: 250px;" onclick="g3_volverAlMenuNiveles()">Volver al Menú</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ===================================================================
+             GAME 4 VIEW (2 Cifras paso a paso)
+             =================================================================== -->
+        <div id="view-game4" class="game-view">
+            <div class="g34-body">
+                <div class="g34-container">
+                    <div id="g4_menu" class="g34-pantalla active" style="justify-content: center;">
+                        <h1 style="text-align:center; color:#1e3c72; margin-bottom:15px;">Multiplicación (2 Cifras)</h1>
+                        <button class="g34-btn-nivel" style="background:#43a047" onclick="g4_iniciar(1)">Nivel 1: Fácil</button>
+                        <button class="g34-btn-nivel" style="background:#fb8c00" onclick="g4_iniciar(2)">Nivel 2: Intermedio</button>
+                        <button class="g34-btn-nivel" style="background:#e53935" onclick="g4_iniciar(3)">Nivel 3: Experto</button>
+                    </div>
+
+                    <div id="g4_juego" class="g34-pantalla">
+                        <div id="g4_instruccion" class="g34-instruccion">¡A multiplicar!</div>
+                        <div class="g34-contenido">
+                            <div class="g34-zona-operacion" id="g4_scroll-area">
+                                <div id="g4_tablero" class="g34-tablero"></div>
+                            </div>
+                            <div class="g34-zona-teclado" id="g4_zona_teclado">
+                                <div class="g34-teclado">
+                                    <button class="g34-tecla" onclick="g4_entrada(1)">1</button>
+                                    <button class="g34-tecla" onclick="g4_entrada(2)">2</button>
+                                    <button class="g34-tecla" onclick="g4_entrada(3)">3</button>
+                                    <button class="g34-tecla" onclick="g4_entrada(4)">4</button>
+                                    <button class="g34-tecla" onclick="g4_entrada(5)">5</button>
+                                    <button class="g34-tecla" onclick="g4_entrada(6)">6</button>
+                                    <button class="g34-tecla" onclick="g4_entrada(7)">7</button>
+                                    <button class="g34-tecla" onclick="g4_entrada(8)">8</button>
+                                    <button class="g34-tecla" onclick="g4_entrada(9)">9</button>
+                                    <button class="g34-tecla" style="background:#ffcdd2" onclick="g4_borrar()">C</button>
+                                    <button class="g34-tecla" onclick="g4_entrada(0)">0</button>
+                                    <button class="g34-tecla" style="background:#eee" onclick="g4_volverAlMenuNiveles()">🏠</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="g4_modal-victoria" class="g34-modal-victoria">
+                        <h2 style="font-size: 2.5rem; color: #43a047;">¡Excelente trabajo! 🏆</h2>
+                        <button class="g34-btn-nivel" style="background:#43a047; max-width: 250px; margin-top:20px;" onclick="g4_volverAJugarMismoNivel()">Jugar otra vez</button>
+                        <button class="g34-btn-nivel" style="background:#1e3c72; max-width: 250px;" onclick="g4_volverAlMenuNiveles()">Volver al Menú</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ===================================================================
+             GAME 5 VIEW (Multiplicar por 10, 100, 1000)
+             =================================================================== -->
+        <div id="view-game5" class="game-view">
+            <div class="container-g5">
+                <div id="g5_menu" class="pantalla-g5 active" style="justify-content: center;">
+                    <h1 style="text-align:center; color:#1e3a8a; margin-bottom: 40px; font-size: 2rem;">Multiplicaciones x10, x100, x1000</h1>
+                    <button class="btn-nivel-g5" style="background:#3b82f6" onclick="g5_iniciar(1)">NIVEL 1<br><small style="font-weight: normal; font-size: 0.9rem;">Números Naturales</small></button>
+                    <button class="btn-nivel-g5" style="background:#06b6d4" onclick="g5_iniciar(2)">NIVEL 2<br><small style="font-weight: normal; font-size: 0.9rem;">Números Decimales</small></button>
+                </div>
+
+                <div id="g5_juego" class="pantalla-g5">
+                    <div id="g5_instruccion" class="instruccion-g5">Multiplica: añade ceros o mueve la coma</div>
+                    
+                    <div class="game-wrapper">
+                        <div class="seccion-izquierda">
+                            <div id="g5_horizontal" class="operacion-horizontal"></div>
+                            <div id="g5_input-res" class="input-libre"></div>
+                        </div>
+
+                        <div class="seccion-derecha" id="g5_zona_teclado">
+                            <div class="teclado-g5">
+                                <button class="tecla-g5" onclick="g5_inputNum(7)">7</button>
+                                <button class="tecla-g5" onclick="g5_inputNum(8)">8</button>
+                                <button class="tecla-g5" onclick="g5_inputNum(9)">9</button>
+                                <button class="tecla-g5" onclick="g5_inputNum(4)">4</button>
+                                <button class="tecla-g5" onclick="g5_inputNum(5)">5</button>
+                                <button class="tecla-g5" onclick="g5_inputNum(6)">6</button>
+                                <button class="tecla-g5" onclick="g5_inputNum(1)">1</button>
+                                <button class="tecla-g5" onclick="g5_inputNum(2)">2</button>
+                                <button class="tecla-g5" onclick="g5_inputNum(3)">3</button>
+                                <button class="tecla-g5 tecla-operacion" onclick="g5_inputNum(',')">,</button>
+                                <button class="tecla-g5" onclick="g5_inputNum(0)">0</button>
+                                <button class="tecla-g5 tecla-del" onclick="g5_borrar()">⌫</button>
+                                <button class="tecla-g5 tecla-check" onclick="g5_validar()">LISTO ✓</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button style="background:none; border:none; color:#94a3b8; margin-top:20px; cursor:pointer; text-decoration:underline; font-weight: 600;" onclick="g5_volverAlMenu()">VOLVER AL MENÚ DE NIVELES</button>
+                </div>
+
+                <div id="modal-victoria-g5">
+                    <div style="font-size: 5rem; margin-bottom: 10px;">🌟</div>
+                    <h2 style="color: #3b82f6; font-size: 2.2rem; margin-bottom: 15px;">¡Excelente!</h2>
+                    <div id="g5_mensaje-final" style="margin-bottom: 30px; font-size: 1.8rem; color: #334155;"></div>
+                    <button class="btn-nivel-g5" style="background:#10b981; max-width: 300px;" onclick="g5_siguiente()">Siguiente ejercicio</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===================================================================
+         JAVASCRIPT LOGIC
+         =================================================================== -->
+    <script>
+        let currentGame = 0;
+
+        const gameTitles = {
+            0: 'Juegos de Multiplicación',
+            1: 'Multiplicación con Manzanas',
+            2: 'Factoría de Multiplicación',
+            3: 'Multiplicación 1 Cifra',
+            4: 'Multiplicación 2 Cifras',
+            5: 'Multiplicaciones x10, x100, x1000'
+        };
+
+        function showMainMenu() {
+            document.querySelectorAll('.game-view').forEach(view => view.classList.remove('active'));
+            document.getElementById('view-main-menu').classList.add('active');
+            document.getElementById('header-game-title').innerText = gameTitles[0];
+            currentGame = 0;
+        }
+
+        function switchGame(gameNum) {
+            document.querySelectorAll('.game-view').forEach(view => view.classList.remove('active'));
+            document.getElementById(`view-game${gameNum}`).classList.add('active');
+            document.getElementById('header-game-title').innerText = gameTitles[gameNum];
+            currentGame = gameNum;
+
+            // Initialize game logic if required
+            if (gameNum === 1) g1_initGame();
+            if (gameNum === 2) g2_initMission();
+            if (gameNum === 3) g3_volverAlMenuNiveles();
+            if (gameNum === 4) g4_volverAlMenuNiveles();
+            if (gameNum === 5) g5_volverAlMenu();
+        }
+
+        // Universal Physical Keyboard Handler for PC Input (Active concurrently with screen keypads)
+        document.addEventListener('keydown', (e) => {
+            // Game 3
+            if (currentGame === 3 && document.getElementById('g3_juego').classList.contains('active')) {
+                if (e.key >= '0' && e.key <= '9') {
+                    g3_entrada(parseInt(e.key));
+                } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                    g3_borrar();
+                }
+            }
+
+            // Game 4
+            if (currentGame === 4 && document.getElementById('g4_juego').classList.contains('active')) {
+                if (e.key >= '0' && e.key <= '9') {
+                    g4_entrada(parseInt(e.key));
+                } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                    g4_borrar();
+                }
+            }
+
+            // Game 5
+            if (currentGame === 5 && document.getElementById('g5_juego').classList.contains('active')) {
+                if (e.key >= '0' && e.key <= '9') {
+                    g5_inputNum(e.key);
+                } else if (e.key === ',' || e.key === '.') {
+                    g5_inputNum(',');
+                } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                    g5_borrar();
+                } else if (e.key === 'Enter') {
+                    g5_validar();
+                }
+            }
+        });
+
+        /* ===================================================================
+           GAME 1 LOGIC (Manzanas)
+           =================================================================== */
+        let g1_m = { groups: 0, perGroup: 0, total: 0 };
+
+        function g1_initGame() {
+            const ground = document.getElementById('g1_ground');
+            const basketZone = document.getElementById('g1_basketZone');
+            const feedback = document.getElementById('g1_feedback-msg');
+
+            document.getElementById('g1_winModal').style.display = 'none';
+            feedback.style.display = 'none';
+            ground.innerHTML = '';
+            basketZone.innerHTML = '';
+
+            g1_m.groups = Math.floor(Math.random() * 3) + 2; 
+            g1_m.perGroup = Math.floor(Math.random() * 4) + 2; 
+            g1_m.total = g1_m.groups * g1_m.perGroup;
+            
+            document.getElementById('g1_missionText').innerHTML = 
+                `PON <span class="target-hl">${g1_m.perGroup}</span> MANZANAS EN CADA UNA DE LAS <span class="target-hl">${g1_m.groups}</span> CESTAS`;
+
+            for(let i=0; i < g1_m.groups; i++) {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'basket-group';
+                const b = document.createElement('div');
+                b.className = 'basket';
+                const c = document.createElement('div');
+                c.className = 'counter';
+                c.innerText = '0';
+                groupDiv.appendChild(b);
+                groupDiv.appendChild(c);
+                basketZone.appendChild(groupDiv);
+            }
+
+            const totalWithExtras = g1_m.total + 5;
+            for(let i=0; i < totalWithExtras; i++) {
+                g1_createApple();
+            }
+        }
+
+        function g1_createApple() {
+            const ground = document.getElementById('g1_ground');
+            const apple = document.createElement('div');
+            apple.className = 'apple';
+            apple.onclick = (e) => {
+                e.stopPropagation();
+                g1_handleAppleClick(apple);
+            };
+            ground.appendChild(apple);
+        }
+
+        function g1_handleAppleClick(apple) {
+            const ground = document.getElementById('g1_ground');
+            document.getElementById('g1_feedback-msg').style.display = 'none';
+            
+            if (apple.parentElement === ground) {
+                const baskets = Array.from(document.querySelectorAll('#g1_basketZone .basket'));
+                const targetBasket = baskets.reduce((prev, curr) => 
+                    prev.children.length <= curr.children.length ? prev : curr
+                );
+                targetBasket.appendChild(apple);
+            } else {
+                ground.appendChild(apple);
+            }
+            g1_updateCounters();
+        }
+
+        function g1_updateCounters() {
+            document.querySelectorAll('#g1_basketZone .basket-group').forEach(group => {
+                group.querySelector('.counter').innerText = group.querySelector('.basket').children.length;
+            });
+        }
+
+        function g1_verify() {
+            const baskets = Array.from(document.querySelectorAll('#g1_basketZone .basket'));
+            const counts = baskets.map(b => b.children.length);
+            const totalNow = counts.reduce((a, b) => a + b, 0);
+            const feedback = document.getElementById('g1_feedback-msg');
+            
+            const allCorrect = counts.every(val => val === g1_m.perGroup);
+            feedback.style.display = 'block';
+
+            if (allCorrect && totalNow === g1_m.total) {
+                document.getElementById('g1_opDisplay').innerText = `${g1_m.groups} x ${g1_m.perGroup} = ${g1_m.total}`;
+                document.getElementById('g1_textDesc').innerText = `${g1_m.groups} veces ${g1_m.perGroup} son ${g1_m.total} manzanas.`;
+                document.getElementById('g1_winModal').style.display = 'flex';
+            } else {
+                feedback.style.background = '#e74c3c';
+                if (totalNow !== g1_m.total) {
+                    feedback.innerText = `¡Revisa el total! Tienes ${totalNow} y el objetivo son ${g1_m.total}.`;
+                } else {
+                    feedback.innerText = `¡Cuidado! Cada cesta debe tener exactamente ${g1_m.perGroup} manzanas.`;
+                }
+            }
+        }
+
+
+        /* ===================================================================
+           GAME 2 LOGIC (Factoría)
+           =================================================================== */
+        const g2_missions = [
+            { groups: 3, perGroup: 4, text: "Crea 3 grupos con 4 celdas de energía cada uno." },
+            { groups: 2, perGroup: 6, text: "Configura 2 contenedores con 6 celdas cada uno." },
+            { groups: 5, perGroup: 2, text: "Necesitamos 5 grupos de 2 celdas." },
+            { groups: 4, perGroup: 3, text: "Prepara 4 reactores con 3 unidades cada uno." },
+            { groups: 6, perGroup: 3, text: "Sincroniza 6 grupos de 3 celdas energéticas." }
+        ];
+
+        let g2_state = { currentIdx: 0, streak: 0 };
+        let g2_audioCtx = null;
+
+        function g2_playSound(type) {
+            try {
+                if (!g2_audioCtx) g2_audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = g2_audioCtx.createOscillator();
+                const gain = g2_audioCtx.createGain();
+                osc.connect(gain); gain.connect(g2_audioCtx.destination);
+                osc.type = type === 'success' ? 'sine' : 'sawtooth';
+                osc.frequency.setValueAtTime(type === 'success' ? 523 : 100, g2_audioCtx.currentTime);
+                osc.start(); osc.stop(g2_audioCtx.currentTime + 0.2);
+            } catch(e){}
+        }
+
+        function g2_initMission() {
+            const m = g2_missions[g2_state.currentIdx];
+            const infoPanel = document.getElementById('g2_infoPanel');
+            infoPanel.classList.remove('error-pulse');
+            document.getElementById('g2_instruction').innerText = m.text;
+            document.getElementById('g2_instruction').style.color = "var(--primary)";
+            document.getElementById('g2_lvlVal').innerText = g2_state.currentIdx + 1;
+            
+            const source = document.getElementById('g2_gemSource');
+            const jarsArea = document.getElementById('g2_jarsArea');
+            source.innerHTML = ''; jarsArea.innerHTML = '';
+
+            const totalNeeded = m.groups * m.perGroup;
+            const totalAvailable = totalNeeded + 5; 
+
+            for(let i=0; i<totalAvailable; i++) {
+                const gem = document.createElement('div');
+                gem.className = 'gem draggable';
+                g2_setupUniversalDrag(gem);
+                source.appendChild(gem);
+            }
+
+            for(let i=0; i<m.groups; i++) {
+                const jar = document.createElement('div');
+                jar.className = 'jar';
+                jarsArea.appendChild(jar);
+            }
+        }
+
+        function g2_setupUniversalDrag(el) {
+            let offsetX, offsetY;
+
+            const startDrag = (e) => {
+                const point = e.touches ? e.touches[0] : e;
+                const rect = el.getBoundingClientRect();
+                offsetX = point.clientX - rect.left;
+                offsetY = point.clientY - rect.top;
+                el.classList.add('dragging');
+                
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('touchmove', drag, { passive: false });
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchend', endDrag);
+            };
+
+            const drag = (e) => {
+                if (e.type === 'touchmove') e.preventDefault();
+                const point = e.touches ? e.touches[0] : e;
+                el.style.left = (point.clientX - offsetX) + 'px';
+                el.style.top = (point.clientY - offsetY) + 'px';
+            };
+
+            const endDrag = (e) => {
+                const point = e.changedTouches ? e.changedTouches[0] : e;
+                el.classList.remove('dragging');
+                el.style.left = ''; el.style.top = '';
+
+                const jars = document.querySelectorAll('#g2_jarsArea .jar');
+                const source = document.getElementById('g2_gemSource');
+                const infoPanel = document.getElementById('g2_infoPanel');
+                let placed = false;
+
+                jars.forEach(jar => {
+                    const rect = jar.getBoundingClientRect();
+                    if (point.clientX > rect.left && point.clientX < rect.right &&
+                        point.clientY > rect.top && point.clientY < rect.bottom) {
+                        jar.appendChild(el);
+                        placed = true;
+                    }
+                });
+
+                if (!placed) source.appendChild(el);
+                
+                infoPanel.classList.remove('error-pulse');
+                document.getElementById('g2_instruction').innerText = g2_missions[g2_state.currentIdx].text;
+                document.getElementById('g2_instruction').style.color = "var(--primary)";
+
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchend', endDrag);
+            };
+
+            el.addEventListener('mousedown', startDrag);
+            el.addEventListener('touchstart', startDrag);
+        }
+
+        function g2_verifyMission() {
+            const m = g2_missions[g2_state.currentIdx];
+            const jars = document.querySelectorAll('#g2_jarsArea .jar');
+            const infoPanel = document.getElementById('g2_infoPanel');
+            const instruction = document.getElementById('g2_instruction');
+            
+            let counts = Array.from(jars).map(j => j.children.length);
+            const totalPlaced = counts.reduce((a, b) => a + b, 0);
+            
+            const allCorrectSize = counts.every(c => c === m.perGroup);
+            const correctTotal = totalPlaced === (m.groups * m.perGroup);
+
+            if (allCorrectSize && correctTotal) {
+                g2_playSound('success');
+                g2_state.streak++;
+                document.getElementById('g2_streakVal').innerText = g2_state.streak;
+                document.getElementById('g2_mathDisplay').innerText = `${m.groups} x ${m.perGroup} = ${totalPlaced}`;
+                document.getElementById('g2_totalText').innerText = `TOTAL: ${totalPlaced} CELDAS`;
+                document.getElementById('g2_resultModal').classList.add('show');
+            } else {
+                g2_playSound('error');
+                g2_state.streak = 0;
+                document.getElementById('g2_streakVal').innerText = 0;
+                
+                infoPanel.classList.add('error-pulse');
+                instruction.style.color = "var(--error)";
+                
+                if (!allCorrectSize) {
+                    instruction.innerText = `¡REVISA! CADA GRUPO DEBE TENER EXACTAMENTE ${m.perGroup}`;
+                } else {
+                    instruction.innerText = "¡ERROR EN LA CONFIGURACIÓN!";
+                }
+            }
+        }
+
+        function g2_nextMission() {
+            g2_state.currentIdx = (g2_state.currentIdx + 1) % g2_missions.length;
+            document.getElementById('g2_resultModal').classList.remove('show');
+            g2_initMission();
+        }
+
+
+        /* ===================================================================
+           GAME 3 LOGIC (Multiplicación 1 Cifra)
+           =================================================================== */
+        let g3_factor1, g3_factor2, g3_nivelActual = 1;
+        let g3_valorObjetivo = "", g3_celdasActuales = [], g3_indexInput = 0;
+        let g3_audioContext = null;
+
+        const g3_nivelesConfig = {
+            1: { min1: 10, max1: 99, min2: 2, max2: 5 },
+            2: { min1: 10, max1: 99, min2: 6, max2: 9 },
+            3: { min1: 100, max1: 999, min2: 4, max2: 9 }
+        };
+
+        function g3_inicializarAudio() { if (!g3_audioContext) g3_audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
+        
+        function g3_playSound(tipo) {
+            try {
+                if (!g3_audioContext) return;
+                const osc = g3_audioContext.createOscillator();
+                const gain = g3_audioContext.createGain();
+                osc.connect(gain); gain.connect(g3_audioContext.destination);
+                osc.frequency.setValueAtTime(tipo === 'acierto' ? 800 : 200, g3_audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, g3_audioContext.currentTime + 0.1);
+                osc.start(); osc.stop(g3_audioContext.currentTime + 0.1);
+            } catch(e){}
+        }
+
+        function g3_iniciar(n) {
+            g3_nivelActual = n;
+            g3_inicializarAudio();
+            const conf = g3_nivelesConfig[n];
+            g3_factor1 = Math.floor(Math.random() * (conf.max1 - conf.min1 + 1)) + conf.min1;
+            g3_factor2 = Math.floor(Math.random() * (conf.max2 - conf.min2 + 1)) + conf.min2;
+            
+            document.getElementById('g3_menu').classList.remove('active');
+            document.getElementById('g3_juego').classList.add('active');
+            document.getElementById('g3_modal-victoria').style.display = 'none';
+            
+            const tablero = document.getElementById('g3_tablero');
+            tablero.innerHTML = '';
+            
+            tablero.appendChild(g3_crearFilaNumeros(g3_factor1.toString()));
+            const fila2 = g3_crearFilaNumeros(g3_factor2.toString());
+            const signo = document.createElement('span');
+            signo.className = 'g34-signo'; signo.textContent = '×';
+            fila2.prepend(signo);
+            tablero.appendChild(fila2);
+            
+            const linea = document.createElement('div');
+            linea.className = 'g34-fila-linea';
+            tablero.appendChild(linea);
+
+            const resultado = g3_factor1 * g3_factor2;
+            g3_valorObjetivo = resultado.toString();
+            document.getElementById('g3_instruccion').textContent = `Multiplica ${g3_factor1} × ${g3_factor2}`;
+            g3_crearFilaCeldas(g3_valorObjetivo.length);
+        }
+
+        function g3_crearFilaNumeros(numStr) {
+            const fila = document.createElement('div');
+            fila.className = 'g34-fila';
+            for (let char of numStr) {
+                const n = document.createElement('div');
+                n.className = 'g34-num'; n.textContent = char;
+                fila.appendChild(n);
+            }
+            return fila;
+        }
+
+        function g3_crearFilaCeldas(cantidad) {
+            const fila = document.createElement('div');
+            fila.className = 'g34-fila';
+            g3_celdasActuales = [];
+            for (let i = 0; i < cantidad; i++) {
+                const c = document.createElement('div');
+                c.className = 'g34-celda';
+                fila.appendChild(c);
+                g3_celdasActuales.push(c);
+            }
+            document.getElementById('g3_tablero').appendChild(fila);
+            g3_indexInput = g3_celdasActuales.length - 1;
+            g3_celdasActuales[g3_indexInput].classList.add('activa');
+            g3_autoScroll();
+        }
+
+        function g3_entrada(n) {
+            if (g3_indexInput < 0) return;
+            const celda = g3_celdasActuales[g3_indexInput];
+            
+            if (n.toString() === g3_valorObjetivo[g3_indexInput]) {
+                g3_playSound('acierto');
+                celda.textContent = n;
+                celda.className = 'g34-celda correcta';
+                g3_indexInput--;
+                
+                if (g3_indexInput >= 0) {
+                    g3_celdasActuales[g3_indexInput].classList.add('activa');
+                } else {
+                    setTimeout(() => { 
+                        document.getElementById('g3_modal-victoria').style.display = 'flex'; 
+                        g3_playSound('acierto'); 
+                    }, 500);
+                }
+            } else {
+                g3_playSound('error');
+                celda.classList.add('incorrecta');
+                celda.textContent = n;
+                setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
+            }
+        }
+
+        function g3_borrar() {
+            const c = g3_celdasActuales[g3_indexInput];
+            if(c && !c.classList.contains('correcta')) c.textContent = "";
+        }
+
+        function g3_autoScroll() {
+            const s = document.getElementById('g3_scroll-area');
+            s.scrollTop = s.scrollHeight;
+        }
+        
+        function g3_volverAlMenuNiveles() {
+            document.getElementById('g3_modal-victoria').style.display = 'none';
+            document.getElementById('g3_juego').classList.remove('active');
+            document.getElementById('g3_menu').classList.add('active');
+        }
+
+        function g3_volverAJugarMismoNivel() { g3_iniciar(g3_nivelActual); }
+
+
+        /* ===================================================================
+           GAME 4 LOGIC (Multiplicación 2 Cifras)
+           =================================================================== */
+        let g4_factor1, g4_factor2, g4_nivelActual = 1;
+        let g4_fase = ""; 
+        let g4_valorObjetivo = "", g4_celdasActuales = [], g4_indexInput = 0;
+        let g4_audioContext = null;
+
+        const g4_nivelesConfig = {
+            1: { min1: 10, max1: 50, min2: 11, max2: 15 },
+            2: { min1: 50, max1: 500, min2: 12, max2: 35 },
+            3: { min1: 100, max1: 999, min2: 25, max2: 99 }
+        };
+
+        function g4_inicializarAudio() { if (!g4_audioContext) g4_audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
+        
+        function g4_playSound(tipo) {
+            try {
+                if (!g4_audioContext) return;
+                const osc = g4_audioContext.createOscillator();
+                const gain = g4_audioContext.createGain();
+                osc.connect(gain); gain.connect(g4_audioContext.destination);
+                osc.frequency.setValueAtTime(tipo === 'acierto' ? 800 : 200, g4_audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, g4_audioContext.currentTime + 0.1);
+                osc.start(); osc.stop(g4_audioContext.currentTime + 0.1);
+            } catch(e){}
+        }
+
+        function g4_iniciar(n) {
+            g4_nivelActual = n;
+            g4_inicializarAudio();
+            const conf = g4_nivelesConfig[n];
+            g4_factor1 = Math.floor(Math.random() * (conf.max1 - conf.min1 + 1)) + conf.min1;
+            g4_factor2 = Math.floor(Math.random() * (conf.max2 - conf.min2 + 1)) + conf.min2;
+            
+            document.getElementById('g4_menu').classList.remove('active');
+            document.getElementById('g4_juego').classList.add('active');
+            document.getElementById('g4_modal-victoria').style.display = 'none';
+            
+            const tablero = document.getElementById('g4_tablero');
+            tablero.innerHTML = '';
+            
+            tablero.appendChild(g4_crearFilaNumeros(g4_factor1.toString()));
+            const fila2 = g4_crearFilaNumeros(g4_factor2.toString());
+            const signo = document.createElement('span');
+            signo.className = 'g34-signo'; signo.textContent = '×';
+            fila2.prepend(signo);
+            tablero.appendChild(fila2);
+            
+            const linea = document.createElement('div');
+            linea.className = 'g34-fila-linea';
+            tablero.appendChild(linea);
+
+            g4_prepararUnidades();
+        }
+
+        function g4_prepararUnidades() {
+            g4_fase = "UNIDADES";
+            const u2 = g4_factor2 % 10;
+            const resultado = g4_factor1 * u2;
+            g4_valorObjetivo = resultado.toString();
+            document.getElementById('g4_instruccion').textContent = `Multiplica ${g4_factor1} × ${u2} (Empieza por unidades)`;
+            g4_crearFilaCeldas(g4_valorObjetivo.length);
+        }
+
+        function g4_prepararDecenas() {
+            g4_fase = "DECENAS";
+            const d2 = Math.floor(g4_factor2 / 10);
+            const resultado = (g4_factor1 * d2); 
+            g4_valorObjetivo = resultado.toString();
+            document.getElementById('g4_instruccion').textContent = `Multiplica ${g4_factor1} × ${d2}`;
+            
+            g4_crearFilaCeldas(g4_valorObjetivo.length + 1);
+            
+            const ultimoIndex = g4_celdasActuales.length - 1;
+            g4_celdasActuales[ultimoIndex].textContent = "X";
+            g4_celdasActuales[ultimoIndex].style.color = "red";
+            g4_celdasActuales[ultimoIndex].className = 'g34-celda correcta';
+            
+            g4_indexInput = ultimoIndex - 1;
+            g4_celdasActuales[g4_indexInput].classList.add('activa');
+        }
+
+        function g4_prepararSuma() {
+            g4_fase = "SUMA";
+            const linea = document.createElement('div');
+            linea.className = 'g34-fila-linea';
+            document.getElementById('g4_tablero').appendChild(linea);
+            
+            const resultadoFinal = g4_factor1 * g4_factor2;
+            g4_valorObjetivo = resultadoFinal.toString();
+            document.getElementById('g4_instruccion').textContent = `¡Ahora suma los dos resultados!`;
+            g4_crearFilaCeldas(g4_valorObjetivo.length);
+        }
+
+        function g4_crearFilaNumeros(numStr) {
+            const fila = document.createElement('div');
+            fila.className = 'g34-fila';
+            for (let char of numStr) {
+                const n = document.createElement('div');
+                n.className = 'g34-num'; n.textContent = char;
+                fila.appendChild(n);
+            }
+            return fila;
+        }
+
+        function g4_crearFilaCeldas(cantidad) {
+            const fila = document.createElement('div');
+            fila.className = 'g34-fila';
+            g4_celdasActuales = [];
+            for (let i = 0; i < cantidad; i++) {
+                const c = document.createElement('div');
+                c.className = 'g34-celda';
+                fila.appendChild(c);
+                g4_celdasActuales.push(c);
+            }
+            document.getElementById('g4_tablero').appendChild(fila);
+            g4_indexInput = g4_celdasActuales.length - 1;
+            g4_celdasActuales[g4_indexInput].classList.add('activa');
+            g4_autoScroll();
+        }
+
+        function g4_entrada(n) {
+            if (g4_indexInput < 0) return;
+            const celda = g4_celdasActuales[g4_indexInput];
+            
+            if (n.toString() === g4_valorObjetivo[g4_indexInput]) {
+                g4_playSound('acierto');
+                celda.textContent = n;
+                celda.className = 'g34-celda correcta';
+                g4_indexInput--;
+                
+                if (g4_indexInput >= 0) {
+                    g4_celdasActuales[g4_indexInput].classList.add('activa');
+                } else {
+                    if (g4_fase === "UNIDADES") setTimeout(g4_prepararDecenas, 600);
+                    else if (g4_fase === "DECENAS") setTimeout(g4_prepararSuma, 600);
+                    else if (g4_fase === "SUMA") {
+                        setTimeout(() => { 
+                            document.getElementById('g4_modal-victoria').style.display = 'flex'; 
+                            g4_playSound('acierto'); 
+                        }, 500);
+                    }
+                }
+            } else {
+                g4_playSound('error');
+                celda.classList.add('incorrecta');
+                celda.textContent = n;
+                setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
+            }
+        }
+
+        function g4_borrar() {
+            const c = g4_celdasActuales[g4_indexInput];
+            if(c && !c.classList.contains('correcta')) c.textContent = "";
+        }
+
+        function g4_autoScroll() {
+            const s = document.getElementById('g4_scroll-area');
+            s.scrollTop = s.scrollHeight;
+        }
+        
+        function g4_volverAlMenuNiveles() {
+            document.getElementById('g4_modal-victoria').style.display = 'none';
+            document.getElementById('g4_juego').classList.remove('active');
+            document.getElementById('g4_menu').classList.add('active');
+        }
+
+        function g4_volverAJugarMismoNivel() { g4_iniciar(g4_nivelActual); }
+
+
+        /* ===================================================================
+           GAME 5 LOGIC (Multiplicaciones x10, x100, x1000)
+           =================================================================== */
+        let g5_nivelActual = 1;
+        let g5_n1, g5_n2, g5_resCorrecto;
+
+        function g5_iniciar(n) {
+            g5_nivelActual = n;
+            document.getElementById('g5_menu').classList.remove('active');
+            document.getElementById('g5_juego').classList.add('active');
+            g5_generar();
+        }
+
+        function g5_generar() {
+            const display = document.getElementById('g5_input-res');
+            display.innerHTML = '<span class="placeholder">¿Resultado?</span>';
+            display.classList.remove('incorrecto');
+            document.getElementById('modal-victoria-g5').style.display = "none";
+
+            const potencias = [10, 100, 1000];
+            g5_n2 = potencias[Math.floor(Math.random() * potencias.length)];
+            
+            if (g5_nivelActual === 1) {
+                g5_n1 = Math.floor(Math.random() * 990) + 10;
+                g5_resCorrecto = (g5_n1 * g5_n2).toString().replace('.', ',');
+            } else {
+                let base = (Math.random() * 95 + 5).toFixed(1);
+                g5_n1 = base.replace('.', ',');
+                let calc = parseFloat(base) * g5_n2;
+                g5_resCorrecto = Number(calc.toFixed(2)).toString().replace('.', ',');
+            }
+            
+            document.getElementById('g5_horizontal').textContent = `${g5_n1} x ${g5_n2}`;
+        }
+
+        function g5_inputNum(v) {
+            const display = document.getElementById('g5_input-res');
+            if (display.querySelector('.placeholder')) display.textContent = "";
+            display.classList.remove('incorrecto');
+            
+            if (v === ',') {
+                if (!display.textContent.includes(',')) {
+                    display.textContent = display.textContent === "" ? "0," : display.textContent + ",";
+                }
+            } else {
+                if (display.textContent.length < 15) display.textContent += v;
+            }
+        }
+
+        function g5_borrar() {
+            const display = document.getElementById('g5_input-res');
+            if (display.querySelector('.placeholder')) return;
+            display.textContent = display.textContent.slice(0, -1);
+            if (display.textContent === "") display.innerHTML = '<span class="placeholder">¿Resultado?</span>';
+        }
+
+        function g5_validar() {
+            const display = document.getElementById('g5_input-res');
+            let userVal = display.querySelector('.placeholder') ? "" : display.textContent;
+            
+            if (userVal !== "") {
+                let userNorm = Number(userVal.replace(',', '.'));
+                let correctNorm = Number(g5_resCorrecto.replace(',', '.'));
+
+                if (userNorm === correctNorm) {
+                    document.getElementById('g5_mensaje-final').innerHTML = `${g5_n1} x ${g5_n2} = <br><strong>${g5_resCorrecto}</strong>`;
+                    document.getElementById('modal-victoria-g5').style.display = "flex";
+                } else {
+                    display.classList.add('incorrecto');
+                    setTimeout(() => display.classList.remove('incorrecto'), 450);
+                }
+            }
+        }
+
+        function g5_siguiente() { 
+            g5_generar(); 
+        }
+
+        function g5_volverAlMenu() {
+            document.getElementById('modal-victoria-g5').style.display = 'none';
+            document.getElementById('g5_juego').classList.remove('active');
+            document.getElementById('g5_menu').classList.add('active');
+        }
+    </script>
+</body>
+</html>
