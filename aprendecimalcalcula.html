@@ -1,0 +1,2516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Suite Educativa de Operaciones con Decimales</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&family=Outfit:wght@400;700;900&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ==========================================================================
+           GLOBAL & NAVIGATION STYLES
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        :root {
+            --nav-bg: #1e293b;
+            --nav-accent: #2575fc;
+            --secondary-accent: #38bdf8;
+            --error: #f43f5e;
+            --success: #4ade80;
+            --primary: #fbbf24;
+        }
+
+        body {
+            font-family: 'Outfit', 'Quicksand', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation Bar */
+        .app-header {
+            background-color: var(--nav-bg);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-home-link {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-home-link:hover {
+            background: var(--nav-accent);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .app-title {
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            font-weight: 900;
+            color: var(--secondary-accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-menu-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-menu-toggle:hover {
+            background: var(--nav-accent);
+            color: white;
+        }
+
+        /* Main Container */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 100%;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px;
+        }
+
+        /* Game Views */
+        .game-view {
+            display: none !important;
+            width: 100%;
+            max-width: 1000px;
+            flex: 1;
+            animation: fadeIn 0.3s ease-in-out;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .game-view.active {
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Main Menu View */
+        #view-main-menu {
+            padding: 20px 10px;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .menu-title {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-weight: 900;
+            color: var(--secondary-accent);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .menu-card {
+            background: #1e293b;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary-accent);
+            box-shadow: 0 15px 30px rgba(56, 189, 248, 0.2);
+        }
+
+        .menu-card i {
+            font-size: 2.5rem;
+            color: var(--secondary-accent);
+            margin-bottom: 15px;
+        }
+
+        .menu-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #f8fafc;
+        }
+
+        .menu-card p {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+
+        /* --- COMPONENTES COMUNES PARA TODOS LOS JUEGOS --- */
+        .div-container {
+            width: 100%; 
+            max-width: 950px; 
+            background: white; 
+            color: #333;
+            border-radius: 24px; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column;
+            position: relative; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            box-sizing: border-box;
+        }
+
+        .instruccion-div {
+            background: #2575fc; 
+            color: white; 
+            padding: 10px; 
+            border-radius: 12px;
+            text-align: center; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+            font-size: clamp(1rem, 3vw, 1.2rem);
+        }
+
+        .operacion-horizontal {
+            font-size: 1.6rem; 
+            font-weight: bold; 
+            color: #1e3c72;
+            text-align: center; 
+            margin-bottom: 15px; 
+            background: #e3f2fd;
+            padding: 8px; 
+            border-radius: 10px; 
+            border: 2px dashed #1e3c72;
+            width: 100%;
+        }
+
+        .contenido-juego { 
+            display: flex; 
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 15px; 
+            width: 100%; 
+            justify-content: center;
+        }
+
+        .zona-operacion {
+            flex: 1 1 300px; 
+            max-height: 420px;
+            overflow-y: auto; 
+            padding: 15px; 
+            border: 2px solid #f0f0f0;
+            border-radius: 15px; 
+            background: #fafafa;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .zona-teclado {
+            flex: 0 0 auto; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center;
+            align-items: center; 
+            background: #fff; 
+            padding: 5px; 
+            margin: 0 auto;
+        }
+
+        .tablero { font-family: 'Courier New', monospace; display: inline-block; }
+        .fila { display: flex; height: 48px; justify-content: flex-end; align-items: center; }
+        .fila-linea, .fila-suma, .fila-resta { border-bottom: 4px solid #333; margin-bottom: 10px; width: 100%; }
+
+        .num, .celda, .signo, .celda-coma {
+            width: clamp(32px, 8vw, 42px); 
+            height: clamp(38px, 9vw, 48px); 
+            line-height: clamp(38px, 9vw, 48px); 
+            text-align: center; 
+            font-size: clamp(1.4rem, 4vw, 2rem); 
+            font-weight: bold; 
+            margin: 0 1px;
+        }
+
+        .llevada { font-size: 1.1rem; color: #e53935; height: 30px; line-height: 30px; }
+        .coma, .coma-fija { width: 15px; color: #e53935; font-size: 1.8rem; text-align: center; }
+
+        .celda { border: 2px solid #ccc; border-radius: 8px; background: #fff; line-height: clamp(34px, 8vw, 44px); }
+        .celda-coma { border: 2px dashed #bbb; border-radius: 6px; background: #fff; margin: 1px; width: 20px; color: #e53935; }
+        
+        .celda.activa, .celda-coma.activa { border: 3px solid #2575fc; background: #e1f5fe; box-shadow: 0 0 8px rgba(37,117,252,0.4); }
+        .celda.correcta, .celda-coma.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+        
+        .espacio-vacio { background: #f0f0f0; border: 1px dashed #ccc; border-radius: 8px; margin: 2px; }
+
+        .teclado-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 260px; }
+        .tecla-div { padding: 12px 0; font-size: 1.4rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; color: #333; touch-action: manipulation; }
+        .tecla-div:active { box-shadow: 0 1px #ccc; transform: translateY(3px); }
+
+        .pantalla-sub { display: none; height: 100%; width: 100%; flex-direction: column; justify-content: center; }
+        .pantalla-sub.active { display: flex; }
+        .btn-nivel-sub { width: 100%; max-width: 400px; padding: 12px; margin: 5px auto; border: none; border-radius: 16px; color: white; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+
+        .btn-action {
+            background: linear-gradient(180deg, var(--success), #059669);
+            border: none; 
+            padding: 12px 30px; 
+            color: white; 
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+            font-weight: 900; 
+            border-radius: 20px; 
+            cursor: pointer;
+            box-shadow: 0 6px 0 #065f46; 
+            transition: transform 0.1s;
+        }
+        .btn-action:active { transform: translateY(4px); box-shadow: 0 2px 0 #065f46; }
+
+        .modal-overlay {
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%) scale(0);
+            background: white; 
+            color: black; 
+            padding: 25px; 
+            border-radius: 30px;
+            text-align: center; 
+            z-index: 2000; 
+            width: 90%; 
+            max-width: 450px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .modal-overlay.show { transform: translate(-50%, -50%) scale(1); }
+
+        /* Estilos específicos para Divisiones */
+        .division-grid { display: grid; grid-template-columns: auto auto; align-items: start; }
+        .area-izquierda { display: flex; flex-direction: column; }
+        .divisor-box { border-left: 4px solid #333; border-bottom: 4px solid #333; padding: 5px 15px; font-size: 1.8rem; font-weight: bold; min-width: 60px; }
+        .cociente-box { padding: 5px 15px; font-size: 1.8rem; font-weight: bold; display: flex; flex-wrap: wrap; min-height: 50px; }
+        .fila-div { display: flex; height: 45px; justify-content: flex-start; align-items: center; }
+
+        /* Estilos específicos para División con Transformación (Juego 10) */
+        .referencia-visual {
+            display: flex; flex-direction: column; align-items: center;
+            background: #f8f9fa; padding: 15px; border-radius: 15px; margin-bottom: 20px;
+            border: 2px dashed #3498db; width: 100%;
+        }
+        .ref-original { font-size: 1.8rem; color: #444; letter-spacing: 2px; font-weight: bold; }
+        .ref-flecha { font-size: 1.2rem; color: #e74c3c; margin: 5px 0; font-weight: bold; }
+        .fase-previa { display: flex; flex-direction: column; align-items: center; width: 100%; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-6px);} 75% {transform: translateX(6px);} }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-left">
+            <button class="btn-home-link" onclick="showMainMenu()" title="Volver al Menú Principal">
+                <i class="fas fa-home"></i>
+            </button>
+            <div class="app-title">
+                <i class="fas fa-calculator"></i>
+                <span id="app-title-text">Suite de Decimales</span>
+            </div>
+        </div>
+        <button class="btn-menu-toggle" onclick="showMainMenu()">
+            <i class="fas fa-th-large"></i> Menú
+        </button>
+    </header>
+
+    <div class="main-container">
+
+        <!-- MENÚ PRINCIPAL (10 JUEGOS) -->
+        <div id="view-main-menu" class="game-view active">
+            <h2 class="menu-title">Selecciona una Actividad</h2>
+            <div class="menu-grid">
+                <div class="menu-card" onclick="openGame('game-suma-dec')">
+                    <i class="fas fa-plus-circle"></i>
+                    <h3>Suma de Decimales</h3>
+                    <p>Resuelve sumas decimales alineadas paso a paso con llevadas guiadas.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-multi-dec')">
+                    <i class="fas fa-times-circle"></i>
+                    <h3>Multiplicación Decimal</h3>
+                    <p>Aprende a colocar la coma decimal multiplicando paso a paso.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-multi-paso')">
+                    <i class="fas fa-calculator"></i>
+                    <h3>Multiplica Decimales</h3>
+                    <p>Realiza la colocación, productos parciales y suma final con coma.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-resta-ceros')">
+                    <i class="fas fa-minus-circle"></i>
+                    <h3>Resta con Ceros</h3>
+                    <p>Práctica restas decimales rellenando ceros obligatorios.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-resta-alinea')">
+                    <i class="fas fa-align-left"></i>
+                    <h3>Alinea y Resta</h3>
+                    <p>Escribe el minuendo, sustraendo y calcula el resultado alineado.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-suma-alinea')">
+                    <i class="fas fa-align-right"></i>
+                    <h3>Alinea y Suma</h3>
+                    <p>Coloca los sumandos correctamente por la coma y resuelve.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-div-1cifra')">
+                    <i class="fas fa-divide"></i>
+                    <h3>División 1 Cifra</h3>
+                    <p>Divide con decimales en el dividendo paso a paso.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-div-dec')">
+                    <i class="fas fa-percentage"></i>
+                    <h3>División Decimal</h3>
+                    <p>Resuelve divisiones paso a paso con control manual de comas.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-div-2cifras')">
+                    <i class="fas fa-square-root-variable"></i>
+                    <h3>División 2 Cifras</h3>
+                    <p>Aprende a dividir decimales por 2 cifras fácilmente.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-div-transforma')">
+                    <i class="fas fa-exchange-alt"></i>
+                    <h3>Transforma y Divide</h3>
+                    <p>Elimina decimales del divisor multiplicando y resuelve paso a paso.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- 1. SUMA DE DECIMALES PASO A PASO -->
+        <!-- =================================================================== -->
+        <div id="game-suma-dec" class="game-view">
+            <div class="div-container">
+                <div id="sd-menu" class="pantalla-sub active">
+                    <h1 style="text-align:center; color:#2575fc; margin-bottom:15px; font-size: 1.8rem;">Suma de Decimales</h1>
+                    <button class="btn-nivel-sub" style="background:#43a047" onclick="iniciarSD(1)">Nivel 1: Sencillo (1 decimal)</button>
+                    <button class="btn-nivel-sub" style="background:#fb8c00" onclick="iniciarSD(2)">Nivel 2: Intermedio (2 decimales)</button>
+                    <button class="btn-nivel-sub" style="background:#e53935" onclick="iniciarSD(3)">Nivel 3: Avanzado (Llevadas)</button>
+                </div>
+
+                <div id="sd-juego" class="pantalla-sub">
+                    <div id="sd-instruccion" class="instruccion-div">¡A sumar!</div>
+                    <div class="contenido-juego">
+                        <div class="zona-operacion" id="sd-scroll-area">
+                            <div class="tablero" id="sd-tablero-suma"></div>
+                        </div>
+                        <div class="zona-teclado">
+                            <div class="teclado-grid">
+                                <button class="tecla-div" onclick="entradaSD(1)">1</button>
+                                <button class="tecla-div" onclick="entradaSD(2)">2</button>
+                                <button class="tecla-div" onclick="entradaSD(3)">3</button>
+                                <button class="tecla-div" onclick="entradaSD(4)">4</button>
+                                <button class="tecla-div" onclick="entradaSD(5)">5</button>
+                                <button class="tecla-div" onclick="entradaSD(6)">6</button>
+                                <button class="tecla-div" onclick="entradaSD(7)">7</button>
+                                <button class="tecla-div" onclick="entradaSD(8)">8</button>
+                                <button class="tecla-div" onclick="entradaSD(9)">9</button>
+                                <button class="tecla-div" style="background:#b3e5fc" onclick="entradaSD(',')">,</button>
+                                <button class="tecla-div" onclick="entradaSD(0)">0</button>
+                                <button class="tecla-div" style="background:#ffcdd2" onclick="borrarSD()">C</button>
+                                <button class="tecla-div" style="background:#eee; grid-column: span 3;" onclick="volverAlMenuNivelesSD()">🏠 Cambiar Nivel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-overlay" id="sd-modal-victoria">
+                    <h2 style="font-size: 2.2rem; color: #4CAF50;">¡Excelente! ⭐</h2>
+                    <p style="margin: 15px 0; color: #666;">¡Has completado la suma correctamente!</p>
+                    <button class="btn-action" onclick="iniciarSD(nivelActualSD)">Siguiente suma</button>
+                    <button class="btn-action" style="background:#2575fc; margin-top:10px;" onclick="volverAlMenuNivelesSD()">Cambiar Nivel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- 2. MULTIPLICACIÓN CON DECIMALES -->
+        <!-- =================================================================== -->
+        <div id="game-multi-dec" class="game-view">
+            <div class="div-container">
+                <div id="md-menu" class="pantalla-sub active">
+                    <h1 style="text-align:center; color:#2575fc; margin-bottom:15px; font-size: 1.8rem;">Multiplicación con Decimales</h1>
+                    <p style="text-align:center; margin-bottom:20px; color:#666;">Aprende a colocar la coma decimal</p>
+                    <button class="btn-nivel-sub" style="background:#43a047" onclick="iniciarMD(1)">Nivel 1: Fácil</button>
+                    <button class="btn-nivel-sub" style="background:#fb8c00" onclick="iniciarMD(2)">Nivel 2: Medio</button>
+                    <button class="btn-nivel-sub" style="background:#e53935" onclick="iniciarMD(3)">Nivel 3: Experto</button>
+                </div>
+
+                <div id="md-juego" class="pantalla-sub">
+                    <div id="md-instruccion" class="instruccion-div">¡A multiplicar!</div>
+                    <div class="contenido-juego">
+                        <div class="zona-operacion" id="md-scroll-area">
+                            <div class="tablero" id="md-tablero"></div>
+                        </div>
+                        <div class="zona-teclado">
+                            <div class="teclado-grid">
+                                <button class="tecla-div" onclick="entradaMD(1)">1</button>
+                                <button class="tecla-div" onclick="entradaMD(2)">2</button>
+                                <button class="tecla-div" onclick="entradaMD(3)">3</button>
+                                <button class="tecla-div" onclick="entradaMD(4)">4</button>
+                                <button class="tecla-div" onclick="entradaMD(5)">5</button>
+                                <button class="tecla-div" onclick="entradaMD(6)">6</button>
+                                <button class="tecla-div" onclick="entradaMD(7)">7</button>
+                                <button class="tecla-div" onclick="entradaMD(8)">8</button>
+                                <button class="tecla-div" onclick="entradaMD(9)">9</button>
+                                <button class="tecla-div" style="background:#ffcdd2" onclick="borrarMD()">C</button>
+                                <button class="tecla-div" onclick="entradaMD(0)">0</button>
+                                <button class="tecla-div" style="background:#b3e5fc" onclick="entradaMD(',')">,</button>
+                                <button class="tecla-div" style="background:#eee; grid-column: span 3;" onclick="volverAlMenuNivelesMD()">🏠 Menú Niveles</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-overlay" id="md-modal-victoria">
+                    <h2 style="font-size: 2.2rem; color: #43a047;">¡Excelente trabajo! 🏆</h2>
+                    <p id="md-mensaje-final" style="margin: 15px 0; font-size: 1.1rem; color:#444;"></p>
+                    <button class="btn-action" onclick="iniciarMD(nivelActualMD)">Jugar otra vez</button>
+                    <button class="btn-action" style="background:#2575fc; margin-top:10px;" onclick="volverAlMenuNivelesMD()">Volver al Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- 3. MULTIPLICA DECIMALES PASO A PASO -->
+        <!-- =================================================================== -->
+        <div id="game-multi-paso" class="game-view">
+            <div class="div-container">
+                <div id="mp-menu" class="pantalla-sub active">
+                    <h1 style="text-align:center; color:#2575fc; margin-bottom:15px; font-size: 1.8rem;">Multiplica Decimales</h1>
+                    <button class="btn-nivel-sub" style="background:#43a047" onclick="iniciarMP(1)">Nivel 1: Fácil</button>
+                    <button class="btn-nivel-sub" style="background:#fb8c00" onclick="iniciarMP(2)">Nivel 2: Medio</button>
+                    <button class="btn-nivel-sub" style="background:#e53935" onclick="iniciarMP(3)">Nivel 3: Experto</button>
+                </div>
+
+                <div id="mp-juego" class="pantalla-sub">
+                    <div id="mp-instruccion" class="instruccion-div">Cargando...</div>
+                    <div id="mp-horizontal" class="operacion-horizontal"></div>
+                    <div class="contenido-juego">
+                        <div class="zona-operacion">
+                            <div class="tablero" id="mp-area-multi"></div>
+                        </div>
+                        <div class="zona-teclado">
+                            <div class="teclado-grid">
+                                <button class="tecla-div" onclick="entradaMP(1)">1</button>
+                                <button class="tecla-div" onclick="entradaMP(2)">2</button>
+                                <button class="tecla-div" onclick="entradaMP(3)">3</button>
+                                <button class="tecla-div" onclick="entradaMP(4)">4</button>
+                                <button class="tecla-div" onclick="entradaMP(5)">5</button>
+                                <button class="tecla-div" onclick="entradaMP(6)">6</button>
+                                <button class="tecla-div" onclick="entradaMP(7)">7</button>
+                                <button class="tecla-div" onclick="entradaMP(8)">8</button>
+                                <button class="tecla-div" onclick="entradaMP(9)">9</button>
+                                <button class="tecla-div" style="background:#b3e5fc" onclick="entradaMP(',')">,</button>
+                                <button class="tecla-div" onclick="entradaMP(0)">0</button>
+                                <button class="tecla-div" style="background:#ffcdd2" onclick="borrarMP()">C</button>
+                                <button class="tecla-div" style="background:#eee; grid-column: span 3;" onclick="volverAlMenuNivelesMP()">⬅ Cambiar Nivel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-overlay" id="mp-modal-victoria">
+                    <h2 style="font-size: 2rem; color: #4CAF50;">¡Multiplicación lograda! 🏆</h2>
+                    <div id="mp-mensaje-final" style="margin: 15px 0; font-size: 1.2rem; color: #333;"></div>
+                    <button class="btn-action" onclick="iniciarMP(nivelActualMP)">Siguiente reto</button>
+                    <button class="btn-action" style="background:#2575fc; margin-top:10px;" onclick="volverAlMenuNivelesMP()">Cambiar Nivel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- 4. RESTA CON CEROS OBLIGATORIOS -->
+        <!-- =================================================================== -->
+        <div id="game-resta-ceros" class="game-view">
+            <div class="div-container">
+                <div id="rc-menu" class="pantalla-sub active">
+                    <h1 style="text-align:center; color:#e53935; margin-bottom:15px; font-size: 1.8rem;">Resta Decimal (Ceros Obligatorios)</h1>
+                    <button class="btn-nivel-sub" style="background:#43a047" onclick="iniciarRC(1)">Nivel 1: Sencillo (Sin llevadas)</button>
+                    <button class="btn-nivel-sub" style="background:#fb8c00" onclick="iniciarRC(2)">Nivel 2: Intermedio (2 decimales)</button>
+                    <button class="btn-nivel-sub" style="background:#c62828" onclick="iniciarRC(3)">Nivel 3: Avanzado (Con llevadas)</button>
+                </div>
+
+                <div id="rc-juego" class="pantalla-sub">
+                    <div id="rc-instruccion" class="instruccion-div" style="background:#e53935">¡A restar!</div>
+                    <div class="contenido-juego">
+                        <div class="zona-operacion" id="rc-scroll-area">
+                            <div class="tablero" id="rc-tablero-resta"></div>
+                        </div>
+                        <div class="zona-teclado">
+                            <div class="teclado-grid">
+                                <button class="tecla-div" onclick="entradaRC(1)">1</button>
+                                <button class="tecla-div" onclick="entradaRC(2)">2</button>
+                                <button class="tecla-div" onclick="entradaRC(3)">3</button>
+                                <button class="tecla-div" onclick="entradaRC(4)">4</button>
+                                <button class="tecla-div" onclick="entradaRC(5)">5</button>
+                                <button class="tecla-div" onclick="entradaRC(6)">6</button>
+                                <button class="tecla-div" onclick="entradaRC(7)">7</button>
+                                <button class="tecla-div" onclick="entradaRC(8)">8</button>
+                                <button class="tecla-div" onclick="entradaRC(9)">9</button>
+                                <button class="tecla-div" style="background:#b3e5fc" onclick="entradaRC(',')">,</button>
+                                <button class="tecla-div" onclick="entradaRC(0)">0</button>
+                                <button class="tecla-div" style="background:#ffcdd2" onclick="borrarRC()">C</button>
+                                <button class="tecla-div" style="background:#eee; grid-column: span 3;" onclick="volverAlMenuNivelesRC()">🏠 Menú de Niveles</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-overlay" id="rc-modal-victoria">
+                    <h2 style="font-size: 2.2rem; color: #4CAF50;">¡Completado! ⭐</h2>
+                    <button class="btn-action" style="margin-top:15px;" onclick="iniciarRC(nivelActualRC)">Otra resta</button>
+                    <button class="btn-action" style="background:#e53935; margin-top:10px;" onclick="volverAlMenuNivelesRC()">Volver al Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- 5. RESTA DECIMAL - ALINEACIÓN CORRECTA -->
+        <!-- =================================================================== -->
+        <div id="game-resta-alinea" class="game-view">
+            <div class="div-container">
+                <div id="ra-menu" class="pantalla-sub active">
+                    <h1 style="text-align:center; color:#1a2a6c; margin-bottom:15px; font-size: 1.8rem;">Alinea y Resta Decimales</h1>
+                    <button class="btn-nivel-sub" style="background:#43a047" onclick="iniciarRA(1)">Nivel 1: Básico</button>
+                    <button class="btn-nivel-sub" style="background:#fb8c00" onclick="iniciarRA(2)">Nivel 2: Intermedio</button>
+                    <button class="btn-nivel-sub" style="background:#e53935" onclick="iniciarRA(3)">Nivel 3: Avanzado</button>
+                </div>
+
+                <div id="ra-juego" class="pantalla-sub">
+                    <div id="ra-instruccion" class="instruccion-div" style="background:#1a2a6c">Coloca los números</div>
+                    <div id="ra-horizontal" class="operacion-horizontal"></div>
+                    <div class="contenido-juego">
+                        <div class="zona-operacion">
+                            <div class="tablero" id="ra-area-resta"></div>
+                        </div>
+                        <div class="zona-teclado">
+                            <div class="teclado-grid">
+                                <button class="tecla-div" onclick="entradaRA(1)">1</button>
+                                <button class="tecla-div" onclick="entradaRA(2)">2</button>
+                                <button class="tecla-div" onclick="entradaRA(3)">3</button>
+                                <button class="tecla-div" onclick="entradaRA(4)">4</button>
+                                <button class="tecla-div" onclick="entradaRA(5)">5</button>
+                                <button class="tecla-div" onclick="entradaRA(6)">6</button>
+                                <button class="tecla-div" onclick="entradaRA(7)">7</button>
+                                <button class="tecla-div" onclick="entradaRA(8)">8</button>
+                                <button class="tecla-div" onclick="entradaRA(9)">9</button>
+                                <button class="tecla-div" style="background:#b3e5fc" onclick="entradaRA(',')">,</button>
+                                <button class="tecla-div" onclick="entradaRA(0)">0</button>
+                                <button class="tecla-div" style="background:#ffcdd2" onclick="borrarRA()">C</button>
+                                <button class="tecla-div" style="background:#eee; grid-column: span 3;" onclick="volverAlMenuNivelesRA()">⬅ Cambiar Nivel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-overlay" id="ra-modal-victoria">
+                    <h2 style="font-size: 2.2rem; color: #4CAF50;">¡Resta Correcta! 🎯</h2>
+                    <div id="ra-mensaje-operacion" style="margin: 15px; font-size: 1.4rem; font-weight: bold; color: #333;"></div>
+                    <button class="btn-action" onclick="iniciarRA(nivelActualRA)">Jugar otra vez</button>
+                    <button class="btn-action" style="background:#1a2a6c; margin-top:10px;" onclick="volverAlMenuNivelesRA()">Cambiar Nivel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- 6. SUMA DECIMAL - ALINEACIÓN CORRECTA -->
+        <!-- =================================================================== -->
+        <div id="game-suma-alinea" class="game-view">
+            <div class="div-container">
+                <div id="sa-menu" class="pantalla-sub active">
+                    <h1 style="text-align:center; color:#1e3c72; margin-bottom:15px; font-size: 1.8rem;">Alinea y Suma Decimales</h1>
+                    <button class="btn-nivel-sub" style="background:#43a047" onclick="iniciarSA(1)">Nivel 1: Básico</button>
+                    <button class="btn-nivel-sub" style="background:#fb8c00" onclick="iniciarSA(2)">Nivel 2: Intermedio</button>
+                    <button class="btn-nivel-sub" style="background:#e53935" onclick="iniciarSA(3)">Nivel 3: Avanzado</button>
+                </div>
+
+                <div id="sa-juego" class="pantalla-sub">
+                    <div id="sa-instruccion" class="instruccion-div" style="background:#1e3c72">Coloca los números</div>
+                    <div id="sa-horizontal" class="operacion-horizontal"></div>
+                    <div class="contenido-juego">
+                        <div class="zona-operacion">
+                            <div class="tablero" id="sa-area-suma"></div>
+                        </div>
+                        <div class="zona-teclado">
+                            <div class="teclado-grid">
+                                <button class="tecla-div" onclick="entradaSA(1)">1</button>
+                                <button class="tecla-div" onclick="entradaSA(2)">2</button>
+                                <button class="tecla-div" onclick="entradaSA(3)">3</button>
+                                <button class="tecla-div" onclick="entradaSA(4)">4</button>
+                                <button class="tecla-div" onclick="entradaSA(5)">5</button>
+                                <button class="tecla-div" onclick="entradaSA(6)">6</button>
+                                <button class="tecla-div" onclick="entradaSA(7)">7</button>
+                                <button class="tecla-div" onclick="entradaSA(8)">8</button>
+                                <button class="tecla-div" onclick="entradaSA(9)">9</button>
+                                <button class="tecla-div" style="background:#b3e5fc" onclick="entradaSA(',')">,</button>
+                                <button class="tecla-div" onclick="entradaSA(0)">0</button>
+                                <button class="tecla-div" style="background:#ffcdd2" onclick="borrarSA()">C</button>
+                                <button class="tecla-div" style="background:#eee; grid-column: span 3;" onclick="volverAlMenuNivelesSA()">⬅ Cambiar Nivel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-overlay" id="sa-modal-victoria">
+                    <h2 style="font-size: 2.2rem; color: #4CAF50;">¡Suma Correcta! 🌟</h2>
+                    <div id="sa-mensaje-operacion" style="margin: 15px; font-size: 1.4rem; font-weight: bold; color: #333;"></div>
+                    <button class="btn-action" onclick="iniciarSA(nivelActualSA)">Jugar otra vez</button>
+                    <button class="btn-action" style="background:#1e3c72; margin-top:10px;" onclick="volverAlMenuNivelesSA()">Cambiar Nivel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- 7. DIVISIÓN 1 CIFRA - DECIMALES EN DIVIDENDO -->
+        <!-- =================================================================== -->
+        <div id="game-div-1cifra" class="game-view">
+            <div class="div-container">
+                <div id="d1-menu" class="pantalla-sub active">
+                    <h1 style="text-align:center; color:#11998e; margin-bottom:15px; font-size: 1.8rem;">División 1 Cifra (Decimales)</h1>
+                    <button class="btn-nivel-sub" style="background:#43a047" onclick="iniciarD1(1)">Nivel 1: Sencillo (1 decimal)</button>
+                    <button class="btn-nivel-sub" style="background:#fb8c00" onclick="iniciarD1(2)">Nivel 2: Intermedio (2 decimales)</button>
+                    <button class="btn-nivel-sub" style="background:#e53935" onclick="iniciarD1(3)">Nivel 3: Avanzado (2 decimales)</button>
+                </div>
+
+                <div id="d1-juego" class="pantalla-sub">
+                    <div id="d1-instruccion" class="instruccion-div" style="background:#11998e">¡A dividir!</div>
+                    <div class="contenido-juego">
+                        <div class="zona-operacion" id="d1-scroll-area">
+                            <div class="tablero">
+                                <div class="division-grid">
+                                    <div class="area-izquierda" id="d1-bloque-izquierdo"></div>
+                                    <div class="area-derecha">
+                                        <div class="divisor-box" id="d1-divisor-display"></div>
+                                        <div class="cociente-box" id="d1-cociente-display"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="zona-teclado">
+                            <div class="teclado-grid">
+                                <button class="tecla-div" onclick="entradaD1(1)">1</button>
+                                <button class="tecla-div" onclick="entradaD1(2)">2</button>
+                                <button class="tecla-div" onclick="entradaD1(3)">3</button>
+                                <button class="tecla-div" onclick="entradaD1(4)">4</button>
+                                <button class="tecla-div" onclick="entradaD1(5)">5</button>
+                                <button class="tecla-div" onclick="entradaD1(6)">6</button>
+                                <button class="tecla-div" onclick="entradaD1(7)">7</button>
+                                <button class="tecla-div" onclick="entradaD1(8)">8</button>
+                                <button class="tecla-div" onclick="entradaD1(9)">9</button>
+                                <button class="tecla-div" style="background:#b3e5fc" onclick="entradaD1(',')">,</button>
+                                <button class="tecla-div" onclick="entradaD1(0)">0</button>
+                                <button class="tecla-div" style="background:#ffcdd2" onclick="borrarD1()">C</button>
+                                <button class="tecla-div" style="background:#eee; grid-column: span 3;" onclick="volverAlMenuNivelesD1()">🏠 Menú de Niveles</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-overlay" id="d1-modal-victoria">
+                    <h2 style="font-size: 2.2rem; color: #4CAF50;">¡Buen trabajo! ⭐</h2>
+                    <button class="btn-action" style="margin-top:15px;" onclick="iniciarD1(nivelActualD1)">Jugar otra vez</button>
+                    <button class="btn-action" style="background:#11998e; margin-top:10px;" onclick="volverAlMenuNivelesD1()">Volver al Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- 8. DIVISIÓN DECIMAL - CONTROL MANUAL -->
+        <!-- =================================================================== -->
+        <div id="game-div-dec" class="game-view">
+            <div class="div-container">
+                <div id="dd-menu" class="pantalla-sub active">
+                    <h1 style="text-align:center; color:#4b1248; margin-bottom:15px; font-size: 1.8rem;">División Decimal</h1>
+                    <button class="btn-nivel-sub" style="background:#702082" onclick="iniciarDD(1)">Nivel 1: 1 Decimal</button>
+                    <button class="btn-nivel-sub" style="background:#9c27b0" onclick="iniciarDD(2)">Nivel 2: 2 Decimales</button>
+                </div>
+
+                <div id="dd-juego" class="pantalla-sub">
+                    <div id="dd-instruccion" class="instruccion-div" style="background:#4b1248">¡A dividir!</div>
+                    <div class="contenido-juego">
+                        <div class="zona-operacion" id="dd-scroll-area">
+                            <div class="tablero">
+                                <div class="division-grid">
+                                    <div class="area-izquierda" id="dd-bloque-izquierdo"></div>
+                                    <div class="area-derecha">
+                                        <div class="divisor-box" id="dd-divisor-display"></div>
+                                        <div class="cociente-box" id="dd-cociente-display"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="zona-teclado">
+                            <div class="teclado-grid">
+                                <button class="tecla-div" onclick="entradaDD(1)">1</button>
+                                <button class="tecla-div" onclick="entradaDD(2)">2</button>
+                                <button class="tecla-div" onclick="entradaDD(3)">3</button>
+                                <button class="tecla-div" onclick="entradaDD(4)">4</button>
+                                <button class="tecla-div" onclick="entradaDD(5)">5</button>
+                                <button class="tecla-div" onclick="entradaDD(6)">6</button>
+                                <button class="tecla-div" onclick="entradaDD(7)">7</button>
+                                <button class="tecla-div" onclick="entradaDD(8)">8</button>
+                                <button class="tecla-div" onclick="entradaDD(9)">9</button>
+                                <button class="tecla-div" style="background:#b3e5fc" onclick="entradaDD(',')">,</button>
+                                <button class="tecla-div" onclick="entradaDD(0)">0</button>
+                                <button class="tecla-div" style="background:#ffcdd2" onclick="borrarDD()">C</button>
+                                <button class="tecla-div" style="background:#eee; grid-column: span 3;" onclick="volverAlMenuNivelesDD()">🏠 Menú Niveles</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-overlay" id="dd-modal-victoria">
+                    <h2 style="font-size: 2.2rem; color: #4CAF50;">¡Completado! 🏆</h2>
+                    <button class="btn-action" style="margin-top:15px;" onclick="iniciarDD(nivelActualDD)">Siguiente</button>
+                    <button class="btn-action" style="background:#4b1248; margin-top:10px;" onclick="volverAlMenuNivelesDD()">Volver al Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- 9. DIVISIÓN 2 CIFRAS (DECIMALES) -->
+        <!-- =================================================================== -->
+        <div id="game-div-2cifras" class="game-view">
+            <div class="div-container">
+                <div id="d2-menu" class="pantalla-sub active">
+                    <h1 style="text-align:center; color:#2575fc; margin-bottom:15px; font-size: 1.8rem;">División 2 Cifras (Decimales)</h1>
+                    <button class="btn-nivel-sub" style="background:#43a047" onclick="iniciarD2(1)">Nivel 1: Sencillo (1 decimal)</button>
+                    <button class="btn-nivel-sub" style="background:#fb8c00" onclick="iniciarD2(2)">Nivel 2: Intermedio (2 decimales)</button>
+                    <button class="btn-nivel-sub" style="background:#e53935" onclick="iniciarD2(3)">Nivel 3: Avanzado (2 decimales)</button>
+                </div>
+
+                <div id="d2-juego" class="pantalla-sub">
+                    <div id="d2-instruccion" class="instruccion-div">¡A dividir!</div>
+                    <div class="contenido-juego">
+                        <div class="zona-operacion" id="d2-scroll-area">
+                            <div class="tablero">
+                                <div class="division-grid">
+                                    <div class="area-izquierda" id="d2-bloque-izquierdo"></div>
+                                    <div class="area-derecha">
+                                        <div class="divisor-box" id="d2-divisor-display"></div>
+                                        <div class="cociente-box" id="d2-cociente-display"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="zona-teclado">
+                            <div class="teclado-grid">
+                                <button class="tecla-div" onclick="entradaD2(1)">1</button>
+                                <button class="tecla-div" onclick="entradaD2(2)">2</button>
+                                <button class="tecla-div" onclick="entradaD2(3)">3</button>
+                                <button class="tecla-div" onclick="entradaD2(4)">4</button>
+                                <button class="tecla-div" onclick="entradaD2(5)">5</button>
+                                <button class="tecla-div" onclick="entradaD2(6)">6</button>
+                                <button class="tecla-div" onclick="entradaD2(7)">7</button>
+                                <button class="tecla-div" onclick="entradaD2(8)">8</button>
+                                <button class="tecla-div" onclick="entradaD2(9)">9</button>
+                                <button class="tecla-div" style="background:#b3e5fc" onclick="entradaD2(',')">,</button>
+                                <button class="tecla-div" onclick="entradaD2(0)">0</button>
+                                <button class="tecla-div" style="background:#ffcdd2" onclick="borrarD2()">C</button>
+                                <button class="tecla-div" style="background:#eee; grid-column: span 3;" onclick="volverAlMenuNivelesD2()">🏠 Menú de Niveles</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-overlay" id="d2-modal-victoria">
+                    <h2 style="font-size: 2.2rem; color: #4CAF50;">¡Excelente trabajo! 🏆</h2>
+                    <button class="btn-action" style="margin-top:15px;" onclick="iniciarD2(nivelActualD2)">Jugar otra vez</button>
+                    <button class="btn-action" style="background:#2575fc; margin-top:10px;" onclick="volverAlMenuNivelesD2()">Volver al Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- 10. TRANSFORMA Y DIVIDE (DIVISIÓN CON REFERENCIA) -->
+        <!-- =================================================================== -->
+        <div id="game-div-transforma" class="game-view">
+            <div class="div-container">
+                <div id="dt-menu" class="pantalla-sub active">
+                    <h1 style="text-align:center; color:#1a2a6c; margin-bottom:15px; font-size: 1.8rem;">Transforma y Divide</h1>
+                    <button class="btn-nivel-sub" style="background:#3498db" onclick="iniciarDT(1)">Nivel 1: Natural ÷ Decimal</button>
+                    <button class="btn-nivel-sub" style="background:#2980b9" onclick="iniciarDT(2)">Nivel 2: Decimal ÷ Decimal</button>
+                    <button class="btn-nivel-sub" style="background:#1c5980" onclick="iniciarDT(3)">Nivel 3: Mix Aleatorio</button>
+                </div>
+
+                <div id="dt-juego" class="pantalla-sub">
+                    <div id="dt-instruccion" class="instruccion-div" style="background:#1a2a6c">¡A transformar y dividir!</div>
+                    <div class="contenido-juego">
+                        <div class="zona-operacion" id="dt-scroll-area">
+                            <div id="dt-dinamico-juego" style="width:100%; display:flex; flex-direction:column; align-items:center;"></div>
+                        </div>
+                        <div class="zona-teclado">
+                            <div class="teclado-grid">
+                                <button class="tecla-div" onclick="entradaDT(1)">1</button>
+                                <button class="tecla-div" onclick="entradaDT(2)">2</button>
+                                <button class="tecla-div" onclick="entradaDT(3)">3</button>
+                                <button class="tecla-div" onclick="entradaDT(4)">4</button>
+                                <button class="tecla-div" onclick="entradaDT(5)">5</button>
+                                <button class="tecla-div" onclick="entradaDT(6)">6</button>
+                                <button class="tecla-div" onclick="entradaDT(7)">7</button>
+                                <button class="tecla-div" onclick="entradaDT(8)">8</button>
+                                <button class="tecla-div" onclick="entradaDT(9)">9</button>
+                                <button class="tecla-div" style="background:#b3e5fc" onclick="entradaDT(',')">,</button>
+                                <button class="tecla-div" onclick="entradaDT(0)">0</button>
+                                <button class="tecla-div" style="background:#ffcdd2" onclick="borrarDT()">C</button>
+                                <button class="tecla-div" style="background:#eee; grid-column: span 3;" onclick="volverAlMenuNivelesDT()">🏠 Menú de Niveles</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-overlay" id="dt-modal-victoria">
+                    <h2 style="font-size: 2.2rem; color: #4CAF50;">¡División Completada! 🏆</h2>
+                    <button class="btn-action" style="margin-top:15px;" onclick="iniciarDT(nivelActualDT)">Siguiente reto</button>
+                    <button class="btn-action" style="background:#1a2a6c; margin-top:10px;" onclick="volverAlMenuNivelesDT()">Volver al Menú</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- LÓGICA DE CONTROL Y JUEGO -->
+    <!-- =================================================================== -->
+    <script>
+        /* --- NAVEGACIÓN GLOBAL --- */
+        function openGame(gameId) {
+            document.querySelectorAll('.game-view').forEach(view => view.classList.remove('active'));
+            const targetView = document.getElementById(gameId);
+            if (targetView) {
+                targetView.classList.add('active');
+                if(gameId === 'game-suma-dec') volverAlMenuNivelesSD();
+                else if(gameId === 'game-multi-dec') volverAlMenuNivelesMD();
+                else if(gameId === 'game-multi-paso') volverAlMenuNivelesMP();
+                else if(gameId === 'game-resta-ceros') volverAlMenuNivelesRC();
+                else if(gameId === 'game-resta-alinea') volverAlMenuNivelesRA();
+                else if(gameId === 'game-suma-alinea') volverAlMenuNivelesSA();
+                else if(gameId === 'game-div-1cifra') volverAlMenuNivelesD1();
+                else if(gameId === 'game-div-dec') volverAlMenuNivelesDD();
+                else if(gameId === 'game-div-2cifras') volverAlMenuNivelesD2();
+                else if(gameId === 'game-div-transforma') volverAlMenuNivelesDT();
+            }
+        }
+
+        function showMainMenu() {
+            document.querySelectorAll('.game-view').forEach(view => view.classList.remove('active'));
+            document.getElementById('view-main-menu').classList.add('active');
+            document.getElementById('app-title-text').textContent = "Suite de Decimales";
+        }
+
+        /* --- HELPER MÚLTIPLE DE CREACIÓN DE ELEMENTOS --- */
+        function crearDivGenerico(texto, clases) {
+            let div = document.createElement('div');
+            div.className = clases;
+            div.textContent = texto;
+            return div;
+        }
+
+        /* --- SISTEMA DE AUDIO GLOBAL --- */
+        let audioContext = null;
+        function inicializarAudio() { 
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(tipo) {
+            try {
+                if (!audioContext) return;
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.connect(gain); 
+                gain.connect(audioContext.destination);
+                osc.type = tipo === 'acierto' ? 'sine' : 'sawtooth';
+                osc.frequency.setValueAtTime(tipo === 'acierto' ? 800 : 200, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                osc.start(); 
+                osc.stop(audioContext.currentTime + 0.15);
+            } catch(e) {}
+        }
+
+        /* =====================================================================
+           1. LÓGICA: SUMA DE DECIMALES PASO A PASO
+           ===================================================================== */
+        let num1SD, num2SD, resultadoStrSD;
+        let celdasResultadoSD = [], celdasLlevadasSD = [];
+        let cursorActualSD = 0; 
+        let nivelActualSD = 1;
+
+        const nivelesConfigSD = {
+            1: { min: 10, max: 50, decs: 1 },
+            2: { min: 50, max: 200, decs: 2 },
+            3: { min: 100, max: 900, decs: 2 }
+        };
+
+        function iniciarSD(n) {
+            nivelActualSD = n;
+            inicializarAudio();
+            const conf = nivelesConfigSD[n];
+            
+            let n1 = (Math.random() * (conf.max - conf.min) + conf.min).toFixed(conf.decs);
+            let n2 = (Math.random() * (conf.max - conf.min) + conf.min).toFixed(conf.decs);
+            
+            num1SD = n1.replace('.', ',');
+            num2SD = n2.replace('.', ',');
+            
+            let res = (parseFloat(n1) + parseFloat(n2)).toFixed(conf.decs);
+            resultadoStrSD = res.replace('.', ',');
+
+            document.getElementById('sd-menu').classList.remove('active');
+            document.getElementById('sd-juego').classList.add('active');
+            document.getElementById('sd-modal-victoria').classList.remove('show');
+
+            generarTableroSD();
+        }
+
+        function generarTableroSD() {
+            const tablero = document.getElementById('sd-tablero-suma');
+            tablero.innerHTML = '';
+            celdasResultadoSD = [];
+            celdasLlevadasSD = [];
+
+            let maxLen = Math.max(num1SD.length, num2SD.length, resultadoStrSD.length);
+            
+            let str1 = num1SD.padStart(maxLen, ' ');
+            let str2 = num2SD.padStart(maxLen, ' ');
+            let strRes = resultadoStrSD.padStart(maxLen, ' ');
+
+            let filaLlevadas = document.createElement('div');
+            filaLlevadas.className = 'fila';
+            for (let i = 0; i < maxLen; i++) {
+                let div = document.createElement('div');
+                div.className = 'num llevada';
+                filaLlevadas.appendChild(div);
+                celdasLlevadasSD.push(div);
+            }
+            tablero.appendChild(filaLlevadas);
+
+            let fila1 = document.createElement('div');
+            fila1.className = 'fila';
+            for (let char of str1) {
+                let div = document.createElement('div');
+                div.className = 'num';
+                div.textContent = char;
+                fila1.appendChild(div);
+            }
+            tablero.appendChild(fila1);
+
+            let fila2 = document.createElement('div');
+            fila2.className = 'fila fila-suma';
+            for (let char of str2) {
+                let div = document.createElement('div');
+                div.className = 'num';
+                div.textContent = char;
+                fila2.appendChild(div);
+            }
+            tablero.appendChild(fila2);
+
+            let filaRes = document.createElement('div');
+            filaRes.className = 'fila';
+            for (let i = 0; i < maxLen; i++) {
+                let charEsperado = strRes[i];
+                if (charEsperado === ' ') {
+                    let div = document.createElement('div');
+                    div.className = 'num';
+                    filaRes.appendChild(div);
+                    celdasResultadoSD.push(null);
+                } else {
+                    let div = document.createElement('div');
+                    div.className = 'celda';
+                    div.dataset.valor = charEsperado;
+                    div.dataset.index = i;
+                    filaRes.appendChild(div);
+                    celdasResultadoSD.push(div);
+                }
+            }
+            tablero.appendChild(filaRes);
+
+            cursorActualSD = maxLen - 1;
+            avanzarCursorSD();
+        }
+
+        function avanzarCursorSD() {
+            while (cursorActualSD >= 0 && celdasResultadoSD[cursorActualSD] === null) {
+                cursorActualSD--;
+            }
+
+            if (cursorActualSD < 0) {
+                playSound('acierto');
+                document.getElementById('sd-modal-victoria').classList.add('show');
+                return;
+            }
+
+            celdasResultadoSD.forEach(c => { if(c) c.classList.remove('activa'); });
+            
+            let celdaActiva = celdasResultadoSD[cursorActualSD];
+            celdaActiva.classList.add('activa');
+
+            if (celdaActiva.dataset.valor === ',') {
+                document.getElementById('sd-instruccion').textContent = "¡Pon la coma decimal en su lugar!";
+            } else {
+                document.getElementById('sd-instruccion').textContent = "Suma la columna marcada. ¡No olvides la llevada si hay!";
+            }
+        }
+
+        function entradaSD(val) {
+            if (cursorActualSD < 0) return;
+
+            let celdaActiva = celdasResultadoSD[cursorActualSD];
+            let valorEsperado = celdaActiva.dataset.valor;
+
+            if (val.toString() === valorEsperado) {
+                celdaActiva.textContent = val;
+                celdaActiva.classList.remove('activa', 'incorrecta');
+                celdaActiva.classList.add('correcta');
+                playSound('acierto');
+
+                if (valorEsperado !== ',') {
+                    let d1 = obtenerDigitoSD(num1SD, cursorActualSD, celdasResultadoSD.length);
+                    let d2 = obtenerDigitoSD(num2SD, cursorActualSD, celdasResultadoSD.length);
+                    let llevadaAnterior = obtenerLlevadaAnteriorSD(cursorActualSD, celdasResultadoSD.length);
+                    
+                    let sumaColumna = d1 + d2 + llevadaAnterior;
+                    if (sumaColumna >= 10 && (cursorActualSD - 1) >= 0) {
+                        let llevada = Math.floor(sumaColumna / 10);
+                        if (celdasResultadoSD[cursorActualSD - 1] && celdasResultadoSD[cursorActualSD - 1].dataset.valor === ',') {
+                            if (cursorActualSD - 2 >= 0) celdasLlevadasSD[cursorActualSD - 2].textContent = llevada;
+                        } else {
+                            celdasLlevadasSD[cursorActualSD - 1].textContent = llevada;
+                        }
+                    }
+                }
+
+                cursorActualSD--;
+                avanzarCursorSD();
+            } else {
+                celdaActiva.classList.add('incorrecta');
+                playSound('error');
+                setTimeout(() => celdaActiva.classList.remove('incorrecta'), 400);
+            }
+        }
+
+        function obtenerDigitoSD(str, idx, maxLen) {
+            let padded = str.padStart(maxLen, ' ');
+            let char = padded[idx];
+            return (char && char !== ' ' && char !== ',') ? parseInt(char) : 0;
+        }
+
+        function obtenerLlevadaAnteriorSD(idx, maxLen) {
+            let posLlevada = idx;
+            if (posLlevada < celdasLlevadasSD.length && celdasLlevadasSD[posLlevada].textContent !== '') {
+                return parseInt(celdasLlevadasSD[posLlevada].textContent);
+            }
+            return 0;
+        }
+
+        function borrarSD() {
+            if (cursorActualSD < celdasResultadoSD.length && celdasResultadoSD[cursorActualSD]) {
+                celdasResultadoSD[cursorActualSD].textContent = '';
+            }
+        }
+
+        function volverAlMenuNivelesSD() {
+            document.getElementById('sd-juego').classList.remove('active');
+            document.getElementById('sd-modal-victoria').classList.remove('show');
+            document.getElementById('sd-menu').classList.add('active');
+        }
+
+        /* =====================================================================
+           2. LÓGICA: MULTIPLICACIÓN CON DECIMALES
+           ===================================================================== */
+        let f1_numMD, f2_numMD, f1_decMD, f2_decMD, nivelActualMD = 1;
+        let factor1StrMD, factor2StrMD;
+        let faseMD = ""; 
+        let valorObjetivoMD = "", celdasActualesMD = [], indexInputMD = 0;
+
+        const nivelesConfigMD = {
+            1: { min1: 11, max1: 99, d1: 1, min2: 11, max2: 19, d2: 1 },
+            2: { min1: 101, max1: 999, d1: 1, min2: 11, max2: 99, d2: 1 },
+            3: { min1: 1001, max1: 9999, d1: 2, min2: 11, max2: 99, d2: 2 }
+        };
+
+        function formatConComaMD(num, dec) {
+            let s = num.toString();
+            if (dec === 0) return s;
+            if (s.length <= dec) s = s.padStart(dec + 1, '0');
+            return s.slice(0, -dec) + "," + s.slice(-dec);
+        }
+
+        function iniciarMD(n) {
+            nivelActualMD = n;
+            inicializarAudio();
+            const conf = nivelesConfigMD[n];
+            
+            f1_numMD = Math.floor(Math.random() * (conf.max1 - conf.min1 + 1)) + conf.min1;
+            f2_numMD = Math.floor(Math.random() * (conf.max2 - conf.min2 + 1)) + conf.min2;
+            f1_decMD = conf.d1;
+            f2_decMD = conf.d2;
+
+            factor1StrMD = formatConComaMD(f1_numMD, f1_decMD);
+            factor2StrMD = formatConComaMD(f2_numMD, f2_decMD);
+            
+            document.getElementById('md-menu').classList.remove('active');
+            document.getElementById('md-juego').classList.add('active');
+            document.getElementById('md-modal-victoria').classList.remove('show');
+            
+            const tablero = document.getElementById('md-tablero');
+            tablero.innerHTML = '';
+            
+            tablero.appendChild(crearFilaTextoMD(factor1StrMD));
+            const fila2 = crearFilaTextoMD(factor2StrMD);
+            const signo = document.createElement('span');
+            signo.className = 'signo'; signo.textContent = '×';
+            fila2.prepend(signo);
+            tablero.appendChild(fila2);
+            
+            const linea = document.createElement('div');
+            linea.className = 'fila-linea';
+            tablero.appendChild(linea);
+
+            prepararUnidadesMD();
+        }
+
+        function prepararUnidadesMD() {
+            faseMD = "UNIDADES";
+            const cifraU = f2_numMD % 10;
+            const resVal = (f1_numMD * cifraU);
+            valorObjetivoMD = resVal.toString();
+            document.getElementById('md-instruccion').textContent = `Paso 1: Multiplica ${factor1StrMD} × ${cifraU}`;
+            crearFilaCeldasMD(valorObjetivoMD.length);
+        }
+
+        function prepararDecenasMD() {
+            faseMD = "DECENAS";
+            const cifraD = Math.floor((f2_numMD % 100) / 10);
+            const resVal = (f1_numMD * cifraD);
+            valorObjetivoMD = resVal.toString(); 
+            document.getElementById('md-instruccion').textContent = `Paso 2: Multiplica ${factor1StrMD} × ${cifraD}`;
+            
+            crearFilaCeldasMD(valorObjetivoMD.length + 1);
+            
+            const ultimoIndex = celdasActualesMD.length - 1;
+            celdasActualesMD[ultimoIndex].textContent = "X";
+            celdasActualesMD[ultimoIndex].style.color = "red";
+            celdasActualesMD[ultimoIndex].className = 'celda correcta';
+            
+            indexInputMD = ultimoIndex - 1;
+            celdasActualesMD[indexInputMD].classList.add('activa');
+        }
+
+        function prepararSumaMD() {
+            faseMD = "SUMA";
+            const linea = document.createElement('div');
+            linea.className = 'fila-linea';
+            document.getElementById('md-tablero').appendChild(linea);
+            
+            const totalDec = f1_decMD + f2_decMD;
+            const resFinal = (f1_numMD * f2_numMD);
+            valorObjetivoMD = formatConComaMD(resFinal, totalDec);
+            
+            document.getElementById('md-instruccion').textContent = `Paso final: Suma y coloca la coma (${totalDec} decimales)`;
+            crearFilaCeldasEspecialMD(valorObjetivoMD);
+        }
+
+        function crearFilaTextoMD(str) {
+            const fila = document.createElement('div');
+            fila.className = 'fila';
+            for (let char of str) {
+                const n = document.createElement('div');
+                n.className = (char === ',') ? 'coma' : 'num';
+                n.textContent = char;
+                fila.appendChild(n);
+            }
+            return fila;
+        }
+
+        function crearFilaCeldasMD(cantidad) {
+            const fila = document.createElement('div');
+            fila.className = 'fila';
+            celdasActualesMD = [];
+            for (let i = 0; i < cantidad; i++) {
+                const c = document.createElement('div');
+                c.className = 'celda';
+                fila.appendChild(c);
+                celdasActualesMD.push(c);
+            }
+            document.getElementById('md-tablero').appendChild(fila);
+            indexInputMD = celdasActualesMD.length - 1;
+            celdasActualesMD[indexInputMD].classList.add('activa');
+            autoScrollMD();
+        }
+
+        function crearFilaCeldasEspecialMD(objetivoStr) {
+            const fila = document.createElement('div');
+            fila.className = 'fila';
+            celdasActualesMD = [];
+            for (let char of objetivoStr) {
+                const c = document.createElement('div');
+                c.className = 'celda';
+                if (char === ',') c.style.borderColor = '#e53935'; 
+                fila.appendChild(c);
+                celdasActualesMD.push(c);
+            }
+            document.getElementById('md-tablero').appendChild(fila);
+            indexInputMD = celdasActualesMD.length - 1;
+            celdasActualesMD[indexInputMD].classList.add('activa');
+            autoScrollMD();
+        }
+
+        function entradaMD(n) {
+            if (indexInputMD < 0) return;
+            const celda = celdasActualesMD[indexInputMD];
+            const charCorrecto = valorObjetivoMD[indexInputMD];
+            
+            if (n.toString() === charCorrecto) {
+                playSound('acierto');
+                celda.textContent = n;
+                celda.className = 'celda correcta';
+                if (n === ',') celda.style.color = '#e53935';
+                
+                indexInputMD--;
+                
+                if (indexInputMD >= 0) {
+                    celdasActualesMD[indexInputMD].classList.add('activa');
+                } else {
+                    if (faseMD === "UNIDADES") setTimeout(prepararDecenasMD, 600);
+                    else if (faseMD === "DECENAS") setTimeout(prepararSumaMD, 600);
+                    else if (faseMD === "SUMA") {
+                        setTimeout(() => { 
+                            document.getElementById('md-mensaje-final').textContent = `${factor1StrMD} × ${factor2StrMD} = ${valorObjetivoMD}`;
+                            document.getElementById('md-modal-victoria').classList.add('show'); 
+                            playSound('acierto'); 
+                        }, 500);
+                    }
+                }
+            } else {
+                playSound('error');
+                celda.classList.add('incorrecta');
+                celda.textContent = n;
+                setTimeout(() => { 
+                    celda.classList.remove('incorrecta'); 
+                    if(!celda.classList.contains('correcta')) celda.textContent = ''; 
+                }, 400);
+            }
+        }
+
+        function borrarMD() {
+            const c = celdasActualesMD[indexInputMD];
+            if(c && !c.classList.contains('correcta')) c.textContent = "";
+        }
+
+        function autoScrollMD() {
+            const s = document.getElementById('md-scroll-area');
+            if(s) s.scrollTop = s.scrollHeight;
+        }
+        
+        function volverAlMenuNivelesMD() {
+            document.getElementById('md-modal-victoria').classList.remove('show');
+            document.getElementById('md-juego').classList.remove('active');
+            document.getElementById('md-menu').classList.add('active');
+        }
+
+        /* =====================================================================
+           3. LÓGICA: MULTIPLICA DECIMALES PASO A PASO
+           ===================================================================== */
+        let s1MP, s2MP, resFinalMP;
+        let pasosTotalesMP = [], indexGlobalMP = 0, nivelActualMP = 1;
+
+        function iniciarMP(n) {
+            nivelActualMP = n;
+            inicializarAudio();
+            let d1 = (n === 3) ? 2 : 1;
+            let d2 = (n === 1) ? 0 : 1;
+            let v1 = (Math.random() * 20 + 10).toFixed(d1);
+            let v2 = (Math.random() * 5 + 2).toFixed(d2);
+            
+            s1MP = v1.replace('.', ',');
+            s2MP = v2.replace('.', ',');
+            resFinalMP = (parseFloat(v1) * parseFloat(v2)).toFixed(d1 + d2).replace('.', ',');
+
+            document.getElementById('mp-horizontal').textContent = `${s1MP} × ${s2MP}`;
+            document.getElementById('mp-menu').classList.remove('active');
+            document.getElementById('mp-juego').classList.add('active');
+            document.getElementById('mp-modal-victoria').classList.remove('show');
+            generarEstructuraMP();
+        }
+
+        function generarEstructuraMP() {
+            const area = document.getElementById('mp-area-multi');
+            area.innerHTML = "";
+            pasosTotalesMP = [];
+            indexGlobalMP = 0;
+            
+            let f1 = crearFilaSimpleMP(s1MP, false, "Coloca el primer factor arriba");
+            let f2 = crearFilaSimpleMP(s2MP, true, "Coloca el segundo factor debajo");
+            pasosTotalesMP.push(...f1.celdas, ...f2.celdas);
+            
+            let divLinea = document.createElement('div');
+            divLinea.className = "fila-linea";
+            area.appendChild(divLinea);
+
+            let f2Limpio = s2MP.replace(',', '');
+            let f1Limpio = s1MP.replace(',', '');
+            let cifrasF2 = f2Limpio.split('').reverse();
+            
+            cifrasF2.forEach((cifra, i) => {
+                let valMul = (parseInt(f1Limpio) * parseInt(cifra)).toString();
+                let fParcial = crearFilaParcialMP(valMul, i, `Multiplica ${cifra} por ${f1Limpio}`);
+                pasosTotalesMP.push(...fParcial.celdas.reverse()); 
+            });
+
+            if (cifrasF2.length > 1) {
+                let divLinea2 = document.createElement('div');
+                divLinea2.className = "fila-linea";
+                area.appendChild(divLinea2);
+                let fSuma = crearFilaSumaInteractivaMP(resFinalMP, "Suma y coloca la COMA en su sitio");
+                pasosTotalesMP.push(...fSuma.celdas.reverse());
+            }
+
+            actualizarCursorMP();
+        }
+
+        function crearFilaSimpleMP(str, conSigno, info) {
+            const area = document.getElementById('mp-area-multi');
+            let divFila = document.createElement('div');
+            divFila.className = "fila";
+            let celdas = [];
+            if(conSigno) {
+                let s = document.createElement('div'); s.className = "signo"; s.textContent = "×";
+                divFila.appendChild(s);
+            }
+            for(let char of str) {
+                if(char === ',') {
+                    let c = document.createElement('div'); c.className = "coma-fija"; c.textContent = ",";
+                    divFila.appendChild(c);
+                } else {
+                    let c = document.createElement('div'); c.className = "celda";
+                    divFila.appendChild(c);
+                    celdas.push({el: c, val: char, info: info});
+                }
+            }
+            area.appendChild(divFila);
+            return {celdas};
+        }
+
+        function crearFilaParcialMP(val, desplaza, info) {
+            const area = document.getElementById('mp-area-multi');
+            let divFila = document.createElement('div');
+            divFila.className = "fila";
+            let celdas = [];
+            for(let char of val) {
+                let c = document.createElement('div'); c.className = "celda";
+                c.style.visibility = "hidden";
+                divFila.appendChild(c);
+                celdas.push({el: c, val: char, info: info});
+            }
+            for(let i=0; i<desplaza; i++) {
+                let x = document.createElement('div'); x.className = "num"; 
+                x.textContent = "0"; x.style.color = "#ccc"; x.style.fontSize = "1rem";
+                divFila.appendChild(x);
+            }
+            area.appendChild(divFila);
+            return {celdas};
+        }
+
+        function crearFilaSumaInteractivaMP(str, info) {
+            const area = document.getElementById('mp-area-multi');
+            let divFila = document.createElement('div');
+            divFila.className = "fila";
+            let celdas = [];
+            for(let char of str) {
+                let c = document.createElement('div');
+                c.className = (char === ',') ? "celda-coma" : "celda";
+                c.style.visibility = "hidden";
+                divFila.appendChild(c);
+                celdas.push({el: c, val: char, info: info});
+            }
+            area.appendChild(divFila);
+            return {celdas};
+        }
+
+        function actualizarCursorMP() {
+            pasosTotalesMP.forEach(p => p.el.classList.remove('activa'));
+            if(indexGlobalMP < pasosTotalesMP.length) {
+                let p = pasosTotalesMP[indexGlobalMP];
+                p.el.classList.add('activa');
+                p.el.style.visibility = "visible";
+                document.getElementById('mp-instruccion').textContent = p.info;
+            }
+        }
+
+        function entradaMP(v) {
+            if(indexGlobalMP >= pasosTotalesMP.length) return;
+            let target = pasosTotalesMP[indexGlobalMP];
+            let ingreso = v.toString().replace('.', ',');
+
+            if(ingreso === target.val) {
+                playSound('acierto');
+                target.el.textContent = ingreso;
+                target.el.className = (target.val === ',') ? "celda-coma correcta" : "celda correcta";
+                indexGlobalMP++;
+                if(indexGlobalMP === pasosTotalesMP.length) {
+                    setTimeout(() => {
+                        document.getElementById('mp-mensaje-final').textContent = `¡Resultado correcto: ${resFinalMP}!`;
+                        document.getElementById('mp-modal-victoria').classList.add('show');
+                    }, 300);
+                }
+                actualizarCursorMP();
+            } else {
+                playSound('error');
+                target.el.classList.add('incorrecta');
+                setTimeout(() => target.el.classList.remove('incorrecta'), 400);
+            }
+        }
+
+        function borrarMP() {
+            if(indexGlobalMP > 0) {
+                indexGlobalMP--;
+                pasosTotalesMP[indexGlobalMP].el.textContent = "";
+                let baseClase = (pasosTotalesMP[indexGlobalMP].val === ',') ? "celda-coma" : "celda";
+                pasosTotalesMP[indexGlobalMP].el.className = baseClase + " activa";
+                actualizarCursorMP();
+            }
+        }
+
+        function volverAlMenuNivelesMP() {
+            document.getElementById('mp-modal-victoria').classList.remove('show');
+            document.getElementById('mp-juego').classList.remove('active');
+            document.getElementById('mp-menu').classList.add('active');
+        }
+
+        /* =====================================================================
+           4. LÓGICA: RESTA CON CEROS OBLIGATORIOS
+           ===================================================================== */
+        let num1RC, num2RC, resultadoStrRC;
+        let celdasResultadoRC = [];
+        let cursorActualRC = 0, nivelActualRC = 1;
+
+        const nivelesConfigRC = {
+            1: { min: 20, max: 90, decs: 1, llevadas: false },
+            2: { min: 50, max: 200, decs: 2, llevadas: true },
+            3: { min: 100, max: 999, decs: 2, llevadas: true }
+        };
+
+        function generarRestaValidaRC(conf) {
+            let n1, n2;
+            do {
+                n1 = (Math.random() * (conf.max - conf.min) + conf.min).toFixed(conf.decs);
+                n2 = (Math.random() * (parseFloat(n1) - 10) + 5).toFixed(conf.decs);
+                
+                if (conf.llevadas === false) {
+                    let ok = true;
+                    let s1 = n1.replace('.', ''), s2 = n2.padStart(n1.length, '0').replace('.', '');
+                    for(let i=0; i<s1.length; i++) if(parseInt(s1[i]) < parseInt(s2[i])) ok = false;
+                    if(!ok) continue;
+                }
+                break;
+            } while(true);
+
+            let res = (parseFloat(n1) - parseFloat(n2)).toFixed(conf.decs);
+            let resPadded = res.toString().padStart(n1.length, '0');
+
+            return [n1.replace('.', ','), n2.replace('.', ','), resPadded.replace('.', ',')];
+        }
+
+        function iniciarRC(n) {
+            nivelActualRC = n;
+            inicializarAudio();
+            [num1RC, num2RC, resultadoStrRC] = generarRestaValidaRC(nivelesConfigRC[n]);
+
+            document.getElementById('rc-menu').classList.remove('active');
+            document.getElementById('rc-juego').classList.add('active');
+            document.getElementById('rc-modal-victoria').classList.remove('show');
+            document.getElementById('rc-instruccion').textContent = "Completa todas las columnas, incluso los ceros.";
+
+            dibujarTableroRC();
+            cursorActualRC = resultadoStrRC.length - 1;
+            activarCeldaRC();
+        }
+
+        function dibujarTableroRC() {
+            const tablero = document.getElementById('rc-tablero-resta');
+            tablero.innerHTML = '';
+            const maxLen = Math.max(num1RC.length, num2RC.length, resultadoStrRC.length);
+            
+            [num1RC, num2RC].forEach((num, idx) => {
+                const fila = document.createElement('div');
+                fila.className = 'fila' + (idx === 1 ? ' fila-resta' : '');
+                if(idx === 1) {
+                    const minus = document.createElement('div');
+                    minus.className = 'num'; minus.textContent = '-';
+                    minus.style.position = 'absolute'; minus.style.left = '-30px';
+                    fila.style.position = 'relative';
+                    fila.appendChild(minus);
+                }
+                const padded = num.padStart(maxLen, ' ');
+                for(let char of padded) {
+                    const c = document.createElement('div');
+                    c.className = 'num';
+                    c.textContent = char === ' ' ? '' : char;
+                    fila.appendChild(c);
+                }
+                tablero.appendChild(fila);
+            });
+
+            const filaRes = document.createElement('div');
+            filaRes.className = 'fila';
+            celdasResultadoRC = [];
+            
+            for(let i=0; i < resultadoStrRC.length; i++) {
+                const c = document.createElement('div');
+                c.className = 'celda';
+                filaRes.appendChild(c);
+                celdasResultadoRC.push({el: c, val: resultadoStrRC[i]});
+            }
+            tablero.appendChild(filaRes);
+        }
+
+        function activarCeldaRC() {
+            celdasResultadoRC.forEach(c => c.el.classList.remove('activa'));
+            if (cursorActualRC >= 0) {
+                const item = celdasResultadoRC[cursorActualRC];
+                item.el.classList.add('activa');
+                if(item.val === ',') {
+                    item.el.textContent = ',';
+                    item.el.className = 'celda correcta';
+                    cursorActualRC--;
+                    activarCeldaRC();
+                }
+            }
+        }
+
+        function entradaRC(n) {
+            if (cursorActualRC < 0) return;
+            const item = celdasResultadoRC[cursorActualRC];
+            
+            if (n.toString() === item.val) {
+                playSound('acierto');
+                item.el.textContent = n;
+                item.el.className = 'celda correcta';
+                cursorActualRC--;
+                if (cursorActualRC < 0) {
+                    setTimeout(() => { document.getElementById('rc-modal-victoria').classList.add('show'); playSound('acierto'); }, 500);
+                } else {
+                    activarCeldaRC();
+                }
+            } else {
+                playSound('error');
+                item.el.classList.add('incorrecta');
+                item.el.textContent = n;
+                setTimeout(() => {
+                    if(!item.el.classList.contains('correcta')) {
+                        item.el.classList.remove('incorrecta');
+                        item.el.textContent = '';
+                    }
+                }, 400);
+            }
+        }
+
+        function borrarRC() {
+            const item = celdasResultadoRC[cursorActualRC];
+            if(item && !item.el.classList.contains('correcta')) item.el.textContent = "";
+        }
+
+        function volverAlMenuNivelesRC() {
+            document.getElementById('rc-modal-victoria').classList.remove('show');
+            document.getElementById('rc-juego').classList.remove('active');
+            document.getElementById('rc-menu').classList.add('active');
+        }
+
+        /* =====================================================================
+           5. LÓGICA: RESTA DECIMAL - ALINEACIÓN CORRECTA
+           ===================================================================== */
+        let nivelActualRA = 1, minuendoRA, sustraendoRA, resRA;
+        let celdasColocacionRA = [], celdasResultadoRA = [], totalPasosRA = [];
+        let indexGlobalRA = 0;
+
+        function iniciarRA(n) {
+            nivelActualRA = n;
+            inicializarAudio();
+            indexGlobalRA = 0;
+            celdasColocacionRA = [];
+            celdasResultadoRA = [];
+            totalPasosRA = [];
+
+            let d1 = (n === 1) ? 1 : Math.floor(Math.random() * 2) + 1;
+            let d2 = (n === 1) ? 2 : Math.floor(Math.random() * 2) + 2;
+            
+            let mVal = (Math.random() * 50 + 51);
+            let sVal = (Math.random() * 49 + 1);
+            
+            minuendoRA = mVal.toFixed(d1).replace('.', ',');
+            sustraendoRA = sVal.toFixed(d2).replace('.', ',');
+
+            let v1 = parseFloat(minuendoRA.replace(',', '.'));
+            let v2 = parseFloat(sustraendoRA.replace(',', '.'));
+            let maxDec = Math.max(d1, d2);
+            resRA = (v1 - v2).toFixed(maxDec).replace('.', ',');
+
+            document.getElementById('ra-horizontal').textContent = `${minuendoRA} - ${sustraendoRA} = ?`;
+            document.getElementById('ra-menu').classList.remove('active');
+            document.getElementById('ra-juego').classList.add('active');
+            document.getElementById('ra-modal-victoria').classList.remove('show');
+            
+            generarTableroRA();
+        }
+
+        function generarTableroRA() {
+            const area = document.getElementById('ra-area-resta');
+            area.innerHTML = "";
+
+            let [i1, d1] = minuendoRA.split(',');
+            let [i2, d2] = sustraendoRA.split(',');
+            let [ir, dr] = resRA.split(',');
+
+            let maxI = Math.max(i1.length, i2.length, ir.length);
+            let maxD = Math.max((d1||"").length, (d2||"").length, (dr||"").length);
+
+            crearFilaRA(i1, d1 || "", maxI, maxD, 1, false);
+            crearFilaRA(i2, d2 || "", maxI, maxD, 2, true);
+            crearFilaRA(ir, dr || "", maxI, maxD, 3, false);
+
+            totalPasosRA = [...celdasColocacionRA, ...celdasResultadoRA.reverse()];
+            actualizarCursorRA();
+        }
+
+        function crearFilaRA(entero, decimal, maxI, maxD, fase, conMenos) {
+            const area = document.getElementById('ra-area-resta');
+            let fila = document.createElement('div');
+            fila.className = "fila" + (fase === 2 ? " fila-resta" : "");
+            
+            fila.appendChild(crearDivGenerico(conMenos ? "-" : "", "num"));
+
+            let ePad = entero.padStart(maxI, " ");
+            ePad.split("").forEach(char => {
+                if(char === " ") fila.appendChild(crearDivGenerico("", "num espacio-vacio"));
+                else {
+                    let c = crearDivGenerico("", "celda");
+                    if(fase === 3) c.style.visibility = "hidden";
+                    fila.appendChild(c);
+                    if(fase < 3) celdasColocacionRA.push({el: c, val: char, fase: fase});
+                    else celdasResultadoRA.push({el: c, val: char, fase: fase});
+                }
+            });
+
+            fila.appendChild(crearDivGenerico(",", "coma-fija"));
+
+            let dPad = decimal.padEnd(maxD, " ");
+            dPad.split("").forEach(char => {
+                if(char === " ") fila.appendChild(crearDivGenerico("", "num espacio-vacio"));
+                else {
+                    let c = crearDivGenerico("", "celda");
+                    if(fase === 3) c.style.visibility = "hidden";
+                    fila.appendChild(c);
+                    if(fase < 3) celdasColocacionRA.push({el: c, val: char, fase: fase});
+                    else celdasResultadoRA.push({el: c, val: char, fase: fase});
+                }
+            });
+            area.appendChild(fila);
+        }
+
+        function actualizarCursorRA() {
+            totalPasosRA.forEach(p => p.el.classList.remove('activa'));
+            if(indexGlobalRA < totalPasosRA.length) {
+                let p = totalPasosRA[indexGlobalRA];
+                p.el.classList.add('activa');
+                
+                if(p.fase === 1) document.getElementById('ra-instruccion').textContent = "Escribe el minuendo (número de arriba)";
+                else if(p.fase === 2) document.getElementById('ra-instruccion').textContent = "Escribe el sustraendo (número de abajo)";
+                else {
+                    document.getElementById('ra-instruccion').textContent = "Resta ahora de derecha a izquierda";
+                    document.querySelectorAll('#ra-area-resta .celda').forEach(el => el.style.visibility = "visible");
+                }
+            }
+        }
+
+        function entradaRA(v) {
+            if(indexGlobalRA >= totalPasosRA.length) return;
+            let target = totalPasosRA[indexGlobalRA];
+            let ingreso = v.toString().replace('.', ',');
+
+            if(ingreso === target.val) {
+                playSound('acierto');
+                target.el.textContent = ingreso;
+                target.el.className = "celda correcta";
+                indexGlobalRA++;
+                if(indexGlobalRA >= totalPasosRA.length) terminarRA();
+                else actualizarCursorRA();
+            } else {
+                playSound('error');
+                target.el.classList.add('incorrecta');
+                setTimeout(() => target.el.classList.remove('incorrecta'), 400);
+            }
+        }
+
+        function terminarRA() {
+            document.getElementById('ra-mensaje-operacion').textContent = `${minuendoRA} - ${sustraendoRA} = ${resRA}`;
+            document.getElementById('ra-modal-victoria').classList.add('show');
+        }
+
+        function borrarRA() {
+            if(indexGlobalRA > 0) {
+                indexGlobalRA--;
+                totalPasosRA[indexGlobalRA].el.textContent = "";
+                totalPasosRA[indexGlobalRA].el.className = "celda activa";
+                actualizarCursorRA();
+            }
+        }
+
+        function volverAlMenuNivelesRA() {
+            document.getElementById('ra-juego').classList.remove('active');
+            document.getElementById('ra-menu').classList.add('active');
+            document.getElementById('ra-modal-victoria').classList.remove('show');
+        }
+
+        /* =====================================================================
+           6. LÓGICA: SUMA DECIMAL - ALINEACIÓN CORRECTA
+           ===================================================================== */
+        let nivelActualSA = 1, s1SA, s2SA, resSA;
+        let celdasColocacionSA = [], celdasResultadoSA = [], totalPasosSA = [];
+        let indexGlobalSA = 0;
+
+        function iniciarSA(n) {
+            nivelActualSA = n;
+            inicializarAudio();
+            indexGlobalSA = 0;
+            celdasColocacionSA = [];
+            celdasResultadoSA = [];
+            totalPasosSA = [];
+
+            let d1 = (n === 1) ? 1 : Math.floor(Math.random() * 2) + 1;
+            let d2 = (n === 1) ? 2 : Math.floor(Math.random() * 2) + 2;
+            s1SA = (Math.random() * 50 + 1).toFixed(d1).replace('.', ',');
+            s2SA = (Math.random() * 50 + 1).toFixed(d2).replace('.', ',');
+
+            let v1 = parseFloat(s1SA.replace(',', '.'));
+            let v2 = parseFloat(s2SA.replace(',', '.'));
+            let maxDec = Math.max(d1, d2);
+            resSA = (v1 + v2).toFixed(maxDec).replace('.', ',');
+
+            document.getElementById('sa-horizontal').textContent = `${s1SA} + ${s2SA} = ?`;
+            document.getElementById('sa-menu').classList.remove('active');
+            document.getElementById('sa-juego').classList.add('active');
+            document.getElementById('sa-modal-victoria').classList.remove('show');
+            
+            generarTableroSA();
+        }
+
+        function generarTableroSA() {
+            const area = document.getElementById('sa-area-suma');
+            area.innerHTML = "";
+
+            let [i1, d1] = s1SA.split(',');
+            let [i2, d2] = s2SA.split(',');
+            let [ir, dr] = resSA.split(',');
+
+            let maxI = Math.max(i1.length, i2.length, ir.length);
+            let maxD = Math.max((d1||"").length, (d2||"").length, (dr||"").length);
+
+            crearFilaSA(i1, d1 || "", maxI, maxD, 1, false);
+            crearFilaSA(i2, d2 || "", maxI, maxD, 2, true);
+            crearFilaSA(ir, dr || "", maxI, maxD, 3, false);
+
+            totalPasosSA = [...celdasColocacionSA, ...celdasResultadoSA.reverse()];
+            actualizarCursorSA();
+        }
+
+        function crearFilaSA(entero, decimal, maxI, maxD, fase, conMas) {
+            const area = document.getElementById('sa-area-suma');
+            let fila = document.createElement('div');
+            fila.className = "fila" + (fase === 2 ? " fila-suma" : "");
+            
+            fila.appendChild(crearDivGenerico(conMas ? "+" : "", "num"));
+
+            let ePad = entero.padStart(maxI, " ");
+            ePad.split("").forEach(char => {
+                if(char === " ") fila.appendChild(crearDivGenerico("", "num espacio-vacio"));
+                else {
+                    let c = crearDivGenerico("", "celda");
+                    if(fase === 3) c.style.visibility = "hidden";
+                    fila.appendChild(c);
+                    if(fase < 3) celdasColocacionSA.push({el: c, val: char, fase: fase});
+                    else celdasResultadoSA.push({el: c, val: char, fase: fase});
+                }
+            });
+
+            fila.appendChild(crearDivGenerico(",", "coma-fija"));
+
+            let dPad = decimal.padEnd(maxD, " ");
+            dPad.split("").forEach(char => {
+                if(char === " ") fila.appendChild(crearDivGenerico("", "num espacio-vacio"));
+                else {
+                    let c = crearDivGenerico("", "celda");
+                    if(fase === 3) c.style.visibility = "hidden";
+                    fila.appendChild(c);
+                    if(fase < 3) celdasColocacionSA.push({el: c, val: char, fase: fase});
+                    else celdasResultadoSA.push({el: c, val: char, fase: fase});
+                }
+            });
+            area.appendChild(fila);
+        }
+
+        function actualizarCursorSA() {
+            totalPasosSA.forEach(p => p.el.classList.remove('activa'));
+            if(indexGlobalSA < totalPasosSA.length) {
+                let p = totalPasosSA[indexGlobalSA];
+                p.el.classList.add('activa');
+                
+                if(p.fase === 1) document.getElementById('sa-instruccion').textContent = "Escribe el primer sumando";
+                else if(p.fase === 2) document.getElementById('sa-instruccion').textContent = "Escribe el segundo sumando";
+                else {
+                    document.getElementById('sa-instruccion').textContent = "Suma ahora de derecha a izquierda";
+                    document.querySelectorAll('#sa-area-suma .celda').forEach(el => el.style.visibility = "visible");
+                }
+            }
+        }
+
+        function entradaSA(v) {
+            if(indexGlobalSA >= totalPasosSA.length) return;
+            let target = totalPasosSA[indexGlobalSA];
+            let ingreso = v.toString().replace('.', ',');
+
+            if(ingreso === target.val) {
+                playSound('acierto');
+                target.el.textContent = ingreso;
+                target.el.className = "celda correcta";
+                indexGlobalSA++;
+                if(indexGlobalSA >= totalPasosSA.length) terminarSA();
+                else actualizarCursorSA();
+            } else {
+                playSound('error');
+                target.el.classList.add('incorrecta');
+                setTimeout(() => target.el.classList.remove('incorrecta'), 400);
+            }
+        }
+
+        function terminarSA() {
+            document.getElementById('sa-mensaje-operacion').textContent = `${s1SA} + ${s2SA} = ${resSA}`;
+            document.getElementById('sa-modal-victoria').classList.add('show');
+        }
+
+        function borrarSA() {
+            if(indexGlobalSA > 0) {
+                indexGlobalSA--;
+                totalPasosSA[indexGlobalSA].el.textContent = "";
+                totalPasosSA[indexGlobalSA].el.className = "celda activa";
+                actualizarCursorSA();
+            }
+        }
+
+        function volverAlMenuNivelesSA() {
+            document.getElementById('sa-juego').classList.remove('active');
+            document.getElementById('sa-menu').classList.add('active');
+            document.getElementById('sa-modal-victoria').classList.remove('show');
+        }
+
+        /* =====================================================================
+           7. LÓGICA: DIVISIÓN 1 CIFRA
+           ===================================================================== */
+        let nivelActualD1 = 1, diviD1, disoD1, cocienteD1, restoD1;
+        let celdasD1 = [], indexD1 = 0;
+
+        function iniciarD1(n) {
+            nivelActualD1 = n;
+            inicializarAudio();
+            
+            disoD1 = Math.floor(Math.random() * 8) + 2;
+            let decs = (n === 1) ? 1 : 2;
+            cocienteD1 = (Math.random() * 20 + 5).toFixed(decs);
+            diviD1 = (parseFloat(cocienteD1) * disoD1).toFixed(decs);
+
+            document.getElementById('d1-menu').classList.remove('active');
+            document.getElementById('d1-juego').classList.add('active');
+            document.getElementById('d1-modal-victoria').classList.remove('show');
+
+            generarEstructuraD1();
+        }
+
+        function generarEstructuraD1() {
+            const izq = document.getElementById('d1-bloque-izquierdo');
+            const disDisplay = document.getElementById('d1-divisor-display');
+            const cocDisplay = document.getElementById('d1-cociente-display');
+
+            izq.innerHTML = "";
+            cocDisplay.innerHTML = "";
+            disDisplay.textContent = disoD1;
+
+            let filaP = document.createElement('div');
+            filaP.className = 'fila-div';
+            let strDivi = diviD1.replace('.', ',');
+            
+            for(let char of strDivi) {
+                let div = document.createElement('div');
+                div.className = 'num';
+                div.textContent = char;
+                filaP.appendChild(div);
+            }
+            izq.appendChild(filaP);
+
+            let strCoc = cocienteD1.replace('.', ',');
+            celdasD1 = [];
+            indexD1 = 0;
+
+            for(let char of strCoc) {
+                let c = document.createElement('div');
+                c.className = (char === ',') ? 'celda-coma' : 'celda';
+                cocDisplay.appendChild(c);
+                celdasD1.push({el: c, val: char});
+            }
+
+            actualizarCursorD1();
+        }
+
+        function actualizarCursorD1() {
+            celdasD1.forEach(item => item.el.classList.remove('activa'));
+            if(indexD1 < celdasD1.length) {
+                let target = celdasD1[indexD1];
+                target.el.classList.add('activa');
+                if(target.val === ',') {
+                    document.getElementById('d1-instruccion').textContent = "¡Coloca la COMA en el cociente!";
+                } else {
+                    document.getElementById('d1-instruccion').textContent = "Calcula la siguiente cifra del cociente";
+                }
+            }
+        }
+
+        function entradaD1(v) {
+            if(indexD1 >= celdasD1.length) return;
+            let target = celdasD1[indexD1];
+            let valStr = v.toString().replace('.', ',');
+
+            if(valStr === target.val) {
+                playSound('acierto');
+                target.el.textContent = valStr;
+                target.el.className = (target.val === ',') ? 'celda-coma correcta' : 'celda correcta';
+                indexD1++;
+                if(indexD1 >= celdasD1.length) {
+                    setTimeout(() => { document.getElementById('d1-modal-victoria').classList.add('show'); playSound('acierto'); }, 400);
+                } else {
+                    actualizarCursorD1();
+                }
+            } else {
+                playSound('error');
+                target.el.classList.add('incorrecta');
+                setTimeout(() => target.el.classList.remove('incorrecta'), 400);
+            }
+        }
+
+        function borrarD1() {
+            if(indexD1 < celdasD1.length && celdasD1[indexD1]) {
+                celdasD1[indexD1].el.textContent = "";
+            }
+        }
+
+        function volverAlMenuNivelesD1() {
+            document.getElementById('d1-juego').classList.remove('active');
+            document.getElementById('d1-menu').classList.add('active');
+            document.getElementById('d1-modal-victoria').classList.remove('show');
+        }
+
+        /* =====================================================================
+           8. LÓGICA: DIVISIÓN DECIMAL (CONTROL MANUAL)
+           ===================================================================== */
+        let nivelActualDD = 1, diviDD, disoDD, cocienteDD;
+        let celdasDD = [], indexDD = 0;
+
+        function iniciarDD(n) {
+            nivelActualDD = n;
+            inicializarAudio();
+            let decs = (n === 1) ? 1 : 2;
+            
+            disoDD = Math.floor(Math.random() * 8) + 2;
+            cocienteDD = (Math.random() * 15 + 3).toFixed(decs);
+            diviDD = (parseFloat(cocienteDD) * disoDD).toFixed(decs);
+
+            document.getElementById('dd-menu').classList.remove('active');
+            document.getElementById('dd-juego').classList.add('active');
+            document.getElementById('dd-modal-victoria').classList.remove('show');
+
+            generarEstructuraDD();
+        }
+
+        function generarEstructuraDD() {
+            const izq = document.getElementById('dd-bloque-izquierdo');
+            const disDisplay = document.getElementById('dd-divisor-display');
+            const cocDisplay = document.getElementById('dd-cociente-display');
+
+            izq.innerHTML = "";
+            cocDisplay.innerHTML = "";
+            disDisplay.textContent = disoDD;
+
+            let filaP = document.createElement('div');
+            filaP.className = 'fila-div';
+            let strDivi = diviDD.replace('.', ',');
+            
+            for(let char of strDivi) {
+                let div = document.createElement('div');
+                div.className = 'num';
+                div.textContent = char;
+                filaP.appendChild(div);
+            }
+            izq.appendChild(filaP);
+
+            let strCoc = cocienteDD.replace('.', ',');
+            celdasDD = [];
+            indexDD = 0;
+
+            for(let char of strCoc) {
+                let c = document.createElement('div');
+                c.className = (char === ',') ? 'celda-coma' : 'celda';
+                cocDisplay.appendChild(c);
+                celdasDD.push({el: c, val: char});
+            }
+
+            actualizarCursorDD();
+        }
+
+        function actualizarCursorDD() {
+            celdasDD.forEach(item => item.el.classList.remove('activa'));
+            if(indexDD < celdasDD.length) {
+                let target = celdasDD[indexDD];
+                target.el.classList.add('activa');
+                document.getElementById('dd-instruccion').textContent = (target.val === ',') ? "¡Ingresa la coma!" : "Escribe la cifra del cociente";
+            }
+        }
+
+        function entradaDD(v) {
+            if(indexDD >= celdasDD.length) return;
+            let target = celdasDD[indexDD];
+            let valStr = v.toString().replace('.', ',');
+
+            if(valStr === target.val) {
+                playSound('acierto');
+                target.el.textContent = valStr;
+                target.el.className = (target.val === ',') ? 'celda-coma correcta' : 'celda correcta';
+                indexDD++;
+                if(indexDD >= celdasDD.length) {
+                    setTimeout(() => { document.getElementById('dd-modal-victoria').classList.add('show'); playSound('acierto'); }, 400);
+                } else {
+                    actualizarCursorDD();
+                }
+            } else {
+                playSound('error');
+                target.el.classList.add('incorrecta');
+                setTimeout(() => target.el.classList.remove('incorrecta'), 400);
+            }
+        }
+
+        function borrarDD() {
+            if(indexDD < celdasDD.length && celdasDD[indexDD]) {
+                celdasDD[indexDD].el.textContent = "";
+            }
+        }
+
+        function volverAlMenuNivelesDD() {
+            document.getElementById('dd-juego').classList.remove('active');
+            document.getElementById('dd-menu').classList.add('active');
+            document.getElementById('dd-modal-victoria').classList.remove('show');
+        }
+
+        /* =====================================================================
+           9. LÓGICA: DIVISIÓN 2 CIFRAS (DECIMALES)
+           ===================================================================== */
+        let nivelActualD2 = 1, diviD2, disoD2, cocienteD2;
+        let celdasD2 = [], indexD2 = 0;
+
+        function iniciarD2(n) {
+            nivelActualD2 = n;
+            inicializarAudio();
+            let decs = (n === 1) ? 1 : 2;
+            
+            disoD2 = Math.floor(Math.random() * 85) + 12;
+            cocienteD2 = (Math.random() * 15 + 3).toFixed(decs);
+            diviD2 = (parseFloat(cocienteD2) * disoD2).toFixed(decs);
+
+            document.getElementById('d2-menu').classList.remove('active');
+            document.getElementById('d2-juego').classList.add('active');
+            document.getElementById('d2-modal-victoria').classList.remove('show');
+
+            generarEstructuraD2();
+        }
+
+        function generarEstructuraD2() {
+            const izq = document.getElementById('d2-bloque-izquierdo');
+            const disDisplay = document.getElementById('d2-divisor-display');
+            const cocDisplay = document.getElementById('d2-cociente-display');
+
+            izq.innerHTML = "";
+            cocDisplay.innerHTML = "";
+            disDisplay.textContent = disoD2;
+
+            let filaP = document.createElement('div');
+            filaP.className = 'fila-div';
+            let strDivi = diviD2.replace('.', ',');
+            
+            for(let char of strDivi) {
+                let div = document.createElement('div');
+                div.className = 'num';
+                div.textContent = char;
+                filaP.appendChild(div);
+            }
+            izq.appendChild(filaP);
+
+            let strCoc = cocienteD2.replace('.', ',');
+            celdasD2 = [];
+            indexD2 = 0;
+
+            for(let char of strCoc) {
+                let c = document.createElement('div');
+                c.className = (char === ',') ? 'celda-coma' : 'celda';
+                cocDisplay.appendChild(c);
+                celdasD2.push({el: c, val: char});
+            }
+
+            actualizarCursorD2();
+        }
+
+        function actualizarCursorD2() {
+            celdasD2.forEach(item => item.el.classList.remove('activa'));
+            if(indexD2 < celdasD2.length) {
+                let target = celdasD2[indexD2];
+                target.el.classList.add('activa');
+                document.getElementById('d2-instruccion').textContent = (target.val === ',') ? "¡Pon la coma en el cociente!" : "Calcula la cifra del cociente";
+            }
+        }
+
+        function entradaD2(v) {
+            if(indexD2 >= celdasD2.length) return;
+            let target = celdasD2[indexD2];
+            let valStr = v.toString().replace('.', ',');
+
+            if(valStr === target.val) {
+                playSound('acierto');
+                target.el.textContent = valStr;
+                target.el.className = (target.val === ',') ? 'celda-coma correcta' : 'celda correcta';
+                indexD2++;
+                if(indexD2 >= celdasD2.length) {
+                    setTimeout(() => { document.getElementById('d2-modal-victoria').classList.add('show'); playSound('acierto'); }, 400);
+                } else {
+                    actualizarCursorD2();
+                }
+            } else {
+                playSound('error');
+                target.el.classList.add('incorrecta');
+                setTimeout(() => target.el.classList.remove('incorrecta'), 400);
+            }
+        }
+
+        function borrarD2() {
+            if(indexD2 < celdasD2.length && celdasD2[indexD2]) {
+                celdasD2[indexD2].el.textContent = "";
+            }
+        }
+
+        function volverAlMenuNivelesD2() {
+            document.getElementById('d2-juego').classList.remove('active');
+            document.getElementById('d2-menu').classList.add('active');
+            document.getElementById('d2-modal-victoria').classList.remove('show');
+        }
+
+        /* =====================================================================
+           10. LÓGICA: TRANSFORMA Y DIVIDE (DIVISIÓN CON REFERENCIA)
+           ===================================================================== */
+        let diviOrigDT, disoOrigDT, diviNuevoDT, disoNuevoDT, factorMultiDT;
+        let faseJuegoDT = "", celdasActualesDT = [], valorObjetivoDT = "", indexInputDT = 0;
+        let nivelActualDT = 1;
+        let cursorCifraDT = 0, restoActualDT = "", valorAdividirDT = "", cifrasDT = [], divisorDT;
+        let faseDivDT = "";
+
+        const nivelesConfigDT = {
+            1: { tipo: "NAT_DEC", minCoc: 10, maxCoc: 30 },
+            2: { tipo: "DEC_DEC", minCoc: 10, maxCoc: 30 },
+            3: { tipo: "MIX", minCoc: 10, maxCoc: 40 }
+        };
+
+        function generarDivisionDT(n) {
+            const conf = nivelesConfigDT[n];
+            let tipo = conf.tipo;
+            if(tipo === "MIX") tipo = Math.random() > 0.5 ? "NAT_DEC" : "DEC_DEC";
+
+            let disoValStr, diviValStr;
+            let decsDiso = (Math.random() > 0.5) ? 1 : 2;
+            
+            let disoNum;
+            do {
+                disoNum = (Math.floor(Math.random() * 120 + 11) / Math.pow(10, decsDiso));
+                disoValStr = disoNum.toFixed(decsDiso);
+            } while (disoValStr.endsWith('0'));
+
+            const cociente = Math.floor(Math.random() * (conf.maxCoc - conf.minCoc) + conf.minCoc);
+            
+            if (tipo === "NAT_DEC") {
+                diviValStr = (disoNum * cociente).toFixed(0);
+            } else {
+                let decsDivi = (Math.random() > 0.5) ? 1 : 2;
+                diviValStr = (disoNum * cociente).toFixed(decsDivi);
+            }
+
+            return [diviValStr.replace('.',','), disoValStr.replace('.',',')];
+        }
+
+        function iniciarDT(n) {
+            nivelActualDT = n; 
+            inicializarAudio();
+            [diviOrigDT, disoOrigDT] = generarDivisionDT(n);
+            
+            const decsDivi = (diviOrigDT.split(',')[1] || "").length;
+            const decsDiso = (disoOrigDT.split(',')[1] || "").length;
+            const maxDecs = Math.max(decsDivi, decsDiso);
+            
+            factorMultiDT = Math.pow(10, maxDecs).toString();
+
+            document.getElementById('dt-menu').classList.remove('active');
+            document.getElementById('dt-juego').classList.add('active');
+            document.getElementById('dt-modal-victoria').classList.remove('show');
+            mostrarFase1DT();
+        }
+
+        function mostrarFase1DT() {
+            faseJuegoDT = "FASE1";
+            const decsDivi = (diviOrigDT.split(',')[1] || "").length;
+            const decsDiso = (disoOrigDT.split(',')[1] || "").length;
+            const max = Math.max(decsDivi, decsDiso);
+            
+            document.getElementById('dt-instruccion').innerHTML = `Para quitar los decimales (${max}), <br> ¿por cuánto multiplicamos los dos números?`;
+            
+            const contenedor = document.getElementById('dt-dinamico-juego');
+            contenedor.innerHTML = `
+                <div class="fase-previa">
+                    <div class="referencia-visual">
+                        <div class="ref-original">${diviOrigDT} : ${disoOrigDT}</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:15px; margin-top:10px;">
+                        <span style="font-size:1.4rem; font-weight:bold;">Multiplicar x </span>
+                        <div id="c-multi-dt" class="celda activa" style="width:110px"></div>
+                    </div>
+                </div>
+            `;
+            celdasActualesDT = [document.getElementById('c-multi-dt')];
+            valorObjetivoDT = factorMultiDT;
+            indexInputDT = 0;
+        }
+
+        function mostrarFase2DT() {
+            faseJuegoDT = "FASE2";
+            document.getElementById('dt-instruccion').innerHTML = `Multiplica ambos números por <b>${factorMultiDT}</b> <br> para obtener la división equivalente:`;
+
+            diviNuevoDT = Math.round(parseFloat(diviOrigDT.replace(',','.')) * parseInt(factorMultiDT)).toString();
+            disoNuevoDT = Math.round(parseFloat(disoOrigDT.replace(',','.')) * parseInt(factorMultiDT)).toString();
+
+            const contenedor = document.getElementById('dt-dinamico-juego');
+            contenedor.innerHTML = `
+                <div class="fase-previa">
+                    <div class="referencia-visual">
+                        <div class="ref-original">${diviOrigDT} : ${disoOrigDT}</div>
+                        <div class="ref-flecha">× ${factorMultiDT} ↓</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
+                        <div id="c-divi-dt" class="celda activa" style="width:150px"></div>
+                        <span style="font-size:2rem; font-weight:bold">:</span>
+                        <div id="c-diso-dt" class="celda" style="width:110px"></div>
+                    </div>
+                </div>
+            `;
+            celdasActualesDT = [document.getElementById('c-divi-dt'), document.getElementById('c-diso-dt')];
+            valorObjetivoDT = [diviNuevoDT, disoNuevoDT];
+            indexInputDT = 0;
+        }
+
+        function iniciarDivisionRealDT() {
+            faseJuegoDT = "OPERANDO";
+            document.getElementById('dt-instruccion').textContent = "¡Muy bien! Ahora resuelve la división resultante:";
+            const contenedor = document.getElementById('dt-dinamico-juego');
+            cifrasDT = diviNuevoDT.split('');
+            divisorDT = parseInt(disoNuevoDT);
+
+            contenedor.innerHTML = `
+                <div class="tablero">
+                    <div class="division-grid">
+                        <div class="area-izquierda" id="bloque-izquierdo-dt">
+                            <div class="fila-div" id="fila-principal-dt"></div>
+                        </div>
+                        <div class="area-derecha">
+                            <div class="divisor-box">${divisorDT}</div>
+                            <div class="cociente-box" id="cociente-display-dt"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            const filaP = document.getElementById('fila-principal-dt');
+            cifrasDT.forEach((c, i) => filaP.innerHTML += `<div class="num" id="d-dt-${i}">${c}</div>`);
+            cursorCifraDT = 0; restoActualDT = "";
+            siguienteTurnoDivDT();
+        }
+
+        function entradaDT(n) {
+            if (faseJuegoDT === "FASE1" || faseJuegoDT === "FASE2") {
+                const celda = celdasActualesDT[indexInputDT];
+                let obj = Array.isArray(valorObjetivoDT) ? valorObjetivoDT[indexInputDT] : valorObjetivoDT;
+                celda.textContent += n;
+                if (celda.textContent === obj) {
+                    playSound('acierto');
+                    celda.className = 'celda correcta';
+                    indexInputDT++;
+                    if (indexInputDT < celdasActualesDT.length) celdasActualesDT[indexInputDT].classList.add('activa');
+                    else setTimeout(faseJuegoDT === "FASE1" ? mostrarFase2DT : iniciarDivisionRealDT, 600);
+                } else if (!obj.startsWith(celda.textContent)) {
+                    playSound('error'); celda.classList.add('incorrecta');
+                    setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ""; }, 400);
+                }
+            } else {
+                entradaDivisionDT(n);
+            }
+        }
+
+        function siguienteTurnoDivDT() {
+            if (cursorCifraDT >= cifrasDT.length) {
+                setTimeout(() => { document.getElementById('dt-modal-victoria').classList.add('show'); playSound('acierto'); }, 500);
+                return;
+            }
+            if (cifrasDT[cursorCifraDT] === ',') { marcarDT(cursorCifraDT); cursorCifraDT++; }
+            if (cursorCifraDT === 0) {
+                let t = ""; let i = 0;
+                while(t.length < 2 || parseInt(t) < divisorDT) {
+                    if(cifrasDT[i] !== ',') t += cifrasDT[i];
+                    marcarDT(i); i++; if(i >= cifrasDT.length) break;
+                }
+                valorAdividirDT = t; cursorCifraDT = i; prepararCocienteDT();
+            } else {
+                faseDivDT = "BAJAR";
+                const c = cifrasDT[cursorCifraDT]; marcarDT(cursorCifraDT);
+                const area = document.getElementById('bloque-izquierdo-dt');
+                const filas = area.getElementsByClassName('fila-div');
+                const cel = crearCeldaDT(c, true);
+                filas[filas.length-1].appendChild(cel);
+                celdasActualesDT = [cel]; valorObjetivoDT = c; indexInputDT = 0;
+                valorAdividirDT = (restoActualDT === "0" ? "" : restoActualDT) + c;
+                cursorCifraDT++;
+            }
+        }
+
+        function prepararCocienteDT() {
+            faseDivDT = "COCIENTE";
+            let q = Math.floor(parseInt(valorAdividirDT) / divisorDT).toString();
+            const c = crearCeldaDT(q, true);
+            document.getElementById('cociente-display-dt').appendChild(c);
+            celdasActualesDT = [c]; valorObjetivoDT = q; indexInputDT = 0;
+        }
+
+        function prepararRestoDT() {
+            faseDivDT = "RESTO";
+            const r = (parseInt(valorAdividirDT) % divisorDT).toString();
+            restoActualDT = r; valorObjetivoDT = r;
+            const area = document.getElementById('bloque-izquierdo-dt');
+            const fila = document.createElement('div'); fila.className = 'fila-div';
+            const visualCursor = cifrasDT.slice(0, cursorCifraDT).filter(x => x !== ',').length;
+            for(let i=0; i < (visualCursor - r.length); i++) {
+                const esp = document.createElement('div'); esp.className = 'num'; fila.appendChild(esp);
+            }
+            celdasActualesDT = [];
+            for(let i=0; i<r.length; i++) {
+                const c = crearCeldaDT(r[i]); fila.appendChild(c); celdasActualesDT.push(c);
+            }
+            area.appendChild(fila);
+            indexInputDT = celdasActualesDT.length - 1;
+            celdasActualesDT[indexInputDT].classList.add('activa');
+            document.getElementById('dt-scroll-area').scrollTop = 9999;
+        }
+
+        function entradaDivisionDT(n) {
+            const celda = celdasActualesDT[indexInputDT];
+            if (n.toString() === valorObjetivoDT[indexInputDT]) {
+                playSound('acierto'); celda.textContent = n; celda.className = 'celda correcta';
+                if (faseDivDT === "RESTO") {
+                    indexInputDT--;
+                    if (indexInputDT >= 0) celdasActualesDT[indexInputDT].classList.add('activa');
+                    else setTimeout(siguienteTurnoDivDT, 400);
+                } else {
+                    indexInputDT++;
+                    if (indexInputDT < celdasActualesDT.length) celdasActualesDT[indexInputDT].classList.add('activa');
+                    else setTimeout(faseDivDT === "COCIENTE" ? prepararRestoDT : siguienteTurnoDivDT, 400);
+                }
+            } else {
+                playSound('error'); celda.classList.add('incorrecta');
+                setTimeout(() => { if(!celda.classList.contains('correcta')) { celda.textContent = ""; celda.classList.remove('incorrecta'); }}, 400);
+            }
+        }
+
+        function crearCeldaDT(v, a=false) { const c = document.createElement('div'); c.className = 'celda' + (a?' activa':''); return c; }
+        function marcarDT(i) { const el = document.getElementById(`d-dt-${i}`); if(el) { el.style.color = "#3498db"; el.style.borderTop = "4px solid #3498db"; } }
+        function borrarDT() { if(celdasActualesDT[indexInputDT] && !celdasActualesDT[indexInputDT].classList.contains('correcta')) celdasActualesDT[indexInputDT].textContent = ""; }
+        function volverAlMenuNivelesDT() { document.getElementById('dt-juego').classList.remove('active'); document.getElementById('dt-menu').classList.add('active'); document.getElementById('dt-modal-victoria').classList.remove('show'); }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Suite Educativa de Decimales y Porcentajes</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&family=Outfit:wght@400;700;900&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ==========================================================================
+           GLOBAL & NAVIGATION STYLES
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        :root {
+            --nav-bg: #1e293b;
+            --nav-accent: #f43f5e;
+            --secondary-accent: #38bdf8;
+            --grass: #9cdb43;
+            --sky: #87ceeb;
+            --apple: #ff4d4d;
+            --basket: #8b4513;
+            --error: #f43f5e;
+            --success: #4ade80;
+            --primary: #fbbf24;
+            --secondary: #a29bfe;
+            --primary-mult: #22d3ee;
+        }
+
+        body {
+            font-family: 'Outfit', 'Quicksand', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation Bar */
+        .app-header {
+            background-color: var(--nav-bg);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-home-link {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-home-link:hover {
+            background: var(--nav-accent);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .app-title {
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            font-weight: 900;
+            color: var(--secondary-accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-menu-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-menu-toggle:hover {
+            background: var(--nav-accent);
+            color: white;
+        }
+
+        /* Container where views render */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 100%;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px;
+        }
+
+        /* Game Views */
+        .game-view {
+            display: none !important;
+            width: 100%;
+            max-width: 1000px;
+            flex: 1;
+            animation: fadeIn 0.3s ease-in-out;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .game-view.active {
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Main Menu View */
+        #view-main-menu {
+            padding: 20px 10px;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .menu-title {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-weight: 900;
+            color: var(--secondary-accent);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .menu-card {
+            background: #1e293b;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary-accent);
+            box-shadow: 0 15px 30px rgba(56, 189, 248, 0.2);
+        }
+
+        .menu-card i {
+            font-size: 2.5rem;
+            color: var(--secondary-accent);
+            margin-bottom: 15px;
+        }
+
+        .menu-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #f8fafc;
+        }
+
+        .menu-card p {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+
+        /* COMMON GAME WRAPPER CONTAINER */
+        .game-card-container {
+            width: 100%;
+            max-width: 1000px;
+            background: #ffffff;
+            color: #1e1b4b;
+            border-radius: 1.5rem;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            align-items: center;
+            position: relative;
+        }
+
+        /* ---------------------------------------------------------------------
+           ESTILOS: JUEGO 1 - DESCOMPOSICIÓN DECIMAL
+           --------------------------------------------------------------------- */
+        .decomp-layout {
+            display: flex;
+            width: 100%;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .decomp-main {
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .decomp-numpad-area {
+            flex: 0.8;
+            width: 100%;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .decomp-num-display {
+            font-size: 3.2rem;
+            font-weight: 900;
+            color: #4338ca;
+            background: #f8fafc;
+            padding: 12px 35px;
+            border-radius: 25px;
+            border: 4px solid #e2e8f0;
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+        }
+
+        .decomp-grid {
+            display: grid;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .decomp-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .decomp-label {
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            padding: 6px 2px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .c-c { background: #ef4444; }
+        .c-d { background: #f59e0b; }
+        .c-u { background: #ecc94b; color: #000; }
+        .c-dc { background: #10b981; }
+        .c-cn { background: #3b82f6; }
+        .c-ml { background: #8b5cf6; }
+
+        .decomp-slot, .decomp-valor-container {
+            width: 100%;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.2s;
+            background: white;
+            border: 3px solid #cbd5e1;
+            position: relative;
+        }
+
+        .decomp-slot {
+            height: 65px;
+            font-size: 2.2rem;
+            color: #1e1b4b;
+        }
+
+        .decomp-valor-container {
+            height: 60px;
+            flex-direction: column;
+        }
+
+        .decomp-valor-input {
+            font-size: 1.3rem;
+            color: #4338ca;
+            width: 100%;
+            text-align: center;
+            padding-top: 8px;
+        }
+
+        .decomp-tag-label {
+            position: absolute;
+            top: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            color: #94a3b8;
+            font-weight: 900;
+            pointer-events: none;
+        }
+
+        .active-input {
+            border-color: #7c3aed !important;
+            background: #f5f3ff !important;
+            transform: scale(1.03);
+            z-index: 5;
+        }
+
+        .is-correct {
+            background: #d1fae5 !important;
+            border-color: #10b981 !important;
+            color: #065f46 !important;
+        }
+
+        .is-wrong {
+            background: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            animation: shake 0.4s;
+        }
+
+        .decomp-numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
+
+        .decomp-key {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 12px 0;
+            font-size: 1.6rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #cbd5e1;
+            color: #4338ca;
+            transition: 0.1s;
+        }
+
+        .decomp-key:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #cbd5e1;
+        }
+
+        .decomp-instr {
+            background: #eef2ff;
+            color: #4338ca;
+            padding: 12px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            font-weight: 800;
+            text-align: center;
+            font-size: 1.1rem;
+            width: 100%;
+        }
+
+        .decomp-screen {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .decomp-screen.active {
+            display: flex;
+        }
+
+        .btn-decomp-level {
+            width: 100%;
+            max-width: 400px;
+            padding: 18px;
+            margin: 10px;
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.15);
+            transition: transform 0.1s;
+        }
+
+        .btn-decomp-level:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+        }
+
+        /* ---------------------------------------------------------------------
+           ESTILOS: JUEGO 2 - PORCENTAJES
+           --------------------------------------------------------------------- */
+        .perc-screen { display: none; width: 100%; flex-direction: column; align-items: center; justify-content: center; }
+        .perc-screen.active { display: flex; }
+
+        .perc-game-layout { display: flex; width: 100%; gap: 20px; overflow: hidden; padding-top: 10px; }
+
+        .perc-workspace {
+            flex: 1.2; display: flex; flex-direction: column; gap: 20px; 
+            overflow-y: auto; padding: 10px; max-height: 550px;
+            scroll-behavior: smooth;
+        }
+
+        .perc-workspace::-webkit-scrollbar { width: 6px; }
+        .perc-workspace::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        .perc-target-card {
+            background: #0369a1; color: white; padding: 15px 30px; border-radius: 20px;
+            font-size: 2.2rem; font-weight: 900; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+            text-align: center; width: 100%; flex-shrink: 0;
+        }
+
+        .perc-step-card {
+            background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 15px;
+            padding: 25px 15px; width: 100%; display: flex; align-items: center;
+            justify-content: center; gap: 12px; transition: 0.4s; position: relative; flex-shrink: 0;
+        }
+        
+        .perc-step-card.completed { background: #f0fdf4; border-color: #bcf0da; opacity: 0.7; transform: scale(0.98); }
+        .perc-step-card.active-step { border-color: #6366f1; border-width: 3px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        .perc-step-card.hidden { display: none; }
+
+        .perc-solution-card {
+            background: #065f46; color: white; padding: 25px; border-radius: 15px;
+            width: 100%; text-align: center; font-size: 2rem; font-weight: 900;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+            border: 4px solid #10b981; margin-top: 10px;
+        }
+
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .perc-step-label { position: absolute; top: -12px; left: 20px; background: white; padding: 2px 12px; font-size: 0.75rem; font-weight: 800; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; }
+        .perc-op-text { font-size: 1.6rem; font-weight: bold; color: #334155; }
+        .perc-fraction { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .perc-f-line { width: 100%; height: 3px; background: #334155; border-radius: 2px; }
+
+        .perc-box {
+            width: 80px; height: 55px; border: 2px solid #cbd5e1; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            background: white; font-size: 1.5rem; font-weight: bold; color: #0369a1;
+        }
+
+        .perc-box-lg { width: 140px; }
+        .perc-active-box { border-color: #6366f1; background: #f5f3ff; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+        .perc-correct-box { background: #d1fae5; border-color: #059669; color: #065f46; }
+        .perc-wrong-box { background: #fee2e2; border-color: #dc2626; animation: shake 0.4s; }
+
+        .perc-numpad-container { flex: 0.8; max-width: 320px; width: 100%; display: flex; flex-direction: column; }
+        .perc-numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .perc-key {
+            background: white; border: 1px solid #e2e8f0; padding: 18px 0; font-size: 1.8rem;
+            font-weight: bold; border-radius: 15px; cursor: pointer;
+            box-shadow: 0 5px 0 #cbd5e1; color: #1e293b;
+        }
+        .perc-key:active { transform: translateY(3px); box-shadow: 0 2px 0 #cbd5e1; }
+
+        .perc-instr-box { background: #f0f9ff; color: #0369a1; padding: 12px; border-radius: 15px; margin-bottom: 10px; font-weight: 800; text-align: center; width: 100%; border: 1px solid #bae6fd; flex-shrink: 0; }
+
+        .btn-perc-level {
+            width: 100%; max-width: 350px; padding: 22px; border: none; border-radius: 20px;
+            font-size: 1.3rem; font-weight: bold; cursor: pointer; color: white; transition: transform 0.1s;
+        }
+        .btn-perc-level:active { transform: translateY(3px); }
+
+        /* ---------------------------------------------------------------------
+           ESTILOS: JUEGO 3 - APROXIMACIÓN DECIMAL
+           --------------------------------------------------------------------- */
+        .aprox-pantalla { display: none; width: 100%; flex-direction: column; }
+        .aprox-pantalla.active { display: flex; }
+
+        .aprox-instruccion {
+            background: #673ab7; color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0; width: 100%;
+        }
+
+        .aprox-contenido { display: flex; width: 100%; gap: 15px; overflow: hidden; }
+
+        .aprox-zona-operacion {
+            flex: 1.2; overflow-y: auto; padding: 15px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        .aprox-zona-teclado {
+            flex: 1.3; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        .aprox-pregunta-container { text-align: center; }
+
+        .aprox-num-original { font-size: 3.5rem; font-weight: bold; color: #333; margin-bottom: 10px; }
+
+        .aprox-objetivo-texto {
+            font-size: 1.4rem; color: #673ab7; font-weight: bold; margin-bottom: 20px;
+            background: #ede7f6; padding: 10px 20px; border-radius: 50px;
+        }
+
+        .aprox-respuesta-box {
+            font-size: 3rem; width: 250px; height: 80px; border: 4px dashed #bbb;
+            border-radius: 15px; display: flex; justify-content: center;
+            align-items: center; color: #673ab7; background: #fff; font-weight: bold;
+        }
+
+        .aprox-respuesta-box.correcta { border: 4px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .aprox-respuesta-box.incorrecta { border: 4px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        .aprox-teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 300px; }
+        .aprox-tecla { 
+            padding: 15px 0; font-size: 1.8rem; border: none; border-radius: 12px; 
+            background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; color: #333;
+        }
+        .aprox-tecla:active { box-shadow: 0 1px #ccc; transform: translateY(3px); }
+        .aprox-tecla-accion { background: #ffccbc; color: #d84315; }
+        .aprox-tecla-enviar { background: #c8e6c9; color: #2e7d32; grid-column: span 3; margin-top: 5px; }
+
+        .aprox-modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+            padding: 20px;
+        }
+
+        .aprox-solucion-texto { font-size: 1.8rem; color: #333; margin: 20px 0; font-weight: bold; }
+        .btn-aprox-nivel { width: 100%; max-width: 350px; padding: 12px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
+
+        /* ---------------------------------------------------------------------
+           ESTILOS: JUEGO 4 - COMPARACIÓN DECIMAL
+           --------------------------------------------------------------------- */
+        .comp-pantalla { display: none; width: 100%; flex-direction: column; }
+        .comp-pantalla.active { display: flex; }
+
+        .comp-instruccion {
+            background: #1e88e5; color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0; width: 100%;
+        }
+
+        .comp-contenido { display: flex; width: 100%; gap: 15px; overflow: hidden; }
+
+        .comp-zona-operacion {
+            flex: 1.5; overflow-y: auto; padding: 15px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        .comp-zona-teclado {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        .comp-comparacion-container {
+            display: flex; align-items: center; justify-content: center; gap: 20px;
+            font-size: 2.5rem; font-weight: bold; color: #333;
+        }
+
+        .comp-num-box {
+            padding: 15px 25px; background: #f8f9fa; border-radius: 15px;
+            border: 2px solid #ddd; min-width: 150px; text-align: center;
+        }
+
+        .comp-simbolo-celda {
+            width: 80px; height: 80px; border: 4px dashed #bbb;
+            border-radius: 15px; display: flex; justify-content: center;
+            align-items: center; font-size: 3rem; color: #1e88e5; background: #fff;
+        }
+
+        .comp-simbolo-celda.correcta { border: 4px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .comp-simbolo-celda.incorrecta { border: 4px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        .comp-teclado { display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; max-width: 200px; }
+        .comp-tecla { 
+            padding: 18px 0; font-size: 2.5rem; border: none; border-radius: 15px; 
+            background: #f0f0f0; font-weight: bold; box-shadow: 0 6px #ccc; cursor: pointer; color: #333;
+        }
+        .comp-tecla:active { box-shadow: 0 2px #ccc; transform: translateY(4px); }
+        .comp-tecla-simbolo { background: #fff3e0; color: #e65100; border: 2px solid #ffe0b2; }
+
+        .comp-modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+            padding: 20px;
+        }
+
+        .comp-solucion-texto { font-size: 1.8rem; color: #333; margin: 20px 0; font-weight: bold; }
+        .btn-comp-nivel { width: 100%; max-width: 350px; padding: 12px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
+
+        /* Media Queries Adaptativas */
+        @media (max-width: 768px) {
+            .decomp-layout { flex-direction: column; }
+            .decomp-main { flex: 1; }
+            .decomp-numpad-area { max-width: 100%; }
+            .decomp-num-display { font-size: 2.2rem; padding: 8px 18px; margin-bottom: 10px; }
+            .decomp-slot { height: 50px; font-size: 1.6rem; }
+            .decomp-valor-container { height: 50px; }
+            .decomp-valor-input { font-size: 1.1rem; }
+
+            .perc-game-layout { flex-direction: column; }
+            .perc-workspace { flex: 1.5; max-height: none; padding-bottom: 20px; }
+            .perc-target-card { font-size: 1.8rem; }
+            .perc-solution-card { font-size: 1.5rem; }
+            .perc-box { width: 65px; height: 45px; font-size: 1.1rem; }
+            .perc-box-lg { width: 110px; }
+            .perc-key { padding: 12px 0; }
+
+            .aprox-contenido { flex-direction: column; }
+            .aprox-zona-teclado { border-left: none; border-top: 2px solid #eee; }
+            .aprox-num-original { font-size: 2.5rem; }
+            .aprox-respuesta-box { width: 200px; height: 60px; font-size: 2rem; }
+            .aprox-tecla { padding: 10px 0; font-size: 1.4rem; }
+
+            .comp-contenido { flex-direction: column; }
+            .comp-zona-teclado { border-left: none; border-top: 2px solid #eee; }
+            .comp-comparacion-container { font-size: 1.6rem; }
+            .comp-simbolo-celda { width: 60px; height: 60px; font-size: 2rem; }
+        }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-left">
+            <a href="main-index.html" class="btn-home-link" title="Volver al Inicio">
+                <i class="fas fa-home"></i>
+            </a>
+            <div class="app-title">
+                <i class="fas fa-calculator"></i>
+                <span id="app-title-text">Suite Educativa Decimales</span>
+            </div>
+        </div>
+        <button class="btn-menu-toggle" onclick="showMainMenu()">
+            <i class="fas fa-th-large"></i> Menú
+        </button>
+    </header>
+
+    <div class="main-container">
+
+        <!-- MENÚ PRINCIPAL -->
+        <div id="view-main-menu" class="game-view active">
+            <h2 class="menu-title">Selecciona una Actividad</h2>
+            <div class="menu-grid">
+                <div class="menu-card" onclick="openGame('game-decomp')">
+                    <i class="fas fa-cubes"></i>
+                    <h3>Descomposición Decimal</h3>
+                    <p>Practica la posición y el valor posicional de las cifras decimales.</p>
+                </div>
+
+                <div class="menu-card" onclick="openGame('game-porcentajes')">
+                    <i class="fas fa-percent"></i>
+                    <h3>Tanto por Ciento</h3>
+                    <p>Calcula el porcentaje de una cantidad paso a paso.</p>
+                </div>
+
+                <div class="menu-card" onclick="openGame('game-aproximacion')">
+                    <i class="fas fa-bullseye"></i>
+                    <h3>Aproximación Decimal</h3>
+                    <p>Redondea números decimales a unidades, décimas o centésimas.</p>
+                </div>
+
+                <div class="menu-card" onclick="openGame('game-comparacion')">
+                    <i class="fas fa-balance-scale"></i>
+                    <h3>Comparación Decimal</h3>
+                    <p>Compara dos números usando los signos >, < o =.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- JUEGO 1: DESCOMPOSICIÓN DECIMAL -->
+        <div id="game-decomp" class="game-view">
+            <div class="game-card-container">
+                <div id="decomp-menu" class="decomp-screen active">
+                    <h1 style="color: #4338ca; font-size: 2rem; margin-bottom: 20px; text-align: center;">Descomposición Decimal</h1>
+                    <button class="btn-decomp-level" style="background: #10b981;" onclick="startDecompGame(1)">Nivel 1: U , d c m</button>
+                    <button class="btn-decomp-level" style="background: #ef4444;" onclick="startDecompGame(2)">Nivel 2: C D U , d c m</button>
+                </div>
+
+                <div id="decomp-game" class="decomp-screen">
+                    <div class="decomp-instr" id="decomp-instruccion">PASO 1: COLOCA LAS CIFRAS</div>
+                    <div class="decomp-layout">
+                        <div class="decomp-main">
+                            <div id="decomp-target-num" class="decomp-num-display">0,000</div>
+                            <div class="decomp-grid" id="decomp-grid"></div>
+                        </div>
+                        <div class="decomp-numpad-area">
+                            <div class="decomp-numpad">
+                                <button class="decomp-key" onclick="pressDecompKey('7')">7</button>
+                                <button class="decomp-key" onclick="pressDecompKey('8')">8</button>
+                                <button class="decomp-key" onclick="pressDecompKey('9')">9</button>
+                                <button class="decomp-key" onclick="pressDecompKey('4')">4</button>
+                                <button class="decomp-key" onclick="pressDecompKey('5')">5</button>
+                                <button class="decomp-key" onclick="pressDecompKey('6')">6</button>
+                                <button class="decomp-key" onclick="pressDecompKey('1')">1</button>
+                                <button class="decomp-key" onclick="pressDecompKey('2')">2</button>
+                                <button class="decomp-key" onclick="pressDecompKey('3')">3</button>
+                                <button class="decomp-key" style="color:#7c3aed" onclick="pressDecompKey(',')">,</button>
+                                <button class="decomp-key" onclick="pressDecompKey('0')">0</button>
+                                <button class="decomp-key" style="background:#f1f5f9; color:#ef4444" onclick="deleteDecompContent()">⌫</button>
+                            </div>
+                            <button class="btn-decomp-level" style="background:#4338ca; width:100%; margin-top:10px; font-size:1rem; padding: 12px;" onclick="showDecompMenu()">🏠 Niveles</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JUEGO 2: TANTO POR CIENTO -->
+        <div id="game-porcentajes" class="game-view">
+            <div class="game-card-container">
+                <div id="perc-menu" class="perc-screen active">
+                    <h1 style="color: #0369a1; margin-bottom: 30px; text-align: center;">Tanto por Ciento</h1>
+                    <button class="btn-perc-level" style="background: #059669; box-shadow: 0 6px 0 #047857;" onclick="startPercGame(1)">NIVEL 1: FÁCIL</button>
+                    <button class="btn-perc-level" style="background: #0369a1; box-shadow: 0 6px 0 #035b8a; margin-top: 20px;" onclick="startPercGame(2)">NIVEL 2: NORMAL</button>
+                </div>
+
+                <div id="perc-game" class="perc-screen">
+                    <div class="perc-instr-box" id="perc-instruccion">¡Cargando ejercicio...!</div>
+                    
+                    <div class="perc-game-layout">
+                        <div class="perc-workspace" id="perc-ws">
+                            <div id="perc-target-num" class="perc-target-card">---</div>
+
+                            <div id="perc-step-1" class="perc-step-card active-step">
+                                <span class="perc-step-label">PASO 1: LA FRACCIÓN</span>
+                                <div class="perc-fraction">
+                                    <div class="perc-box" id="perc-b1-num"></div>
+                                    <div class="perc-f-line"></div>
+                                    <div class="perc-box" id="perc-b1-den"></div>
+                                </div>
+                                <span class="perc-op-text">de</span>
+                                <span class="perc-op-text" id="perc-disp-total-1">---</span>
+                            </div>
+
+                            <div id="perc-step-2" class="perc-step-card hidden">
+                                <span class="perc-step-label">PASO 2: EL PRODUCTO</span>
+                                <div class="perc-fraction">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <div class="perc-box" id="perc-b2-num"></div>
+                                        <span class="perc-op-text">×</span>
+                                        <div class="perc-box perc-box-lg" id="perc-b2-total"></div>
+                                    </div>
+                                    <div class="perc-f-line"></div>
+                                    <div class="perc-box" id="perc-b2-den"></div>
+                                </div>
+                            </div>
+
+                            <div id="perc-step-3" class="perc-step-card hidden">
+                                <span class="perc-step-label">PASO 3: DIVIDIR</span>
+                                <div class="perc-fraction">
+                                    <div class="perc-box perc-box-lg" id="perc-b3-prod"></div>
+                                    <div class="perc-f-line"></div>
+                                    <div class="perc-box" id="perc-b3-den"></div>
+                                </div>
+                                <span class="perc-op-text">=</span>
+                                <div class="perc-box perc-box-lg" id="perc-b4-final"></div>
+                            </div>
+
+                            <div id="perc-final-solution" class="perc-solution-card hidden"></div>
+                        </div>
+
+                        <div class="perc-numpad-container">
+                            <div class="perc-numpad">
+                                <button class="perc-key" onclick="pressPercKey('7')">7</button>
+                                <button class="perc-key" onclick="pressPercKey('8')">8</button>
+                                <button class="perc-key" onclick="pressPercKey('9')">9</button>
+                                <button class="perc-key" onclick="pressPercKey('4')">4</button>
+                                <button class="perc-key" onclick="pressPercKey('5')">5</button>
+                                <button class="perc-key" onclick="pressPercKey('6')">6</button>
+                                <button class="perc-key" onclick="pressPercKey('1')">1</button>
+                                <button class="perc-key" onclick="pressPercKey('2')">2</button>
+                                <button class="perc-key" onclick="pressPercKey('3')">3</button>
+                                <button class="perc-key" style="background:#f1f5f9" disabled></button>
+                                <button class="perc-key" onclick="pressPercKey('0')">0</button>
+                                <button class="perc-key" style="color: #dc2626" onclick="deletePercKey()">⌫</button>
+                            </div>
+                            <button class="btn-perc-level" style="background:#0369a1; width:100%; margin-top:10px; font-size:1rem; padding: 12px; box-shadow:none;" onclick="showPercMenu()">🏠 Niveles</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JUEGO 3: APROXIMACIÓN DECIMAL -->
+        <div id="game-aproximacion" class="game-view">
+            <div class="game-card-container">
+                <div id="aprox-menu" class="aprox-pantalla active" style="justify-content: center;">
+                    <h1 style="text-align:center; color:#673ab7; margin-bottom:15px;">Aproximación Decimal</h1>
+                    <button class="btn-aprox-nivel" style="background:#43a047" onclick="iniciarAprox(0)">Nivel 1: A las Unidades</button>
+                    <button class="btn-aprox-nivel" style="background:#fb8c00" onclick="iniciarAprox(1)">Nivel 2: A las Décimas</button>
+                    <button class="btn-aprox-nivel" style="background:#0288d1" onclick="iniciarAprox(2)">Nivel 3: A las Centésimas</button>
+                    <button class="btn-aprox-nivel" style="background:#c62828" onclick="iniciarAprox(3)">Nivel 4: Modo Mix</button>
+                </div>
+
+                <div id="aprox-juego" class="aprox-pantalla">
+                    <div id="aprox-instruccion" class="aprox-instruccion">Escribe el número redondeado</div>
+                    <div class="aprox-contenido">
+                        <div class="aprox-zona-operacion">
+                            <div class="aprox-pregunta-container">
+                                <div id="aprox-num-display" class="aprox-num-original">-</div>
+                                <div id="aprox-objetivo-display" class="aprox-objetivo-texto">-</div>
+                                <div id="aprox-caja-respuesta" class="aprox-respuesta-box"></div>
+                            </div>
+                        </div>
+                        <div class="aprox-zona-teclado">
+                            <div class="aprox-teclado">
+                                <button class="aprox-tecla" onclick="addAproxNum('7')">7</button>
+                                <button class="aprox-tecla" onclick="addAproxNum('8')">8</button>
+                                <button class="aprox-tecla" onclick="addAproxNum('9')">9</button>
+                                <button class="aprox-tecla" onclick="addAproxNum('4')">4</button>
+                                <button class="aprox-tecla" onclick="addAproxNum('5')">5</button>
+                                <button class="aprox-tecla" onclick="addAproxNum('6')">6</button>
+                                <button class="aprox-tecla" onclick="addAproxNum('1')">1</button>
+                                <button class="aprox-tecla" onclick="addAproxNum('2')">2</button>
+                                <button class="aprox-tecla" onclick="addAproxNum('3')">3</button>
+                                <button class="aprox-tecla" onclick="addAproxNum('0')">0</button>
+                                <button class="aprox-tecla" onclick="addAproxNum(',')">,</button>
+                                <button class="aprox-tecla aprox-tecla-accion" onclick="borrarAprox()">⌫</button>
+                                <button class="aprox-tecla aprox-tecla-enviar" onclick="comprobarAprox()">COMPROBAR</button>
+                                <button class="aprox-tecla aprox-tecla-enviar" style="background:#eee; color:#333; font-size: 1rem;" onclick="volverAlMenuAprox()">🏠 Volver al Menú</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="aprox-modal-victoria" class="aprox-modal-victoria">
+                    <h2 style="font-size: 2.2rem; color: #4CAF50;">¡Correcto! ⭐</h2>
+                    <div id="aprox-texto-explicativo" class="aprox-solucion-texto"></div>
+                    <button class="btn-aprox-nivel" style="background:#4CAF50; max-width: 250px;" onclick="volverAJugarMismoNivelAprox()">Siguiente</button>
+                    <button class="btn-aprox-nivel" style="background:#1e88e5; max-width: 250px;" onclick="volverAlMenuAprox()">Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- JUEGO 4: COMPARACIÓN DECIMAL -->
+        <div id="game-comparacion" class="game-view">
+            <div class="game-card-container">
+                <div id="comp-menu" class="comp-pantalla active" style="justify-content: center;">
+                    <h1 style="text-align:center; color:#1e88e5; margin-bottom:15px;">Comparación Decimal</h1>
+                    <button class="btn-comp-nivel" style="background:#43a047" onclick="iniciarComp(1)">Nivel 1: Sencillo</button>
+                    <button class="btn-comp-nivel" style="background:#fb8c00" onclick="iniciarComp(2)">Nivel 2: Intermedio</button>
+                    <button class="btn-comp-nivel" style="background:#c62828" onclick="iniciarComp(3)">Nivel 3: Avanzado</button>
+                </div>
+
+                <div id="comp-juego" class="comp-pantalla">
+                    <div id="comp-instruccion" class="comp-instruccion">¿Qué número es mayor?</div>
+                    <div class="comp-contenido">
+                        <div class="comp-zona-operacion">
+                            <div class="comp-comparacion-container">
+                                <div id="comp-num-izq" class="comp-num-box">-</div>
+                                <div id="comp-celda-signo" class="comp-simbolo-celda">?</div>
+                                <div id="comp-num-der" class="comp-num-box">-</div>
+                            </div>
+                        </div>
+                        <div class="comp-zona-teclado">
+                            <div class="comp-teclado">
+                                <button class="comp-tecla comp-tecla-simbolo" onclick="comprobarComp('>')">></button>
+                                <button class="comp-tecla comp-tecla-simbolo" onclick="comprobarComp('=')">=</button>
+                                <button class="comp-tecla comp-tecla-simbolo" onclick="comprobarComp('<')"><</button>
+                                <button class="comp-tecla" style="background:#eee; font-size: 1.1rem; padding: 10px;" onclick="volverAlMenuComp()">🏠 Menú</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="comp-modal-victoria" class="comp-modal-victoria">
+                    <h2 style="font-size: 2.2rem; color: #4CAF50;">¡Excelente! ⭐</h2>
+                    <div id="comp-texto-explicativo" class="comp-solucion-texto"></div>
+                    <button class="btn-comp-nivel" style="background:#4CAF50; max-width: 250px;" onclick="volverAJugarMismoNivelComp()">Siguiente</button>
+                    <button class="btn-comp-nivel" style="background:#1e88e5; max-width: 250px;" onclick="volverAlMenuComp()">Menú</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- LÓGICA DE CONTROL Y JUEGO -->
+    <script>
+        // Navegación General
+        function openGame(gameId) {
+            document.querySelectorAll('.game-view').forEach(view => view.classList.remove('active'));
+            const targetView = document.getElementById(gameId);
+            if (targetView) {
+                targetView.classList.add('active');
+                if(gameId === 'game-decomp') showDecompMenu();
+                if(gameId === 'game-porcentajes') showPercMenu();
+                if(gameId === 'game-aproximacion') volverAlMenuAprox();
+                if(gameId === 'game-comparacion') volverAlMenuComp();
+            }
+        }
+
+        function showMainMenu() {
+            document.querySelectorAll('.game-view').forEach(view => view.classList.remove('active'));
+            document.getElementById('view-main-menu').classList.add('active');
+        }
+
+        // Sistema de Audio Común
+        let audioCtx = null;
+        function playSoundCommon(type, freqOverride) {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain); 
+                gain.connect(audioCtx.destination);
+                
+                if (freqOverride) {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freqOverride, audioCtx.currentTime);
+                } else {
+                    osc.type = (type === 'success' || type === 'acierto') ? 'sine' : 'sawtooth';
+                    osc.frequency.setValueAtTime((type === 'success' || type === 'acierto') ? 600 : 180, audioCtx.currentTime);
+                }
+                
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                osc.start(); 
+                osc.stop(audioCtx.currentTime + 0.15);
+            } catch(e) {}
+        }
+
+        // CONTROL DE TECLADO FÍSICO AUTOMÁTICO
+        document.addEventListener('keydown', function(event) {
+            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
+
+            const activeView = document.querySelector('.game-view.active');
+            if (!activeView) return;
+
+            const key = event.key;
+
+            // Teclado para Juego 1: Descomposición
+            if (activeView.id === 'game-decomp') {
+                const subJuego = document.getElementById('decomp-game');
+                if (subJuego && subJuego.classList.contains('active')) {
+                    if (key >= '0' && key <= '9') {
+                        pressDecompKey(key);
+                    } else if (key === ',' || key === '.') {
+                        pressDecompKey(',');
+                    } else if (key === 'Backspace' || key === 'Delete') {
+                        deleteDecompContent();
+                    }
+                }
+            }
+
+            // Teclado para Juego 2: Porcentajes
+            if (activeView.id === 'game-porcentajes') {
+                const subJuego = document.getElementById('perc-game');
+                if (subJuego && subJuego.classList.contains('active')) {
+                    if (key >= '0' && key <= '9') {
+                        pressPercKey(key);
+                    } else if (key === 'Backspace' || key === 'Delete') {
+                        deletePercKey();
+                    }
+                }
+            }
+
+            // Teclado para Juego 3: Aproximación
+            if (activeView.id === 'game-aproximacion') {
+                const subJuego = document.getElementById('aprox-juego');
+                if (subJuego && subJuego.classList.contains('active')) {
+                    if (key >= '0' && key <= '9') {
+                        addAproxNum(key);
+                    } else if (key === ',' || key === '.') {
+                        addAproxNum(',');
+                    } else if (key === 'Backspace' || key === 'Delete') {
+                        borrarAprox();
+                    } else if (key === 'Enter') {
+                        comprobarAprox();
+                    }
+                }
+            }
+
+            // Teclado para Juego 4: Comparación
+            if (activeView.id === 'game-comparacion') {
+                const subJuego = document.getElementById('comp-juego');
+                if (subJuego && subJuego.classList.contains('active')) {
+                    if (key === '>' || key === '<' || key === '=') {
+                        comprobarComp(key);
+                    }
+                }
+            }
+        });
+
+        /* =====================================================================
+           LÓGICA JUEGO 1: DESCOMPOSICIÓN DECIMAL
+           ===================================================================== */
+        let decompNivel = 1, decompPaso = 1, decompColumnasActivas = [], decompIndiceActual = 0, decompTargetData = {}, decompBloqueado = false;
+        
+        const decompConfig = { 
+            'c': { label: 'C', class: 'c-c' }, 
+            'd': { label: 'D', class: 'c-d' }, 
+            'u': { label: 'U', class: 'c-u' }, 
+            'dc': { label: 'd', class: 'c-dc' }, 
+            'cn': { label: 'c', class: 'c-cn' }, 
+            'ml': { label: 'm', class: 'c-ml' } 
+        };
+
+        function showDecompMenu() {
+            document.getElementById('decomp-menu').classList.add('active');
+            document.getElementById('decomp-game').classList.remove('active');
+        }
+
+        function startDecompGame(l) {
+            decompNivel = l;
+            document.getElementById('decomp-menu').classList.remove('active');
+            document.getElementById('decomp-game').classList.add('active');
+            decompNextRound();
+        }
+
+        function decompNextRound() {
+            decompPaso = 1;
+            decompIndiceActual = 0;
+            decompBloqueado = false;
+            document.getElementById('decomp-instruccion').textContent = "PASO 1: COLOCA LAS CIFRAS";
+
+            decompColumnasActivas = decompNivel === 1 ? ['u', 'dc', 'cn', 'ml'] : ['c', 'd', 'u', 'dc', 'cn', 'ml'];
+            let numStr = "";
+            decompTargetData = {};
+
+            decompColumnasActivas.forEach(col => {
+                let val = Math.floor(Math.random() * 9) + 1;
+                decompTargetData[col] = val;
+            });
+
+            if (decompNivel === 1) {
+                numStr = `${decompTargetData.u},${decompTargetData.dc}${decompTargetData.cn}${decompTargetData.ml}`;
+            } else {
+                numStr = `${decompTargetData.c}${decompTargetData.d}${decompTargetData.u},${decompTargetData.dc}${decompTargetData.cn}${decompTargetData.ml}`;
+            }
+
+            document.getElementById('decomp-target-num').textContent = numStr;
+            renderDecompGrid();
+            updateDecompActiveState();
+        }
+
+        function renderDecompGrid() {
+            const grid = document.getElementById('decomp-grid');
+            grid.style.gridTemplateColumns = `repeat(${decompColumnasActivas.length}, 1fr)`;
+            grid.innerHTML = '';
+
+            decompColumnasActivas.forEach((colKey, index) => {
+                const conf = decompConfig[colKey];
+                const colEl = document.createElement('div');
+                colEl.className = 'decomp-col';
+                colEl.innerHTML = `
+                    <div class="decomp-label ${conf.class}">${conf.label}</div>
+                    <div class="decomp-slot" id="slot-${index}"></div>
+                    <div class="decomp-valor-container" id="val-box-${index}" style="display:none;">
+                        <span class="decomp-tag-label">VALOR POSICIONAL</span>
+                        <div class="decomp-valor-input" id="val-input-${index}"></div>
+                    </div>
+                `;
+                grid.appendChild(colEl);
+            });
+        }
+
+        function updateDecompActiveState() {
+            document.querySelectorAll('.decomp-slot, .decomp-valor-container').forEach(e => e.classList.remove('active-input'));
+            
+            if (decompPaso === 1) {
+                const el = document.getElementById(`slot-${decompIndiceActual}`);
+                if (el) el.classList.add('active-input');
+            } else {
+                const el = document.getElementById(`val-box-${decompIndiceActual}`);
+                if (el) el.classList.add('active-input');
+            }
+        }
+
+        function pressDecompKey(key) {
+            if (decompBloqueado) return;
+
+            if (decompPaso === 1) {
+                const slot = document.getElementById(`slot-${decompIndiceActual}`);
+                const colKey = decompColumnasActivas[decompIndiceActual];
+                const targetVal = decompTargetData[colKey].toString();
+
+                if (key === targetVal) {
+                    playSoundCommon('acierto');
+                    slot.textContent = key;
+                    slot.classList.add('is-correct');
+                    decompIndiceActual++;
+
+                    if (decompIndiceActual >= decompColumnasActivas.length) {
+                        decompPaso = 2;
+                        decompIndiceActual = 0;
+                        document.getElementById('decomp-instruccion').textContent = "PASO 2: VALOR POSICIONAL DE CADA CIFRA";
+                        document.querySelectorAll('.decomp-valor-container').forEach(e => e.style.display = 'flex');
+                        updateDecompActiveState();
+                    } else {
+                        updateDecompActiveState();
+                    }
+                } else {
+                    playSoundCommon('error');
+                    slot.classList.add('is-wrong');
+                    setTimeout(() => slot.classList.remove('is-wrong'), 400);
+                }
+            } else {
+                const valInput = document.getElementById(`val-input-${decompIndiceActual}`);
+                valInput.textContent += key;
+                checkDecompValPosicional();
+            }
+        }
+
+        function deleteDecompContent() {
+            if (decompBloqueado || decompPaso === 1) return;
+            const valInput = document.getElementById(`val-input-${decompIndiceActual}`);
+            valInput.textContent = valInput.textContent.slice(0, -1);
+        }
+
+        function getExpectedValPosicional(colKey) {
+            let val = decompTargetData[colKey];
+            switch(colKey) {
+                case 'c': return (val * 100).toString();
+                case 'd': return (val * 10).toString();
+                case 'u': return val.toString();
+                case 'dc': return `0,${val}`;
+                case 'cn': return `0,0${val}`;
+                case 'ml': return `0,00${val}`;
+            }
+        }
+
+        function checkDecompValPosicional() {
+            const valInput = document.getElementById(`val-input-${decompIndiceActual}`);
+            const valBox = document.getElementById(`val-box-${decompIndiceActual}`);
+            const colKey = decompColumnasActivas[decompIndiceActual];
+            const target = getExpectedValPosicional(colKey);
+            const current = valInput.textContent;
+
+            if (current === target) {
+                playSoundCommon('acierto');
+                valBox.classList.add('is-correct');
+                decompIndiceActual++;
+
+                if (decompIndiceActual >= decompColumnasActivas.length) {
+                    decompBloqueado = true;
+                    playSoundCommon('success');
+                    document.getElementById('decomp-instruccion').textContent = "¡EXCELENTE! HAS COMPLETADO LA DESCOMPOSICIÓN";
+                    setTimeout(() => {
+                        decompNextRound();
+                    }, 2000);
+                } else {
+                    updateDecompActiveState();
+                }
+            } else if (!target.startsWith(current)) {
+                playSoundCommon('error');
+                valBox.classList.add('is-wrong');
+                setTimeout(() => {
+                    valInput.textContent = '';
+                    valBox.classList.remove('is-wrong');
+                }, 400);
+            }
+        }
+
+        /* =====================================================================
+           LÓGICA JUEGO 2: TANTO POR CIENTO
+           ===================================================================== */
+        let percNivel = 1, percPasoGlobal = 1, percSubIndice = 0, percBloqueado = false;
+        let nPerc, nTotal, nProd, nFinal;
+
+        const percRutaPasos = {
+            1: ['perc-b1-num', 'perc-b1-den'],
+            2: ['perc-b2-num', 'perc-b2-total', 'perc-b2-den'],
+            3: ['perc-b3-prod', 'perc-b3-den', 'perc-b4-final']
+        };
+
+        function showPercMenu() {
+            document.getElementById('perc-menu').classList.add('active');
+            document.getElementById('perc-game').classList.remove('active');
+        }
+
+        function startPercGame(n) {
+            percNivel = n;
+            document.getElementById('perc-menu').classList.remove('active');
+            document.getElementById('perc-game').classList.add('active');
+            nextPercExercise();
+        }
+
+        function nextPercExercise() {
+            percPasoGlobal = 1; percSubIndice = 0; percBloqueado = false;
+            
+            nPerc = percNivel === 1 ? (Math.floor(Math.random()*9)+1)*10 : (Math.floor(Math.random()*19)+1)*5;
+            nTotal = percNivel === 1 ? (Math.floor(Math.random()*9)+1)*100 : (Math.floor(Math.random()*49)+1)*20;
+            nProd = nPerc * nTotal;
+            nFinal = nProd / 100;
+
+            document.getElementById('perc-target-num').innerText = `${nPerc}% de ${nTotal}`;
+            document.getElementById('perc-disp-total-1').innerText = nTotal;
+            document.getElementById('perc-instruccion').innerText = "Paso 1: Escribe la fracción (porcentaje sobre 100)";
+            
+            const solCard = document.getElementById('perc-final-solution');
+            solCard.classList.add('hidden');
+            solCard.innerText = "";
+            
+            document.querySelectorAll('.perc-step-card').forEach(s => s.className = 'perc-step-card hidden');
+            document.querySelectorAll('.perc-box').forEach(b => { 
+                b.innerText = ""; 
+                b.className = "perc-box"; 
+            });
+            
+            document.getElementById('perc-step-1').className = 'perc-step-card active-step';
+            document.getElementById('perc-ws').scrollTop = 0;
+            updatePercFocus();
+        }
+
+        function updatePercFocus() {
+            document.querySelectorAll('.perc-box').forEach(b => b.classList.remove('perc-active-box'));
+            const id = percRutaPasos[percPasoGlobal][percSubIndice];
+            const el = document.getElementById(id);
+            if(el) el.classList.add('perc-active-box');
+        }
+
+        function pressPercKey(val) {
+            if(percBloqueado) return;
+            playSoundCommon('sine', 440);
+            const id = percRutaPasos[percPasoGlobal][percSubIndice];
+            const el = document.getElementById(id);
+            el.innerText += val;
+
+            let correcto = "";
+            if(id.includes('num')) correcto = nPerc.toString();
+            else if(id.includes('den')) correcto = "100";
+            else if(id.includes('total')) correcto = nTotal.toString();
+            else if(id.includes('prod')) correcto = nProd.toString();
+            else if(id.includes('final')) correcto = nFinal.toString();
+
+            if(el.innerText.length >= correcto.length) {
+                validarPerc(el, correcto);
+            }
+        }
+
+        function validarPerc(el, corr) {
+            percBloqueado = true;
+            if(el.innerText === corr) {
+                playSoundCommon('acierto');
+                el.className = "perc-box perc-correct-box";
+                setTimeout(() => {
+                    percBloqueado = false;
+                    percSubIndice++;
+                    if(percSubIndice >= percRutaPasos[percPasoGlobal].length) {
+                        avanzarPasoPerc();
+                    } else {
+                        updatePercFocus();
+                    }
+                }, 200);
+            } else {
+                playSoundCommon('error');
+                el.classList.add('perc-wrong-box');
+                setTimeout(() => {
+                    el.classList.remove('perc-wrong-box');
+                    el.innerText = "";
+                    percBloqueado = false;
+                }, 600);
+            }
+        }
+
+        function avanzarPasoPerc() {
+            const actual = document.getElementById(`perc-step-${percPasoGlobal}`);
+            actual.className = 'perc-step-card completed';
+            
+            percPasoGlobal++;
+            percSubIndice = 0;
+            const ws = document.getElementById('perc-ws');
+
+            if(percPasoGlobal > 3) {
+                document.getElementById('perc-instruccion').innerText = "¡PROCESO COMPLETADO!";
+                const solCard = document.getElementById('perc-final-solution');
+                solCard.innerText = `${nPerc}% de ${nTotal} = ${nFinal}`;
+                solCard.classList.remove('hidden');
+                
+                playSoundCommon('sine', 850);
+                
+                setTimeout(() => { ws.scrollTop = ws.scrollHeight; }, 100);
+                setTimeout(nextPercExercise, 4000);
+            } else {
+                const siguiente = document.getElementById(`perc-step-${percPasoGlobal}`);
+                siguiente.className = 'perc-step-card active-step';
+                
+                if(percPasoGlobal === 2) document.getElementById('perc-instruccion').innerText = "Paso 2: Multiplica el porcentaje por el número";
+                if(percPasoGlobal === 3) document.getElementById('perc-instruccion').innerText = "Paso 3: Divide el resultado entre 100";
+                
+                updatePercFocus();
+                setTimeout(() => {
+                    ws.scrollTo({ top: siguiente.offsetTop - ws.offsetTop - 20, behavior: 'smooth' });
+                }, 100);
+            }
+        }
+
+        function deletePercKey() {
+            if(percBloqueado) return;
+            const id = percRutaPasos[percPasoGlobal][percSubIndice];
+            document.getElementById(id).innerText = "";
+        }
+
+        /* =====================================================================
+           LÓGICA JUEGO 3: APROXIMACIÓN DECIMAL
+           ===================================================================== */
+        let aproxValorOriginal, aproxRespuestaCorrecta, aproxPrecisionActual;
+        let aproxNivelConfig = 0; 
+        let aproxInputUsuario = "";
+
+        const aproxNombresPrecision = ["las Unidades", "las Décimas", "las Centésimas"];
+
+        function generarPreguntaAprox() {
+            aproxInputUsuario = "";
+            actualizarCajaAprox();
+            
+            let cantDecimales = Math.floor(Math.random() * 4) + 1; 
+            aproxValorOriginal = (Math.random() * 20).toFixed(cantDecimales);
+            
+            if (aproxNivelConfig === 3) {
+                aproxPrecisionActual = Math.floor(Math.random() * 3);
+            } else {
+                aproxPrecisionActual = aproxNivelConfig;
+            }
+
+            aproxRespuestaCorrecta = parseFloat(aproxValorOriginal).toFixed(aproxPrecisionActual);
+            
+            document.getElementById('aprox-num-display').textContent = aproxValorOriginal.toString().replace('.', ',');
+            document.getElementById('aprox-objetivo-display').textContent = "Aproxima a " + aproxNombresPrecision[aproxPrecisionActual];
+            
+            const caja = document.getElementById('aprox-caja-respuesta');
+            caja.className = 'aprox-respuesta-box';
+        }
+
+        function addAproxNum(n) {
+            if (aproxInputUsuario.length < 8) {
+                aproxInputUsuario += n;
+                actualizarCajaAprox();
+            }
+        }
+
+        function borrarAprox() {
+            aproxInputUsuario = aproxInputUsuario.slice(0, -1);
+            actualizarCajaAprox();
+        }
+
+        function actualizarCajaAprox() {
+            document.getElementById('aprox-caja-respuesta').textContent = aproxInputUsuario;
+        }
+
+        function iniciarAprox(n) {
+            aproxNivelConfig = n;
+            document.getElementById('aprox-menu').classList.remove('active');
+            document.getElementById('aprox-juego').classList.add('active');
+            document.getElementById('aprox-modal-victoria').style.display = 'none';
+            generarPreguntaAprox();
+        }
+
+        function comprobarAprox() {
+            const caja = document.getElementById('aprox-caja-respuesta');
+            if (aproxInputUsuario === "") return;
+
+            let intento = aproxInputUsuario.replace(',', '.');
+            let numIntento = parseFloat(intento);
+            let numCorrecto = parseFloat(aproxRespuestaCorrecta);
+
+            if (numIntento === numCorrecto) {
+                playSoundCommon('sine', 800);
+                caja.className = 'aprox-respuesta-box correcta';
+                
+                document.getElementById('aprox-texto-explicativo').innerHTML = 
+                    `El número ${aproxValorOriginal.replace('.', ',')}<br>aproximado a ${aproxNombresPrecision[aproxPrecisionActual]} es<br><span style="color:#43a047">${aproxRespuestaCorrecta.replace('.', ',')}</span>`;
+                
+                setTimeout(() => { document.getElementById('aprox-modal-victoria').style.display = 'flex'; }, 600);
+            } else {
+                playSoundCommon('error');
+                caja.className = 'aprox-respuesta-box incorrecta';
+                setTimeout(() => {
+                    aproxInputUsuario = "";
+                    actualizarCajaAprox();
+                    caja.className = 'aprox-respuesta-box';
+                }, 500);
+            }
+        }
+
+        function volverAlMenuAprox() {
+            document.getElementById('aprox-juego').classList.remove('active');
+            document.getElementById('aprox-menu').classList.add('active');
+            document.getElementById('aprox-modal-victoria').style.display = 'none';
+        }
+
+        function volverAJugarMismoNivelAprox() {
+            document.getElementById('aprox-modal-victoria').style.display = 'none';
+            generarPreguntaAprox();
+        }
+
+        /* =====================================================================
+           LÓGICA JUEGO 4: COMPARACIÓN DECIMAL
+           ===================================================================== */
+        let compValor1, compValor2, compSignoCorrecto;
+        let compNivelActual = 1;
+
+        function generarPreguntaComp(nivel) {
+            let n1, n2;
+            const mismaUnidad = Math.random() < 0.9;
+            const unidadComun = Math.floor(Math.random() * 10);
+
+            if (nivel === 1) {
+                if (mismaUnidad) {
+                    n1 = (unidadComun + Math.random()).toFixed(1);
+                    n2 = (unidadComun + Math.random()).toFixed(1);
+                } else {
+                    n1 = (Math.random() * 10).toFixed(1);
+                    n2 = (Math.random() * 10).toFixed(1);
+                }
+            } else if (nivel === 2) {
+                if (mismaUnidad) {
+                    n1 = (unidadComun + Math.random()).toFixed(1);
+                    n2 = (unidadComun + Math.random()).toFixed(2);
+                } else {
+                    n1 = (Math.random() * 5).toFixed(1);
+                    n2 = (Math.random() * 5).toFixed(2);
+                }
+            } else {
+                if (mismaUnidad) {
+                    let decimales = [1, 2, 3];
+                    n1 = (unidadComun + Math.random()).toFixed(decimales[Math.floor(Math.random()*3)]);
+                    n2 = (unidadComun + Math.random()).toFixed(decimales[Math.floor(Math.random()*3)]);
+                    
+                    if (Math.random() < 0.15) n2 = n1;
+                } else {
+                    let tipos = [
+                        () => [(Math.random() * 2).toFixed(1), (Math.random() * 2).toFixed(3)],
+                        () => [(Math.random() * 10).toFixed(0), (Math.random() * 10).toFixed(2)]
+                    ];
+                    [n1, n2] = tipos[Math.floor(Math.random() * tipos.length)]();
+                }
+            }
+
+            compValor1 = parseFloat(n1);
+            compValor2 = parseFloat(n2);
+            
+            const diff = Math.abs(compValor1 - compValor2);
+            if (diff < 0.00001) {
+                compSignoCorrecto = '=';
+            } else {
+                compSignoCorrecto = compValor1 > compValor2 ? '>' : '<';
+            }
+
+            document.getElementById('comp-num-izq').textContent = n1.toString().replace('.', ',');
+            document.getElementById('comp-num-der').textContent = n2.toString().replace('.', ',');
+            document.getElementById('comp-celda-signo').textContent = '?';
+            document.getElementById('comp-celda-signo').className = 'comp-simbolo-celda';
+        }
+
+        function iniciarComp(n) {
+            compNivelActual = n;
+            document.getElementById('comp-menu').classList.remove('active');
+            document.getElementById('comp-juego').classList.add('active');
+            document.getElementById('comp-modal-victoria').style.display = 'none';
+            generarPreguntaComp(n);
+        }
+
+        function comprobarComp(s) {
+            const celda = document.getElementById('comp-celda-signo');
+            if (s === compSignoCorrecto) {
+                playSoundCommon('sine', 800);
+                celda.textContent = s;
+                celda.className = 'comp-simbolo-celda correcta';
+                
+                let n1Txt = document.getElementById('comp-num-izq').textContent;
+                let n2Txt = document.getElementById('comp-num-der').textContent;
+                let palabra = s === '>' ? "es mayor que" : (s === '<' ? "es menor que" : "es igual a");
+                
+                document.getElementById('comp-texto-explicativo').innerHTML = `${n1Txt} <span style="color:#e65100">${palabra}</span> ${n2Txt}`;
+                
+                setTimeout(() => { document.getElementById('comp-modal-victoria').style.display = 'flex'; }, 600);
+            } else {
+                playSoundCommon('error');
+                celda.textContent = s;
+                celda.className = 'comp-simbolo-celda incorrecta';
+                setTimeout(() => {
+                    celda.className = 'comp-simbolo-celda';
+                    celda.textContent = '?';
+                }, 500);
+            }
+        }
+
+        function volverAlMenuComp() {
+            document.getElementById('comp-juego').classList.remove('active');
+            document.getElementById('comp-menu').classList.add('active');
+            document.getElementById('comp-modal-victoria').style.display = 'none';
+        }
+
+        function volverAJugarMismoNivelComp() {
+            document.getElementById('comp-modal-victoria').style.display = 'none';
+            generarPreguntaComp(compNivelActual);
+        }
+    </script>
+</body>
+</html>
