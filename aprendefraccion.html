@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AprendeFracciones Pro</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&family=Outfit:wght@400;700;900&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ==========================================================================
+           GLOBAL & NAVIGATION STYLES
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        :root {
+            --nav-bg: #1e293b;
+            --nav-accent: #f43f5e;
+            --secondary-accent: #38bdf8;
+            --brand-green: #11998e;
+            --brand-light-green: #38ef7d;
+        }
+
+        body {
+            font-family: 'Outfit', 'Quicksand', 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation Bar */
+        .app-header {
+            background-color: var(--nav-bg);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .header-left { display: flex; align-items: center; gap: 12px; }
+
+        .btn-home-link {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white; width: 40px; height: 40px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; font-size: 1.1rem; transition: all 0.2s ease; cursor: pointer;
+        }
+
+        .btn-home-link:hover { background: var(--nav-accent); color: white; transform: scale(1.05); }
+
+        .app-title {
+            font-size: clamp(1rem, 4vw, 1.2rem); font-weight: 900;
+            color: var(--secondary-accent); display: flex; align-items: center; gap: 10px;
+        }
+
+        .btn-menu-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white; padding: 8px 16px; border-radius: 12px;
+            cursor: pointer; font-weight: bold; font-size: 0.95rem;
+            display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;
+        }
+
+        .btn-menu-toggle:hover { background: var(--nav-accent); color: white; }
+
+        .main-container {
+            flex: 1; display: flex; flex-direction: column; position: relative;
+            width: 100%; align-items: center; justify-content: flex-start; padding: 15px;
+        }
+
+        .game-view {
+            display: none !important; width: 100%; max-width: 1000px;
+            flex: 1; animation: fadeIn 0.3s ease-in-out; padding: 10px; box-sizing: border-box;
+        }
+
+        .game-view.active { display: flex !important; flex-direction: column; align-items: center; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #view-main-menu { padding: 20px 10px; max-width: 1100px; margin: 0 auto; width: 100%; }
+
+        .menu-title { text-align: center; margin-bottom: 25px; font-size: clamp(1.5rem, 5vw, 2.2rem); font-weight: 900; color: var(--secondary-accent); }
+
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; width: 100%; }
+
+        .menu-card {
+            background: #1e293b; border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px; padding: 20px; display: flex; flex-direction: column;
+            align-items: center; text-align: center; cursor: pointer; transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .menu-card:hover { transform: translateY(-5px); border-color: var(--secondary-accent); box-shadow: 0 15px 30px rgba(56, 189, 248, 0.2); }
+        .menu-card i { font-size: 2.2rem; color: var(--secondary-accent); margin-bottom: 12px; }
+        .menu-card h3 { font-size: 1.15rem; margin-bottom: 8px; color: #f8fafc; }
+        .menu-card p { font-size: 0.85rem; color: #94a3b8; line-height: 1.3; }
+
+        .submenu-container {
+            width: 100%; max-width: 600px; background: #1e293b;
+            border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 24px;
+            padding: 30px; display: flex; flex-direction: column; align-items: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3); margin: auto;
+        }
+
+        .btn-nivel-sub {
+            width: 100%; padding: 14px; margin: 8px 0; border: none; border-radius: 16px;
+            color: white; font-weight: 800; cursor: pointer; font-size: 1.05rem;
+            transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.2); text-align: center;
+        }
+
+        .btn-nivel-sub:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        /* ESTILOS COMUNES DE JUEGO */
+        .frac-container {
+            width: 100%; max-width: 950px; background: white; color: #333;
+            border-radius: 24px; padding: 20px; display: flex; flex-direction: column;
+            position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.3); box-sizing: border-box;
+        }
+
+        .instruccion-global {
+            background: var(--brand-green); color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 15px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0; width: 100%;
+        }
+
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; width: 100%; }
+
+        .zona-operacion, .zona-comparacion, .zona-visual {
+            flex: 1.2; padding: 15px; border: 2px solid #f0f0f0; border-radius: 15px;
+            background: #fafafa; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; min-width: 0;
+        }
+
+        .zona-opciones, .zona-teclado {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; background: #fff; padding: 10px;
+            border-left: 2px solid #eee; overflow-y: auto;
+        }
+
+        #canvas-contenedor, #canvas-contenedor5 {
+            width: 100%; height: 230px; margin-bottom: 15px;
+            display: flex; justify-content: center; align-items: center;
+            overflow-x: auto; flex-wrap: wrap; gap: 8px; flex-shrink: 0;
+        }
+
+        .fraccion-display { display: flex; flex-direction: column; align-items: center; font-size: 3rem; font-weight: bold; }
+        .linea-f { width: 80px; height: 6px; background: #333; margin: 8px 0; border-radius: 3px; }
+        .incognita { color: #ccc; border: 2px dashed #ccc; min-width: 60px; text-align: center; border-radius: 12px; }
+        .lleno { color: #11998e; border: 2px solid transparent; }
+
+        .contenedor-fraccion-grande, .contenedor-operacion, .contenedor-fracciones { display: flex; align-items: center; gap: 15px; font-size: 3rem; font-weight: bold; color: #333; }
+        .fraccion { display: flex; flex-direction: column; align-items: center; }
+        .linea-fraccion { width: 100%; height: 5px; background: #333; margin: 5px 0; border-radius: 2px; }
+        .num-f, .den-f { min-width: 50px; text-align: center; padding: 2px; }
+
+        .celda {
+            min-width: 65px; height: 65px; border: 3px solid #FF9800; border-radius: 12px;
+            background: #FFF3E0; line-height: 58px; text-align: center; cursor: pointer;
+            transition: all 0.2s; font-size: 2.2rem; color: #E65100; font-weight: bold;
+        }
+        .celda.correcta { border-color: #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .celda.incorrecta { border-color: #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        .mixto-display { display: flex; align-items: center; gap: 10px; font-size: 2.5rem; font-weight: bold; }
+        .entero-num { color: #11998e; border: 2px dashed #ccc; padding: 0 10px; border-radius: 8px; }
+        .entero-num.lleno { border-color: transparent; }
+        .nombre-acumulado-box {
+            margin-top: 15px; padding: 10px; border: 2px solid #11998e;
+            border-radius: 10px; min-height: 50px; width: 100%;
+            display: flex; justify-content: center; align-items: center;
+            text-align: center; font-weight: bold; color: #11998e; font-size: 1.2rem; background: #eafffa;
+        }
+
+        .grid-numeros, .grid-opciones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; width: 100%; max-height: 300px; overflow-y: auto; padding: 5px; }
+        .btn-num, .btn-opcion {
+            padding: 10px 2px; border: 2px solid #ddd; border-radius: 10px;
+            background: white; font-size: 0.95rem; font-weight: bold; cursor: pointer; transition: all 0.2s; color: #444; min-height: 44px;
+        }
+        .btn-num.correcta, .btn-opcion.correcta { background: #4CAF50 !important; color: white; border-color: #4CAF50; }
+        .btn-num.incorrecta, .btn-opcion.incorrecta { background: #f44336 !important; color: white; border-color: #f44336; animation: shake 0.3s; }
+
+        /* Teclados compartidos (Jueg. 8, 9, 10, 11, 12) */
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 260px; }
+        .tecla { padding: 12px 0; font-size: 1.5rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; color: #333; }
+        .tecla:active { box-shadow: 0 2px #ccc; transform: translateY(2px); }
+        .tecla-accion { background: #ffebee; color: #c62828; }
+        .tecla-enviar { background: #11998e; color: white; grid-column: span 3; margin-top: 5px; font-size: 1.2rem; }
+
+        /* Cajas de entrada con Focus */
+        .resultado-container { display: flex; align-items: center; gap: 12px; }
+        .input-box {
+            border: 3px solid #ccc; border-radius: 12px; background: #fff;
+            display: flex; justify-content: center; align-items: center; font-weight: bold;
+            cursor: pointer; transition: all 0.2s; color: #333;
+        }
+        .input-box.active { border-color: #11998e; background: #E8F5E9; transform: scale(1.05); }
+        .input-box.locked { background: #f0f0f0; cursor: default; color: #666; border-width: 1px; }
+        .input-box.incorrecta { border-color: #f44336; background: #FFEBEE; animation: shake 0.3s; }
+        .box-entero { width: 80px; height: 100px; font-size: 3rem; }
+        .box-frac { width: 70px; height: 60px; font-size: 2rem; }
+        .box-grande { width: 110px; height: 80px; font-size: 2.5rem; }
+
+        .visual-container { display: flex; width: 100%; justify-content: space-around; align-items: center; }
+        .canvas-box { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .canvas-wrapper { display: flex; justify-content: center; align-items: center; min-height: 150px; width: 100%; gap: 5px; flex-wrap: wrap; }
+        .unidad-display { font-size: 5rem; font-weight: bold; color: #333; }
+        .simbolo-pregunta {
+            font-size: 4.5rem; color: #ccc; border: 3px dashed #ccc;
+            width: 90px; height: 90px; display: flex; justify-content: center;
+            align-items: center; border-radius: 15px; margin: 0 10px;
+        }
+        .btn-simbolo { padding: 15px 25px; border: 2px solid #ddd; border-radius: 15px; background: white; font-size: 2.2rem; font-weight: bold; cursor: pointer; transition: all 0.2s; color: #333; }
+        .btn-simbolo:hover { background: #f8f9fa; transform: scale(1.05); }
+        .btn-simbolo.incorrecta { background: #f44336 !important; color: white; border-color: #f44336; animation: shake 0.3s; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+
+        /* Modal Global */
+        .modal-overlay {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            background: white; color: black; padding: 25px; border-radius: 30px;
+            text-align: center; z-index: 2000; width: 90%; max-width: 450px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .modal-overlay.show { transform: translate(-50%, -50%) scale(1); }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; overflow-y: auto; }
+            .zona-opciones, .zona-teclado { border-left: none; border-top: 2px solid #eee; flex: none; min-height: 250px; overflow-y: visible; width: 100%; }
+            .fraccion-display { font-size: 2.5rem; }
+            .grid-opciones { grid-template-columns: repeat(2, 1fr); }
+            .btn-simbolo { flex: 1; padding: 10px; font-size: 1.8rem; }
+            .visual-container { transform: scale(0.85); }
+            .contenedor-operacion, .contenedor-fracciones { font-size: 1.4rem; flex-wrap: wrap; justify-content: center; }
+            .celda { min-width: 55px; height: 50px; line-height: 46px; font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-left">
+            <a href="main-index.html" class="btn-home-link" title="Volver al Inicio">
+                <i class="fas fa-home"></i>
+            </a>
+            <div class="app-title">
+                <i class="fas fa-chart-pie"></i>
+                <span id="app-title-text">AprendeFracciones Pro</span>
+            </div>
+        </div>
+        <button class="btn-menu-toggle" onclick="showMainMenu()">
+            <i class="fas fa-th-large"></i> Menú
+        </button>
+    </header>
+
+    <div class="main-container">
+
+        <!-- MENÚ PRINCIPAL CON LOS 12 JUEGOS -->
+        <div id="view-main-menu" class="game-view active">
+            <h2 class="menu-title">Selecciona una Actividad</h2>
+            <div class="menu-grid">
+                <div class="menu-card" onclick="openGame('game-juego-1')">
+                    <i class="fas fa-shapes"></i>
+                    <h3>1. Identifica la Fracción</h3>
+                    <p>Cuenta las partes sombreadas y el total para formar la fracción.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-2')">
+                    <i class="fas fa-font"></i>
+                    <h3>2. Nombra la Fracción</h3>
+                    <p>Aprende a nombrar numeradores y denominadores correctamente.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-3')">
+                    <i class="fas fa-spell-check"></i>
+                    <h3>3. Nombra la Fracción II</h3>
+                    <p>Practica la lectura de fracciones avanzadas e impropias.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-4')">
+                    <i class="fas fa-draw-polygon"></i>
+                    <h3>4. Del Dibujo al Nombre</h3>
+                    <p>Identifica los componentes y selecciona la lectura completa.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-5')">
+                    <i class="fas fa-cubes"></i>
+                    <h3>5. Números Mixtos Visual</h3>
+                    <p>Reconoce enteros y partes fraccionarias combinadas.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-6')">
+                    <i class="fas fa-balance-scale"></i>
+                    <h3>6. Compara Fracciones</h3>
+                    <p>Usa los símbolos mayor, menor o igual para comparar fracciones.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-7')">
+                    <i class="fas fa-circle-notch"></i>
+                    <h3>7. Fracción vs Unidad</h3>
+                    <p>Compara fracciones directamente con la unidad (1).</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-8')">
+                    <i class="fas fa-calculator"></i>
+                    <h3>8. Fracción de un Número</h3>
+                    <p>Calcula la fracción aplicada a una cantidad entera.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-9')">
+                    <i class="fas fa-equals"></i>
+                    <h3>9. Fracciones Equivalentes</h3>
+                    <p>Calcula el numerador que falta para completar la equivalencia.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-10')">
+                    <i class="fas fa-th-list"></i>
+                    <h3>10. Identifica el Número Mixto</h3>
+                    <p>Escribe el entero, numerador y denominador según la figura.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-11')">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <h3>11. Tutor de Números Mixtos</h3>
+                    <p>Convierte fracciones impropias a números mixtos mediante división.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-12')">
+                    <i class="fas fa-exchange-alt"></i>
+                    <h3>12. De Mixto a Impropia</h3>
+                    <p>Transforma un número mixto en su fracción impropia correspondiente.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- JUEGOS 1 AL 8 ORIGINALES -->
+        <div id="game-juego-1" class="game-view">
+            <div id="menu-juego-1" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Identifica la Fracción</h1>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego1.iniciar(1)">Nivel 1: Hasta 10 partes</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego1.iniciar(2)">Nivel 2: Hasta 20 partes</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego1.iniciar(3)">Nivel 3: Impropias (Mezcla)</button>
+            </div>
+            <div id="juego-1-content" class="frac-container" style="display:none;">
+                <div id="instruccion-1" class="instruccion-global">Cargando...</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion">
+                        <div id="canvas-contenedor"><canvas id="dibujoFraccion1" width="500" height="230"></canvas></div>
+                        <div class="fraccion-display">
+                            <div id="num-display1" class="incognita">?</div>
+                            <div class="linea-f"></div>
+                            <div id="den-display1" class="incognita">?</div>
+                        </div>
+                    </div>
+                    <div class="zona-opciones">
+                        <div id="grid-numeros1" class="grid-numeros"></div>
+                        <button class="btn-nivel-sub" style="background:#475569; margin-top:15px; font-size:0.9rem;" onclick="Juego1.volverMenuSub()">🏠 Niveles</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-juego-2" class="game-view">
+            <div id="menu-juego-2" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Nombra la Fracción</h1>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego2.iniciar(1)">Nivel 1: Medios a Quintos</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego2.iniciar(2)">Nivel 2: Sextos a Décimos</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego2.iniciar(3)">Nivel 3: Onceavos a Veinteavos</button>
+            </div>
+            <div id="juego-2-content" class="frac-container" style="display:none;">
+                <div id="instruccion-2" class="instruccion-global">Cargando...</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion">
+                        <div id="display-fraccion2" class="contenedor-fraccion-grande"></div>
+                        <div id="nombre-acumulado2" style="margin-top:20px; font-size:1.4rem; font-weight:bold; color:#11998e; text-align:center;"></div>
+                    </div>
+                    <div class="zona-opciones">
+                        <div id="lista-opciones2" class="grid-opciones"></div>
+                        <button class="btn-nivel-sub" style="background:#475569; margin-top:15px; font-size:0.9rem;" onclick="Juego2.volverMenuSub()">🏠 Niveles</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-juego-3" class="game-view">
+            <div id="menu-juego-3" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Nombra la Fracción II</h1>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego3.iniciar(1)">Nivel 1: Medios a Décimos</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego3.iniciar(2)">Nivel 2: Medios a Veinteavos</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego3.iniciar(3)">Nivel 3: Fracciones Mayores (7/5, 8/3...)</button>
+            </div>
+            <div id="juego-3-content" class="frac-container" style="display:none;">
+                <div id="instruccion-3" class="instruccion-global">Cargando...</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion">
+                        <div id="display-fraccion3" class="contenedor-fraccion-grande"></div>
+                        <div id="nombre-acumulado3" style="margin-top:20px; font-size:1.4rem; font-weight:bold; color:#11998e; text-align:center;"></div>
+                    </div>
+                    <div class="zona-opciones">
+                        <div id="lista-opciones3" class="grid-opciones"></div>
+                        <button class="btn-nivel-sub" style="background:#475569; margin-top:15px; font-size:0.9rem;" onclick="Juego3.volverMenuSub()">🏠 Niveles</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-juego-4" class="game-view">
+            <div id="menu-juego-4" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Del Dibujo al Nombre</h1>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego4.iniciar(1)">Nivel 1: Hasta Décimos</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego4.iniciar(2)">Nivel 2: Hasta Veinteavos</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego4.iniciar(3)">Nivel 3: Propias e Impropias</button>
+            </div>
+            <div id="juego-4-content" class="frac-container" style="display:none;">
+                <div id="instruccion-4" class="instruccion-global">Cargando...</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion">
+                        <div id="canvas-contenedor">
+                            <canvas id="canv4_1" width="180" height="180"></canvas>
+                            <canvas id="canv4_2" width="180" height="180" style="display:none;"></canvas>
+                        </div>
+                        <div class="fraccion-display" style="font-size:1.8rem;">
+                            <div id="num-display4" class="incognita" style="min-width:45px;">?</div>
+                            <div class="linea-f" style="width:40px; height:4px;"></div>
+                            <div id="den-display4" class="incognita" style="min-width:45px;">?</div>
+                        </div>
+                        <div id="nombre-acumulado4" style="font-size: 1.1rem; font-weight: bold; color: #43a047; min-height: 1.5em; text-align: center; margin-top:10px;"></div>
+                    </div>
+                    <div class="zona-opciones">
+                        <div id="lista-opciones4" class="grid-opciones"></div>
+                        <button class="btn-nivel-sub" style="background:#475569; margin-top:15px; font-size:0.9rem;" onclick="Juego4.volverMenuSub()">🏠 Niveles</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-juego-5" class="game-view">
+            <div id="menu-juego-5" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Números Mixtos Visual</h1>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego5.iniciar(1)">Nivel 1: Hasta 2 enteros</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego5.iniciar(2)">Nivel 2: Hasta 3 enteros</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego5.iniciar(3)">Nivel 3: Hasta 4 enteros</button>
+            </div>
+            <div id="juego-5-content" class="frac-container" style="display:none;">
+                <div id="instruccion-5" class="instruccion-global">Cargando...</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion">
+                        <div id="canvas-contenedor5"></div>
+                        <div class="mixto-display">
+                            <div id="entero-display5" class="entero-num">?</div>
+                            <div class="fraccion-num">
+                                <div id="num-display5" class="incognita">?</div>
+                                <div class="linea-f"></div>
+                                <div id="den-display5" class="incognita">?</div>
+                            </div>
+                        </div>
+                        <div id="nombre-acumulado5" class="nombre-acumulado-box">...</div>
+                    </div>
+                    <div class="zona-opciones">
+                        <div id="lista-opciones5" class="grid-opciones"></div>
+                        <button class="btn-nivel-sub" style="background:#475569; margin-top:15px; font-size:0.9rem;" onclick="Juego5.volverMenuSub()">🏠 Niveles</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-juego-6" class="game-view">
+            <div id="menu-juego-6" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Compara Fracciones</h1>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego6.iniciar(1)">Nivel 1: Igual Denominador</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego6.iniciar(2)">Nivel 2: Igual Numerador</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego6.iniciar(3)">Nivel 3: Mezcla con Dibujo</button>
+                <button class="btn-nivel-sub" style="background:#8e24aa" onclick="Juego6.iniciar(4)">Nivel 4: Mezcla SIN Dibujo</button>
+            </div>
+            <div id="juego-6-content" class="frac-container" style="display:none;">
+                <div id="instruccion-6" class="instruccion-global">Cargando...</div>
+                <div class="contenido-juego">
+                    <div class="zona-comparacion">
+                        <div class="visual-container">
+                            <div class="canvas-box">
+                                <div id="visualA6"></div>
+                                <div class="fraccion-display">
+                                    <div id="numA6">0</div>
+                                    <div class="linea-f"></div>
+                                    <div id="denA6">0</div>
+                                </div>
+                            </div>
+                            <div id="simbolo-pregunta6" class="simbolo-pregunta">?</div>
+                            <div class="canvas-box">
+                                <div id="visualB6"></div>
+                                <div class="fraccion-display">
+                                    <div id="numB6">0</div>
+                                    <div class="linea-f"></div>
+                                    <div id="denB6">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="zona-opciones" style="gap:15px;">
+                        <button class="btn-simbolo" onclick="Juego6.validar('<')">&lt;</button>
+                        <button class="btn-simbolo" onclick="Juego6.validar('=')">=</button>
+                        <button class="btn-simbolo" onclick="Juego6.validar('>')">&gt;</button>
+                        <button class="btn-nivel-sub" style="background:#475569; margin-top:15px; font-size:0.9rem;" onclick="Juego6.volverMenuSub()">🏠 Niveles</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-juego-7" class="game-view">
+            <div id="menu-juego-7" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Fracción vs Unidad (1)</h1>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego7.iniciar(1)">Nivel 1: Con Dibujos</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego7.iniciar(2)">Nivel 2: Sin Dibujos</button>
+            </div>
+            <div id="juego-7-content" class="frac-container" style="display:none;">
+                <div id="instruccion-7" class="instruccion-global">¿Es la fracción mayor, menor o igual a 1?</div>
+                <div class="contenido-juego">
+                    <div class="zona-comparacion">
+                        <div class="visual-container">
+                            <div class="canvas-box">
+                                <div id="visualA7" class="canvas-wrapper"></div>
+                                <div class="fraccion-display">
+                                    <div id="numA7">0</div>
+                                    <div class="linea-f"></div>
+                                    <div id="denA7">0</div>
+                                </div>
+                            </div>
+                            <div id="simbolo-pregunta7" class="simbolo-pregunta">?</div>
+                            <div class="canvas-box">
+                                <div id="visualB7" class="canvas-wrapper"></div>
+                                <div class="unidad-display">1</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="zona-opciones" style="gap:15px;">
+                        <button class="btn-simbolo" onclick="Juego7.validar('<')">&lt;</button>
+                        <button class="btn-simbolo" onclick="Juego7.validar('=')">=</button>
+                        <button class="btn-simbolo" onclick="Juego7.validar('>')">&gt;</button>
+                        <button class="btn-nivel-sub" style="background:#475569; margin-top:15px; font-size:0.9rem;" onclick="Juego7.volverMenuSub()">🏠 Niveles</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-juego-8" class="game-view">
+            <div id="menu-juego-8" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Fracción de un Número</h1>
+                <p style="text-align:center; color:#94a3b8; margin-bottom:15px;">Multiplica por el de arriba y divide por el de abajo</p>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego8.iniciar(1)">Nivel 1: Tablas sencillas</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego8.iniciar(2)">Nivel 2: Tablas hasta el 10</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego8.iniciar(3)">Nivel 3: Números grandes</button>
+            </div>
+            <div id="juego-8-content" class="frac-container" style="display:none;">
+                <div id="instruccion-8" class="instruccion-global">Cargando...</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion">
+                        <div id="tablero8" class="contenedor-operacion"></div>
+                    </div>
+                    <div class="zona-teclado">
+                        <div class="teclado">
+                            <button class="tecla" onclick="Juego8.entrada(1)">1</button>
+                            <button class="tecla" onclick="Juego8.entrada(2)">2</button>
+                            <button class="tecla" onclick="Juego8.entrada(3)">3</button>
+                            <button class="tecla" onclick="Juego8.entrada(4)">4</button>
+                            <button class="tecla" onclick="Juego8.entrada(5)">5</button>
+                            <button class="tecla" onclick="Juego8.entrada(6)">6</button>
+                            <button class="tecla" onclick="Juego8.entrada(7)">7</button>
+                            <button class="tecla" onclick="Juego8.entrada(8)">8</button>
+                            <button class="tecla" onclick="Juego8.entrada(9)">9</button>
+                            <button class="tecla tecla-accion" onclick="Juego8.borrar()">C</button>
+                            <button class="tecla" onclick="Juego8.entrada(0)">0</button>
+                            <button class="tecla" style="background:#eee" onclick="Juego8.volverMenuSub()">🏠</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NUEVOS JUEGOS INTEGRADOS (9 AL 12) -->
+
+        <!-- JUEGO 9: FRACCIONES EQUIVALENTES -->
+        <div id="game-juego-9" class="game-view">
+            <div id="menu-juego-9" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Fracciones Equivalentes</h1>
+                <p style="text-align:center; color:#94a3b8; margin-bottom:15px;">Calcula el numerador que falta</p>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego9.iniciar(1)">Nivel 1: Multiplicadores bajos (x2, x3)</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego9.iniciar(2)">Nivel 2: Multiplicadores medios (x4-x6)</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego9.iniciar(3)">Nivel 3: Multiplicadores altos (hasta x10)</button>
+            </div>
+            <div id="juego-9-content" class="frac-container" style="display:none;">
+                <div id="instruccion-9" class="instruccion-global">¿Qué número falta para que sean equivalentes?</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion">
+                        <div id="tablero9" class="contenedor-fracciones"></div>
+                    </div>
+                    <div class="zona-teclado">
+                        <div class="teclado">
+                            <button class="tecla" onclick="Juego9.entrada(1)">1</button>
+                            <button class="tecla" onclick="Juego9.entrada(2)">2</button>
+                            <button class="tecla" onclick="Juego9.entrada(3)">3</button>
+                            <button class="tecla" onclick="Juego9.entrada(4)">4</button>
+                            <button class="tecla" onclick="Juego9.entrada(5)">5</button>
+                            <button class="tecla" onclick="Juego9.entrada(6)">6</button>
+                            <button class="tecla" onclick="Juego9.entrada(7)">7</button>
+                            <button class="tecla" onclick="Juego9.entrada(8)">8</button>
+                            <button class="tecla" onclick="Juego9.entrada(9)">9</button>
+                            <button class="tecla tecla-accion" onclick="Juego9.borrar()">C</button>
+                            <button class="tecla" onclick="Juego9.entrada(0)">0</button>
+                            <button class="tecla" style="background:#eee" onclick="Juego9.volverMenuSub()">🏠</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JUEGO 10: IDENTIFICA EL NÚMERO MIXTO -->
+        <div id="game-juego-10" class="game-view">
+            <div id="menu-juego-10" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Identifica el Número Mixto</h1>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego10.iniciar(1)">Nivel 1: Sencillo</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego10.iniciar(2)">Nivel 2: Intermedio</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego10.iniciar(3)">Nivel 3: Avanzado</button>
+            </div>
+            <div id="juego-10-content" class="frac-container" style="display:none;">
+                <div id="instruccion-10" class="instruccion-global">¿Cuántas figuras enteras ves?</div>
+                <div class="contenido-juego">
+                    <div class="zona-visual">
+                        <canvas id="canvas-dibujo10" width="500" height="180"></canvas>
+                        <div class="resultado-container" style="margin-top:15px;">
+                            <div id="box10-e" class="input-box box-entero" onclick="Juego10.setFocus('e')"></div>
+                            <div class="fraccion" style="gap:5px;">
+                                <div id="box10-n" class="input-box box-frac" onclick="Juego10.setFocus('n')"></div>
+                                <div class="linea-fraccion" style="width:100%;"></div>
+                                <div id="box10-d" class="input-box box-frac" onclick="Juego10.setFocus('d')"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="zona-teclado">
+                        <div class="teclado">
+                            <button class="tecla" onclick="Juego10.addNum('7')">7</button>
+                            <button class="tecla" onclick="Juego10.addNum('8')">8</button>
+                            <button class="tecla" onclick="Juego10.addNum('9')">9</button>
+                            <button class="tecla" onclick="Juego10.addNum('4')">4</button>
+                            <button class="tecla" onclick="Juego10.addNum('5')">5</button>
+                            <button class="tecla" onclick="Juego10.addNum('6')">6</button>
+                            <button class="tecla" onclick="Juego10.addNum('1')">1</button>
+                            <button class="tecla" onclick="Juego10.addNum('2')">2</button>
+                            <button class="tecla" onclick="Juego10.addNum('3')">3</button>
+                            <button class="tecla" style="grid-column: span 2" onclick="Juego10.addNum('0')">0</button>
+                            <button class="tecla tecla-accion" onclick="Juego10.borrar()">⌫</button>
+                            <button class="tecla tecla-enviar" onclick="Juego10.comprobar()">COMPROBAR</button>
+                            <button class="tecla tecla-enviar" style="background:#eee; color:#333; font-size:1rem;" onclick="Juego10.volverMenuSub()">🏠 Menú</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JUEGO 11: TUTOR DE NÚMEROS MIXTOS -->
+        <div id="game-juego-11" class="game-view">
+            <div id="menu-juego-11" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Tutor de Números Mixtos</h1>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego11.iniciar(1)">Nivel 1: Básico</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego11.iniciar(2)">Nivel 2: Intermedio</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego11.iniciar(3)">Nivel 3: Experto</button>
+            </div>
+            <div id="juego-11-content" class="frac-container" style="display:none;">
+                <div id="instruccion-11" class="instruccion-global">¿Cuántas veces cabe el denominador en el numerador?</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion">
+                        <div class="fraccion-display" style="margin-bottom:20px;">
+                            <div id="val-num11" style="font-size:3rem; font-weight:bold;">?</div>
+                            <div class="linea-f"></div>
+                            <div id="val-den11" style="font-size:3rem; font-weight:bold;">?</div>
+                        </div>
+                        <div class="resultado-container">
+                            <div id="box11-e" class="input-box box-entero" onclick="Juego11.setFocus('e')"></div>
+                            <div class="fraccion" style="gap:5px;">
+                                <div id="box11-n" class="input-box box-frac" onclick="Juego11.setFocus('n')"></div>
+                                <div class="linea-fraccion" style="width:100%;"></div>
+                                <div id="box11-d" class="input-box box-frac" onclick="Juego11.setFocus('d')"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="zona-teclado">
+                        <div class="teclado">
+                            <button class="tecla" onclick="Juego11.addNum('7')">7</button>
+                            <button class="tecla" onclick="Juego11.addNum('8')">8</button>
+                            <button class="tecla" onclick="Juego11.addNum('9')">9</button>
+                            <button class="tecla" onclick="Juego11.addNum('4')">4</button>
+                            <button class="tecla" onclick="Juego11.addNum('5')">5</button>
+                            <button class="tecla" onclick="Juego11.addNum('6')">6</button>
+                            <button class="tecla" onclick="Juego11.addNum('1')">1</button>
+                            <button class="tecla" onclick="Juego11.addNum('2')">2</button>
+                            <button class="tecla" onclick="Juego11.addNum('3')">3</button>
+                            <button class="tecla" style="grid-column: span 2" onclick="Juego11.addNum('0')">0</button>
+                            <button class="tecla tecla-accion" onclick="Juego11.borrar()">⌫</button>
+                            <button class="tecla tecla-enviar" onclick="Juego11.comprobar()">COMPROBAR</button>
+                            <button class="tecla tecla-enviar" style="background:#eee; color:#333; font-size:1rem;" onclick="Juego11.volverMenuSub()">🏠 Menú</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JUEGO 12: DE MIXTO A FRACCIÓN IMPROPIA -->
+        <div id="game-juego-12" class="game-view">
+            <div id="menu-juego-12" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">De Mixto a Fracción</h1>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego12.iniciar(1)">Nivel 1: Básico</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego12.iniciar(2)">Nivel 2: Avanzado</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego12.iniciar(3)">Nivel 3: Completo</button>
+            </div>
+            <div id="juego-12-content" class="frac-container" style="display:none;">
+                <div id="instruccion-12" class="instruccion-global">¡Calcula el numerador y el denominador!</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion">
+                        <div class="mixto-display" style="margin-bottom:20px;">
+                            <div id="val-entero12" style="font-size:3.5rem; font-weight:bold;">?</div>
+                            <div class="fraccion">
+                                <div id="val-num12" style="font-size:2rem; font-weight:bold;">?</div>
+                                <div class="linea-fraccion" style="width:40px;"></div>
+                                <div id="val-den12" style="font-size:2rem; font-weight:bold;">?</div>
+                            </div>
+                        </div>
+                        <div style="font-size:2rem; margin-bottom:10px; color:#666;">=</div>
+                        <div class="resultado-container">
+                            <div class="fraccion">
+                                <div id="box12-n" class="input-box box-grande" onclick="Juego12.setFocus('n')"></div>
+                                <div class="linea-fraccion" style="width:100px;"></div>
+                                <div id="box12-d" class="input-box box-grande" onclick="Juego12.setFocus('d')"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="zona-teclado">
+                        <div class="teclado">
+                            <button class="tecla" onclick="Juego12.addNum('7')">7</button>
+                            <button class="tecla" onclick="Juego12.addNum('8')">8</button>
+                            <button class="tecla" onclick="Juego12.addNum('9')">9</button>
+                            <button class="tecla" onclick="Juego12.addNum('4')">4</button>
+                            <button class="tecla" onclick="Juego12.addNum('5')">5</button>
+                            <button class="tecla" onclick="Juego12.addNum('6')">6</button>
+                            <button class="tecla" onclick="Juego12.addNum('1')">1</button>
+                            <button class="tecla" onclick="Juego12.addNum('2')">2</button>
+                            <button class="tecla" onclick="Juego12.addNum('3')">3</button>
+                            <button class="tecla" style="grid-column: span 2" onclick="Juego12.addNum('0')">0</button>
+                            <button class="tecla tecla-accion" onclick="Juego12.borrar()">⌫</button>
+                            <button class="tecla tecla-enviar" onclick="Juego12.comprobar()">COMPROBAR</button>
+                            <button class="tecla tecla-enviar" style="background:#eee; color:#333; font-size:1rem;" onclick="Juego12.volverMenuSub()">🏠 Menú</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL GLOBAL DE VICTORIA -->
+        <div id="modal-victoria" class="modal-overlay">
+            <h2 id="modal-titulo" style="font-size: 2rem; color: #4CAF50; margin-bottom: 10px;">¡Excelente! 🌟</h2>
+            <div id="modal-contenido"></div>
+            <div id="modal-subtexto" style="margin: 15px 0; font-size: 1.1rem; color: #11998e;"></div>
+            <button id="modal-btn-siguiente" class="btn-nivel-sub" style="background:#43a047; max-width: 250px;">Siguiente reto</button>
+        </div>
+
+    </div>
+
+    <script>
+        /* ==========================================================================
+           SISTEMA DE AUDIO Y NAVEGACIÓN GLOBAL
+           ========================================================================== */
+        let audioCtx = null;
+        function playSound(frec = 800, tipo = 'sine') {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = tipo; osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.frequency.setValueAtTime(frec, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            } catch(e){}
+        }
+
+        function playSuccessSound() {
+            setTimeout(() => playSound(523.25), 0);
+            setTimeout(() => playSound(659.25), 100);
+            setTimeout(() => playSound(783.99), 200);
+        }
+
+        function showModal(titulo, contenidoHTML, subtexto, funcionSiguiente) {
+            document.getElementById('modal-titulo').textContent = titulo;
+            document.getElementById('modal-contenido').innerHTML = contenidoHTML;
+            document.getElementById('modal-subtexto').innerHTML = subtexto;
+            const btn = document.getElementById('modal-btn-siguiente');
+            btn.onclick = () => {
+                document.getElementById('modal-victoria').classList.remove('show');
+                if (funcionSiguiente) funcionSiguiente();
+            };
+            document.getElementById('modal-victoria').classList.add('show');
+        }
+
+        function hideAllViews() {
+            document.querySelectorAll('.game-view').forEach(view => view.classList.remove('active'));
+            document.getElementById('modal-victoria').classList.remove('show');
+        }
+
+        function showMainMenu() {
+            hideAllViews();
+            document.getElementById('view-main-menu').classList.add('active');
+            document.getElementById('app-title-text').textContent = 'AprendeFracciones Pro';
+        }
+
+        function openGame(gameId) {
+            hideAllViews();
+            const targetView = document.getElementById(gameId);
+            if (targetView) targetView.classList.add('active');
+        }
+
+        /* ==========================================================================
+           LÓGICA DE JUEGOS 1 AL 8
+           ========================================================================== */
+        const Juego1 = {
+            totalPartes: 0, partesSombreadas: 0, pasoActual: 1, nivelActual: 1, canvas: null, ctx: null,
+            volverMenuSub() {
+                document.getElementById('juego-1-content').style.display = 'none';
+                document.getElementById('menu-juego-1').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+            },
+            iniciar(nivel) {
+                this.nivelActual = nivel; this.pasoActual = 1;
+                document.getElementById('menu-juego-1').style.display = 'none';
+                document.getElementById('juego-1-content').style.display = 'flex';
+                this.canvas = document.getElementById('dibujoFraccion1'); this.ctx = this.canvas.getContext('2d');
+                let maxBotones;
+                if (nivel === 1) {
+                    this.totalPartes = Math.floor(Math.random() * 9) + 2;
+                    this.partesSombreadas = Math.floor(Math.random() * (this.totalPartes - 1)) + 1; maxBotones = 10;
+                } else if (nivel === 2) {
+                    this.totalPartes = Math.floor(Math.random() * 11) + 10;
+                    this.partesSombreadas = Math.floor(Math.random() * (this.totalPartes - 1)) + 1; maxBotones = 20;
+                } else {
+                    this.totalPartes = Math.floor(Math.random() * 8) + 2;
+                    this.partesSombreadas = Math.floor(Math.random() * (this.totalPartes * 2 - 1)) + 1;
+                    maxBotones = Math.max(this.partesSombreadas, this.totalPartes, 15);
+                }
+                this.resetInterfaz(); this.dibujar(); this.generarBotones(maxBotones);
+            },
+            resetInterfaz() {
+                document.getElementById('num-display1').textContent = "?"; document.getElementById('num-display1').className = "incognita";
+                document.getElementById('den-display1').textContent = "?"; document.getElementById('den-display1').className = "incognita";
+                this.actualizarInstruccion();
+            },
+            actualizarInstruccion() {
+                document.getElementById('instruccion-1').textContent = this.pasoActual === 1 ?
+                    "Paso 1: ¿Cuántas partes verdes hay en TOTAL? (Numerador)" :
+                    "Paso 2: ¿En cuántas partes se divide CADA círculo? (Denominador)";
+            },
+            dibujar() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                const numCirculos = Math.ceil(this.partesSombreadas / this.totalPartes);
+                const circulosADibujar = Math.max(numCirculos, 1);
+                const radio = 65, espaciado = 170;
+                const inicioX = (this.canvas.width - (circulosADibujar - 1) * espaciado) / 2;
+                const centroY = this.canvas.height / 2;
+                let partesDibujadas = 0;
+                for (let c = 0; c < circulosADibujar; c++) {
+                    const centroX = inicioX + (c * espaciado);
+                    const anguloPaso = (2 * Math.PI) / this.totalPartes;
+                    for (let i = 0; i < this.totalPartes; i++) {
+                        this.ctx.beginPath(); this.ctx.moveTo(centroX, centroY);
+                        this.ctx.arc(centroX, centroY, radio, i * anguloPaso - Math.PI/2, (i + 1) * anguloPaso - Math.PI/2);
+                        this.ctx.closePath();
+                        this.ctx.fillStyle = partesDibujadas < this.partesSombreadas ? "#38ef7d" : "#ffffff";
+                        this.ctx.fill(); this.ctx.strokeStyle = "#333"; this.ctx.lineWidth = 2; this.ctx.stroke();
+                        partesDibujadas++;
+                    }
+                }
+            },
+            generarBotones(max) {
+                const contenedor = document.getElementById('grid-numeros1'); contenedor.innerHTML = "";
+                for (let i = 1; i <= max; i++) {
+                    const btn = document.createElement('button'); btn.className = 'btn-num'; btn.textContent = i;
+                    btn.onclick = () => this.validar(i, btn); contenedor.appendChild(btn);
+                }
+            },
+            validar(valor, btn) {
+                if (this.pasoActual === 1) {
+                    if (valor === this.partesSombreadas) {
+                        playSound(800); btn.classList.add('correcta');
+                        document.getElementById('num-display1').textContent = valor; document.getElementById('num-display1').className = "lleno";
+                        setTimeout(() => { this.pasoActual = 2; this.actualizarInstruccion(); btn.classList.remove('correcta'); }, 400);
+                    } else { this.error(btn); }
+                } else {
+                    if (valor === this.totalPartes) {
+                        playSound(1000); btn.classList.add('correcta');
+                        document.getElementById('den-display1').textContent = valor; document.getElementById('den-display1').className = "lleno";
+                        setTimeout(() => {
+                            showModal("¡Excelente trabajo!", `<p>Has formado la fracción <b>${this.partesSombreadas}/${this.totalPartes}</b></p>`, "", () => this.iniciar(this.nivelActual));
+                        }, 500);
+                    } else { this.error(btn); }
+                }
+            },
+            error(btn) { playSound(200, 'sawtooth'); btn.classList.add('incorrecta'); setTimeout(() => btn.classList.remove('incorrecta'), 400); }
+        };
+
+        const nombresNum = ["", "un", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce", "trece", "catorce", "quince"];
+        const nombresDenSingular = ["", "", "medio", "tercio", "cuarto", "quinto", "sexto", "séptimo", "octavo", "noveno", "décimo", "onceavo", "doceavo", "treceavo", "catorceavo", "quinceavo", "dieciséisavo", "diecisieteavo", "dieciochoavo", "diecinueveavo", "veinteavo"];
+
+        function getNombreFraccion(num, den) {
+            let n = nombresNum[num] || num.toString();
+            let d = den <= 20 ? nombresDenSingular[den] : den + "avo";
+            if (num > 1) d += (den <= 10) ? "s" : "s";
+            return `${n} ${d}`;
+        }
+
+        const Juego2 = {
+            num: 0, den: 0, pasoActual: 1, nivelActual: 1,
+            volverMenuSub() {
+                document.getElementById('juego-2-content').style.display = 'none';
+                document.getElementById('menu-juego-2').style.display = 'flex';
+            },
+            iniciar(nivel) {
+                this.nivelActual = nivel; this.pasoActual = 1;
+                document.getElementById('menu-juego-2').style.display = 'none';
+                document.getElementById('juego-2-content').style.display = 'flex';
+                if (nivel === 1) this.den = Math.floor(Math.random() * 4) + 2;
+                else if (nivel === 2) this.den = Math.floor(Math.random() * 5) + 6;
+                else this.den = Math.floor(Math.random() * 10) + 11;
+                this.num = Math.floor(Math.random() * (this.den - 1)) + 1;
+                this.render();
+            },
+            render() {
+                document.getElementById('display-fraccion2').innerHTML = `
+                    <div class="fraccion">
+                        <div class="num-f ${this.pasoActual === 1 ? 'resaltado' : ''}">${this.num}</div>
+                        <div class="linea-fraccion"></div>
+                        <div class="den-f ${this.pasoActual === 2 ? 'resaltado' : ''}">${this.den}</div>
+                    </div>`;
+                document.getElementById('instruccion-2').textContent = this.pasoActual === 1 ? "¿Cómo se lee el NUMERADOR?" : "¿Cómo se lee el DENOMINADOR?";
+                document.getElementById('nombre-acumulado2').textContent = this.pasoActual === 2 ? nombresNum[this.num] + "..." : "";
+                this.generarOpciones();
+            },
+            generarOpciones() {
+                const container = document.getElementById('lista-opciones2'); container.innerHTML = "";
+                let opciones = [];
+                if (this.pasoActual === 1) {
+                    opciones = [nombresNum[this.num]];
+                    while (opciones.length < 4) {
+                        let r = nombresNum[Math.floor(Math.random() * 10) + 1];
+                        if (!opciones.includes(r)) opciones.push(r);
+                    }
+                } else {
+                    let correcto = nombresDenSingular[this.den] + (this.num > 1 ? "s" : "");
+                    opciones = [correcto];
+                    while (opciones.length < 4) {
+                        let rDen = Math.floor(Math.random() * 15) + 2;
+                        let r = nombresDenSingular[rDen] + (this.num > 1 ? "s" : "");
+                        if (!opciones.includes(r)) opciones.push(r);
+                    }
+                }
+                opciones.sort(() => Math.random() - 0.5);
+                opciones.forEach(opt => {
+                    const btn = document.createElement('button'); btn.className = 'btn-opcion'; btn.textContent = opt;
+                    btn.onclick = () => this.validar(opt, btn); container.appendChild(btn);
+                });
+            },
+            validar(opt, btn) {
+                if (this.pasoActual === 1) {
+                    if (opt === nombresNum[this.num]) {
+                        playSound(800); btn.classList.add('correcta');
+                        setTimeout(() => { this.pasoActual = 2; this.render(); }, 400);
+                    } else { playSound(200, 'sawtooth'); btn.classList.add('incorrecta'); setTimeout(() => btn.classList.remove('incorrecta'), 400); }
+                } else {
+                    let correcto = nombresDenSingular[this.den] + (this.num > 1 ? "s" : "");
+                    if (opt === correcto) {
+                        playSound(1000); btn.classList.add('correcta');
+                        setTimeout(() => {
+                            showModal("¡Muy bien!", `<p>La fracción se lee: <b>${getNombreFraccion(this.num, this.den)}</b></p>`, "", () => this.iniciar(this.nivelActual));
+                        }, 500);
+                    } else { playSound(200, 'sawtooth'); btn.classList.add('incorrecta'); setTimeout(() => btn.classList.remove('incorrecta'), 400); }
+                }
+            }
+        };
+
+        const Juego3 = {
+            num: 0, den: 0, nivelActual: 1,
+            volverMenuSub() {
+                document.getElementById('juego-3-content').style.display = 'none';
+                document.getElementById('menu-juego-3').style.display = 'flex';
+            },
+            iniciar(nivel) {
+                this.nivelActual = nivel;
+                document.getElementById('menu-juego-3').style.display = 'none';
+                document.getElementById('juego-3-content').style.display = 'flex';
+                if (nivel === 1) { this.den = Math.floor(Math.random() * 9) + 2; this.num = Math.floor(Math.random() * (this.den - 1)) + 1; }
+                else if (nivel === 2) { this.den = Math.floor(Math.random() * 10) + 11; this.num = Math.floor(Math.random() * (this.den - 1)) + 1; }
+                else { this.den = Math.floor(Math.random() * 8) + 2; this.num = Math.floor(Math.random() * 8) + this.den + 1; }
+                document.getElementById('instruccion-3').textContent = "Selecciona el nombre correcto de la fracción";
+                document.getElementById('display-fraccion3').innerHTML = `<div class="fraccion"><div class="num-f">${this.num}</div><div class="linea-fraccion"></div><div class="den-f">${this.den}</div></div>`;
+                this.generarOpciones();
+            },
+            generarOpciones() {
+                const container = document.getElementById('lista-opciones3'); container.innerHTML = "";
+                let correcto = getNombreFraccion(this.num, this.den);
+                let opciones = [correcto];
+                while (opciones.length < 4) {
+                    let rNum = Math.floor(Math.random() * 10) + 1;
+                    let rDen = Math.floor(Math.random() * 10) + 2;
+                    let cand = getNombreFraccion(rNum, rDen);
+                    if (!opciones.includes(cand)) opciones.push(cand);
+                }
+                opciones.sort(() => Math.random() - 0.5);
+                opciones.forEach(opt => {
+                    const btn = document.createElement('button'); btn.className = 'btn-opcion'; btn.textContent = opt;
+                    btn.onclick = () => {
+                        if (opt === correcto) {
+                            playSound(800); btn.classList.add('correcta');
+                            setTimeout(() => showModal("¡Correcto!", `<p><b>${correcto}</b></p>`, "", () => this.iniciar(this.nivelActual)), 500);
+                        } else { playSound(200, 'sawtooth'); btn.classList.add('incorrecta'); setTimeout(() => btn.classList.remove('incorrecta'), 400); }
+                    };
+                    container.appendChild(btn);
+                });
+            }
+        };
+
+        const Juego4 = {
+            num: 0, den: 0, nivelActual: 1,
+            volverMenuSub() {
+                document.getElementById('juego-4-content').style.display = 'none';
+                document.getElementById('menu-juego-4').style.display = 'flex';
+            },
+            iniciar(nivel) {
+                this.nivelActual = nivel;
+                document.getElementById('menu-juego-4').style.display = 'none';
+                document.getElementById('juego-4-content').style.display = 'flex';
+                if (nivel === 1) { this.den = Math.floor(Math.random() * 9) + 2; this.num = Math.floor(Math.random() * (this.den - 1)) + 1; }
+                else if (nivel === 2) { this.den = Math.floor(Math.random() * 10) + 11; this.num = Math.floor(Math.random() * (this.den - 1)) + 1; }
+                else { this.den = Math.floor(Math.random() * 6) + 2; this.num = Math.floor(Math.random() * (this.den * 2 - 1)) + 1; }
+                document.getElementById('num-display4').textContent = this.num;
+                document.getElementById('den-display4').textContent = this.den;
+                document.getElementById('instruccion-4').textContent = "¿Cómo se lee este gráfico?";
+                this.dibujar(); this.generarOpciones();
+            },
+            dibujar() {
+                const c1 = document.getElementById('canv4_1'), ctx1 = c1.getContext('2d');
+                const c2 = document.getElementById('canv4_2'), ctx2 = c2.getContext('2d');
+                c2.style.display = this.num > this.den ? 'inline-block' : 'none';
+                this.drawCircle(ctx1, c1.width, Math.min(this.num, this.den), this.den);
+                if (this.num > this.den) this.drawCircle(ctx2, c2.width, this.num - this.den, this.den);
+            },
+            drawCircle(ctx, size, filled, total) {
+                ctx.clearRect(0, 0, size, size);
+                const cx = size/2, cy = size/2, r = size/2 - 10;
+                const step = (2 * Math.PI) / total;
+                for (let i = 0; i < total; i++) {
+                    ctx.beginPath(); ctx.moveTo(cx, cy);
+                    ctx.arc(cx, cy, r, i * step - Math.PI/2, (i + 1) * step - Math.PI/2);
+                    ctx.fillStyle = i < filled ? "#38ef7d" : "#fff";
+                    ctx.fill(); ctx.strokeStyle = "#333"; ctx.lineWidth = 2; ctx.stroke();
+                }
+            },
+            generarOpciones() {
+                const container = document.getElementById('lista-opciones4'); container.innerHTML = "";
+                let correcto = getNombreFraccion(this.num, this.den);
+                let opciones = [correcto];
+                while (opciones.length < 4) {
+                    let rNum = Math.floor(Math.random() * 10) + 1;
+                    let rDen = Math.floor(Math.random() * 10) + 2;
+                    let cand = getNombreFraccion(rNum, rDen);
+                    if (!opciones.includes(cand)) opciones.push(cand);
+                }
+                opciones.sort(() => Math.random() - 0.5);
+                opciones.forEach(opt => {
+                    const btn = document.createElement('button'); btn.className = 'btn-opcion'; btn.textContent = opt;
+                    btn.onclick = () => {
+                        if (opt === correcto) {
+                            playSound(800); btn.classList.add('correcta');
+                            setTimeout(() => showModal("¡Excelente!", `<p><b>${correcto}</b></p>`, "", () => this.iniciar(this.nivelActual)), 500);
+                        } else { playSound(200, 'sawtooth'); btn.classList.add('incorrecta'); setTimeout(() => btn.classList.remove('incorrecta'), 400); }
+                    };
+                    container.appendChild(btn);
+                });
+            }
+        };
+
+        const Juego5 = {
+            entero: 0, num: 0, den: 0, nivelActual: 1,
+            volverMenuSub() {
+                document.getElementById('juego-5-content').style.display = 'none';
+                document.getElementById('menu-juego-5').style.display = 'flex';
+            },
+            iniciar(nivel) {
+                this.nivelActual = nivel;
+                document.getElementById('menu-juego-5').style.display = 'none';
+                document.getElementById('juego-5-content').style.display = 'flex';
+                this.entero = Math.floor(Math.random() * (nivel === 1 ? 2 : nivel === 2 ? 3 : 4)) + 1;
+                this.den = Math.floor(Math.random() * 5) + 2;
+                this.num = Math.floor(Math.random() * (this.den - 1)) + 1;
+                document.getElementById('entero-display5').textContent = this.entero;
+                document.getElementById('num-display5').textContent = this.num;
+                document.getElementById('den-display5').textContent = this.den;
+                document.getElementById('instruccion-5').textContent = "¿Cómo se lee este número mixto?";
+                this.renderCanvas(); this.generarOpciones();
+            },
+            renderCanvas() {
+                const container = document.getElementById('canvas-contenedor5'); container.innerHTML = "";
+                const totalCircles = this.entero + 1;
+                for (let c = 0; c < totalCircles; c++) {
+                    const canv = document.createElement('canvas'); canv.width = 120; canv.height = 120;
+                    const ctx = canv.getContext('2d');
+                    const fill = c < this.entero ? this.den : this.num;
+                    const step = (2 * Math.PI) / this.den;
+                    for (let i = 0; i < this.den; i++) {
+                        ctx.beginPath(); ctx.moveTo(60, 60);
+                        ctx.arc(60, 60, 50, i * step - Math.PI/2, (i + 1) * step - Math.PI/2);
+                        ctx.fillStyle = i < fill ? "#fbbf24" : "#fff";
+                        ctx.fill(); ctx.strokeStyle = "#333"; ctx.lineWidth = 2; ctx.stroke();
+                    }
+                    container.appendChild(canv);
+                }
+            },
+            generarOpciones() {
+                const container = document.getElementById('lista-opciones5'); container.innerHTML = "";
+                let eTexto = this.entero === 1 ? "un entero" : nombresNum[this.entero] + " enteros";
+                let correcto = `${eTexto} y ${getNombreFraccion(this.num, this.den)}`;
+                let opciones = [correcto];
+                while (opciones.length < 4) {
+                    let rE = Math.floor(Math.random() * 4) + 1;
+                    let rN = Math.floor(Math.random() * 4) + 1;
+                    let rD = Math.floor(Math.random() * 4) + 2;
+                    let tE = rE === 1 ? "un entero" : nombresNum[rE] + " enteros";
+                    let cand = `${tE} y ${getNombreFraccion(rN, rD)}`;
+                    if (!opciones.includes(cand)) opciones.push(cand);
+                }
+                opciones.sort(() => Math.random() - 0.5);
+                opciones.forEach(opt => {
+                    const btn = document.createElement('button'); btn.className = 'btn-opcion'; btn.textContent = opt;
+                    btn.onclick = () => {
+                        if (opt === correcto) {
+                            playSound(800); btn.classList.add('correcta');
+                            setTimeout(() => showModal("¡Excelente!", `<p><b>${correcto}</b></p>`, "", () => this.iniciar(this.nivelActual)), 500);
+                        } else { playSound(200, 'sawtooth'); btn.classList.add('incorrecta'); setTimeout(() => btn.classList.remove('incorrecta'), 400); }
+                    };
+                    container.appendChild(btn);
+                });
+            }
+        };
+
+        const Juego6 = {
+            numA: 0, denA: 0, numB: 0, denB: 0, correcto: '', nivelActual: 1,
+            volverMenuSub() {
+                document.getElementById('juego-6-content').style.display = 'none';
+                document.getElementById('menu-juego-6').style.display = 'flex';
+            },
+            iniciar(nivel) {
+                this.nivelActual = nivel;
+                document.getElementById('menu-juego-6').style.display = 'none';
+                document.getElementById('juego-6-content').style.display = 'flex';
+                if (nivel === 1) { this.denA = this.denB = Math.floor(Math.random() * 8) + 2; this.numA = Math.floor(Math.random() * (this.denA - 1)) + 1; this.numB = Math.floor(Math.random() * (this.denB - 1)) + 1; }
+                else if (nivel === 2) { this.numA = this.numB = Math.floor(Math.random() * 5) + 1; this.denA = Math.floor(Math.random() * 8) + 2; this.denB = Math.floor(Math.random() * 8) + 2; }
+                else { this.denA = Math.floor(Math.random() * 6) + 2; this.denB = Math.floor(Math.random() * 6) + 2; this.numA = Math.floor(Math.random() * (this.denA - 1)) + 1; this.numB = Math.floor(Math.random() * (this.denB - 1)) + 1; }
+                let valA = this.numA / this.denA, valB = this.numB / this.denB;
+                this.correcto = valA > valB ? '>' : valA < valB ? '<' : '=';
+                document.getElementById('numA6').textContent = this.numA; document.getElementById('denA6').textContent = this.denA;
+                document.getElementById('numB6').textContent = this.numB; document.getElementById('denB6').textContent = this.denB;
+                document.getElementById('instruccion-6').textContent = "Compara las dos fracciones";
+                this.dibujar();
+            },
+            dibujar() {
+                const vA = document.getElementById('visualA6'), vB = document.getElementById('visualB6');
+                if (this.nivelActual === 4) { vA.innerHTML = ""; vB.innerHTML = ""; return; }
+                vA.innerHTML = `<canvas id="c6A" width="120" height="120"></canvas>`;
+                vB.innerHTML = `<canvas id="c6B" width="120" height="120"></canvas>`;
+                this.drawC(document.getElementById('c6A').getContext('2d'), this.numA, this.denA);
+                this.drawC(document.getElementById('c6B').getContext('2d'), this.numB, this.denB);
+            },
+            drawC(ctx, n, d) {
+                const step = (2 * Math.PI) / d;
+                for (let i = 0; i < d; i++) {
+                    ctx.beginPath(); ctx.moveTo(60, 60); ctx.arc(60, 60, 50, i * step - Math.PI/2, (i + 1) * step - Math.PI/2);
+                    ctx.fillStyle = i < n ? "#38bdf8" : "#fff"; ctx.fill(); ctx.strokeStyle = "#333"; ctx.lineWidth = 2; ctx.stroke();
+                }
+            },
+            validar(simbolo) {
+                if (simbolo === this.correcto) {
+                    playSound(800);
+                    showModal("¡Correcto!", `<p><b>${this.numA}/${this.denA} ${this.correcto} ${this.numB}/${this.denB}</b></p>`, "", () => this.iniciar(this.nivelActual));
+                } else { playSound(200, 'sawtooth'); }
+            }
+        };
+
+        const Juego7 = {
+            num: 0, den: 0, correcto: '', nivelActual: 1,
+            volverMenuSub() {
+                document.getElementById('juego-7-content').style.display = 'none';
+                document.getElementById('menu-juego-7').style.display = 'flex';
+            },
+            iniciar(nivel) {
+                this.nivelActual = nivel;
+                document.getElementById('menu-juego-7').style.display = 'none';
+                document.getElementById('juego-7-content').style.display = 'flex';
+                this.den = Math.floor(Math.random() * 8) + 2;
+                this.num = Math.floor(Math.random() * (this.den * 2 - 1)) + 1;
+                let val = this.num / this.den;
+                this.correcto = val > 1 ? '>' : val < 1 ? '<' : '=';
+                document.getElementById('numA7').textContent = this.num; document.getElementById('denA7').textContent = this.den;
+                this.dibujar();
+            },
+            dibujar() {
+                const vA = document.getElementById('visualA7'); vA.innerHTML = "";
+                if (this.nivelActual === 2) return;
+                const total = Math.ceil(this.num / this.den);
+                let p = this.num;
+                for (let c = 0; c < total; c++) {
+                    const canv = document.createElement('canvas'); canv.width = 100; canv.height = 100;
+                    const ctx = canv.getContext('2d'); const fill = Math.min(p, this.den); p -= fill;
+                    const step = (2 * Math.PI) / this.den;
+                    for (let i = 0; i < this.den; i++) {
+                        ctx.beginPath(); ctx.moveTo(50, 50); ctx.arc(50, 50, 40, i * step - Math.PI/2, (i + 1) * step - Math.PI/2);
+                        ctx.fillStyle = i < fill ? "#a29bfe" : "#fff"; ctx.fill(); ctx.strokeStyle = "#333"; ctx.lineWidth = 2; ctx.stroke();
+                    }
+                    vA.appendChild(canv);
+                }
+            },
+            validar(sim) {
+                if (sim === this.correcto) {
+                    playSound(800);
+                    showModal("¡Muy bien!", `<p><b>${this.num}/${this.den} ${this.correcto} 1</b></p>`, "", () => this.iniciar(this.nivelActual));
+                } else { playSound(200, 'sawtooth'); }
+            }
+        };
+
+        const Juego8 = {
+            num: 0, den: 0, entero: 0, resultado: 0, inputActual: "", nivelActual: 1,
+            volverMenuSub() {
+                document.getElementById('juego-8-content').style.display = 'none';
+                document.getElementById('menu-juego-8').style.display = 'flex';
+            },
+            iniciar(nivel) {
+                this.nivelActual = nivel; this.inputActual = "";
+                document.getElementById('menu-juego-8').style.display = 'none';
+                document.getElementById('juego-8-content').style.display = 'flex';
+                this.den = Math.floor(Math.random() * 5) + 2;
+                let mult = Math.floor(Math.random() * (nivel === 1 ? 5 : nivel === 2 ? 10 : 15)) + 1;
+                this.entero = this.den * mult;
+                this.num = Math.floor(Math.random() * (this.den - 1)) + 1;
+                this.resultado = (this.entero / this.den) * this.num;
+                document.getElementById('instruccion-8').textContent = `Calcula ${this.num}/${this.den} de ${this.entero}`;
+                this.render();
+            },
+            render() {
+                document.getElementById('tablero8').innerHTML = `
+                    <div class="fraccion"><div class="num-f">${this.num}</div><div class="linea-fraccion"></div><div class="den-f">${this.den}</div></div>
+                    <div>de ${this.entero} = </div>
+                    <div id="celda8" class="celda">${this.inputActual}</div>`;
+            },
+            entrada(n) {
+                this.inputActual += n.toString();
+                document.getElementById('celda8').textContent = this.inputActual;
+                if (parseInt(this.inputActual) === this.resultado) {
+                    playSound(800); document.getElementById('celda8').classList.add('correcta');
+                    setTimeout(() => showModal("¡Excelente!", `<p>El resultado es <b>${this.resultado}</b></p>`, "", () => this.iniciar(this.nivelActual)), 500);
+                } else if (this.inputActual.length >= this.resultado.toString().length) {
+                    playSound(200, 'sawtooth'); document.getElementById('celda8').classList.add('incorrecta');
+                    setTimeout(() => { this.inputActual = ""; this.render(); }, 500);
+                }
+            },
+            borrar() { this.inputActual = ""; this.render(); }
+        };
+
+        /* ==========================================================================
+           LÓGICA DE JUEGOS INTEGRADOS (9, 10, 11, 12)
+           ========================================================================== */
+        const Juego9 = {
+            num1: 0, den1: 0, den2: 0, numCorrecto: 0, factor: 0, inputActual: "", nivelActual: 1,
+            volverMenuSub() {
+                document.getElementById('juego-9-content').style.display = 'none';
+                document.getElementById('menu-juego-9').style.display = 'flex';
+            },
+            iniciar(n) {
+                this.nivelActual = n; this.inputActual = "";
+                document.getElementById('menu-juego-9').style.display = 'none';
+                document.getElementById('juego-9-content').style.display = 'flex';
+                let conf = n === 1 ? { denMax: 6, factorMax: 3 } : n === 2 ? { denMax: 10, factorMax: 6 } : { denMax: 12, factorMax: 10 };
+                this.den1 = Math.floor(Math.random() * (conf.denMax - 2 + 1)) + 2;
+                this.num1 = Math.floor(Math.random() * (this.den1 - 1)) + 1;
+                let factorMin = (n === 1) ? 2 : (n === 2) ? 3 : 5;
+                this.factor = Math.floor(Math.random() * (conf.factorMax - factorMin + 1)) + factorMin;
+                this.den2 = this.den1 * this.factor;
+                this.numCorrecto = this.num1 * this.factor;
+                this.render();
+            },
+            render() {
+                document.getElementById('tablero9').innerHTML = `
+                    <div class="fraccion"><div class="num-f">${this.num1}</div><div class="linea-fraccion"></div><div class="den-f">${this.den1}</div></div>
+                    <div style="color:#11998e">=</div>
+                    <div class="fraccion"><div id="res-num9" class="celda">${this.inputActual}</div><div class="linea-fraccion"></div><div class="den-f">${this.den2}</div></div>`;
+            },
+            entrada(n) {
+                this.inputActual += n.toString();
+                const objetivo = this.numCorrecto.toString();
+                document.getElementById('res-num9').textContent = this.inputActual;
+                if (objetivo.startsWith(this.inputActual)) {
+                    if (this.inputActual === objetivo) {
+                        playSound(800); document.getElementById('res-num9').classList.add('correcta');
+                        setTimeout(() => showModal("¡Excelente! Son equivalentes 🌟", `<p><b>${this.num1}/${this.den1} = ${this.numCorrecto}/${this.den2}</b></p>`, `Multiplicamos arriba y abajo por ${this.factor}.`, () => this.iniciar(this.nivelActual)), 500);
+                    }
+                } else {
+                    playSound(200, 'sawtooth');
+                    const celda = document.getElementById('res-num9'); celda.classList.add('incorrecta');
+                    setTimeout(() => { this.inputActual = ""; this.render(); }, 500);
+                }
+            },
+            borrar() { this.inputActual = ""; this.render(); }
+        };
+
+        const Juego10 = {
+            qE: 0, qN: 0, qD: 0, focusActual: 'e', inputs: { e: "", n: "", d: "" }, nivelActual: 1,
+            volverMenuSub() {
+                document.getElementById('juego-10-content').style.display = 'none';
+                document.getElementById('menu-juego-10').style.display = 'flex';
+            },
+            iniciar(n) {
+                this.nivelActual = n;
+                document.getElementById('menu-juego-10').style.display = 'none';
+                document.getElementById('juego-10-content').style.display = 'flex';
+                this.generarPregunta();
+            },
+            generarPregunta() {
+                this.inputs = { e: "", n: "", d: "" }; this.setFocus('e');
+                if (this.nivelActual === 1) { this.qE = Math.floor(Math.random() * 2) + 1; this.qD = Math.floor(Math.random() * 3) + 2; }
+                else if (this.nivelActual === 2) { this.qE = Math.floor(Math.random() * 2) + 2; this.qD = Math.floor(Math.random() * 4) + 4; }
+                else { this.qE = Math.floor(Math.random() * 3) + 2; this.qD = Math.floor(Math.random() * 3) + 8; }
+                this.qN = Math.floor(Math.random() * (this.qD - 1)) + 1;
+                this.dibujar(); this.updateVisuals();
+            },
+            dibujar() {
+                const canvas = document.getElementById('canvas-dibujo10'); const ctx = canvas.getContext('2d');
+                canvas.width = 500; canvas.height = 180; ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const total = this.qE + 1; const r = 32, gap = 80;
+                const startX = (canvas.width - (total * gap)) / 2 + r;
+                for (let i = 0; i < this.qE; i++) this.drawCircle(ctx, startX + (i * gap), 90, r, this.qD, this.qD);
+                this.drawCircle(ctx, startX + (this.qE * gap), 90, r, this.qD, this.qN);
+            },
+            drawCircle(ctx, x, y, r, div, fill) {
+                const step = (2 * Math.PI) / div;
+                for (let i = 0; i < div; i++) {
+                    ctx.beginPath(); ctx.moveTo(x, y); ctx.arc(x, y, r, i * step - Math.PI/2, (i + 1) * step - Math.PI/2);
+                    ctx.fillStyle = i < fill ? "#FFC107" : "#FFFFFF"; ctx.fill(); ctx.strokeStyle = "#333"; ctx.lineWidth = 2; ctx.stroke();
+                }
+            },
+            setFocus(f) {
+                this.focusActual = f;
+                const msgs = { e: "Unidades completas (Entero)", n: "Numerador (partes pintadas)", d: "Denominador (partes totales)" };
+                document.getElementById('instruccion-10').textContent = msgs[f];
+                this.updateVisuals();
+            },
+            addNum(n) {
+                if (this.inputs[this.focusActual].length < 2) {
+                    this.inputs[this.focusActual] += n; this.updateVisuals();
+                    if (this.focusActual === 'e') { if (this.inputs.n === "") setTimeout(() => this.setFocus('n'), 150); else if (this.inputs.d === "") setTimeout(() => this.setFocus('d'), 150); }
+                    else if (this.focusActual === 'n' && this.inputs.n.length >= this.qN.toString().length) { if (this.inputs.d === "") setTimeout(() => this.setFocus('d'), 150); else if (this.inputs.e === "") setTimeout(() => this.setFocus('e'), 150); }
+                }
+            },
+            borrar() {
+                if (this.inputs[this.focusActual] === "") {
+                    if (this.focusActual === 'd') this.setFocus('n'); else if (this.focusActual === 'n') this.setFocus('e');
+                } else { this.inputs[this.focusActual] = this.inputs[this.focusActual].slice(0, -1); }
+                this.updateVisuals();
+            },
+            updateVisuals() {
+                ['e', 'n', 'd'].forEach(id => {
+                    const box = document.getElementById('box10-' + id); box.textContent = this.inputs[id];
+                    box.className = `input-box box-${id === 'e' ? 'entero' : 'frac'} ${this.focusActual === id ? 'active' : ''}`;
+                });
+            },
+            comprobar() {
+                let valE = parseInt(this.inputs.e), valN = parseInt(this.inputs.n), valD = parseInt(this.inputs.d);
+                if (valE === this.qE && valN === this.qN && valD === this.qD) {
+                    playSuccessSound();
+                    showModal("¡Muy bien! 🎯", `<p style="font-size:2.5rem; font-weight:bold;">${this.qE} <span style="font-size:1.8rem;">${this.qN}/${this.qD}</span></p>`, "", () => this.generarPregunta());
+                } else {
+                    playSound(150, 'sawtooth');
+                    if (valE !== this.qE) document.getElementById('box10-e').classList.add('incorrecta');
+                    if (valN !== this.qN) document.getElementById('box10-n').classList.add('incorrecta');
+                    if (valD !== this.qD) document.getElementById('box10-d').classList.add('incorrecta');
+                    setTimeout(() => {
+                        if (valE !== this.qE) this.inputs.e = ""; if (valN !== this.qN) this.inputs.n = ""; if (valD !== this.qD) this.inputs.d = "";
+                        document.querySelectorAll('#game-juego-10 .input-box').forEach(b => b.classList.remove('incorrecta'));
+                        if (this.inputs.e === "") this.setFocus('e'); else if (this.inputs.n === "") this.setFocus('n'); else if (this.inputs.d === "") this.setFocus('d');
+                        this.updateVisuals();
+                    }, 500);
+                }
+            }
+        };
+
+        const Juego11 = {
+            solE: 0, solN: 0, solD: 0, impropiaNum: 0, focusActual: 'e', inputs: { e: "", n: "", d: "" }, nivelActual: 1,
+            volverMenuSub() {
+                document.getElementById('juego-11-content').style.display = 'none';
+                document.getElementById('menu-juego-11').style.display = 'flex';
+            },
+            iniciar(n) {
+                this.nivelActual = n;
+                document.getElementById('menu-juego-11').style.display = 'none';
+                document.getElementById('juego-11-content').style.display = 'flex';
+                this.generarPregunta();
+            },
+            generarPregunta() {
+                this.inputs = { e: "", n: "", d: "" }; this.setFocus('e');
+                let entero, den, num;
+                if (this.nivelActual === 1 || this.nivelActual === 3) { entero = Math.floor(Math.random() * 4) + 1; den = Math.floor(Math.random() * 3) + 2; num = Math.floor(Math.random() * (den - 1)) + 1; }
+                else { entero = Math.floor(Math.random() * 6) + 2; den = Math.floor(Math.random() * 6) + 3; num = Math.floor(Math.random() * (den - 1)) + 1; }
+                this.solE = entero; this.solN = num; this.solD = den;
+                this.impropiaNum = (entero * den) + num;
+                document.getElementById('val-num11').textContent = this.impropiaNum;
+                document.getElementById('val-den11').textContent = den;
+                const boxD = document.getElementById('box11-d');
+                if (this.nivelActual < 3) { this.inputs.d = den.toString(); boxD.classList.add('locked'); } else { boxD.classList.remove('locked'); }
+                this.updateVisuals();
+            },
+            setFocus(f) {
+                if (this.nivelActual < 3 && f === 'd') return;
+                this.focusActual = f;
+                const msgs = { e: "¿Cuántas veces cabe el denominador en el numerador?", n: "Escribe el resto (lo que sobra)", d: "¿Cuál era el denominador original?" };
+                document.getElementById('instruccion-11').textContent = msgs[f];
+                this.updateVisuals();
+            },
+            addNum(n) {
+                if (this.inputs[this.focusActual].length < 2) {
+                    this.inputs[this.focusActual] += n;
+                    if (this.focusActual === 'e' && this.inputs.e.length >= this.solE.toString().length) { if (this.inputs.n === "") setTimeout(() => this.setFocus('n'), 200); else if (this.nivelActual === 3 && this.inputs.d === "") setTimeout(() => this.setFocus('d'), 200); }
+                    else if (this.focusActual === 'n' && this.inputs.n.length >= this.solN.toString().length) { if (this.nivelActual === 3 && this.inputs.d === "") setTimeout(() => this.setFocus('d'), 200); else if (this.inputs.e === "") setTimeout(() => this.setFocus('e'), 200); }
+                    this.updateVisuals();
+                }
+            },
+            borrar() {
+                if (this.inputs[this.focusActual] === "") { if (this.focusActual === 'd') this.setFocus('n'); else if (this.focusActual === 'n') this.setFocus('e'); }
+                this.inputs[this.focusActual] = this.inputs[this.focusActual].slice(0, -1);
+                this.updateVisuals();
+            },
+            updateVisuals() {
+                ['e', 'n', 'd'].forEach(id => {
+                    const box = document.getElementById('box11-' + id); box.textContent = this.inputs[id];
+                    box.className = `input-box box-${id === 'e' ? 'entero' : 'frac'} ${this.focusActual === id ? 'active' : ''} ${id === 'd' && this.nivelActual < 3 ? 'locked' : ''}`;
+                });
+            },
+            comprobar() {
+                let userE = parseInt(this.inputs.e), userN = parseInt(this.inputs.n), userD = parseInt(this.inputs.d);
+                if (userE === this.solE && userN === this.solN && userD === this.solD) {
+                    playSound(800);
+                    showModal("¡Muy bien! 🌟", `<p style="font-size:2rem; font-weight:bold;">${this.solE} <span style="font-size:1.5rem;">${this.solN}/${this.solD}</span></p>`, `Dividimos ${this.impropiaNum} entre ${this.solD}: Cociente = <b>${this.solE}</b>, Resto = <b>${this.solN}</b>`, () => this.generarPregunta());
+                } else {
+                    playSound(150, 'sawtooth');
+                    if (userE !== this.solE) document.getElementById('box11-e').classList.add('incorrecta');
+                    if (userN !== this.solN) document.getElementById('box11-n').classList.add('incorrecta');
+                    if (userD !== this.solD && this.nivelActual === 3) document.getElementById('box11-d').classList.add('incorrecta');
+                    setTimeout(() => {
+                        if (userE !== this.solE) this.inputs.e = ""; if (userN !== this.solN) this.inputs.n = ""; if (userD !== this.solD && this.nivelActual === 3) this.inputs.d = "";
+                        document.querySelectorAll('#game-juego-11 .input-box').forEach(b => b.classList.remove('incorrecta'));
+                        if (this.inputs.e === "") this.setFocus('e'); else if (this.inputs.n === "") this.setFocus('n'); else if (this.inputs.d === "" && this.nivelActual === 3) this.setFocus('d');
+                        this.updateVisuals();
+                    }, 500);
+                }
+            }
+        };
+
+        const Juego12 = {
+            qE: 0, qN: 0, qD: 0, solImpropiaNum: 0, focusActual: 'n', inputs: { n: "", d: "" }, nivelActual: 1,
+            volverMenuSub() {
+                document.getElementById('juego-12-content').style.display = 'none';
+                document.getElementById('menu-juego-12').style.display = 'flex';
+            },
+            iniciar(n) {
+                this.nivelActual = n;
+                document.getElementById('menu-juego-12').style.display = 'none';
+                document.getElementById('juego-12-content').style.display = 'flex';
+                this.generarPregunta();
+            },
+            generarPregunta() {
+                this.inputs = { n: "", d: "" }; this.setFocus('n');
+                if (this.nivelActual === 1 || this.nivelActual === 3) { this.qE = Math.floor(Math.random() * 3) + 1; this.qD = Math.floor(Math.random() * 3) + 2; this.qN = Math.floor(Math.random() * (this.qD - 1)) + 1; }
+                else { this.qE = Math.floor(Math.random() * 6) + 3; this.qD = Math.floor(Math.random() * 6) + 3; this.qN = Math.floor(Math.random() * (this.qD - 1)) + 1; }
+                this.solImpropiaNum = (this.qE * this.qD) + this.qN;
+                document.getElementById('val-entero12').textContent = this.qE;
+                document.getElementById('val-num12').textContent = this.qN;
+                document.getElementById('val-den12').textContent = this.qD;
+                const boxD = document.getElementById('box12-d');
+                if (this.nivelActual < 3) { this.inputs.d = this.qD.toString(); boxD.classList.add('locked'); } else { boxD.classList.remove('locked'); }
+                this.updateVisuals();
+            },
+            setFocus(f) {
+                if (this.nivelActual < 3 && f === 'd') return;
+                this.focusActual = f;
+                document.getElementById('instruccion-12').textContent = (f === 'n') ? "¡Calcula el nuevo numerador! (Entero × Denominador + Numerador)" : "¡El denominador se mantiene igual!";
+                this.updateVisuals();
+            },
+            addNum(n) {
+                if (this.inputs[this.focusActual].length < 3) {
+                    this.inputs[this.focusActual] += n; this.updateVisuals();
+                    if (this.nivelActual === 3 && this.focusActual === 'n' && this.inputs.n.length >= this.solImpropiaNum.toString().length) setTimeout(() => this.setFocus('d'), 150);
+                }
+            },
+            borrar() {
+                if (this.inputs[this.focusActual] === "" && this.focusActual === 'd') this.setFocus('n');
+                else this.inputs[this.focusActual] = this.inputs[this.focusActual].slice(0, -1);
+                this.updateVisuals();
+            },
+            updateVisuals() {
+                document.getElementById('box12-n').textContent = this.inputs.n;
+                document.getElementById('box12-d').textContent = this.inputs.d;
+                document.getElementById('box12-n').className = 'input-box box-grande' + (this.focusActual === 'n' ? ' active' : '');
+                document.getElementById('box12-d').className = 'input-box box-grande' + (this.nivelActual < 3 ? ' locked' : (this.focusActual === 'd' ? ' active' : ''));
+            },
+            comprobar() {
+                let userN = parseInt(this.inputs.n), userD = parseInt(this.inputs.d);
+                if (userN === this.solImpropiaNum && userD === this.qD) {
+                    playSound(800);
+                    showModal("¡Muy bien! 🎯", `<p style="font-size:2.5rem; font-weight:bold;">${this.solImpropiaNum}/${this.qD}</p>`, `(${this.qE} × ${this.qD}) + ${this.qN} = <b>${this.solImpropiaNum}</b>`, () => this.generarPregunta());
+                } else {
+                    playSound(150, 'sawtooth');
+                    if (userN !== this.solImpropiaNum) document.getElementById('box12-n').classList.add('incorrecta');
+                    if (userD !== this.qD && this.nivelActual === 3) document.getElementById('box12-d').classList.add('incorrecta');
+                    setTimeout(() => {
+                        if (userN !== this.solImpropiaNum) this.inputs.n = ""; if (userD !== this.qD && this.nivelActual === 3) this.inputs.d = "";
+                        document.querySelectorAll('#game-juego-12 .input-box').forEach(b => b.classList.remove('incorrecta'));
+                        if (this.inputs.n === "") this.setFocus('n'); else if (this.inputs.d === "" && this.nivelActual === 3) this.setFocus('d');
+                        this.updateVisuals();
+                    }, 500);
+                }
+            }
+        };
+    </script>
+</body>
+</html>

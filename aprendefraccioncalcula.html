@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AprendeFracciones Pro</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&family=Outfit:wght@400;700;900&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ==========================================================================
+           GLOBAL & NAVIGATION STYLES
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        :root {
+            --nav-bg: #1e293b;
+            --nav-accent: #f43f5e;
+            --secondary-accent: #38bdf8;
+            --grass: #9cdb43;
+            --sky: #87ceeb;
+            --error: #f43f5e;
+            --success: #4ade80;
+            --primary: #fbbf24;
+            --secondary: #a29bfe;
+            --brand-green: #11998e;
+            --brand-light-green: #38ef7d;
+        }
+
+        body {
+            font-family: 'Outfit', 'Quicksand', 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation Bar */
+        .app-header {
+            background-color: var(--nav-bg);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-home-link {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-home-link:hover {
+            background: var(--nav-accent);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .app-title {
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            font-weight: 900;
+            color: var(--secondary-accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-menu-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-menu-toggle:hover {
+            background: var(--nav-accent);
+            color: white;
+        }
+
+        /* Container where views render */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 100%;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 15px;
+        }
+
+        /* Game Views */
+        .game-view {
+            display: none !important;
+            width: 100%;
+            max-width: 1000px;
+            flex: 1;
+            animation: fadeIn 0.3s ease-in-out;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .game-view.active {
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Main Menu View */
+        #view-main-menu {
+            padding: 20px 10px;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .menu-title {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: clamp(1.5rem, 5vw, 2.2rem);
+            font-weight: 900;
+            color: var(--secondary-accent);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .menu-card {
+            background: #1e293b;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary-accent);
+            box-shadow: 0 15px 30px rgba(56, 189, 248, 0.2);
+        }
+
+        .menu-card i {
+            font-size: 2.5rem;
+            color: var(--secondary-accent);
+            margin-bottom: 15px;
+        }
+
+        .menu-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #f8fafc;
+        }
+
+        .menu-card p {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+
+        /* Submenu Container Styling */
+        .submenu-container {
+            width: 100%;
+            max-width: 600px;
+            background: #1e293b;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            margin: auto;
+        }
+
+        .btn-nivel-sub {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-weight: 800;
+            cursor: pointer;
+            font-size: 1.05rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .btn-nivel-sub:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        /* --- ESTILOS DE LOS JUEGOS REESTRUCTURADOS --- */
+        .frac-container {
+            width: 100%; max-width: 950px;
+            background: white; color: #333;
+            border-radius: 24px; padding: 20px;
+            display: flex; flex-direction: column; position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+        }
+
+        .instruccion-global {
+            background: var(--brand-green); color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 15px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0;
+        }
+
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; width: 100%; }
+
+        .zona-operacion {
+            flex: 1.8; padding: 15px; border: 2px solid #f0f0f0; border-radius: 15px;
+            background: #fafafa; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; min-width: 0;
+        }
+
+        .zona-teclado {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        .contenedor-fracciones, .contenedor-operacion { display: flex; align-items: center; gap: 15px; font-size: 2.2rem; font-weight: bold; color: #333; }
+        .fraccion { display: flex; flex-direction: column; align-items: center; min-width: 50px; }
+        .linea-fraccion { width: 100%; height: 4px; background: #333; margin: 4px 0; border-radius: 2px; }
+        .num-f, .den-f { min-width: 50px; text-align: center; padding: 5px; }
+
+        .referencia-inicial {
+            background: #e3f2fd; padding: 15px; border-radius: 15px;
+            display: flex; align-items: center; justify-content: center; gap: 20px;
+            margin-bottom: 20px; border: 3px solid #2196f3; width: 100%;
+            font-size: 2rem;
+        }
+
+        .paso-contenedor { width: 100%; display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+
+        .visual-ayuda {
+            display: flex; align-items: center; gap: 20px; font-size: 2rem;
+            position: relative; padding: 20px; background: white; border-radius: 20px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08); width: 90%; justify-content: center;
+        }
+
+        .multiplicador {
+            position: absolute; font-size: 1rem; color: #d32f2f;
+            border: 2px solid #d32f2f; padding: 2px 8px; border-radius: 8px;
+            background: white; font-weight: bold; z-index: 5;
+        }
+
+        .celda {
+            min-width: 65px; height: 60px; border: 2px solid #ccc; border-radius: 8px;
+            background: #fff; line-height: 56px; text-align: center; cursor: pointer;
+            transition: all 0.2s; font-size: 2rem; color: #333;
+        }
+        .celda.activa { border: 3px solid #FF9800; background: #FFF3E0; transform: scale(1.05); }
+        .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        .mcm-box { font-size: 1.3rem; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; background: #eee; padding: 10px; border-radius: 10px; }
+
+        .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 250px; }
+        .tecla { padding: 14px 0; font-size: 1.4rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; color: #333; }
+        .tecla:active { box-shadow: 0 2px #ccc; transform: translateY(2px); }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+
+        /* Modales */
+        .modal-overlay {
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%) scale(0);
+            background: white; 
+            color: black; 
+            padding: 25px; 
+            border-radius: 30px;
+            text-align: center; 
+            z-index: 2000; 
+            width: 90%; 
+            max-width: 480px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show { transform: translate(-50%, -50%) scale(1); }
+
+        .resultado-final-box {
+            display: flex; align-items: center; justify-content: center;
+            gap: 15px; margin: 15px 0; background: #f8f9fa;
+            padding: 15px 25px; border-radius: 20px; border: 2px solid #e0e0e0;
+        }
+        .fraccion-final { display: flex; flex-direction: column; align-items: center; font-size: 2.2rem; font-weight: bold; color: #333; }
+        .linea-final { width: 100%; height: 4px; background: #333; margin: 4px 0; border-radius: 2px; }
+        .simbolo-final { font-size: 3rem; color: #4CAF50; font-weight: bold; }
+
+        @media (max-width: 700px) {
+            .contenido-juego { flex-direction: column; overflow-y: auto; }
+            .zona-teclado { border-left: none; border-top: 2px solid #eee; flex: none; min-height: 250px; }
+            .contenedor-fracciones, .contenedor-operacion { font-size: 1.5rem; flex-wrap: wrap; justify-content: center; }
+            .celda { min-width: 55px; height: 50px; line-height: 46px; font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-left">
+            <a href="main-index.html" class="btn-home-link" title="Volver al Inicio">
+                <i class="fas fa-home"></i>
+            </a>
+            <div class="app-title">
+                <i class="fas fa-chart-pie"></i>
+                <span id="app-title-text">AprendeFracciones Pro</span>
+            </div>
+        </div>
+        <button class="btn-menu-toggle" onclick="showMainMenu()">
+            <i class="fas fa-th-large"></i> Menú
+        </button>
+    </header>
+
+    <div class="main-container">
+
+        <!-- MENÚ PRINCIPAL -->
+        <div id="view-main-menu" class="game-view active">
+            <h2 class="menu-title">Selecciona una Actividad</h2>
+            <div class="menu-grid">
+                <div class="menu-card" onclick="openGame('game-juego-1')">
+                    <i class="fas fa-plus"></i>
+                    <h3>Suma de Fracciones</h3>
+                    <p>Practica la suma de fracciones con el mismo denominador.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-6')">
+                    <i class="fas fa-plus-circle"></i>
+                    <h3>Suma con MCM y Distinto Denominador</h3>
+                    <p>Calcula MCM y realiza la suma de distinto denominador paso a paso.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-7')">
+                    <i class="fas fa-tasks"></i>
+                    <h3>Suma Paso a Paso (MCM)</h3>
+                    <p>Transforma fracciones con MCM e indica el resultado final de la suma.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-2')">
+                    <i class="fas fa-minus"></i>
+                    <h3>Resta con Mismo Denominador</h3>
+                    <p>Practica la resta de fracciones con igual denominador.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-3')">
+                    <i class="fas fa-sort-numeric-down"></i>
+                    <h3>Resta Paso a Paso (MCM)</h3>
+                    <p>Calcula el MCM y convierte fracciones para restar.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-4')">
+                    <i class="fas fa-layer-group"></i>
+                    <h3>Resta con Distinto Denominador</h3>
+                    <p>Encuentra el MCM y resuelve la resta paso a paso.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-5')">
+                    <i class="fas fa-times"></i>
+                    <h3>Multiplicación de Fracciones</h3>
+                    <p>Multiplica en línea recta: numerador por numerador y denominador por denominador.</p>
+                </div>
+                <div class="menu-card" onclick="openGame('game-juego-9')">
+                    <i class="fas fa-divide"></i>
+                    <h3>División de Fracciones</h3>
+                    <p>Practica la división cruzada entre dos fracciones.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- JUEGO 1: SUMA DE FRACCIONES (MISMO DENOMINADOR) -->
+        <!-- =================================================================== -->
+        <div id="game-juego-1" class="game-view">
+            <div id="menu-juego-1" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Suma de Fracciones</h1>
+                <p style="text-align:center; color:#94a3b8; margin-bottom:15px;">Mismo denominador</p>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego1.iniciar(1)">Nivel 1: Denominador hasta 10</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego1.iniciar(2)">Nivel 2: Denominador hasta 50</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego1.iniciar(3)">Nivel 3: Denominador hasta 100</button>
+            </div>
+            <div id="juego-1-content" class="frac-container" style="display:none;">
+                <div id="instruccion-1" class="instruccion-global">Cargando...</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion">
+                        <div id="tablero1" class="contenedor-fracciones"></div>
+                    </div>
+                    <div class="zona-teclado">
+                        <div class="teclado">
+                            <button class="tecla" onclick="Juego1.entrada(1)">1</button>
+                            <button class="tecla" onclick="Juego1.entrada(2)">2</button>
+                            <button class="tecla" onclick="Juego1.entrada(3)">3</button>
+                            <button class="tecla" onclick="Juego1.entrada(4)">4</button>
+                            <button class="tecla" onclick="Juego1.entrada(5)">5</button>
+                            <button class="tecla" onclick="Juego1.entrada(6)">6</button>
+                            <button class="tecla" onclick="Juego1.entrada(7)">7</button>
+                            <button class="tecla" onclick="Juego1.entrada(8)">8</button>
+                            <button class="tecla" onclick="Juego1.entrada(9)">9</button>
+                            <button class="tecla" style="background:#ffcdd2" onclick="Juego1.borrar()">C</button>
+                            <button class="tecla" onclick="Juego1.entrada(0)">0</button>
+                            <button class="tecla" style="background:#eee" onclick="Juego1.volverMenuSub()">🏠</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- JUEGO 6: SUMA CON MCM Y DISTINTO DENOMINADOR (NUEVO INTEGRADO) -->
+        <!-- =================================================================== -->
+        <div id="game-juego-6" class="game-view">
+            <div id="menu-juego-6" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Suma Distinto Denominador</h1>
+                <p style="text-align:center; color:#94a3b8; margin-bottom:15px;">Paso a paso: MCM, Equivalentes y Suma</p>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego6.iniciar(1)">Nivel 1: Denominadores pequeños</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego6.iniciar(2)">Nivel 2: Denominadores hasta 12</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego6.iniciar(3)">Nivel 3: Reto avanzado</button>
+            </div>
+            <div id="juego-6-content" class="frac-container" style="display:none;">
+                <div id="instruccion-6" class="instruccion-global">Cargando...</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion" id="interfaz-juego6"></div>
+                    <div class="zona-teclado">
+                        <div class="teclado">
+                            <button class="tecla" onclick="Juego6.entrada(1)">1</button>
+                            <button class="tecla" onclick="Juego6.entrada(2)">2</button>
+                            <button class="tecla" onclick="Juego6.entrada(3)">3</button>
+                            <button class="tecla" onclick="Juego6.entrada(4)">4</button>
+                            <button class="tecla" onclick="Juego6.entrada(5)">5</button>
+                            <button class="tecla" onclick="Juego6.entrada(6)">6</button>
+                            <button class="tecla" onclick="Juego6.entrada(7)">7</button>
+                            <button class="tecla" onclick="Juego6.entrada(8)">8</button>
+                            <button class="tecla" onclick="Juego6.entrada(9)">9</button>
+                            <button class="tecla" style="background:#ffcdd2" onclick="Juego6.borrar()">C</button>
+                            <button class="tecla" onclick="Juego6.entrada(0)">0</button>
+                            <button class="tecla" style="background:#eee" onclick="Juego6.volverMenuSub()">🏠</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- JUEGO 7: SUMA PASO A PASO CON MCM (NUEVO INTEGRADO) -->
+        <!-- =================================================================== -->
+        <div id="game-juego-7" class="game-view">
+            <div id="menu-juego-7" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Suma Paso a Paso</h1>
+                <p style="text-align:center; color:#94a3b8; margin-bottom:15px;">Visualiza factores y transforma fracciones</p>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego7.iniciar(1)">Nivel 1: Fácil</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego7.iniciar(2)">Nivel 2: Intermedio</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego7.iniciar(3)">Nivel 3: Experto</button>
+            </div>
+            <div id="juego-7-content" class="frac-container" style="display:none;">
+                <div id="instruccion-7" class="instruccion-global">Cargando...</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion">
+                        <div id="ref-operacion7" class="referencia-inicial"></div>
+                        <div id="espacio-trabajo7" class="paso-contenedor"></div>
+                    </div>
+                    <div class="zona-teclado">
+                        <div class="teclado">
+                            <button class="tecla" onclick="Juego7.entrada(1)">1</button>
+                            <button class="tecla" onclick="Juego7.entrada(2)">2</button>
+                            <button class="tecla" onclick="Juego7.entrada(3)">3</button>
+                            <button class="tecla" onclick="Juego7.entrada(4)">4</button>
+                            <button class="tecla" onclick="Juego7.entrada(5)">5</button>
+                            <button class="tecla" onclick="Juego7.entrada(6)">6</button>
+                            <button class="tecla" onclick="Juego7.entrada(7)">7</button>
+                            <button class="tecla" onclick="Juego7.entrada(8)">8</button>
+                            <button class="tecla" onclick="Juego7.entrada(9)">9</button>
+                            <button class="tecla" style="background:#ffcdd2" onclick="Juego7.borrar()">C</button>
+                            <button class="tecla" onclick="Juego7.entrada(0)">0</button>
+                            <button class="tecla" style="background:#eee" onclick="Juego7.volverMenuSub()">🏠</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- JUEGO 2: RESTA DE FRACCIONES (MISMO DENOMINADOR) -->
+        <!-- =================================================================== -->
+        <div id="game-juego-2" class="game-view">
+            <div id="menu-juego-2" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Resta de Fracciones</h1>
+                <p style="text-align:center; color:#94a3b8; margin-bottom:15px;">Mismo denominador</p>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego2.iniciar(1)">Nivel 1: Denominador hasta 10</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego2.iniciar(2)">Nivel 2: Denominador hasta 50</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego2.iniciar(3)">Nivel 3: Denominador hasta 100</button>
+            </div>
+            <div id="juego-2-content" class="frac-container" style="display:none;">
+                <div id="instruccion-2" class="instruccion-global">Cargando...</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion">
+                        <div id="tablero2" class="contenedor-fracciones"></div>
+                    </div>
+                    <div class="zona-teclado">
+                        <div class="teclado">
+                            <button class="tecla" onclick="Juego2.entrada(1)">1</button>
+                            <button class="tecla" onclick="Juego2.entrada(2)">2</button>
+                            <button class="tecla" onclick="Juego2.entrada(3)">3</button>
+                            <button class="tecla" onclick="Juego2.entrada(4)">4</button>
+                            <button class="tecla" onclick="Juego2.entrada(5)">5</button>
+                            <button class="tecla" onclick="Juego2.entrada(6)">6</button>
+                            <button class="tecla" onclick="Juego2.entrada(7)">7</button>
+                            <button class="tecla" onclick="Juego2.entrada(8)">8</button>
+                            <button class="tecla" onclick="Juego2.entrada(9)">9</button>
+                            <button class="tecla" style="background:#ffcdd2" onclick="Juego2.borrar()">C</button>
+                            <button class="tecla" onclick="Juego2.entrada(0)">0</button>
+                            <button class="tecla" style="background:#eee" onclick="Juego2.volverMenuSub()">🏠</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- JUEGO 3: RESTA PASO A PASO (MCM Y TRANSFORMACIÓN) -->
+        <!-- =================================================================== -->
+        <div id="game-juego-3" class="game-view">
+            <div id="menu-juego-3" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Resta Paso a Paso</h1>
+                <p style="text-align:center; color:#94a3b8; margin-bottom:15px;">Calcula MCM y adapta fracciones</p>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego3.iniciar(1)">Nivel 1: Iniciación</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego3.iniciar(2)">Nivel 2: Intermedio</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego3.iniciar(3)">Nivel 3: Avanzado</button>
+            </div>
+            <div id="juego-3-content" class="frac-container" style="display:none;">
+                <div id="instruccion-3" class="instruccion-global">Cargando...</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion">
+                        <div id="ref-operacion3" class="referencia-inicial"></div>
+                        <div id="espacio-trabajo3" class="paso-contenedor"></div>
+                    </div>
+                    <div class="zona-teclado">
+                        <div class="teclado">
+                            <button class="tecla" onclick="Juego3.entrada(1)">1</button>
+                            <button class="tecla" onclick="Juego3.entrada(2)">2</button>
+                            <button class="tecla" onclick="Juego3.entrada(3)">3</button>
+                            <button class="tecla" onclick="Juego3.entrada(4)">4</button>
+                            <button class="tecla" onclick="Juego3.entrada(5)">5</button>
+                            <button class="tecla" onclick="Juego3.entrada(6)">6</button>
+                            <button class="tecla" onclick="Juego3.entrada(7)">7</button>
+                            <button class="tecla" onclick="Juego3.entrada(8)">8</button>
+                            <button class="tecla" onclick="Juego3.entrada(9)">9</button>
+                            <button class="tecla" style="background:#ffcdd2" onclick="Juego3.borrar()">C</button>
+                            <button class="tecla" onclick="Juego3.entrada(0)">0</button>
+                            <button class="tecla" style="background:#eee" onclick="Juego3.volverMenuSub()">🏠</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- JUEGO 4: RESTA DISTINTO DENOMINADOR (ESTRUCTURA DE CELDAS) -->
+        <!-- =================================================================== -->
+        <div id="game-juego-4" class="game-view">
+            <div id="menu-juego-4" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Resta Distinto Denominador</h1>
+                <p style="text-align:center; color:#94a3b8; margin-bottom:15px;">Diferente denominador (Paso a paso)</p>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego4.iniciar(1)">Nivel 1: MCM sencillo</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego4.iniciar(2)">Nivel 2: Denominadores hasta 15</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego4.iniciar(3)">Nivel 3: Restas complejas</button>
+            </div>
+            <div id="juego-4-content" class="frac-container" style="display:none;">
+                <div id="instruccion-4" class="instruccion-global">Cargando...</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion" id="interfaz-juego4"></div>
+                    <div class="zona-teclado">
+                        <div class="teclado">
+                            <button class="tecla" onclick="Juego4.entrada(1)">1</button>
+                            <button class="tecla" onclick="Juego4.entrada(2)">2</button>
+                            <button class="tecla" onclick="Juego4.entrada(3)">3</button>
+                            <button class="tecla" onclick="Juego4.entrada(4)">4</button>
+                            <button class="tecla" onclick="Juego4.entrada(5)">5</button>
+                            <button class="tecla" onclick="Juego4.entrada(6)">6</button>
+                            <button class="tecla" onclick="Juego4.entrada(7)">7</button>
+                            <button class="tecla" onclick="Juego4.entrada(8)">8</button>
+                            <button class="tecla" onclick="Juego4.entrada(9)">9</button>
+                            <button class="tecla" style="background:#ffcdd2" onclick="Juego4.borrar()">C</button>
+                            <button class="tecla" onclick="Juego4.entrada(0)">0</button>
+                            <button class="tecla" style="background:#eee" onclick="Juego4.volverMenuSub()">🏠</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- JUEGO 5: MULTIPLICACIÓN DE FRACCIONES -->
+        <!-- =================================================================== -->
+        <div id="game-juego-5" class="game-view">
+            <div id="menu-juego-5" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">Multiplicación de Fracciones</h1>
+                <p style="text-align:center; color:#94a3b8; margin-bottom:15px;">Multiplica en línea (arriba × arriba, abajo × abajo)</p>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego5.iniciar(1)">Nivel 1: Tablas del 1 al 5</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego5.iniciar(2)">Nivel 2: Tablas del 1 al 10</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego5.iniciar(3)">Nivel 3: Números hasta el 15</button>
+            </div>
+            <div id="juego-5-content" class="frac-container" style="display:none;">
+                <div id="instruccion-5" class="instruccion-global">Cargando...</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion">
+                        <div id="tablero5" class="contenedor-fracciones"></div>
+                    </div>
+                    <div class="zona-teclado">
+                        <div class="teclado">
+                            <button class="tecla" onclick="Juego5.entrada(1)">1</button>
+                            <button class="tecla" onclick="Juego5.entrada(2)">2</button>
+                            <button class="tecla" onclick="Juego5.entrada(3)">3</button>
+                            <button class="tecla" onclick="Juego5.entrada(4)">4</button>
+                            <button class="tecla" onclick="Juego5.entrada(5)">5</button>
+                            <button class="tecla" onclick="Juego5.entrada(6)">6</button>
+                            <button class="tecla" onclick="Juego5.entrada(7)">7</button>
+                            <button class="tecla" onclick="Juego5.entrada(8)">8</button>
+                            <button class="tecla" onclick="Juego5.entrada(9)">9</button>
+                            <button class="tecla" style="background:#ffcdd2" onclick="Juego5.borrar()">C</button>
+                            <button class="tecla" onclick="Juego5.entrada(0)">0</button>
+                            <button class="tecla" style="background:#eee" onclick="Juego5.volverMenuSub()">🏠</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- JUEGO 9: DIVISIÓN DE FRACCIONES -->
+        <!-- =================================================================== -->
+        <div id="game-juego-9" class="game-view">
+            <div id="menu-juego-9" class="submenu-container">
+                <h1 style="text-align:center; color:#38bdf8; margin-bottom:20px; font-size:1.8rem;">División de Fracciones</h1>
+                <p style="text-align:center; color:#94a3b8; margin-bottom:15px;">Multiplica en cruz: Numerador × Denominador</p>
+                <button class="btn-nivel-sub" style="background:#43a047" onclick="Juego9.iniciar(1)">Nivel 1: Tablas sencillas (1 a 5)</button>
+                <button class="btn-nivel-sub" style="background:#fb8c00" onclick="Juego9.iniciar(2)">Nivel 2: Tablas hasta el 10</button>
+                <button class="btn-nivel-sub" style="background:#e53935" onclick="Juego9.iniciar(3)">Nivel 3: Desafío avanzado</button>
+            </div>
+            <div id="juego-9-content" class="frac-container" style="display:none;">
+                <div id="instruccion-9" class="instruccion-global">Cargando...</div>
+                <div class="contenido-juego">
+                    <div class="zona-operacion">
+                        <div id="tablero9" class="contenedor-fracciones"></div>
+                    </div>
+                    <div class="zona-teclado">
+                        <div class="teclado">
+                            <button class="tecla" onclick="Juego9.entrada(1)">1</button>
+                            <button class="tecla" onclick="Juego9.entrada(2)">2</button>
+                            <button class="tecla" onclick="Juego9.entrada(3)">3</button>
+                            <button class="tecla" onclick="Juego9.entrada(4)">4</button>
+                            <button class="tecla" onclick="Juego9.entrada(5)">5</button>
+                            <button class="tecla" onclick="Juego9.entrada(6)">6</button>
+                            <button class="tecla" onclick="Juego9.entrada(7)">7</button>
+                            <button class="tecla" onclick="Juego9.entrada(8)">8</button>
+                            <button class="tecla" onclick="Juego9.entrada(9)">9</button>
+                            <button class="tecla" style="background:#ffcdd2" onclick="Juego9.borrar()">C</button>
+                            <button class="tecla" onclick="Juego9.entrada(0)">0</button>
+                            <button class="tecla" style="background:#eee" onclick="Juego9.volverMenuSub()">🏠</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL GLOBAL DE VICTORIA -->
+        <div id="modal-victoria" class="modal-overlay">
+            <h2 id="modal-titulo" style="font-size: 1.8rem; color: #4CAF50; margin-bottom: 10px;">¡Excelente!</h2>
+            <div id="modal-contenido"></div>
+            <div id="modal-subtexto" style="margin: 15px 0; font-size: 1.1rem; color: #11998e; font-style: italic;"></div>
+            <button id="modal-btn-siguiente" class="btn-nivel-sub" style="background:#43a047; max-width: 250px;">Siguiente</button>
+        </div>
+
+    </div>
+
+    <script>
+        /* ==========================================================================
+           NAVEGACIÓN PRINCIPAL Y UTILIDADES
+           ========================================================================== */
+        function hideAllViews() {
+            document.querySelectorAll('.game-view').forEach(view => {
+                view.classList.remove('active');
+            });
+            document.getElementById('modal-victoria').classList.remove('show');
+        }
+
+        function showMainMenu() {
+            hideAllViews();
+            document.getElementById('view-main-menu').classList.add('active');
+            document.getElementById('app-title-text').textContent = 'AprendeFracciones Pro';
+        }
+
+        function openGame(gameId) {
+            hideAllViews();
+            const targetView = document.getElementById(gameId);
+            if (targetView) {
+                targetView.classList.add('active');
+            }
+        }
+
+        let audioContext = null;
+        function inicializarAudioGlobal() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSoundGlobal(tipo) {
+            if (!audioContext) return;
+            try {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.connect(gain); gain.connect(audioContext.destination);
+                osc.frequency.setValueAtTime(tipo === 'acierto' ? 800 : 200, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                osc.start(); osc.stop(audioContext.currentTime + 0.1);
+            } catch(e) {}
+        }
+
+        function getMCM(a, b) {
+            let max = Math.max(a, b);
+            while (max % a !== 0 || max % b !== 0) max++;
+            return max;
+        }
+
+        // ==========================================
+        // JUEGO 1: SUMA DE FRACCIONES (MISMO DENOMINADOR)
+        // ==========================================
+        const Juego1 = {
+            num1: 0, num2: 0, denComun: 0, etapaDenominador: true, inputActual: "", nivelActual: 1,
+            nivelesConfig: { 1: { denMax: 10, numMax: 9 }, 2: { denMax: 50, numMax: 20 }, 3: { denMax: 100, numMax: 50 } },
+
+            volverMenuSub() {
+                document.getElementById('juego-1-content').style.display = 'none';
+                document.getElementById('menu-juego-1').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+            },
+
+            iniciar(n) {
+                this.nivelActual = n;
+                this.etapaDenominador = true;
+                this.inputActual = "";
+                inicializarAudioGlobal();
+
+                const conf = this.nivelesConfig[n];
+                this.denComun = Math.floor(Math.random() * (conf.denMax - 2 + 1)) + 2;
+                this.num1 = Math.floor(Math.random() * conf.numMax) + 1;
+                this.num2 = Math.floor(Math.random() * conf.numMax) + 1;
+
+                document.getElementById('menu-juego-1').style.display = 'none';
+                document.getElementById('juego-1-content').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+
+                document.getElementById('instruccion-1').textContent = "Paso 1: Escribe el denominador común";
+                this.renderizarTablero();
+            },
+
+            renderizarTablero() {
+                const tablero = document.getElementById('tablero1');
+                tablero.innerHTML = `
+                    <div class="fraccion">
+                        <div class="num-f">${this.num1}</div>
+                        <div class="linea-fraccion"></div>
+                        <div class="den-f">${this.denComun}</div>
+                    </div>
+                    <div style="margin: 0 5px;">+</div>
+                    <div class="fraccion">
+                        <div class="num-f">${this.num2}</div>
+                        <div class="linea-fraccion"></div>
+                        <div class="den-f">${this.denComun}</div>
+                    </div>
+                    <div style="margin: 0 5px;">=</div>
+                    <div class="fraccion">
+                        <div id="res-num-1" class="celda ${!this.etapaDenominador ? 'activa' : ''}">${!this.etapaDenominador ? this.inputActual : ''}</div>
+                        <div class="linea-fraccion"></div>
+                        <div id="res-den-1" class="celda ${this.etapaDenominador ? 'activa' : ''}">${this.etapaDenominador ? this.inputActual : this.denComun}</div>
+                    </div>
+                `;
+
+                if (!this.etapaDenominador) {
+                    const denCelda = document.getElementById('res-den-1');
+                    if (denCelda) denCelda.classList.add('correcta');
+                }
+            },
+
+            entrada(n) {
+                this.inputActual += n.toString();
+                const objetivo = this.etapaDenominador ? this.denComun.toString() : (this.num1 + this.num2).toString();
+                const celdaActual = this.etapaDenominador ? document.getElementById('res-den-1') : document.getElementById('res-num-1');
+                
+                if (celdaActual) celdaActual.textContent = this.inputActual;
+
+                if (objetivo.startsWith(this.inputActual)) {
+                    if (this.inputActual === objetivo) {
+                        playSoundGlobal('acierto');
+                        if (this.etapaDenominador) {
+                            this.etapaDenominador = false;
+                            this.inputActual = "";
+                            document.getElementById('instruccion-1').textContent = "Paso 2: Suma los numeradores";
+                            setTimeout(() => this.renderizarTablero(), 300);
+                        } else {
+                            if (celdaActual) celdaActual.classList.add('correcta');
+                            const resNum = this.num1 + this.num2;
+                            document.getElementById('modal-titulo').textContent = "¡Genial! 🏆";
+                            document.getElementById('modal-contenido').innerHTML = `
+                                <div class="resultado-final-box">
+                                    <div class="fraccion-final"><div>${this.num1}</div><div class="linea-final"></div><div>${this.denComun}</div></div>
+                                    <div style="font-size: 2rem; font-weight: bold; color: #333;">+</div>
+                                    <div class="fraccion-final"><div>${this.num2}</div><div class="linea-final"></div><div>${this.denComun}</div></div>
+                                    <div class="simbolo-final">=</div>
+                                    <div class="fraccion-final"><div>${resNum}</div><div class="linea-final"></div><div>${this.denComun}</div></div>
+                                </div>
+                            `;
+                            document.getElementById('modal-subtexto').textContent = "¡Has sumado las fracciones correctamente!";
+                            document.getElementById('modal-btn-siguiente').onclick = () => Juego1.iniciar(this.nivelActual);
+                            setTimeout(() => document.getElementById('modal-victoria').classList.add('show'), 500);
+                        }
+                    }
+                } else {
+                    playSoundGlobal('error');
+                    if (celdaActual) celdaActual.classList.add('incorrecta');
+                    setTimeout(() => {
+                        if (celdaActual) {
+                            celdaActual.classList.remove('incorrecta');
+                            celdaActual.textContent = "";
+                        }
+                        this.inputActual = "";
+                    }, 500);
+                }
+            },
+
+            borrar() {
+                this.inputActual = "";
+                const celdaActual = this.etapaDenominador ? document.getElementById('res-den-1') : document.getElementById('res-num-1');
+                if (celdaActual) celdaActual.textContent = "";
+            }
+        };
+
+        // ==========================================
+        // JUEGO 6: SUMA CON MCM Y DISTINTO DENOMINADOR (NUEVO INTEGRADO)
+        // ==========================================
+        const Juego6 = {
+            n1: 0, d1: 0, n2: 0, d2: 0, mcmReal: 0, numEquiv1: 0, numEquiv2: 0, resultadoFinal: 0,
+            nivelActual: 1, pasoActual: 1, inputActual: "",
+
+            volverMenuSub() {
+                document.getElementById('juego-6-content').style.display = 'none';
+                document.getElementById('menu-juego-6').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+            },
+
+            iniciar(n) {
+                this.nivelActual = n;
+                this.pasoActual = 1;
+                this.inputActual = "";
+                inicializarAudioGlobal();
+
+                const dens = n === 1 ? [2,3,4,5] : n === 2 ? [3,4,5,6,8,10] : [6,7,8,9,12,15];
+                this.d1 = dens[Math.floor(Math.random() * dens.length)];
+                do {
+                    this.d2 = dens[Math.floor(Math.random() * dens.length)];
+                } while (this.d1 === this.d2);
+
+                this.n1 = Math.floor(Math.random() * 3) + 1;
+                this.n2 = Math.floor(Math.random() * 3) + 1;
+
+                this.mcmReal = getMCM(this.d1, this.d2);
+                this.numEquiv1 = (this.mcmReal / this.d1) * this.n1;
+                this.numEquiv2 = (this.mcmReal / this.d2) * this.n2;
+                this.resultadoFinal = this.numEquiv1 + this.numEquiv2;
+
+                document.getElementById('menu-juego-6').style.display = 'none';
+                document.getElementById('juego-6-content').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+
+                this.actualizarInterfaz();
+            },
+
+            actualizarInterfaz() {
+                const zona = document.getElementById('interfaz-juego6');
+                const inst = document.getElementById('instruccion-6');
+
+                let html = `
+                    <div class="contenedor-operacion">
+                        <div class="fraccion"><div class="num-f">${this.n1}</div><div class="linea-fraccion"></div><div class="den-f">${this.d1}</div></div>
+                        <div style="color:#4CAF50">+</div>
+                        <div class="fraccion"><div class="num-f">${this.n2}</div><div class="linea-fraccion"></div><div class="den-f">${this.d2}</div></div>
+                    </div>
+                `;
+
+                if (this.pasoActual === 1) {
+                    inst.textContent = `Paso 1: Calcula el MCM de ${this.d1} y ${this.d2}`;
+                    html += `<div class="mcm-box">MCM (${this.d1}, ${this.d2}) = <div id="target6" class="celda activa">${this.inputActual}</div></div>`;
+                } else {
+                    html += `
+                        <div class="contenedor-operacion" style="margin-top:15px;">
+                            <div class="fraccion">
+                                <div class="celda ${this.pasoActual===2?'activa':''} ${this.pasoActual>2?'correcta':''}">${this.pasoActual===2?this.inputActual:(this.pasoActual>2?this.numEquiv1:'')}</div>
+                                <div class="linea-fraccion"></div>
+                                <div class="den-f" style="color:green">${this.mcmReal}</div>
+                            </div>
+                            <div style="color:#4CAF50">+</div>
+                            <div class="fraccion">
+                                <div class="celda ${this.pasoActual===3?'activa':''} ${this.pasoActual>3?'correcta':''}">${this.pasoActual===3?this.inputActual:(this.pasoActual>3?this.numEquiv2:'')}</div>
+                                <div class="linea-fraccion"></div>
+                                <div class="den-f" style="color:green">${this.mcmReal}</div>
+                            </div>
+                            <div>=</div>
+                            <div class="fraccion">
+                                <div class="celda ${this.pasoActual===4?'activa':''}">${this.pasoActual===4?this.inputActual:''}</div>
+                                <div class="linea-fraccion"></div>
+                                <div class="den-f" style="color:green">${this.mcmReal}</div>
+                            </div>
+                        </div>
+                    `;
+
+                    if (this.pasoActual === 2) inst.textContent = `Paso 2: Numerador de la primera fracción (¿${this.d1} por cuánto da ${this.mcmReal}?)`;
+                    if (this.pasoActual === 3) inst.textContent = `Paso 3: Numerador de la segunda fracción (¿${this.d2} por cuánto da ${this.mcmReal}?)`;
+                    if (this.pasoActual === 4) inst.textContent = `Paso 4: ¡Suma los nuevos numeradores!`;
+                }
+
+                zona.innerHTML = html;
+            },
+
+            entrada(num) {
+                this.inputActual += num.toString();
+                let objetivo = "";
+
+                if (this.pasoActual === 1) objetivo = this.mcmReal.toString();
+                else if (this.pasoActual === 2) objetivo = this.numEquiv1.toString();
+                else if (this.pasoActual === 3) objetivo = this.numEquiv2.toString();
+                else if (this.pasoActual === 4) objetivo = this.resultadoFinal.toString();
+
+                this.actualizarInterfaz();
+
+                if (objetivo.startsWith(this.inputActual)) {
+                    if (this.inputActual === objetivo) {
+                        playSoundGlobal('acierto');
+                        this.pasoActual++;
+                        this.inputActual = "";
+                        if (this.pasoActual > 4) {
+                            setTimeout(() => this.finalizar(), 500);
+                        } else {
+                            setTimeout(() => this.actualizarInterfaz(), 400);
+                        }
+                    }
+                } else {
+                    playSoundGlobal('error');
+                    const c = document.querySelector('#interfaz-juego6 .celda.activa');
+                    if (c) c.classList.add('incorrecta');
+                    setTimeout(() => {
+                        this.inputActual = "";
+                        this.actualizarInterfaz();
+                    }, 500);
+                }
+            },
+
+            borrar() {
+                this.inputActual = "";
+                this.actualizarInterfaz();
+            },
+
+            finalizar() {
+                document.getElementById('modal-titulo').textContent = "¡Dominas las fracciones! 🏆";
+                document.getElementById('modal-contenido').innerHTML = `
+                    <div class="resultado-final-box">
+                        <div class="fraccion-final"><div>${this.n1}</div><div class="linea-final"></div><div>${this.d1}</div></div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #333;">+</div>
+                        <div class="fraccion-final"><div>${this.n2}</div><div class="linea-final"></div><div>${this.d2}</div></div>
+                        <div class="simbolo-final">=</div>
+                        <div class="fraccion-final"><div>${this.resultadoFinal}</div><div class="linea-final"></div><div>${this.mcmReal}</div></div>
+                    </div>
+                `;
+                document.getElementById('modal-subtexto').textContent = `${this.n1}/${this.d1} + ${this.n2}/${this.d2} = ${this.numEquiv1}/${this.mcmReal} + ${this.numEquiv2}/${this.mcmReal} = ${this.resultadoFinal}/${this.mcmReal}`;
+                document.getElementById('modal-btn-siguiente').onclick = () => Juego6.iniciar(this.nivelActual);
+                document.getElementById('modal-victoria').classList.add('show');
+            }
+        };
+
+        // ==========================================
+        // JUEGO 7: SUMA PASO A PASO CON MCM (NUEVO INTEGRADO)
+        // ==========================================
+        const Juego7 = {
+            n1: 0, d1: 0, n2: 0, d2: 0, mcmReal: 0, factor1: 0, factor2: 0, numEquiv1: 0, numEquiv2: 0, resultadoFinal: 0,
+            nivelActual: 1, pasoActual: 1, inputActual: "",
+
+            volverMenuSub() {
+                document.getElementById('juego-7-content').style.display = 'none';
+                document.getElementById('menu-juego-7').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+            },
+
+            iniciar(n) {
+                this.nivelActual = n;
+                this.pasoActual = 1;
+                this.inputActual = "";
+                inicializarAudioGlobal();
+
+                const dens = n === 1 ? [2,3,4,5] : n === 2 ? [4,6,8,10] : [6,9,12,15];
+                this.d1 = dens[Math.floor(Math.random() * dens.length)];
+                do { this.d2 = dens[Math.floor(Math.random() * dens.length)]; } while (this.d1 === this.d2);
+
+                this.mcmReal = getMCM(this.d1, this.d2);
+                this.factor1 = this.mcmReal / this.d1;
+                this.factor2 = this.mcmReal / this.d2;
+
+                this.n1 = Math.floor(Math.random() * 4) + 1;
+                this.n2 = Math.floor(Math.random() * 4) + 1;
+
+                this.numEquiv1 = this.n1 * this.factor1;
+                this.numEquiv2 = this.n2 * this.factor2;
+                this.resultadoFinal = this.numEquiv1 + this.numEquiv2;
+
+                document.getElementById('menu-juego-7').style.display = 'none';
+                document.getElementById('juego-7-content').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+
+                document.getElementById('ref-operacion7').innerHTML = `
+                    <div class="fraccion"><div>${this.n1}</div><div class="linea-fraccion"></div><div>${this.d1}</div></div>
+                    <div style="color:#6a11cb; font-weight:bold; margin: 0 10px;">+</div>
+                    <div class="fraccion"><div>${this.n2}</div><div class="linea-fraccion"></div><div>${this.d2}</div></div>
+                `;
+
+                this.actualizarInterfaz();
+            },
+
+            actualizarInterfaz() {
+                const espacio = document.getElementById('espacio-trabajo7');
+                const inst = document.getElementById('instruccion-7');
+                let html = "";
+
+                if (this.pasoActual === 1) {
+                    inst.textContent = `Paso 1: ¿Cuál es el MCM de ${this.d1} y ${this.d2}?`;
+                    html = `<div style="font-size: 1.5rem; margin-bottom:10px; font-weight:bold; color:#555">MCM =</div>
+                            <div class="celda activa">${this.inputActual}</div>`;
+                } else if (this.pasoActual === 2) {
+                    inst.textContent = `Paso 2: Transforma la primera fracción`;
+                    html = `<div class="visual-ayuda">
+                            <div class="multiplicador" style="top:-15px; left:42%">× ${this.factor1}</div>
+                            <div class="fraccion"><div>${this.n1}</div><div class="linea-fraccion"></div><div>${this.d1}</div></div>
+                            <div style="color:#6a11cb; font-weight:bold; margin:0 15px">→</div>
+                            <div class="fraccion"><div class="celda activa">${this.inputActual}</div><div class="linea-fraccion"></div><div style="color:green">${this.mcmReal}</div></div>
+                            <div class="multiplicador" style="bottom:-15px; left:42%">× ${this.factor1}</div>
+                        </div>`;
+                } else if (this.pasoActual === 3) {
+                    inst.textContent = `Paso 3: Transforma la segunda fracción`;
+                    html = `<div class="visual-ayuda">
+                            <div class="multiplicador" style="top:-15px; left:42%">× ${this.factor2}</div>
+                            <div class="fraccion"><div>${this.n2}</div><div class="linea-fraccion"></div><div>${this.d2}</div></div>
+                            <div style="color:#6a11cb; font-weight:bold; margin:0 15px">→</div>
+                            <div class="fraccion"><div class="celda activa">${this.inputActual}</div><div class="linea-fraccion"></div><div style="color:green">${this.mcmReal}</div></div>
+                            <div class="multiplicador" style="bottom:-15px; left:42%">× ${this.factor2}</div>
+                        </div>`;
+                } else if (this.pasoActual === 4) {
+                    inst.textContent = `Paso 4: ¡Suma los numeradores!`;
+                    html = `<div style="display:flex; align-items:center; gap:15px; font-size:1.8rem; font-weight:bold">
+                            <div class="fraccion"><div>${this.numEquiv1}</div><div class="linea-fraccion"></div><div style="color:green">${this.mcmReal}</div></div>
+                            <div style="color:#6a11cb">+</div>
+                            <div class="fraccion"><div>${this.numEquiv2}</div><div class="linea-fraccion"></div><div style="color:green">${this.mcmReal}</div></div>
+                            <div style="margin:0 10px">=</div>
+                            <div class="fraccion"><div class="celda activa">${this.inputActual}</div><div class="linea-fraccion"></div><div style="color:green">${this.mcmReal}</div></div>
+                        </div>`;
+                }
+                espacio.innerHTML = html;
+            },
+
+            entrada(num) {
+                this.inputActual += num.toString();
+                let objetivo = [null, this.mcmReal, this.numEquiv1, this.numEquiv2, this.resultadoFinal][this.pasoActual].toString();
+                this.actualizarInterfaz();
+
+                if (objetivo.startsWith(this.inputActual)) {
+                    if (this.inputActual === objetivo) {
+                        playSoundGlobal('acierto');
+                        this.pasoActual++;
+                        this.inputActual = "";
+                        if (this.pasoActual > 4) {
+                            setTimeout(() => this.finalizar(), 400);
+                        } else {
+                            setTimeout(() => this.actualizarInterfaz(), 400);
+                        }
+                    }
+                } else {
+                    playSoundGlobal('error');
+                    const c = document.querySelector('#espacio-trabajo7 .celda.activa');
+                    if (c) c.classList.add('incorrecta');
+                    setTimeout(() => { this.inputActual = ""; this.actualizarInterfaz(); }, 500);
+                }
+            },
+
+            borrar() { this.inputActual = ""; this.actualizarInterfaz(); },
+
+            finalizar() {
+                document.getElementById('modal-titulo').textContent = "¡Genial! 🌟";
+                document.getElementById('modal-contenido').innerHTML = `
+                    <div class="resultado-final-box">
+                        <div class="fraccion-final"><div>${this.n1}</div><div class="linea-final"></div><div>${this.d1}</div></div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #333;">+</div>
+                        <div class="fraccion-final"><div>${this.n2}</div><div class="linea-final"></div><div>${this.d2}</div></div>
+                        <div class="simbolo-final">=</div>
+                        <div class="fraccion-final"><div>${this.resultadoFinal}</div><div class="linea-final"></div><div>${this.mcmReal}</div></div>
+                    </div>
+                `;
+                document.getElementById('modal-subtexto').textContent = `${this.n1}/${this.d1} + ${this.n2}/${this.d2} = ${this.resultadoFinal}/${this.mcmReal}`;
+                document.getElementById('modal-btn-siguiente').onclick = () => Juego7.iniciar(this.nivelActual);
+                document.getElementById('modal-victoria').classList.add('show');
+            }
+        };
+
+        // ==========================================
+        // JUEGO 2: RESTA DE FRACCIONES (MISMO DENOMINADOR)
+        // ==========================================
+        const Juego2 = {
+            num1: 0, num2: 0, denComun: 0, etapaDenominador: true, inputActual: "", nivelActual: 1,
+            nivelesConfig: { 1: { denMax: 10, numMax: 10 }, 2: { denMax: 50, numMax: 50 }, 3: { denMax: 100, numMax: 100 } },
+
+            volverMenuSub() {
+                document.getElementById('juego-2-content').style.display = 'none';
+                document.getElementById('menu-juego-2').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+            },
+
+            iniciar(n) {
+                this.nivelActual = n;
+                this.etapaDenominador = true;
+                this.inputActual = "";
+                inicializarAudioGlobal();
+
+                const conf = this.nivelesConfig[n];
+                this.denComun = Math.floor(Math.random() * (conf.denMax - 2 + 1)) + 2;
+                this.num1 = Math.floor(Math.random() * (conf.numMax - 1)) + 2;
+                this.num2 = Math.floor(Math.random() * this.num1);
+
+                document.getElementById('menu-juego-2').style.display = 'none';
+                document.getElementById('juego-2-content').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+
+                document.getElementById('instruccion-2').textContent = "Paso 1: Escribe el denominador común";
+                this.renderizarTablero();
+            },
+
+            renderizarTablero() {
+                const tablero = document.getElementById('tablero2');
+                tablero.innerHTML = `
+                    <div class="fraccion">
+                        <div class="num-f">${this.num1}</div>
+                        <div class="linea-fraccion"></div>
+                        <div class="den-f">${this.denComun}</div>
+                    </div>
+                    <div style="margin: 0 5px;">-</div>
+                    <div class="fraccion">
+                        <div class="num-f">${this.num2}</div>
+                        <div class="linea-fraccion"></div>
+                        <div class="den-f">${this.denComun}</div>
+                    </div>
+                    <div style="margin: 0 5px;">=</div>
+                    <div class="fraccion">
+                        <div id="res-num-2" class="celda ${!this.etapaDenominador ? 'activa' : ''}">${!this.etapaDenominador ? this.inputActual : ''}</div>
+                        <div class="linea-fraccion"></div>
+                        <div id="res-den-2" class="celda ${this.etapaDenominador ? 'activa' : ''}">${this.etapaDenominador ? this.inputActual : this.denComun}</div>
+                    </div>
+                `;
+
+                if (!this.etapaDenominador) {
+                    const denCelda = document.getElementById('res-den-2');
+                    if (denCelda) denCelda.classList.add('correcta');
+                }
+            },
+
+            entrada(n) {
+                this.inputActual += n.toString();
+                const objetivo = this.etapaDenominador ? this.denComun.toString() : (this.num1 - this.num2).toString();
+                const celdaActual = this.etapaDenominador ? document.getElementById('res-den-2') : document.getElementById('res-num-2');
+
+                if (celdaActual) celdaActual.textContent = this.inputActual;
+
+                if (objetivo.startsWith(this.inputActual)) {
+                    if (this.inputActual === objetivo) {
+                        playSoundGlobal('acierto');
+                        if (this.etapaDenominador) {
+                            this.etapaDenominador = false;
+                            this.inputActual = "";
+                            document.getElementById('instruccion-2').textContent = "Paso 2: Resta los numeradores";
+                            setTimeout(() => this.renderizarTablero(), 300);
+                        } else {
+                            if (celdaActual) celdaActual.classList.add('correcta');
+                            const resNum = this.num1 - this.num2;
+                            document.getElementById('modal-titulo').textContent = "¡Correcto! 🏆";
+                            document.getElementById('modal-contenido').innerHTML = `
+                                <div class="resultado-final-box">
+                                    <div class="fraccion-final"><div>${this.num1}</div><div class="linea-final"></div><div>${this.denComun}</div></div>
+                                    <div style="font-size: 2rem; font-weight: bold; color: #333;">-</div>
+                                    <div class="fraccion-final"><div>${this.num2}</div><div class="linea-final"></div><div>${this.denComun}</div></div>
+                                    <div class="simbolo-final">=</div>
+                                    <div class="fraccion-final"><div>${resNum}</div><div class="linea-final"></div><div>${this.denComun}</div></div>
+                                </div>
+                            `;
+                            document.getElementById('modal-subtexto').textContent = "¡Resta de fracciones completada!";
+                            document.getElementById('modal-btn-siguiente').onclick = () => Juego2.iniciar(this.nivelActual);
+                            setTimeout(() => document.getElementById('modal-victoria').classList.add('show'), 500);
+                        }
+                    }
+                } else {
+                    playSoundGlobal('error');
+                    if (celdaActual) celdaActual.classList.add('incorrecta');
+                    setTimeout(() => {
+                        if (celdaActual) {
+                            celdaActual.classList.remove('incorrecta');
+                            celdaActual.textContent = "";
+                        }
+                        this.inputActual = "";
+                    }, 500);
+                }
+            },
+
+            borrar() {
+                this.inputActual = "";
+                const celdaActual = this.etapaDenominador ? document.getElementById('res-den-2') : document.getElementById('res-num-2');
+                if (celdaActual) celdaActual.textContent = "";
+            }
+        };
+
+        // ==========================================
+        // JUEGO 3: RESTA PASO A PASO (MCM)
+        // ==========================================
+        const Juego3 = {
+            n1: 0, d1: 0, n2: 0, d2: 0, mcmReal: 0, factor1: 0, factor2: 0, numEquiv1: 0, numEquiv2: 0, resultadoFinal: 0,
+            nivelActual: 1, pasoActual: 1, inputActual: "",
+
+            volverMenuSub() {
+                document.getElementById('juego-3-content').style.display = 'none';
+                document.getElementById('menu-juego-3').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+            },
+
+            iniciar(n) {
+                this.nivelActual = n;
+                this.pasoActual = 1;
+                this.inputActual = "";
+                inicializarAudioGlobal();
+
+                const dens = n === 1 ? [2,3,4,5] : n === 2 ? [4,6,8,10] : [6,9,12,15];
+                this.d1 = dens[Math.floor(Math.random() * dens.length)];
+                do { this.d2 = dens[Math.floor(Math.random() * dens.length)]; } while (this.d1 === this.d2);
+
+                this.mcmReal = getMCM(this.d1, this.d2);
+                this.factor1 = this.mcmReal / this.d1;
+                this.factor2 = this.mcmReal / this.d2;
+
+                this.n1 = Math.floor(Math.random() * 3) + 3;
+                this.n2 = Math.floor(Math.random() * 2) + 1;
+                if (this.n1 * this.factor1 <= this.n2 * this.factor2) this.n1 += 3;
+
+                this.numEquiv1 = this.n1 * this.factor1;
+                this.numEquiv2 = this.n2 * this.factor2;
+                this.resultadoFinal = this.numEquiv1 - this.numEquiv2;
+
+                document.getElementById('menu-juego-3').style.display = 'none';
+                document.getElementById('juego-3-content').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+
+                document.getElementById('ref-operacion3').innerHTML = `
+                    <div class="fraccion"><div>${this.n1}</div><div class="linea-fraccion"></div><div>${this.d1}</div></div>
+                    <div style="color:red; font-weight:bold; margin: 0 10px;">-</div>
+                    <div class="fraccion"><div>${this.n2}</div><div class="linea-fraccion"></div><div>${this.d2}</div></div>
+                `;
+
+                this.actualizarInterfaz();
+            },
+
+            actualizarInterfaz() {
+                const espacio = document.getElementById('espacio-trabajo3');
+                const inst = document.getElementById('instruccion-3');
+                let html = "";
+
+                if (this.pasoActual === 1) {
+                    inst.textContent = `Paso 1: ¿Cuál es el MCM de ${this.d1} y ${this.d2}?`;
+                    html = `<div style="font-size: 1.5rem; margin-bottom:10px; font-weight:bold; color:#555">MCM =</div>
+                            <div class="celda activa">${this.inputActual}</div>`;
+                } else if (this.pasoActual === 2) {
+                    inst.textContent = `Paso 2: Transforma la primera fracción`;
+                    html = `<div class="visual-ayuda">
+                            <div class="multiplicador" style="top:-15px; left:42%">× ${this.factor1}</div>
+                            <div class="fraccion"><div>${this.n1}</div><div class="linea-fraccion"></div><div>${this.d1}</div></div>
+                            <div style="color:#2196f3; font-weight:bold; margin:0 15px">→</div>
+                            <div class="fraccion"><div class="celda activa">${this.inputActual}</div><div class="linea-fraccion"></div><div style="color:green">${this.mcmReal}</div></div>
+                            <div class="multiplicador" style="bottom:-15px; left:42%">× ${this.factor1}</div>
+                        </div>`;
+                } else if (this.pasoActual === 3) {
+                    inst.textContent = `Paso 3: Transforma la segunda fracción`;
+                    html = `<div class="visual-ayuda">
+                            <div class="multiplicador" style="top:-15px; left:42%">× ${this.factor2}</div>
+                            <div class="fraccion"><div>${this.n2}</div><div class="linea-fraccion"></div><div>${this.d2}</div></div>
+                            <div style="color:#2196f3; font-weight:bold; margin:0 15px">→</div>
+                            <div class="fraccion"><div class="celda activa">${this.inputActual}</div><div class="linea-fraccion"></div><div style="color:green">${this.mcmReal}</div></div>
+                            <div class="multiplicador" style="bottom:-15px; left:42%">× ${this.factor2}</div>
+                        </div>`;
+                } else if (this.pasoActual === 4) {
+                    inst.textContent = `Paso 4: ¡Resta los numeradores!`;
+                    html = `<div style="display:flex; align-items:center; gap:15px; font-size:1.8rem; font-weight:bold">
+                            <div class="fraccion"><div>${this.numEquiv1}</div><div class="linea-fraccion"></div><div style="color:green">${this.mcmReal}</div></div>
+                            <div style="color:red">-</div>
+                            <div class="fraccion"><div>${this.numEquiv2}</div><div class="linea-fraccion"></div><div style="color:green">${this.mcmReal}</div></div>
+                            <div style="margin:0 10px">=</div>
+                            <div class="fraccion"><div class="celda activa">${this.inputActual}</div><div class="linea-fraccion"></div><div style="color:green">${this.mcmReal}</div></div>
+                        </div>`;
+                }
+                espacio.innerHTML = html;
+            },
+
+            entrada(num) {
+                this.inputActual += num.toString();
+                let objetivo = [null, this.mcmReal, this.numEquiv1, this.numEquiv2, this.resultadoFinal][this.pasoActual].toString();
+                this.actualizarInterfaz();
+
+                if (objetivo.startsWith(this.inputActual)) {
+                    if (this.inputActual === objetivo) {
+                        playSoundGlobal('acierto');
+                        this.pasoActual++;
+                        this.inputActual = "";
+                        if (this.pasoActual > 4) {
+                            setTimeout(() => this.finalizar(), 400);
+                        } else {
+                            setTimeout(() => this.actualizarInterfaz(), 400);
+                        }
+                    }
+                } else {
+                    playSoundGlobal('error');
+                    const c = document.querySelector('#espacio-trabajo3 .celda.activa');
+                    if (c) c.classList.add('incorrecta');
+                    setTimeout(() => { this.inputActual = ""; this.actualizarInterfaz(); }, 500);
+                }
+            },
+
+            borrar() { this.inputActual = ""; this.actualizarInterfaz(); },
+
+            finalizar() {
+                document.getElementById('modal-titulo').textContent = "¡Excelente! 🎯";
+                document.getElementById('modal-contenido').innerHTML = `
+                    <div class="resultado-final-box">
+                        <div class="fraccion-final"><div>${this.n1}</div><div class="linea-final"></div><div>${this.d1}</div></div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #333;">-</div>
+                        <div class="fraccion-final"><div>${this.n2}</div><div class="linea-final"></div><div>${this.d2}</div></div>
+                        <div class="simbolo-final">=</div>
+                        <div class="fraccion-final"><div>${this.resultadoFinal}</div><div class="linea-final"></div><div>${this.mcmReal}</div></div>
+                    </div>
+                `;
+                document.getElementById('modal-subtexto').textContent = `Convertido a: ${this.numEquiv1}/${this.mcmReal} - ${this.numEquiv2}/${this.mcmReal}`;
+                document.getElementById('modal-btn-siguiente').onclick = () => Juego3.iniciar(this.nivelActual);
+                document.getElementById('modal-victoria').classList.add('show');
+            }
+        };
+
+        // ==========================================
+        // JUEGO 4: RESTA DISTINTO DENOMINADOR (ESTRUCTURA DE CELDAS)
+        // ==========================================
+        const Juego4 = {
+            n1: 0, d1: 0, n2: 0, d2: 0, mcmReal: 0, numEquiv1: 0, numEquiv2: 0, resultadoFinal: 0,
+            nivelActual: 1, pasoActual: 1, inputActual: "",
+
+            volverMenuSub() {
+                document.getElementById('juego-4-content').style.display = 'none';
+                document.getElementById('menu-juego-4').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+            },
+
+            iniciar(n) {
+                this.nivelActual = n;
+                this.pasoActual = 1;
+                this.inputActual = "";
+                inicializarAudioGlobal();
+
+                const dens = n === 1 ? [2,3,4,6] : n === 2 ? [4,6,8,10,12] : [6,9,12,14,15,18];
+                this.d1 = dens[Math.floor(Math.random() * dens.length)];
+                do { this.d2 = dens[Math.floor(Math.random() * dens.length)]; } while (this.d1 === this.d2);
+
+                this.mcmReal = getMCM(this.d1, this.d2);
+                const f1 = this.mcmReal / this.d1;
+                const f2 = this.mcmReal / this.d2;
+
+                this.n1 = Math.floor(Math.random() * 4) + 3;
+                this.n2 = Math.floor(Math.random() * (this.n1 - 1)) + 1;
+
+                if ((this.n1 * f1) <= (this.n2 * f2)) {
+                    this.n1 += 3;
+                }
+
+                this.numEquiv1 = this.n1 * f1;
+                this.numEquiv2 = this.n2 * f2;
+                this.resultadoFinal = this.numEquiv1 - this.numEquiv2;
+
+                document.getElementById('menu-juego-4').style.display = 'none';
+                document.getElementById('juego-4-content').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+
+                this.actualizarInterfaz();
+            },
+
+            actualizarInterfaz() {
+                const zona = document.getElementById('interfaz-juego4');
+                const inst = document.getElementById('instruccion-4');
+
+                let html = `
+                    <div class="contenedor-operacion">
+                        <div class="fraccion"><div class="num-f">${this.n1}</div><div class="linea-fraccion"></div><div class="den-f">${this.d1}</div></div>
+                        <div style="color:red">-</div>
+                        <div class="fraccion"><div class="num-f">${this.n2}</div><div class="linea-fraccion"></div><div class="den-f">${this.d2}</div></div>
+                    </div>
+                `;
+
+                if (this.pasoActual === 1) {
+                    inst.textContent = `Paso 1: Busca el MCM de ${this.d1} y ${this.d2}`;
+                    html += `<div class="mcm-box">MCM (${this.d1}, ${this.d2}) = <div id="target4" class="celda activa">${this.inputActual}</div></div>`;
+                } else {
+                    html += `
+                        <div class="contenedor-operacion" style="margin-top:15px;">
+                            <div class="fraccion">
+                                <div class="celda ${this.pasoActual===2?'activa':''} ${this.pasoActual>2?'correcta':''}">${this.pasoActual===2?this.inputActual:(this.pasoActual>2?this.numEquiv1:'')}</div>
+                                <div class="linea-fraccion"></div>
+                                <div class="den-f" style="color:#007bff">${this.mcmReal}</div>
+                            </div>
+                            <div style="color:red">-</div>
+                            <div class="fraccion">
+                                <div class="celda ${this.pasoActual===3?'activa':''} ${this.pasoActual>3?'correcta':''}">${this.pasoActual===3?this.inputActual:(this.pasoActual>3?this.numEquiv2:'')}</div>
+                                <div class="linea-fraccion"></div>
+                                <div class="den-f" style="color:#007bff">${this.mcmReal}</div>
+                            </div>
+                            <div>=</div>
+                            <div class="fraccion">
+                                <div class="celda ${this.pasoActual===4?'activa':''}">${this.pasoActual===4?this.inputActual:''}</div>
+                                <div class="linea-fraccion"></div>
+                                <div class="den-f" style="color:#007bff">${this.mcmReal}</div>
+                            </div>
+                        </div>
+                    `;
+
+                    if (this.pasoActual === 2) inst.textContent = `Paso 2: ¿Cuál es el nuevo numerador para ${this.n1}/${this.d1}?`;
+                    if (this.pasoActual === 3) inst.textContent = `Paso 3: ¿Cuál es el nuevo numerador para ${this.n2}/${this.d2}?`;
+                    if (this.pasoActual === 4) inst.textContent = `Paso 4: ¡Resta los numeradores!`;
+                }
+                zona.innerHTML = html;
+            },
+
+            entrada(num) {
+                this.inputActual += num.toString();
+                let objetivo = "";
+
+                if (this.pasoActual === 1) objetivo = this.mcmReal.toString();
+                else if (this.pasoActual === 2) objetivo = this.numEquiv1.toString();
+                else if (this.pasoActual === 3) objetivo = this.numEquiv2.toString();
+                else if (this.pasoActual === 4) objetivo = this.resultadoFinal.toString();
+
+                this.actualizarInterfaz();
+
+                if (objetivo.startsWith(this.inputActual)) {
+                    if (this.inputActual === objetivo) {
+                        playSoundGlobal('acierto');
+                        this.pasoActual++;
+                        this.inputActual = "";
+                        if (this.pasoActual > 4) setTimeout(() => this.finalizar(), 500);
+                        else setTimeout(() => this.actualizarInterfaz(), 400);
+                    }
+                } else {
+                    playSoundGlobal('error');
+                    const c = document.querySelector('#interfaz-juego4 .celda.activa');
+                    if (c) c.classList.add('incorrecta');
+                    setTimeout(() => {
+                        this.inputActual = "";
+                        this.actualizarInterfaz();
+                    }, 500);
+                }
+            },
+
+            borrar() {
+                this.inputActual = "";
+                this.actualizarInterfaz();
+            },
+
+            finalizar() {
+                document.getElementById('modal-titulo').textContent = "¡Restado con éxito! ❄️";
+                document.getElementById('modal-contenido').innerHTML = `
+                    <div class="resultado-final-box">
+                        <div class="fraccion-final"><div>${this.n1}</div><div class="linea-final"></div><div>${this.d1}</div></div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #333;">-</div>
+                        <div class="fraccion-final"><div>${this.n2}</div><div class="linea-final"></div><div>${this.d2}</div></div>
+                        <div class="simbolo-final">=</div>
+                        <div class="fraccion-final"><div>${this.resultadoFinal}</div><div class="linea-final"></div><div>${this.mcmReal}</div></div>
+                    </div>
+                `;
+                document.getElementById('modal-subtexto').textContent = `${this.numEquiv1}/${this.mcmReal} - ${this.numEquiv2}/${this.mcmReal} = ${this.resultadoFinal}/${this.mcmReal}`;
+                document.getElementById('modal-btn-siguiente').onclick = () => Juego4.iniciar(this.nivelActual);
+                document.getElementById('modal-victoria').classList.add('show');
+            }
+        };
+
+        // ==========================================
+        // JUEGO 5: MULTIPLICACIÓN DE FRACCIONES
+        // ==========================================
+        const Juego5 = {
+            n1: 0, d1: 0, n2: 0, d2: 0, etapaNumerador: true, inputActual: "", nivelActual: 1,
+            nivelesConfig: { 1: { max: 5 }, 2: { max: 10 }, 3: { max: 15 } },
+
+            volverMenuSub() {
+                document.getElementById('juego-5-content').style.display = 'none';
+                document.getElementById('menu-juego-5').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+            },
+
+            iniciar(n) {
+                this.nivelActual = n;
+                this.etapaNumerador = true;
+                this.inputActual = "";
+                inicializarAudioGlobal();
+
+                const conf = this.nivelesConfig[n];
+                this.n1 = Math.floor(Math.random() * conf.max) + 1;
+                this.d1 = Math.floor(Math.random() * conf.max) + 2;
+                this.n2 = Math.floor(Math.random() * conf.max) + 1;
+                this.d2 = Math.floor(Math.random() * conf.max) + 2;
+
+                document.getElementById('menu-juego-5').style.display = 'none';
+                document.getElementById('juego-5-content').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+
+                document.getElementById('instruccion-5').textContent = "Paso 1: Multiplica los numeradores (arriba)";
+                this.renderizarTablero();
+            },
+
+            renderizarTablero() {
+                const tablero = document.getElementById('tablero5');
+                tablero.innerHTML = `
+                    <div class="fraccion">
+                        <div class="num-f">${this.n1}</div>
+                        <div class="linea-fraccion"></div>
+                        <div class="den-f">${this.d1}</div>
+                    </div>
+                    <div style="margin: 0 5px;">×</div>
+                    <div class="fraccion">
+                        <div class="num-f">${this.n2}</div>
+                        <div class="linea-fraccion"></div>
+                        <div class="den-f">${this.d2}</div>
+                    </div>
+                    <div style="margin: 0 5px;">=</div>
+                    <div class="fraccion">
+                        <div id="res-num-5" class="celda ${this.etapaNumerador ? 'activa' : ''}">${this.etapaNumerador ? this.inputActual : (this.n1 * this.n2)}</div>
+                        <div class="linea-fraccion"></div>
+                        <div id="res-den-5" class="celda ${!this.etapaNumerador ? 'activa' : ''}">${!this.etapaNumerador ? this.inputActual : ''}</div>
+                    </div>
+                `;
+
+                if (!this.etapaNumerador) {
+                    const numCelda = document.getElementById('res-num-5');
+                    if (numCelda) numCelda.classList.add('correcta');
+                }
+            },
+
+            entrada(n) {
+                this.inputActual += n.toString();
+                const objetivo = this.etapaNumerador ? (this.n1 * this.n2).toString() : (this.d1 * this.d2).toString();
+                const celdaActual = this.etapaNumerador ? document.getElementById('res-num-5') : document.getElementById('res-den-5');
+
+                if (celdaActual) celdaActual.textContent = this.inputActual;
+
+                if (objetivo.startsWith(this.inputActual)) {
+                    if (this.inputActual === objetivo) {
+                        playSoundGlobal('acierto');
+                        if (this.etapaNumerador) {
+                            this.etapaNumerador = false;
+                            this.inputActual = "";
+                            document.getElementById('instruccion-5').textContent = "Paso 2: Multiplica los denominadores (abajo)";
+                            setTimeout(() => this.renderizarTablero(), 300);
+                        } else {
+                            if (celdaActual) celdaActual.classList.add('correcta');
+                            const resNum = this.n1 * this.n2;
+                            const resDen = this.d1 * this.d2;
+                            document.getElementById('modal-titulo').textContent = "¡Excelente! 🏆";
+                            document.getElementById('modal-contenido').innerHTML = `
+                                <div class="resultado-final-box">
+                                    <div class="fraccion-final"><div>${this.n1}</div><div class="linea-final"></div><div>${this.d1}</div></div>
+                                    <div style="font-size: 2rem; font-weight: bold; color: #333;">×</div>
+                                    <div class="fraccion-final"><div>${this.n2}</div><div class="linea-final"></div><div>${this.d2}</div></div>
+                                    <div class="simbolo-final">=</div>
+                                    <div class="fraccion-final"><div>${resNum}</div><div class="linea-final"></div><div>${resDen}</div></div>
+                                </div>
+                            `;
+                            document.getElementById('modal-subtexto').textContent = "¡Multiplicación realizada en línea correctamente!";
+                            document.getElementById('modal-btn-siguiente').onclick = () => Juego5.iniciar(this.nivelActual);
+                            setTimeout(() => document.getElementById('modal-victoria').classList.add('show'), 500);
+                        }
+                    }
+                } else {
+                    playSoundGlobal('error');
+                    if (celdaActual) celdaActual.classList.add('incorrecta');
+                    setTimeout(() => {
+                        if (celdaActual) {
+                            celdaActual.classList.remove('incorrecta');
+                            celdaActual.textContent = "";
+                        }
+                        this.inputActual = "";
+                    }, 500);
+                }
+            },
+
+            borrar() {
+                this.inputActual = "";
+                const celdaActual = this.etapaNumerador ? document.getElementById('res-num-5') : document.getElementById('res-den-5');
+                if (celdaActual) celdaActual.textContent = "";
+            }
+        };
+
+        // ==========================================
+        // JUEGO 9: DIVISIÓN DE FRACCIONES
+        // ==========================================
+        const Juego9 = {
+            f1: { n: 0, d: 0 }, f2: { n: 0, d: 0 },
+            pasoActual: 1, inputActual: "", nivelActual: 1,
+
+            volverMenuSub() {
+                document.getElementById('juego-9-content').style.display = 'none';
+                document.getElementById('menu-juego-9').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+            },
+
+            iniciar(nivel) {
+                this.nivelActual = nivel;
+                this.pasoActual = 1;
+                this.inputActual = "";
+                inicializarAudioGlobal();
+
+                let max = nivel === 1 ? 5 : (nivel === 2 ? 10 : 12);
+                this.f1.n = Math.floor(Math.random() * (max - 1)) + 1;
+                this.f1.d = Math.floor(Math.random() * (max - 1)) + 1;
+                this.f2.n = Math.floor(Math.random() * (max - 1)) + 1;
+                this.f2.d = Math.floor(Math.random() * (max - 1)) + 1;
+
+                document.getElementById('menu-juego-9').style.display = 'none';
+                document.getElementById('juego-9-content').style.display = 'flex';
+                document.getElementById('modal-victoria').classList.remove('show');
+
+                this.actualizarInstruccion();
+                this.renderizarTablero();
+            },
+
+            actualizarInstruccion() {
+                const ins = document.getElementById('instruccion-9');
+                if (this.pasoActual === 1) {
+                    ins.textContent = `Paso 1: Numerador = ${this.f1.n} × ${this.f2.d}`;
+                } else {
+                    ins.textContent = `Paso 2: Denominador = ${this.f1.d} × ${this.f2.n}`;
+                }
+            },
+
+            renderizarTablero() {
+                const tablero = document.getElementById('tablero9');
+                const numCorrecto = this.f1.n * this.f2.d;
+
+                tablero.innerHTML = `
+                    <div class="fraccion">
+                        <div class="num-f ${this.pasoActual === 1 ? 'resaltado' : ''}">${this.f1.n}</div>
+                        <div class="linea-fraccion"></div>
+                        <div class="den-f ${this.pasoActual === 2 ? 'resaltado' : ''}">${this.f1.d}</div>
+                    </div>
+                    <div style="margin: 0 10px;">:</div>
+                    <div class="fraccion">
+                        <div class="num-f ${this.pasoActual === 2 ? 'resaltado' : ''}">${this.f2.n}</div>
+                        <div class="linea-fraccion"></div>
+                        <div class="den-f ${this.pasoActual === 1 ? 'resaltado' : ''}">${this.f2.d}</div>
+                    </div>
+                    <div style="margin: 0 15px;">=</div>
+                    <div class="fraccion">
+                        ${this.pasoActual === 1 ? `
+                            <div id="celda-num-9" class="celda activa">${this.inputActual}</div>
+                            <div class="linea-fraccion"></div>
+                            <div class="celda" style="border: 2px dashed #ccc;">?</div>
+                        ` : `
+                            <div class="celda correcta">${numCorrecto}</div>
+                            <div class="linea-fraccion"></div>
+                            <div id="celda-den-9" class="celda activa">${this.inputActual}</div>
+                        `}
+                    </div>
+                `;
+            },
+
+            entrada(n) {
+                this.inputActual += n.toString();
+                const objetivo = (this.pasoActual === 1 ? (this.f1.n * this.f2.d) : (this.f1.d * this.f2.n)).toString();
+                const celda = this.pasoActual === 1 ? document.getElementById('celda-num-9') : document.getElementById('celda-den-9');
+
+                if (celda) celda.textContent = this.inputActual;
+
+                if (objetivo.startsWith(this.inputActual)) {
+                    if (this.inputActual === objetivo) {
+                        playSoundGlobal('acierto');
+                        if (this.pasoActual === 1) {
+                            this.pasoActual = 2;
+                            this.inputActual = "";
+                            this.actualizarInstruccion();
+                            setTimeout(() => this.renderizarTablero(), 300);
+                        } else {
+                            if (celda) celda.classList.add('correcta');
+                            const resNum = this.f1.n * this.f2.d;
+                            const resDen = this.f1.d * this.f2.n;
+                            document.getElementById('modal-titulo').textContent = "¡División Perfecta! 🏆";
+                            document.getElementById('modal-contenido').innerHTML = `
+                                <div class="resultado-final-box">
+                                    <div class="fraccion-final"><div>${this.f1.n}</div><div class="linea-final"></div><div>${this.f1.d}</div></div>
+                                    <div style="font-size: 2rem; font-weight: bold; color: #333;">:</div>
+                                    <div class="fraccion-final"><div>${this.f2.n}</div><div class="linea-final"></div><div>${this.f2.d}</div></div>
+                                    <div class="simbolo-final">=</div>
+                                    <div class="fraccion-final"><div>${resNum}</div><div class="linea-final"></div><div>${resDen}</div></div>
+                                </div>
+                            `;
+                            document.getElementById('modal-subtexto').textContent = "¡Has completado la división cruzada correctamente!";
+                            document.getElementById('modal-btn-siguiente').onclick = () => Juego9.iniciar(this.nivelActual);
+                            setTimeout(() => document.getElementById('modal-victoria').classList.add('show'), 500);
+                        }
+                    }
+                } else {
+                    playSoundGlobal('error');
+                    if (celda) celda.classList.add('incorrecta');
+                    setTimeout(() => {
+                        if (celda) {
+                            celda.classList.remove('incorrecta');
+                            celda.textContent = "";
+                        }
+                        this.inputActual = "";
+                    }, 500);
+                }
+            },
+
+            borrar() {
+                this.inputActual = "";
+                const celda = this.pasoActual === 1 ? document.getElementById('celda-num-9') : document.getElementById('celda-den-9');
+                if (celda) celda.textContent = "";
+            }
+        };
+    </script>
+</body>
+</html>
