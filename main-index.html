@@ -1,181 +1,502 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Math Rush Ow - ¡Aventura Matemática!</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    <title>Math Math Rush Ow - ¡Aventura Matemática Interactiva!</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         :root {
-            --primary-soft: #FF6B6B;
-            --secondary-soft: #4ECDC4;
-            --accent-soft: #FFE66D;
-            --reasoning-soft: #A29BFE;
-            --arcade-orange: #FF9F43;
-            --glass-card: rgba(255, 255, 255, 0.1);
-            --text-white: #ffffff;
-            --playstore-blue: #4285F4;
-            --playstore-green: #34A853;
+            /* Vibrant, child-friendly yet professional color palette */
+            --bg-dark: #0b132b;
+            --bg-card: rgba(28, 37, 65, 0.85);
+            --bg-card-hover: rgba(42, 53, 85, 0.95);
+            --card-border: rgba(255, 255, 255, 0.15);
+            
+            --text-main: #ffffff;
+            --text-muted: #cbd5e1;
+            
+            /* Gamified bright accents */
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-purple: #c084fc;
+            --accent-orange: #fb923c;
+            --accent-pink: #f472b6;
+            --accent-yellow: #facc15;
+            
+            --playstore-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --shadow-glow: 0 10px 25px -5px rgba(56, 189, 248, 0.3);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        h1, h2, h3, .font-heading {
+            font-family: 'Fredoka', cursive, sans-serif;
+        }
 
         body {
-            background: 
-                linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)),
-                url('iconkid.jpg') no-repeat center center fixed;
-            background-size: cover;
-            color: var(--text-white);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
             min-height: 100vh;
-            padding: 0;
             overflow-x: hidden;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        /* MARCA DE AGUA EN EL FONDO (Mantenida exactamente según especificación) */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('iconkid.jpg') no-repeat center center;
+            background-size: cover;
+            opacity: 0.15; /* Visibilidad de la marca de agua */
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, rgba(11, 19, 43, 0.75) 0%, rgba(11, 19, 43, 0.98) 100%);
+            z-index: -1;
+            pointer-events: none;
         }
 
         /* --- BANNER PLAY STORE --- */
         #android-banner {
-            display: none;
+            display: none; /* Se activa dinámicamente o permanece sticky */
             position: sticky;
             top: 0;
-            z-index: 9999;
+            z-index: 1000;
             width: 100%;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         .playstore-link {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: linear-gradient(90deg, var(--playstore-blue), var(--playstore-green));
-            padding: 12px 20px;
+            background: var(--playstore-gradient);
+            padding: 12px 24px;
             text-decoration: none;
             color: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            animation: pulse-banner 2.5s infinite;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            border-bottom: 2px solid rgba(255,255,255,0.2);
         }
 
-        .banner-info { display: flex; align-items: center; gap: 12px; }
-        .banner-info i { font-size: 1.6rem; }
-        .banner-text { font-weight: 700; font-size: 0.85rem; line-height: 1.2; }
+        .banner-info { display: flex; align-items: center; gap: 14px; }
+        .banner-info i { font-size: 2rem; color: #fff; }
+        .banner-text { font-size: 0.95rem; font-weight: 700; line-height: 1.2; }
+        .banner-text span { font-weight: 500; opacity: 0.9; font-size: 0.8rem; }
 
         .btn-instalar {
-            background: white;
-            color: #1e293b;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 900;
+            background: #ffffff;
+            color: #059669;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 800;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
         }
 
-        @keyframes pulse-banner {
-            0% { transform: scale(1); filter: brightness(1); }
-            50% { transform: scale(1.01); filter: brightness(1.1); }
-            100% { transform: scale(1); filter: brightness(1); }
+        .btn-instalar:hover {
+            transform: scale(1.05);
+            background: #f8fafc;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
         }
 
-        /* --- CONTENEDOR Y GRID --- */
-        .container { position: relative; z-index: 1; max-width: 1600px; margin: 0 auto; padding: 20px; }
+        /* --- LAYOUT PRINCIPAL --- */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+        }
 
-        header { text-align: center; padding: 10px 0 40px; }
-        .logo {
+        /* HEADER HERO CON AFINIDAD INFANTIL / JUVENIL */
+        header {
+            text-align: center;
+            margin-bottom: 35px;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: var(--accent-blue);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-title {
             font-size: 3.5rem;
-            font-weight: 900;
+            font-weight: 700;
+            letter-spacing: -0.5px;
             text-transform: uppercase;
-            text-shadow: 3px 3px 0px rgba(0,0,0,0.5);
-            line-height: 0.9;
+            background: linear-gradient(135deg, #ffffff 40%, var(--accent-yellow) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+            line-height: 1.1;
         }
-        .logo span { color: var(--accent-soft); }
 
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.15rem;
+            max-width: 650px;
+            margin: 0 auto;
+            font-weight: 500;
+        }
+
+        /* --- BARRA DE BÚSQUEDA Y FILTROS RÁPIDOS --- */
+        .controls-wrapper {
+            max-width: 800px;
+            margin: 0 auto 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 20px 14px 48px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid var(--card-border);
+            border-radius: 30px;
+            color: white;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+            background: rgba(30, 41, 59, 0.95);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .category-nav {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25 ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: #ffffff;
+            color: #0b132b;
+            border-color: #ffffff;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
+        }
+
+        /* --- MAIN GRID --- */
         .main-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 30px;
             align-items: start;
         }
 
-        .section-pill {
-            padding: 15px;
-            border-radius: 50px;
-            text-align: center;
-            font-weight: 900;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            font-size: 1rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        .zone {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            transition: border-color 0.3s ease;
         }
-        .pill-blue { background: var(--secondary-soft); color: #0f172a; }
-        .pill-red { background: var(--primary-soft); color: white; }
-        .pill-purple { background: var(--reasoning-soft); color: #0f172a; }
-        .pill-orange { background: var(--arcade-orange); color: white; }
 
-        .card-group {
-            background: var(--glass-card);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 15px;
-            overflow: hidden;
-            transition: 0.3s ease;
+        .zone:hover {
+            border-color: rgba(255, 255, 255, 0.25);
         }
+
+        .zone-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding-bottom: 16px;
+            margin-bottom: 22px;
+            border-bottom: 2px solid var(--card-border);
+            letter-spacing: 0.5px;
+        }
+
+        .zone-learning .zone-header { color: var(--accent-blue); border-color: rgba(56, 189, 248, 0.3); }
+        .zone-mental .zone-header { color: var(--accent-green); border-color: rgba(74, 222, 128, 0.3); }
+        .zone-reasoning .zone-header { color: var(--accent-purple); border-color: rgba(192, 132, 252, 0.3); }
+        .zone-arcade .zone-header { color: var(--accent-orange); border-color: rgba(251, 146, 60, 0.3); }
+
+        .zone-header i {
+            font-size: 1.5rem;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+        }
+
+        /* --- ACCORDIONS & CARD GROUPS --- */
+        .card-group {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            margin-bottom: 14px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card-group:last-child { margin-bottom: 0; }
 
         .card-header {
-            padding: 15px 20px;
+            padding: 16px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            background: rgba(0,0,0,0.2);
-            color: var(--accent-soft);
+            user-select: none;
+            transition: background 0.2s ease;
         }
 
-        .card-header h3 { font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
+        .card-header:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .card-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-main);
+        }
+
+        .card-header h3 i {
+            width: 22px;
+            text-align: center;
+            color: var(--accent-blue);
+            font-size: 1.1rem;
+        }
+
+        .chevron {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.08);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-group.active .chevron {
+            transform: rotate(180deg);
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
 
         .card-content {
             max-height: 0;
             overflow: hidden;
-            transition: 0.4s ease;
+            transition: max-height 0.4s cubic-bezier(0, 1, 0, 1);
+            background: rgba(0, 0, 0, 0.25);
         }
-        .active .card-content { max-height: 3000px; padding: 15px; }
 
-        .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .card-group.active .card-content {
+            max-height: 1200px;
+            transition: max-height 0.5s ease-in-out;
+            padding: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .always-open .card-content {
+            max-height: none !important;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        /* --- BOTONES DE JUEGOS Y ACTIVIDADES --- */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
 
         .btn-game {
-            background: white;
-            color: #1e293b;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
             text-decoration: none;
-            padding: 10px;
-            border-radius: 12px;
+            padding: 12px 14px;
+            border-radius: 14px;
             font-weight: 700;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
-            gap: 8px;
-            transition: 0.2s;
-            box-shadow: 0 4px 0px #cbd5e1;
+            gap: 12px;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .btn-game:hover {
-            transform: scale(1.03);
-            background: var(--accent-soft);
-            box-shadow: 0 4px 0px #d4af37;
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
         }
 
         .dot {
-            width: 22px; height: 22px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 0.7rem; flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.85rem;
+            color: #0b132b;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
-        @media (max-width: 768px) { .logo { font-size: 2.2rem; } }
+        .btn-text {
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        /* BANNER ACCESIBILIDAD ALUMNOS / DOCENTES */
+        .kids-friendly-banner {
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(56, 189, 248, 0.2));
+            border: 1px dashed rgba(167, 139, 250, 0.5);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .kids-friendly-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .kids-friendly-info i {
+            font-size: 2.2rem;
+            color: var(--accent-yellow);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            padding: 30px 20px 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--card-border);
+        }
+
+        footer a {
+            color: var(--text-main);
+            text-decoration: none;
+            margin: 0 12px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        footer a:hover {
+            color: var(--accent-blue);
+            text-decoration: underline;
+        }
+
+        /* ADJUSTMENTS FOR MOBILES & TABLETS */
+        @media (max-width: 768px) {
+            .logo-title { font-size: 2.4rem; }
+            .subtitle { font-size: 1rem; }
+            .main-grid { grid-template-columns: 1fr; }
+            .container { padding: 20px 12px 40px; }
+            .links-grid { grid-template-columns: 1fr; }
+            .controls-wrapper { margin-bottom: 25px; }
+            .nav-btn { padding: 8px 16px; font-size: 0.82rem; }
+        }
     </style>
 </head>
 <body>
 
+<!-- BANNER PLAY STORE -->
 <div id="android-banner">
     <a href="https://play.google.com/store/apps/details?id=com.mathmathrushow.app&hl=es_419" target="_blank" class="playstore-link">
         <div class="banner-info">
             <i class="fab fa-google-play"></i>
-            <div class="banner-text">¡DESCARGA LA APP!<br><span style="font-weight: 400; opacity: 0.9;">MATHMATHRUSHOW en Android</span></div>
+            <div class="banner-text">
+                ¡DESCARGA LA APP OFICIAL!<br>
+                <span>MATHMATHRUSHOW en Google Play</span>
+            </div>
         </div>
         <div class="btn-instalar">Instalar</div>
     </a>
@@ -183,179 +504,378 @@
 
 <div class="container">
     <header>
-        <div class="logo">MATH MATH<br><span>RUSH OW</span></div>
-        <p style="opacity: 0.8; margin-top: 5px;">¡Tu aventura matemática completa!</p>
+
+        <h1 class="logo-title">Math Math Rush Ow</h1>
+        <p class="subtitle">¡Aprende, practica y diviértete superando retos matemáticos interactivos!</p>
     </header>
 
-    <div class="main-grid">
-
-        <div class="zone">
-            <div class="section-pill pill-blue">🎓 ZONA E-APRENDIZAJE</div>
-
-            <div class="card-group" onclick="this.classList.toggle('active')">
-                <div class="card-header"><h3><i class="fas fa-plus"></i> SUMAS</h3><i class="fas fa-chevron-down"></i></div>
-                <div class="card-content"><div class="links-grid">
-                    <a href="aprendesumadef.html" class="btn-game"><div class="dot" style="background:#FF6B6B">1</div> Aprende a sumar</a>
-                    </div></div>
-            </div>
-
-            <div class="card-group" onclick="this.classList.toggle('active')">
-                <div class="card-header"><h3><i class="fas fa-minus"></i> RESTAS</h3><i class="fas fa-chevron-down"></i></div>
-                <div class="card-content"><div class="links-grid">
-                    <a href="aprenderestadef.html" class="btn-game"><div class="dot" style="background:#FF6B6B">-</div> Aprende a restar</a>
-                    </div></div>
-            </div>
-
-            <div class="card-group" onclick="this.classList.toggle('active')">
-                <div class="card-header"><h3><i class="fas fa-times"></i> MULTIPLICACIÓN</h3><i class="fas fa-chevron-down"></i></div>
-                <div class="card-content"><div class="links-grid">
-                    <a href="aprendemultiplicadef.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">×</div> Aprende a multiplicar</a>
-                    </div></div>
-            </div>
-
-            <div class="card-group" onclick="this.classList.toggle('active')">
-                <div class="card-header"><h3><i class="fas fa-divide"></i> DIVISIÓN</h3><i class="fas fa-chevron-down"></i></div>
-                <div class="card-content"><div class="links-grid">
-                    <a href="aprendedivdef.html" class="btn-game"><div class="dot" style="background:#A29BFE">÷</div> Aprende a dividir</a>
-                </div></div>
-            </div>
-
-            <div class="card-group active" onclick="this.classList.toggle('active')">
-                <div class="card-header"><h3><i class="fas fa-pie-chart"></i> FRACCIONES</h3><i class="fas fa-chevron-down"></i></div>
-                <div class="card-content"><div class="links-grid">
-                    <a href="aprendefraccion.html" class="btn-game"><div class="dot" style="background:#6C5CE7">×</div> Aprende fracciones.</a>
-                    <a href="aprendefraccioncalcula.html" class="btn-game"><div class="dot" style="background:#6C5CE7">÷</div> Cálculo de fracciones</a>
-                </div></div>
-            </div>
-
-            <div class="card-group" onclick="this.classList.toggle('active')">
-                <div class="card-header"><h3><i class="fas fa-coins"></i> DECIMALES</h3><i class="fas fa-chevron-down"></i></div>
-                <div class="card-content"><div class="links-grid">
-                    <a href="aprendecimal.html" class="btn-game"><div class="dot" style="background:#FDCB6E">D2</div> Números decimales</a>
-                    <a href="aprendecimalcalcula.html" class="btn-game"><div class="dot" style="background:#FDCB6E">D3</div> Cálculo con decimales</a>
-                </div></div>
-            </div>
-       
-            <div class="card-group" onclick="this.classList.toggle('active')">
-                <div class="card-header"><h3><i class="fas fa-times"></i> MEDIDAS</h3><i class="fas fa-chevron-down"></i></div>
-                <div class="card-content"><div class="links-grid">
-                    <a href="medidametro.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">M</div> Longitud con tabla</a>
-                    <a href="longitudx.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">M</div> Longitud x10,:10...</a>
-                    <a href="medidalitro.html" class="btn-game"><div class="dot" style="background:#FF6B6B">L</div> Capacidad con tabla</a>
-                     <a href="capacidadx.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">M</div> Capacidad x10,:10...</a>
-                    <a href="medidagramo.html" class="btn-game"><div class="dot" style="background:#FF6B6B">G</div> Masa con tabla</a>
-                     <a href="masax.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">M</div> Masa x10,:10...</a>
-                     <a href="superficie.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">M</div> Superficie</a>
-                      <a href="volumen.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">M</div> Volumen</a>
-                     <a href="volucap.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">M</div> Volumen y capacidad</a>
-                </div></div>
-            </div>
+    <!-- BARRA DE BÚSQUEDA Y FILTROS RÁPIDOS -->
+    <div class="controls-wrapper">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" onkeyup="filterActivities()" placeholder="¿Qué quieres practicar hoy? (ej. multiplicar, sumar, fracciones...)">
+        </div>
         
-            <div class="card-group" onclick="this.classList.toggle('active')">
-                <div class="card-header"><h3><i class="fas fa-times"></i> ESTADÍSTICA Y PROBABILIDAD</h3><i class="fas fa-chevron-down"></i></div>
-                <div class="card-content"><div class="links-grid">
-                    <a href="estadisticados.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">M</div> Tabla de frecuencias</a>
-                    <a href="estadisticatres.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">M</div> Estadística (solo media y moda)</a>
-                    <a href="estadistica.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">M</div> Estadística</a>
-                    <a href="probabilidad.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">M</div> Probabilidad</a>
-                 </div></div>
-            </div>          
-            
-      <div class="card-group" onclick="this.classList.toggle('active')">
-                <div class="card-header"><h3><i class="fas fa-times"></i> SISTEMA SEXAGESIMAL (HORA)</h3><i class="fas fa-chevron-down"></i></div>
-                <div class="card-content"><div class="links-grid">
-                    <a href="hora.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">R</div> RELOJ</a>
-                    <a href="horaopera.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">R</div> + o - Horas</a>
-                </div></div>
-            </div>     
-            
+        <div class="category-nav">
+            <button class="nav-btn active" onclick="filterCategory('all', this)"><i class="fas fa-border-all"></i> Todo</button>
+            <button class="nav-btn" onclick="filterCategory('zone-learning', this)"><i class="fas fa-graduation-cap"></i> E-Aprendizaje</button>
+            <button class="nav-btn" onclick="filterCategory('zone-mental', this)"><i class="fas fa-bolt"></i> Cálculo Mental</button>
+            <button class="nav-btn" onclick="filterCategory('zone-reasoning', this)"><i class="fas fa-brain"></i> Razonamiento</button>
+            <button class="nav-btn" onclick="filterCategory('zone-arcade', this)"><i class="fas fa-gamepad"></i> Zona Arcade</button>
         </div>
+    </div>
 
-        <div class="zone">
-            <div class="section-pill pill-red">🚀 ZONA CÁLCULO MENTAL</div>
+    <!-- MAIN GRID CON TODOS LOS MÓDULOS -->
+    <div class="main-grid" id="mainGrid">
+
+        <!-- ZONA E-APRENDIZAJE -->
+        <div class="zone zone-learning" id="zone-learning">
+            <div class="zone-header">
+                <i class="fas fa-graduation-cap"></i> Zona E-Aprendizaje
+            </div>
+
+            <!-- SUMAS -->
             <div class="card-group active">
-                <div class="card-header"><h3><i class="fas fa-bolt"></i> DESAFÍOS</h3></div>
-                <div class="card-content" style="max-height: none;">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h3><i class="fas fa-plus-circle"></i> Sumas</h3>
+                    <div class="chevron"><i class="fas fa-chevron-down"></i></div>
+                </div>
+                <div class="card-content">
                     <div class="links-grid">
-                        <a href="calcula.html" class="btn-game"><div class="dot" style="background:#7AB2FF">1</div> CÁLCULO MENTAL</a>
+                        <a href="aprendesumadef.html" class="btn-game">
+                            <div class="dot" style="background:var(--accent-pink);">+</div>
+                            <span class="btn-text">Aprende a sumar</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESTAS -->
+            <div class="card-group">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h3><i class="fas fa-minus-circle"></i> Restas</h3>
+                    <div class="chevron"><i class="fas fa-chevron-down"></i></div>
+                </div>
+                <div class="card-content">
+                    <div class="links-grid">
+                        <a href="aprenderestadef.html" class="btn-game">
+                            <div class="dot" style="background:var(--accent-pink);">-</div>
+                            <span class="btn-text">Aprende a restar</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MULTIPLICACIÓN -->
+            <div class="card-group">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h3><i class="fas fa-times-circle"></i> Multiplicación</h3>
+                    <div class="chevron"><i class="fas fa-chevron-down"></i></div>
+                </div>
+                <div class="card-content">
+                    <div class="links-grid">
+                        <a href="aprendemultiplicadef.html" class="btn-game">
+                            <div class="dot" style="background:var(--accent-yellow);">×</div>
+                            <span class="btn-text">Aprende a multiplicar</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DIVISIÓN -->
+            <div class="card-group">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h3><i class="fas fa-divide"></i> División</h3>
+                    <div class="chevron"><i class="fas fa-chevron-down"></i></div>
+                </div>
+                <div class="card-content">
+                    <div class="links-grid">
+                        <a href="aprendedivdef.html" class="btn-game">
+                            <div class="dot" style="background:var(--accent-purple);">÷</div>
+                            <span class="btn-text">Aprende a dividir</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FRACCIONES -->
+            <div class="card-group active">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h3><i class="fas fa-chart-pie"></i> Fracciones</h3>
+                    <div class="chevron"><i class="fas fa-chevron-down"></i></div>
+                </div>
+                <div class="card-content">
+                    <div class="links-grid">
+                        <a href="aprendefraccion.html" class="btn-game">
+                            <div class="dot" style="background:var(--accent-purple);">½</div>
+                            <span class="btn-text">Aprende fracciones</span>
+                        </a>
+                        <a href="aprendefraccioncalcula.html" class="btn-game">
+                            <div class="dot" style="background:var(--accent-purple);">¾</div>
+                            <span class="btn-text">Cálculo de fracciones</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DECIMALES -->
+            <div class="card-group">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h3><i class="fas fa-coins"></i> Decimales</h3>
+                    <div class="chevron"><i class="fas fa-chevron-down"></i></div>
+                </div>
+                <div class="card-content">
+                    <div class="links-grid">
+                        <a href="aprendecimal.html" class="btn-game">
+                            <div class="dot" style="background:var(--accent-yellow);">.0</div>
+                            <span class="btn-text">Números decimales</span>
+                        </a>
+                        <a href="aprendecimalcalcula.html" class="btn-game">
+                            <div class="dot" style="background:var(--accent-yellow);">.00</div>
+                            <span class="btn-text">Cálculo con decimales</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MEDIDAS -->
+            <div class="card-group">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h3><i class="fas fa-ruler-combined"></i> Medidas</h3>
+                    <div class="chevron"><i class="fas fa-chevron-down"></i></div>
+                </div>
+                <div class="card-content">
+                    <div class="links-grid">
+                        <a href="medidametro.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">m</div><span class="btn-text">Longitud con tabla</span></a>
+                        <a href="longitudx.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">km</div><span class="btn-text">Longitud x10, :10...</span></a>
+                        <a href="medidalitro.html" class="btn-game"><div class="dot" style="background:var(--accent-pink);">L</div><span class="btn-text">Capacidad con tabla</span></a>
+                        <a href="capacidadx.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">mL</div><span class="btn-text">Capacidad x10, :10...</span></a>
+                        <a href="medidagramo.html" class="btn-game"><div class="dot" style="background:var(--accent-pink);">g</div><span class="btn-text">Masa con tabla</span></a>
+                        <a href="masax.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">kg</div><span class="btn-text">Masa x10, :10...</span></a>
+                        <a href="superficie.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">m²</div><span class="btn-text">Superficie</span></a>
+                        <a href="volumen.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">m³</div><span class="btn-text">Volumen</span></a>
+                        <a href="volucap.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">v/c</div><span class="btn-text">Volumen y capacidad</span></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ESTADÍSTICA Y PROBABILIDAD -->
+            <div class="card-group">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h3><i class="fas fa-chart-bar"></i> Estadística y Probabilidad</h3>
+                    <div class="chevron"><i class="fas fa-chevron-down"></i></div>
+                </div>
+                <div class="card-content">
+                    <div class="links-grid">
+                        <a href="estadisticados.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">📊</div><span class="btn-text">Tabla de frecuencias</span></a>
+                        <a href="estadisticatres.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">📈</div><span class="btn-text">Media y Moda</span></a>
+                        <a href="estadistica.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">📋</div><span class="btn-text">Estadística general</span></a>
+                        <a href="probabilidad.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">🎲</div><span class="btn-text">Probabilidad</span></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SISTEMA SEXAGESIMAL -->
+            <div class="card-group">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h3><i class="fas fa-clock"></i> Sistema Sexagesimal</h3>
+                    <div class="chevron"><i class="fas fa-chevron-down"></i></div>
+                </div>
+                <div class="card-content">
+                    <div class="links-grid">
+                        <a href="hora.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">🕒</div><span class="btn-text">El Reloj</span></a>
+                        <a href="horaopera.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">⏱️</div><span class="btn-text">+ o - Horas</span></a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="zone">
-            <div class="section-pill pill-purple">🧠 RAZONAMIENTO</div>
-            <div class="card-group active">
-                <div class="card-header"><h3><i class="fas fa-brain"></i> PROBLEMAS</h3></div>
-                <div class="card-content" style="max-height: none;">
-                    <div class="links-grid">
-                        <a href="Problemasumayresta.html" class="btn-game"><div class="dot" style="background:#4ECDC4">P1</div> Suma y Resta</a>
-                        <a href="Problemasumayrestaymultipli.html" class="btn-game"><div class="dot" style="background:#FF6B6B">P2</div> Mix 3 Oper</a>
-                        <a href="Problemasumayrestaymultipli2.html" class="btn-game"><div class="dot" style="background:#FF6B6B">P3</div> Mix 3 (II)</a>
-                        <a href="Problemasumayrestaymultiplidivi.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">P4</div> Todas</a>
-                        <a href="Problemasumayrestaymultiplidivi2.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">P5</div> Experto</a>
+        <!-- ZONA CÁLCULO MENTAL & RAZONAMIENTO -->
+        <div style="display: flex; flex-direction: column; gap: 30px;">
+            
+            <!-- CÁLCULO MENTAL -->
+            <div class="zone zone-mental" id="zone-mental">
+                <div class="zone-header">
+                    <i class="fas fa-bolt"></i> Cálculo Mental
+                </div>
+                <div class="card-group always-open">
+                    <div class="card-content">
+                        <div class="links-grid">
+                            <a href="calcula.html" class="btn-game">
+                                <div class="dot" style="background:var(--accent-blue);">⚡</div>
+                                <span class="btn-text">Entrenamiento de CÁLCULO MENTAL</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-<div class="section-pill pill-orange" style="margin-top: 30px;">🕹️ ZONA ARCADE</div>
-    
-    <div class="card-group active">
-        <div class="card-header"><h3><i class="fas fa-ghost"></i> PAC-MATH</h3></div>
-        <div class="card-content" style="max-height: none;">
-            <div class="links-grid">
-                <a href="pacmansuma.html" class="btn-game"><div class="dot" style="background:#FF6B6B">+</div> Pacman + y -</a>
-                <a href="pacmantablas.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">×</div> Pacman Tablas</a>
-                <a href="pacmandivision.html" class="btn-game"><div class="dot" style="background:#A29BFE">÷</div> Pacman Divide</a>
+
+            <!-- RAZONAMIENTO -->
+            <div class="zone zone-reasoning" id="zone-reasoning">
+                <div class="zone-header">
+                    <i class="fas fa-brain"></i> Razonamiento
+                </div>
+                <div class="card-group always-open">
+                    <div class="card-content">
+                        <div class="links-grid">
+                            <a href="Problemasumayresta.html" class="btn-game"><div class="dot" style="background:var(--accent-green);">P1</div><span class="btn-text">Suma y Resta</span></a>
+                            <a href="Problemasumayrestaymultipli.html" class="btn-game"><div class="dot" style="background:var(--accent-pink);">P2</div><span class="btn-text">Mix 3 Oper.</span></a>
+                            <a href="Problemasumayrestaymultipli2.html" class="btn-game"><div class="dot" style="background:var(--accent-pink);">P3</div><span class="btn-text">Mix 3 (II)</span></a>
+                            <a href="Problemasumayrestaymultiplidivi.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">P4</div><span class="btn-text">Todas las oper.</span></a>
+                            <a href="Problemasumayrestaymultiplidivi2.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">P5</div><span class="btn-text">Nivel Experto</span></a>
+                        </div>
+                    </div>
+                </div>
             </div>
+
         </div>
-    </div>
-<div class="card-group active" style="margin-top: 20px;">
-        <div class="card-header">
-                    <div class="card-header"><h3><i class="fas fa-ghost"></i> BOMBJACK-MATH</h3></div>
-        <div class="card-content" style="max-height: none;">
-            <div class="links-grid">
-                <a href="bombjack.html" class="btn-game"><div class="dot" style="background:#FF6B6B">+</div> Bombjack</a>
+
+        <!-- ZONA ARCADE -->
+        <div class="zone zone-arcade" id="zone-arcade">
+            <div class="zone-header">
+                <i class="fas fa-gamepad"></i> Zona Arcade
             </div>
-        </div>
-    </div>
-<div class="card-group active" style="margin-top: 20px;">
-        <div class="card-header">
-            <h3><i class="fas fa-hammer"></i> DONKEY MATH</h3>
-        </div>
-        <div class="card-content" style="max-height: none;">
-            <div class="links-grid">
-                <a href="donkey.html" class="btn-game">
-                    <div class="dot" style="background:#FF6B6B">+</div> Donkey
-                </a>
+
+            <!-- PAC-MATH -->
+            <div class="card-group always-open">
+                <div class="card-header">
+                    <h3><i class="fas fa-ghost"></i> PAC-MATH</h3>
+                </div>
+                <div class="card-content">
+                    <div class="links-grid">
+                        <a href="pacmansuma.html" class="btn-game"><div class="dot" style="background:var(--accent-pink);">+</div><span class="btn-text">Pacman + y -</span></a>
+                        <a href="pacmantablas.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">×</div><span class="btn-text">Pacman Tablas</span></a>
+                        <a href="pacmandivision.html" class="btn-game"><div class="dot" style="background:var(--accent-purple);">÷</div><span class="btn-text">Pacman Divide</span></a>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="card-group active" style="margin-top: 20px;">
-        <div class="card-header"><h3><i class="fas fa-snake"></i> SNAKE MATH</h3></div>
-        <div class="card-content" style="max-height: none;">
-            <div class="links-grid">
-                <a href="snakesum.html" class="btn-game"><div class="dot" style="background:#FF6B6B">+</div> Snake + y -</a>
-                <a href="snaketablas.html" class="btn-game"><div class="dot" style="background:#FFE66D; color:#333">×</div> Snake Tablas</a>
-                <a href="snakedivision.html" class="btn-game"><div class="dot" style="background:#A29BFE">÷</div> Snake Divide</a>
+
+            <!-- BOMBJACK-MATH -->
+            <div class="card-group always-open">
+                <div class="card-header">
+                    <h3><i class="fas fa-bomb"></i> BOMBJACK-MATH</h3>
+                </div>
+                <div class="card-content">
+                    <div class="links-grid">
+                        <a href="bombjack.html" class="btn-game"><div class="dot" style="background:var(--accent-pink);">💣</div><span class="btn-text">Bombjack Math</span></a>
+                    </div>
+                </div>
             </div>
+
+            <!-- DONKEY MATH -->
+            <div class="card-group always-open">
+                <div class="card-header">
+                    <h3><i class="fas fa-hammer"></i> DONKEY MATH</h3>
+                </div>
+                <div class="card-content">
+                    <div class="links-grid">
+                        <a href="donkey.html" class="btn-game"><div class="dot" style="background:var(--accent-pink);">🔨</div><span class="btn-text">Donkey Math</span></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SNAKE MATH -->
+            <div class="card-group always-open">
+                <div class="card-header">
+                    <h3><i class="fas fa-staff-snake"></i> SNAKE MATH</h3>
+                </div>
+                <div class="card-content">
+                    <div class="links-grid">
+                        <a href="snakesum.html" class="btn-game"><div class="dot" style="background:var(--accent-pink);">🐍</div><span class="btn-text">Snake + y -</span></a>
+                        <a href="snaketablas.html" class="btn-game"><div class="dot" style="background:var(--accent-yellow);">×</div><span class="btn-text">Snake Tablas</span></a>
+                        <a href="snakedivision.html" class="btn-game"><div class="dot" style="background:var(--accent-purple);">÷</div><span class="btn-text">Snake Divide</span></a>
+                    </div>
+                </div>
+            </div>
+
         </div>
-    </div>
+
     </div>
 
-    <footer style="text-align:center; padding: 40px; opacity: 0.5; font-size: 0.8rem;">
-        <a href="privacy-policy.html" style="color: white;">Privacidad</a> | 
-        <a href="terms-of-service.html" style="color: white;">Términos</a><br>
-        © 2026 Math Math Rush Ow
+    <!-- BANNER ADICIONAL INFORMATIVO / ACCESIBILIDAD -->
+    <div class="kids-friendly-banner">
+        <div class="kids-friendly-info">
+            <i class="fas fa-trophy"></i>
+            <div>
+                <h3 style="font-size: 1.1rem; color: #fff;">¡Aprender jugando nunca fue tan divertido!</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Completa ejercicios, desbloquea logros en la zona Arcade y mejora tu agilidad mental día a día.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <a href="privacy-policy.html">Privacidad</a> | 
+            <a href="terms-of-service.html">Términos de Servicio</a>
+        </p>
+        <p style="margin-top: 10px; opacity: 0.6;">© 2026 Math Math Rush Ow. Todos los derechos reservados.</p>
     </footer>
 </div>
 
 <script>
+    // Mostrar Banner Play Store en dispositivos Android
     window.onload = function() {
         var userAgent = navigator.userAgent || navigator.vendor || window.opera;
         if (/android/i.test(userAgent)) {
             document.getElementById('android-banner').style.display = 'block';
         }
     };
+
+    // Función para desplegar/contraer acordeones
+    function toggleCard(headerElement) {
+        var cardGroup = headerElement.parentElement;
+        cardGroup.classList.toggle('active');
+    }
+
+    // Filtrado por categoría con botones superiores
+    function filterCategory(zoneId, btn) {
+        // Actualizar botón activo
+        var buttons = document.querySelectorAll('.nav-btn');
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Mostrar / Ocultar zonas
+        var zones = document.querySelectorAll('.zone');
+        zones.forEach(zone => {
+            if (zoneId === 'all' || zone.id === zoneId) {
+                zone.style.display = 'block';
+            } else {
+                zone.style.display = 'none';
+            }
+        });
+    }
+
+    // Buscador interactivo en tiempo real
+    function filterActivities() {
+        var input = document.getElementById('searchInput').value.toLowerCase();
+        var games = document.querySelectorAll('.btn-game');
+        var cardGroups = document.querySelectorAll('.card-group');
+
+        if (input.trim() === '') {
+            // Si está vacío, resetear visibilidad
+            games.forEach(g => g.style.display = 'flex');
+            cardGroups.forEach(cg => {
+                if (!cg.classList.contains('always-open')) {
+                    // Mantener las que estaban o estado original
+                }
+            });
+            return;
+        }
+
+        games.forEach(game => {
+            var text = game.textContent.toLowerCase();
+            if (text.includes(input)) {
+                game.style.display = 'flex';
+                // Abrir el acordeón padre automáticamente
+                var parentGroup = game.closest('.card-group');
+                if (parentGroup) {
+                    parentGroup.classList.add('active');
+                }
+            } else {
+                game.style.display = 'none';
+            }
+        });
+    }
 </script>
 
 </body>
