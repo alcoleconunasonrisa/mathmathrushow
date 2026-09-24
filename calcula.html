@@ -651,7 +651,7 @@
             <h3 style="color: var(--purple); text-align: center; font-size: 1.4rem; font-weight: 900;">🎓 Planificador de Evaluación</h3>
             
             <div class="eval-form-group">
-                <label>👤 Nombre del Alumno / Evaluado:</label>
+                <label>👤 Nombre del Alumno/a / Evaluado:</label>
                 <input type="text" id="studentName" class="eval-input" placeholder="Ej: Juan Pérez" value="Estudiante Math Rush">
             </div>
 
@@ -766,7 +766,7 @@
                     <p style="color: #a0aec0; font-size: 0.95rem; font-weight: 600;" id="pdf-date">Fecha: --/--/----</p>
                 </div>
                 <div style="text-align: right;">
-                    <h3 style="color: var(--purple); font-size: 1.2rem; font-weight: 800;" id="pdf-student">Alumno: ---</h3>
+                    <h3 style="color: var(--purple); font-size: 1.2rem; font-weight: 800;" id="pdf-student">Alumno/a: ---</h3>
                     <p style="color: var(--primary); font-size: 0.9rem; font-weight: 700;" id="pdf-overall">Efectividad Global: 0%</p>
                 </div>
             </div>
@@ -1310,7 +1310,7 @@
 
         const overallPct = Math.round(sumPct / evalResults.length);
 
-        document.getElementById('pdf-student').innerText = `Alumno: ${studentName}`;
+        document.getElementById('pdf-student').innerText = `Alumno/a: ${studentName}`;
         document.getElementById('pdf-date').innerText = `Fecha: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
         document.getElementById('pdf-overall').innerText = `Efectividad Global: ${overallPct}%`;
         document.getElementById('pdf-total-score').innerText = score;
@@ -1344,7 +1344,7 @@
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
             
             pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-            pdf.save(`Evaluacion_MathRush_${document.getElementById('studentName').value || 'Alumno'}.pdf`);
+            pdf.save(`Evaluacion_MathRush_${document.getElementById('studentName').value || 'Alumno/a'}.pdf`);
         });
     }
 
