@@ -286,19 +286,19 @@
             font-weight: bold;
             padding: 6px 2px;
             border-radius: 8px;
-            font-size: clamp(0.65rem, 1.2vw, 0.85rem);
+            font-size: clamp(0.6rem, 1.1vw, 0.8rem);
         }
 
-        /* Colores Posicionales Ampliados (9 niveles) */
-        .c-cmm { background: #4c1d95; color: #fff; } /* Centena de Millón */
-        .c-dmm { background: #6d28d9; color: #fff; } /* Decena de Millón */
-        .c-umm { background: #8b5cf6; color: #fff; } /* Unidad de Millón */
-        .c-cm  { background: #0284c7; color: #fff; } /* Centena de Millar */
-        .c-dm  { background: #0369a1; color: #fff; } /* Decena de Millar */
-        .c-um  { background: #0d9488; color: #fff; } /* Unidad de Millar */
-        .c-c   { background: #ef4444; color: #fff; } /* Centena */
-        .c-d   { background: #f59e0b; color: #fff; } /* Decena */
-        .c-u   { background: #ecc94b; color: #000; } /* Unidad */
+        /* COLORES EXACTOS DE LAS ÓRDENES (SEGÚN IMAGEN DE REFERENCIA) */
+        .c-cmm { background: #6b8e23; color: #fff; } /* C. de millón (Verde oliva) */
+        .c-dmm { background: #d9534f; color: #fff; } /* D. de millón (Rojo coral) */
+        .c-umm { background: #1d6fa5; color: #fff; } /* U. de millón (Azul oscuro) */
+        .c-cm  { background: #98fb98; color: #000; } /* CM (Verde claro) */
+        .c-dm  { background: #ff69b4; color: #fff; } /* DM (Fucsia / Magenta) */
+        .c-um  { background: #00bfff; color: #000; } /* UM (Celeste) */
+        .c-c   { background: #98fb98; color: #000; } /* C (Verde claro) */
+        .c-d   { background: #d9534f; color: #fff; } /* D (Rojo coral) */
+        .c-u   { background: #00bfff; color: #000; } /* U (Celeste) */
 
         .decomp-slot, .decomp-valor-container {
             width: 100%;
@@ -416,12 +416,12 @@
         .btn-decomp-level {
             width: 100%;
             max-width: 480px;
-            padding: 15px;
-            margin: 6px;
+            padding: 14px;
+            margin: 5px;
             border: none;
             border-radius: 16px;
             color: white;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 5px 0 rgba(0,0,0,0.15);
@@ -500,7 +500,7 @@
         .seq-key:active { box-shadow: 0 1px #cbd5e1; transform: translateY(3px); }
 
         .btn-seq-nivel {
-            width: 100%; max-width: 480px; padding: 14px; margin: 5px auto; border: none;
+            width: 100%; max-width: 480px; padding: 13px; margin: 5px auto; border: none;
             border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem;
         }
 
@@ -567,6 +567,50 @@
         .aprox-solucion-texto { font-size: 1.5rem; color: #333; margin: 20px 0; font-weight: bold; line-height: 1.4; }
         .btn-aprox-nivel { width: 100%; max-width: 480px; padding: 13px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem; }
 
+        /* Estilos específicos para el Modo Aprendizaje de Aproximación */
+        .aprox-learning-step {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            align-items: center;
+            gap: 15px;
+        }
+        .aprox-options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 420px;
+        }
+        .aprox-opt-btn {
+            background: #f3e8ff;
+            border: 2px solid #c084fc;
+            color: #581c87;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 #d8b4fe;
+            text-align: center;
+        }
+        .aprox-opt-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #d8b4fe;
+        }
+        .aprox-opt-btn.correct {
+            background: #d1fae5 !important;
+            border-color: #10b981 !important;
+            color: #065f46 !important;
+        }
+        .aprox-opt-btn.wrong {
+            background: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+            animation: shake 0.3s;
+        }
+
         /* ---------------------------------------------------------------------
            ESTILOS: JUEGO 4 - COMPARACIÓN DE NÚMEROS NATURALES
            --------------------------------------------------------------------- */
@@ -630,6 +674,75 @@
         .comp-solucion-texto { font-size: 1.5rem; color: #333; margin: 20px 0; font-weight: bold; line-height: 1.4; }
         .btn-comp-nivel { width: 100%; max-width: 480px; padding: 13px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem; }
 
+        /* ---------------------------------------------------------------------
+           ESTILOS: JUEGOS DE LETRAS Y NÚMEROS
+           --------------------------------------------------------------------- */
+        .pal-pantalla { display: none; width: 100%; flex-direction: column; }
+        .pal-pantalla.active { display: flex; }
+
+        .pal-instruccion {
+            background: #d97706; color: white; padding: 12px;
+            border-radius: 12px; text-align: center; margin-bottom: 10px;
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0; width: 100%;
+        }
+
+        .pal-contenido { display: flex; width: 100%; gap: 15px; overflow: hidden; }
+
+        .pal-zona-operacion {
+            flex: 1.5; overflow-y: auto; padding: 15px;
+            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center;
+        }
+
+        .pal-zona-teclado {
+            flex: 1.3; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: #fff; padding: 5px; border-left: 2px solid #eee;
+        }
+
+        .pal-pregunta-display {
+            font-size: clamp(1.5rem, 3.5vw, 2.4rem); font-weight: 900; color: #b45309;
+            margin-bottom: 15px; word-break: break-word; line-height: 1.3;
+        }
+
+        .pal-respuesta-box {
+            font-size: clamp(1.2rem, 3vw, 1.8rem); width: 100%; max-width: 400px; min-height: 75px; border: 4px dashed #cbd5e1;
+            border-radius: 15px; display: flex; justify-content: center; margin: 0 auto;
+            align-items: center; color: #1e293b; background: #fff; font-weight: bold; word-break: break-word; padding: 10px; text-align: center;
+        }
+
+        .pal-respuesta-box.correcta { border: 4px solid #10b981; background: #d1fae5; color: #065f46; }
+        .pal-respuesta-box.incorrecta { border: 4px solid #ef4444; background: #fee2e2; animation: shake 0.3s; }
+
+        .pal-teclado-num { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 280px; }
+        .pal-tecla-num { 
+            padding: 12px 0; font-size: 1.5rem; border: none; border-radius: 10px; 
+            background: #f1f5f9; font-weight: bold; box-shadow: 0 3px #cbd5e1; cursor: pointer; color: #334155;
+        }
+        .pal-tecla-num:active { box-shadow: 0 1px #cbd5e1; transform: translateY(2px); }
+
+        .pal-teclado-letras { display: flex; flex-direction: column; gap: 5px; width: 100%; max-width: 400px; }
+        .pal-fila-teclas { display: flex; justify-content: center; gap: 4px; width: 100%; }
+        .pal-tecla-letra {
+            background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px;
+            padding: 10px 0; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+            color: #1e293b; flex: 1; max-width: 38px; box-shadow: 0 2px 0 #94a3b8;
+            transition: 0.1s; text-align: center;
+        }
+        .pal-tecla-letra:active { transform: translateY(2px); box-shadow: 0 0 0 #94a3b8; }
+        .pal-tecla-espacio { max-width: 140px; background: #e2e8f0; }
+        .pal-tecla-accion { background: #fee2e2; color: #ef4444; max-width: 50px; }
+
+        .btn-pal-nivel { width: 100%; max-width: 480px; padding: 13px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem; }
+
+        .pal-modal-victoria {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+            padding: 20px;
+        }
+
         /* Media Queries Adaptativas */
         @media (max-width: 768px) {
             .decomp-layout { flex-direction: column; }
@@ -653,6 +766,10 @@
             .comp-zona-teclado { border-left: none; border-top: 2px solid #eee; }
             .comp-comparacion-container { gap: 6px; }
             .comp-simbolo-celda { width: 50px; height: 50px; font-size: 1.8rem; }
+
+            .pal-contenido { flex-direction: column; }
+            .pal-zona-teclado { border-left: none; border-top: 2px solid #eee; }
+            .pal-tecla-letra { padding: 8px 0; font-size: 0.95rem; max-width: 30px; }
         }
 
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
@@ -662,7 +779,7 @@
 
     <header class="app-header">
         <div class="header-left">
-            <a href="#" class="btn-home-link" title="Volver al Menú" onclick="showMainMenu(); return false;">
+            <a href="main-index.html" class="btn-home-link" title="Volver al Menú Principal">
                 <i class="fas fa-home"></i>
             </a>
             <div class="app-title">
@@ -704,6 +821,18 @@
                     <h3>Comparación</h3>
                     <p>Compara números desafiantes con cifras similares usando &gt;, &lt; o =.</p>
                 </div>
+
+                <div class="menu-card" onclick="openGame('game-num2let')">
+                    <i class="fas fa-font"></i>
+                    <h3>De Número a Letras</h3>
+                    <p>Visualiza un número en cifras y escríbelo correctamente con letras.</p>
+                </div>
+
+                <div class="menu-card" onclick="openGame('game-let2num')">
+                    <i class="fas fa-keyboard"></i>
+                    <h3>De Letras a Números</h3>
+                    <p>Lee el número escrito en palabras y escribe su valor numérico en cifras.</p>
+                </div>
             </div>
         </div>
 
@@ -716,7 +845,8 @@
                     <button class="btn-decomp-level" style="background: #06b6d4;" onclick="startDecompGame(2)">Nivel 2: Centenas (C D U)</button>
                     <button class="btn-decomp-level" style="background: #0288d1;" onclick="startDecompGame(3)">Nivel 3: Unidades de Millar (UM C D U)</button>
                     <button class="btn-decomp-level" style="background: #ef4444;" onclick="startDecompGame(4)">Nivel 4: Centenas de Millar (CM DM UM C D U)</button>
-                    <button class="btn-decomp-level" style="background: #6d28d9;" onclick="startDecompGame(5)">Nivel 5: Centenas de Millón (CMm DMm UMm CM... U)</button>
+                    <button class="btn-decomp-level" style="background: #1d6fa5;" onclick="startDecompGame(5)">Nivel 5: Unidades de Millón (UMm CM... U)</button>
+                    <button class="btn-decomp-level" style="background: #6b8e23;" onclick="startDecompGame(6)">Nivel 6: Centenas de Millón (CMm DMm UMm CM... U)</button>
                 </div>
 
                 <div id="decomp-game" class="decomp-screen">
@@ -757,7 +887,8 @@
                     <button class="btn-seq-nivel" style="background:#06b6d4" onclick="iniciarSeq(2)">Nivel 2: Centenas (hasta 999)</button>
                     <button class="btn-seq-nivel" style="background:#0288d1" onclick="iniciarSeq(3)">Nivel 3: Unidades de Millar (hasta 9.999)</button>
                     <button class="btn-seq-nivel" style="background:#ef4444" onclick="iniciarSeq(4)">Nivel 4: Centenas de Millar (hasta 999.999)</button>
-                    <button class="btn-seq-nivel" style="background:#6d28d9" onclick="iniciarSeq(5)">Nivel 5: Centenas de Millón (hasta 999.999.999)</button>
+                    <button class="btn-seq-nivel" style="background:#1d6fa5" onclick="iniciarSeq(5)">Nivel 5: Unidades de Millón (hasta 9.999.999)</button>
+                    <button class="btn-seq-nivel" style="background:#6b8e23" onclick="iniciarSeq(6)">Nivel 6: Centenas de Millón (hasta 999.999.999)</button>
                 </div>
 
                 <div id="seq-juego" class="seq-pantalla">
@@ -806,12 +937,14 @@
             <div class="game-card-container">
                 <div id="aprox-menu" class="aprox-pantalla active" style="justify-content: center;">
                     <h1 style="text-align:center; color:#673ab7; margin-bottom:15px;">Redondeo / Aproximación</h1>
+                    <button class="btn-aprox-nivel" style="background:#8b5cf6" onclick="iniciarAprox(0, true)">🎓 Nivel de Aprendizaje Paso a Paso</button>
                     <button class="btn-aprox-nivel" style="background:#10b981" onclick="iniciarAprox(0)">Nivel 1: Decenas (D)</button>
                     <button class="btn-aprox-nivel" style="background:#06b6d4" onclick="iniciarAprox(1)">Nivel 2: Centenas (C)</button>
                     <button class="btn-aprox-nivel" style="background:#0288d1" onclick="iniciarAprox(2)">Nivel 3: Unidades de Millar (UM)</button>
                     <button class="btn-aprox-nivel" style="background:#ef4444" onclick="iniciarAprox(3)">Nivel 4: Centenas de Millar (CM)</button>
-                    <button class="btn-aprox-nivel" style="background:#6d28d9" onclick="iniciarAprox(4)">Nivel 5: Centenas de Millón (CMm)</button>
-                    <button class="btn-aprox-nivel" style="background:#f59e0b" onclick="iniciarAprox(5)">Nivel Mezcla Aleatoria ⭐</button>
+                    <button class="btn-aprox-nivel" style="background:#1d6fa5" onclick="iniciarAprox(4)">Nivel 5: Unidades de Millón (UMm)</button>
+                    <button class="btn-aprox-nivel" style="background:#6b8e23" onclick="iniciarAprox(5)">Nivel 6: Centenas de Millón (CMm)</button>
+                    <button class="btn-aprox-nivel" style="background:#f59e0b" onclick="iniciarAprox(6)">Nivel Mezcla Aleatoria ⭐</button>
                 </div>
 
                 <div id="aprox-juego" class="aprox-pantalla">
@@ -821,10 +954,11 @@
                             <div class="aprox-pregunta-container">
                                 <div id="aprox-num-display" class="aprox-num-original">-</div>
                                 <div id="aprox-objetivo-display" class="aprox-objetivo-texto">-</div>
+                                <div id="aprox-learning-container"></div>
                                 <div id="aprox-caja-respuesta" class="aprox-respuesta-box"></div>
                             </div>
                         </div>
-                        <div class="aprox-zona-teclado">
+                        <div class="aprox-zona-teclado" id="aprox-zona-teclado-panel">
                             <div class="aprox-teclado">
                                 <button class="aprox-tecla" onclick="addAproxNum('7')">7</button>
                                 <button class="aprox-tecla" onclick="addAproxNum('8')">8</button>
@@ -862,7 +996,8 @@
                     <button class="btn-comp-nivel" style="background:#06b6d4" onclick="iniciarComp(2)">Nivel 2: Centenas (hasta 999)</button>
                     <button class="btn-comp-nivel" style="background:#0288d1" onclick="iniciarComp(3)">Nivel 3: Unidades de Millar (hasta 9.999)</button>
                     <button class="btn-comp-nivel" style="background:#ef4444" onclick="iniciarComp(4)">Nivel 4: Centenas de Millar (hasta 999.999)</button>
-                    <button class="btn-comp-nivel" style="background:#6d28d9" onclick="iniciarComp(5)">Nivel 5: Centenas de Millón (hasta 999.999.999)</button>
+                    <button class="btn-comp-nivel" style="background:#1d6fa5" onclick="iniciarComp(5)">Nivel 5: Unidades de Millón (hasta 9.999.999)</button>
+                    <button class="btn-comp-nivel" style="background:#6b8e23" onclick="iniciarComp(6)">Nivel 6: Centenas de Millón (hasta 999.999.999)</button>
                 </div>
 
                 <div id="comp-juego" class="comp-pantalla">
@@ -895,11 +1030,92 @@
             </div>
         </div>
 
+        <!-- JUEGO 5: DE NÚMERO A LETRAS -->
+        <div id="game-num2let" class="game-view">
+            <div class="game-card-container">
+                <div id="n2l-menu" class="pal-pantalla active" style="justify-content: center;">
+                    <h1 style="text-align:center; color:#d97706; margin-bottom:15px;">De Número a Letras</h1>
+                    <button class="btn-pal-nivel" style="background:#10b981" onclick="iniciarNum2Let(1)">Nivel 1: Decenas (hasta 99)</button>
+                    <button class="btn-pal-nivel" style="background:#06b6d4" onclick="iniciarNum2Let(2)">Nivel 2: Centenas (hasta 999)</button>
+                    <button class="btn-pal-nivel" style="background:#0288d1" onclick="iniciarNum2Let(3)">Nivel 3: Unidades de Millar (hasta 9.999)</button>
+                    <button class="btn-pal-nivel" style="background:#ef4444" onclick="iniciarNum2Let(4)">Nivel 4: Centenas de Millar (hasta 999.999)</button>
+                    <button class="btn-pal-nivel" style="background:#1d6fa5" onclick="iniciarNum2Let(5)">Nivel 5: Unidades de Millón (hasta 9.999.999)</button>
+                    <button class="btn-pal-nivel" style="background:#6b8e23" onclick="iniciarNum2Let(6)">Nivel 6: Centenas de Millón (hasta 999.999.999)</button>
+                </div>
+
+                <div id="n2l-juego" class="pal-pantalla">
+                    <div class="pal-instruccion">Escribe en LETRAS el siguiente número:</div>
+                    <div class="pal-contenido">
+                        <div class="pal-zona-operacion">
+                            <div id="n2l-pregunta" class="pal-pregunta-display">126</div>
+                            <div id="n2l-caja-respuesta" class="pal-respuesta-box"></div>
+                        </div>
+                        <div class="pal-zona-teclado" id="n2l-teclado-container"></div>
+                    </div>
+                </div>
+
+                <div id="n2l-modal-victoria" class="pal-modal-victoria">
+                    <h2 style="font-size: 2.2rem; color: #4CAF50;">¡Muy bien! ⭐</h2>
+                    <div id="n2l-texto-explicativo" class="aprox-solucion-texto"></div>
+                    <button class="btn-pal-nivel" style="background:#4CAF50; max-width: 250px;" onclick="siguienteNum2Let()">Siguiente</button>
+                    <button class="btn-pal-nivel" style="background:#1e88e5; max-width: 250px;" onclick="volverAlMenuNum2Let()">Menú</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- JUEGO 6: DE LETRAS A NÚMEROS -->
+        <div id="game-let2num" class="game-view">
+            <div class="game-card-container">
+                <div id="l2n-menu" class="pal-pantalla active" style="justify-content: center;">
+                    <h1 style="text-align:center; color:#0284c7; margin-bottom:15px;">De Letras a Números</h1>
+                    <button class="btn-pal-nivel" style="background:#10b981" onclick="iniciarLet2Num(1)">Nivel 1: Decenas (hasta 99)</button>
+                    <button class="btn-pal-nivel" style="background:#06b6d4" onclick="iniciarLet2Num(2)">Nivel 2: Centenas (hasta 999)</button>
+                    <button class="btn-pal-nivel" style="background:#0288d1" onclick="iniciarLet2Num(3)">Nivel 3: Unidades de Millar (hasta 9.999)</button>
+                    <button class="btn-pal-nivel" style="background:#ef4444" onclick="iniciarLet2Num(4)">Nivel 4: Centenas de Millar (hasta 999.999)</button>
+                    <button class="btn-pal-nivel" style="background:#1d6fa5" onclick="iniciarLet2Num(5)">Nivel 5: Unidades de Millón (hasta 9.999.999)</button>
+                    <button class="btn-pal-nivel" style="background:#6b8e23" onclick="iniciarLet2Num(6)">Nivel 6: Centenas de Millón (hasta 999.999.999)</button>
+                </div>
+
+                <div id="l2n-juego" class="pal-pantalla">
+                    <div class="pal-instruccion" style="background:#0284c7;">Escribe en NÚMEROS (cifras) lo siguiente:</div>
+                    <div class="pal-contenido">
+                        <div class="pal-zona-operacion">
+                            <div id="l2n-pregunta" class="pal-pregunta-display" style="color:#0369a1;">CIENTO VEINTISEIS</div>
+                            <div id="l2n-caja-respuesta" class="pal-respuesta-box" style="color:#0284c7;"></div>
+                        </div>
+                        <div class="pal-zona-teclado">
+                            <div class="pal-teclado-num">
+                                <button class="pal-tecla-num" onclick="agregarNumL2N('7')">7</button>
+                                <button class="pal-tecla-num" onclick="agregarNumL2N('8')">8</button>
+                                <button class="pal-tecla-num" onclick="agregarNumL2N('9')">9</button>
+                                <button class="pal-tecla-num" onclick="agregarNumL2N('4')">4</button>
+                                <button class="pal-tecla-num" onclick="agregarNumL2N('5')">5</button>
+                                <button class="pal-tecla-num" onclick="agregarNumL2N('6')">6</button>
+                                <button class="pal-tecla-num" onclick="agregarNumL2N('1')">1</button>
+                                <button class="pal-tecla-num" onclick="agregarNumL2N('2')">2</button>
+                                <button class="pal-tecla-num" onclick="agregarNumL2N('3')">3</button>
+                                <button class="pal-tecla-num" style="background:#fee2e2; color:#ef4444;" onclick="borrarLet2Num()">⌫</button>
+                                <button class="pal-tecla-num" onclick="agregarNumL2N('0')">0</button>
+                                <button class="pal-tecla-num" style="background:#d1fae5; color:#065f46;" onclick="comprobarLet2Num()">OK</button>
+                            </div>
+                            <button class="btn-pal-nivel" style="background:#64748b; font-size:0.9rem; padding:8px; margin-top:10px;" onclick="volverAlMenuLet2Num()">🏠 Volver al Menú</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="l2n-modal-victoria" class="pal-modal-victoria">
+                    <h2 style="font-size: 2.2rem; color: #4CAF50;">¡Excelente! ⭐</h2>
+                    <div id="l2n-texto-explicativo" class="aprox-solucion-texto"></div>
+                    <button class="btn-pal-nivel" style="background:#4CAF50; max-width: 250px;" onclick="siguienteLet2Num()">Siguiente</button>
+                    <button class="btn-pal-nivel" style="background:#1e88e5; max-width: 250px;" onclick="volverAlMenuLet2Num()">Menú</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- LÓGICA DE CONTROL Y JUEGOS -->
     <script>
-        // Formateador de números para estilo educativo (p. ej. 1000000 -> 1.000.000)
         function formatNumber(num) {
             if (num === null || num === undefined) return '';
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -915,6 +1131,8 @@
                 if(gameId === 'game-secuencia') volverAlMenuSeq();
                 if(gameId === 'game-aproximacion') volverAlMenuAprox();
                 if(gameId === 'game-comparacion') volverAlMenuComp();
+                if(gameId === 'game-num2let') volverAlMenuNum2Let();
+                if(gameId === 'game-let2num') volverAlMenuLet2Num();
             }
         }
 
@@ -981,9 +1199,11 @@
             if (activeView.id === 'game-aproximacion') {
                 const subJuego = document.getElementById('aprox-juego');
                 if (subJuego && subJuego.classList.contains('active')) {
-                    if (key >= '0' && key <= '9') addAproxNum(key);
-                    else if (key === 'Backspace' || key === 'Delete') borrarAprox();
-                    else if (key === 'Enter') comprobarAprox();
+                    if (!aproxModoAprendizaje) {
+                        if (key >= '0' && key <= '9') addAproxNum(key);
+                        else if (key === 'Backspace' || key === 'Delete') borrarAprox();
+                        else if (key === 'Enter') comprobarAprox();
+                    }
                 }
             }
 
@@ -991,6 +1211,25 @@
                 const subJuego = document.getElementById('comp-juego');
                 if (subJuego && subJuego.classList.contains('active')) {
                     if (key === '>' || key === '<' || key === '=') comprobarComp(key);
+                }
+            }
+
+            if (activeView.id === 'game-num2let') {
+                const subJuego = document.getElementById('n2l-juego');
+                if (subJuego && subJuego.classList.contains('active')) {
+                    if (key.length === 1 && key.match(/[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]/)) agregarLetraN2L(key.toUpperCase());
+                    else if (key === ' ') agregarLetraN2L(' ');
+                    else if (key === 'Backspace') borrarNum2Let();
+                    else if (key === 'Enter') comprobarNum2Let();
+                }
+            }
+
+            if (activeView.id === 'game-let2num') {
+                const subJuego = document.getElementById('l2n-juego');
+                if (subJuego && subJuego.classList.contains('active')) {
+                    if (key >= '0' && key <= '9') agregarNumL2N(key);
+                    else if (key === 'Backspace') borrarLet2Num();
+                    else if (key === 'Enter') comprobarLet2Num();
                 }
             }
         });
@@ -1004,6 +1243,7 @@
             'cmm': { label: 'CMm', class: 'c-cmm' },
             'dmm': { label: 'DMm', class: 'c-dmm' },
             'umm': { label: 'UMm', class: 'c-umm' },
+            'ummillon': { label: 'U. Millón', class: 'c-umm' },
             'cm':  { label: 'CM',  class: 'c-cm' }, 
             'dm':  { label: 'DM',  class: 'c-dm' }, 
             'um':  { label: 'UM',  class: 'c-um' }, 
@@ -1034,6 +1274,7 @@
             else if (decompNivel === 2) decompColumnasActivas = ['c', 'd', 'u'];
             else if (decompNivel === 3) decompColumnasActivas = ['um', 'c', 'd', 'u'];
             else if (decompNivel === 4) decompColumnasActivas = ['cm', 'dm', 'um', 'c', 'd', 'u'];
+            else if (decompNivel === 5) decompColumnasActivas = ['umm', 'cm', 'dm', 'um', 'c', 'd', 'u'];
             else decompColumnasActivas = ['cmm', 'dmm', 'umm', 'cm', 'dm', 'um', 'c', 'd', 'u'];
 
             let numStr = "";
@@ -1172,7 +1413,7 @@
         }
 
         /* =====================================================================
-           LÓGICA JUEGO 2: ANTERIOR Y POSTERIOR (NÚMEROS RETADORES / TRAMPA)
+           LÓGICA JUEGO 2: ANTERIOR Y POSTERIOR
            ===================================================================== */
         let seqNivelActual = 1, seqNumeroBase = 0, seqPaso = 1;
         let seqInputUsuario = "";
@@ -1192,46 +1433,44 @@
         function generarPreguntaSeq() {
             seqPaso = 1;
             seqInputUsuario = "";
-            
-            // Generación de números desafiantes (cambio de orden/múltiples ceros/nueves)
             let base = 0;
             const r = Math.random();
 
-            if (seqNivelActual === 1) { // Decenas (10 - 99)
+            if (seqNivelActual === 1) {
                 if (r < 0.4) base = [20, 30, 40, 50, 60, 70, 80, 90][Math.floor(Math.random() * 8)];
                 else if (r < 0.7) base = [19, 29, 39, 49, 59, 69, 79, 89][Math.floor(Math.random() * 8)];
                 else base = Math.floor(Math.random() * 89) + 10;
             } 
-            else if (seqNivelActual === 2) { // Centenas (100 - 999)
+            else if (seqNivelActual === 2) {
                 if (r < 0.35) base = [100, 200, 500, 900, 300, 700][Math.floor(Math.random() * 6)];
                 else if (r < 0.7) base = [199, 299, 499, 999, 399, 799][Math.floor(Math.random() * 6)];
-                else if (r < 0.85) base = [109, 209, 509, 809][Math.floor(Math.random() * 4)];
                 else base = Math.floor(Math.random() * 899) + 100;
             } 
-            else if (seqNivelActual === 3) { // UM (1.000 - 9.999)
-                if (r < 0.35) base = [1000, 2000, 5000, 9000, 1009, 5009][Math.floor(Math.random() * 6)];
-                else if (r < 0.7) base = [999, 1999, 4999, 9999, 2099][Math.floor(Math.random() * 5)];
-                else if (r < 0.85) base = [1000, 5000, 3000][Math.floor(Math.random() * 3)];
+            else if (seqNivelActual === 3) {
+                if (r < 0.35) base = [1000, 2000, 5000, 9000, 1009][Math.floor(Math.random() * 5)];
+                else if (r < 0.7) base = [999, 1999, 4999, 9999][Math.floor(Math.random() * 4)];
                 else base = Math.floor(Math.random() * 8999) + 1000;
             } 
-            else if (seqNivelActual === 4) { // CM (10.000 - 999.999)
-                if (r < 0.35) base = [100000, 500000, 10000, 50000, 200000][Math.floor(Math.random() * 5)];
-                else if (r < 0.7) base = [99999, 199999, 499999, 999999][Math.floor(Math.random() * 4)];
-                else if (r < 0.85) base = [100009, 500099, 209999][Math.floor(Math.random() * 3)];
+            else if (seqNivelActual === 4) {
+                if (r < 0.35) base = [100000, 500000, 10000][Math.floor(Math.random() * 3)];
+                else if (r < 0.7) base = [99999, 199999, 999999][Math.floor(Math.random() * 3)];
                 else base = Math.floor(Math.random() * 899999) + 10000;
             } 
-            else { // CMm (1.000.000 - 999.999.999)
-                if (r < 0.4) base = [1000000, 10000000, 100000000, 50000000, 250000000][Math.floor(Math.random() * 5)];
-                else if (r < 0.7) base = [999999, 9999999, 99999999, 999999999][Math.floor(Math.random() * 4)];
-                else base = Math.floor(Math.random() * 899999999) + 1000000;
+            else if (seqNivelActual === 5) {
+                if (r < 0.4) base = [1000000, 2000000, 5000000][Math.floor(Math.random() * 3)];
+                else if (r < 0.7) base = [999999, 1999999, 9999999][Math.floor(Math.random() * 3)];
+                else base = Math.floor(Math.random() * 8999999) + 1000000;
+            }
+            else {
+                if (r < 0.4) base = [10000000, 100000000][Math.floor(Math.random() * 2)];
+                else if (r < 0.7) base = [9999999, 999999999][Math.floor(Math.random() * 2)];
+                else base = Math.floor(Math.random() * 899999999) + 10000000;
             }
 
             seqNumeroBase = base;
-
             document.getElementById('seq-box-num').textContent = formatNumber(seqNumeroBase);
             document.getElementById('seq-box-ant').textContent = "";
             document.getElementById('seq-box-post').textContent = "";
-
             document.getElementById('seq-box-ant').className = "seq-box active-seq";
             document.getElementById('seq-box-post').className = "seq-box";
             document.getElementById('seq-instruccion').textContent = "Escribe el número anterior (-1)";
@@ -1289,53 +1528,203 @@
         }
 
         /* =====================================================================
-           LÓGICA JUEGO 3: REDONDEO / APROXIMACIÓN
+           LÓGICA JUEGO 3: REDONDEO / APROXIMACIÓN (CON NIVEL DE APRENDIZAJE)
            ===================================================================== */
         let aproxValorOriginal, aproxRespuestaCorrecta, aproxPrecisionActual;
         let aproxNivelConfig = 0; 
         let aproxInputUsuario = "";
+        let aproxModoAprendizaje = false;
+        let aproxLearningStep = 1; // 1: Dos números, 2: Cifra anterior, 3: Aproximación final
 
         const aproxNombresPrecision = [
             "a la Decena (D)", 
             "a la Centena (C)", 
             "a la Unidad de Millar (UM)",
             "a la Centena de Millar (CM)",
+            "a la Unidad de Millón (UMm)",
             "a la Centena de Millón (CMm)"
         ];
 
+        const aproxOrdenNombresCortos = ["Decenas", "Centenas", "Unidades de Millar", "Centenas de Millar", "Unidades de Millón", "Centenas de Millón"];
+
+        function iniciarAprox(n, esAprendizaje = false) {
+            aproxNivelConfig = n;
+            aproxModoAprendizaje = esAprendizaje;
+            document.getElementById('aprox-menu').classList.remove('active');
+            document.getElementById('aprox-juego').classList.add('active');
+            document.getElementById('aprox-modal-victoria').style.display = 'none';
+            generarPreguntaAprox();
+        }
+
         function generarPreguntaAprox() {
             aproxInputUsuario = "";
-            actualizarCajaAprox();
-            
-            if (aproxNivelConfig === 5) { // Modo Mezcla
-                aproxPrecisionActual = Math.floor(Math.random() * 5);
+            document.getElementById('aprox-caja-respuesta').style.display = 'flex';
+            document.getElementById('aprox-zona-teclado-panel').style.display = 'flex';
+            document.getElementById('aprox-learning-container').innerHTML = '';
+
+            if (aproxModoAprendizaje) {
+                // El juego decide aleatoriamente a qué orden aproximar (Decenas, Centenas o Unidades de Millar)
+                aproxPrecisionActual = Math.floor(Math.random() * 3); 
+                aproxLearningStep = 1; // Omitimos el paso 1 original y empezamos directamente en el paso de los dos números
             } else {
-                aproxPrecisionActual = aproxNivelConfig;
+                if (aproxNivelConfig === 6) {
+                    aproxPrecisionActual = Math.floor(Math.random() * 6);
+                } else {
+                    aproxPrecisionActual = aproxNivelConfig;
+                }
             }
 
             let factor = 10;
             if (aproxPrecisionActual === 1) factor = 100;
             if (aproxPrecisionActual === 2) factor = 1000;
             if (aproxPrecisionActual === 3) factor = 100000;
-            if (aproxPrecisionActual === 4) factor = 100000000;
+            if (aproxPrecisionActual === 4) factor = 1000000;
+            if (aproxPrecisionActual === 5) factor = 100000000;
 
             let min = factor * 2;
             let max = factor * 98;
             aproxValorOriginal = Math.floor(Math.random() * (max - min + 1)) + min;
 
-            // Asegurar que el número tenga valores que hagan dudar sobre el redondeo
             if (Math.random() < 0.5) {
-                // Generar final cercano a la mitad (e.g., termina en 50, 500, etc.)
                 aproxValorOriginal = Math.floor(aproxValorOriginal / factor) * factor + (factor / 2) + Math.floor(Math.random() * 5 - 2);
             }
 
             aproxRespuestaCorrecta = Math.round(aproxValorOriginal / factor) * factor;
 
             document.getElementById('aprox-num-display').textContent = formatNumber(aproxValorOriginal);
-            document.getElementById('aprox-objetivo-display').textContent = "Aproxima " + aproxNombresPrecision[aproxPrecisionActual];
+
+            if (aproxModoAprendizaje) {
+                renderLearningStep();
+            } else {
+                document.getElementById('aprox-objetivo-display').textContent = "Aproxima " + aproxNombresPrecision[aproxPrecisionActual];
+                actualizarCajaAprox();
+            }
+        }
+
+        // Renderizador del Modo Aprendizaje Paso a Paso perfeccionado (Omitiendo el paso de selección de orden)
+        function renderLearningStep() {
+            const container = document.getElementById('aprox-learning-container');
+            container.innerHTML = '';
+            document.getElementById('aprox-caja-respuesta').style.display = 'none';
+            document.getElementById('aprox-zona-teclado-panel').style.display = 'none';
+
+            let factor = 10;
+            let ordenAnteriorNombre = "unidades";
+            if (aproxPrecisionActual === 1) { factor = 100; ordenAnteriorNombre = "decenas"; }
+            if (aproxPrecisionActual === 2) { factor = 1000; ordenAnteriorNombre = "centenas"; }
+
+            let inf = Math.floor(aproxValorOriginal / factor) * factor;
+            let sup = inf + factor;
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'aprox-learning-step';
+
+            if (aproxLearningStep === 1) {
+                // El juego ya ha decidido el orden y se lo indica al usuario en el título, pasando directo a los dos números
+                document.getElementById('aprox-objetivo-display').textContent = `Aproxima ${aproxNombresPrecision[aproxPrecisionActual]}. ¿Entre qué dos ${aproxOrdenNombresCortos[aproxPrecisionActual].toLowerCase()} está este número?`;
+
+                let parCorrecto = `${formatNumber(inf)} y ${formatNumber(sup)}`;
+                let parFalso1 = `${formatNumber(inf - factor)} y ${formatNumber(inf)}`;
+                let parFalso2 = `${formatNumber(sup)} y ${formatNumber(sup + factor)}`;
+                let parFalso3 = `${formatNumber(inf - (factor*2))} y ${formatNumber(inf - factor)}`;
+
+                let opciones = [parCorrecto, parFalso1, parFalso2, parFalso3];
+                opciones.sort(() => Math.random() - 0.5);
+
+                let grid = document.createElement('div');
+                grid.className = 'aprox-options-grid';
+                grid.style.gridTemplateColumns = '1fr';
+                opciones.forEach(opt => {
+                    let btn = document.createElement('button');
+                    btn.className = 'aprox-opt-btn';
+                    btn.textContent = opt;
+                    btn.onclick = () => {
+                        if (opt === parCorrecto) {
+                            playSoundCommon('acierto');
+                            btn.classList.add('correct');
+                            setTimeout(() => { aproxLearningStep = 2; renderLearningStep(); }, 700);
+                        } else {
+                            playSoundCommon('error');
+                            btn.classList.add('wrong');
+                            setTimeout(() => btn.classList.remove('wrong'), 400);
+                        }
+                    };
+                    grid.appendChild(btn);
+                });
+                wrapper.appendChild(grid);
+            }
+            else if (aproxLearningStep === 2) {
+                document.getElementById('aprox-objetivo-display').textContent = `¿En qué cifra del orden anterior (${ordenAnteriorNombre}) nos debemos fijar?`;
+
+                let strNum = aproxValorOriginal.toString();
+                let cifraClave = '';
+                if (aproxPrecisionActual === 0) cifraClave = strNum[strNum.length - 1]; // U para aproximar a D
+                if (aproxPrecisionActual === 1) cifraClave = strNum[strNum.length - 2]; // D para aproximar a C
+                if (aproxPrecisionActual === 2) cifraClave = strNum[strNum.length - 3]; // C para aproximar a UM
+
+                let opciones = [cifraClave, '0', '5', '9'].filter((v, i, a) => a.indexOf(v) === i);
+                while(opciones.length < 4) {
+                    let rNum = Math.floor(Math.random() * 10).toString();
+                    if(!opciones.includes(rNum)) opciones.push(rNum);
+                }
+                opciones.sort(() => Math.random() - 0.5);
+
+                let grid = document.createElement('div');
+                grid.className = 'aprox-options-grid';
+                opciones.forEach(opt => {
+                    let btn = document.createElement('button');
+                    btn.className = 'aprox-opt-btn';
+                    btn.textContent = `La cifra es: ${opt}`;
+                    btn.onclick = () => {
+                        if (opt === cifraClave) {
+                            playSoundCommon('acierto');
+                            btn.classList.add('correct');
+                            setTimeout(() => { aproxLearningStep = 3; renderLearningStep(); }, 700);
+                        } else {
+                            playSoundCommon('error');
+                            btn.classList.add('wrong');
+                            setTimeout(() => btn.classList.remove('wrong'), 400);
+                        }
+                    };
+                    grid.appendChild(btn);
+                });
+                wrapper.appendChild(grid);
+            }
+            else if (aproxLearningStep === 3) {
+                document.getElementById('aprox-objetivo-display').textContent = `¡Por último, elige entre qué número de los anteriores se redondea ${formatNumber(aproxValorOriginal)}!`;
+
+                let optCorrecta = aproxRespuestaCorrecta;
+                // Determinamos cuál es la otra opción entre los dos límites (inf y sup)
+                let optFalsa = (optCorrecta === inf) ? sup : inf;
+
+                let opciones = [optCorrecta, optFalsa];
+                opciones.sort(() => Math.random() - 0.5);
+
+                let grid = document.createElement('div');
+                grid.className = 'aprox-options-grid';
+                opciones.forEach(opt => {
+                    let btn = document.createElement('button');
+                    btn.className = 'aprox-opt-btn';
+                    btn.textContent = formatNumber(opt);
+                    btn.onclick = () => {
+                        if (opt === optCorrecta) {
+                            playSoundCommon('sine', 800);
+                            btn.classList.add('correct');
+                            document.getElementById('aprox-texto-explicativo').innerHTML = 
+                                `¡Has completado todos los pasos con éxito!<br>El número ${formatNumber(aproxValorOriginal)} aproximado es<br><span style="color:#43a047; font-size:1.8rem;">${formatNumber(aproxRespuestaCorrecta)}</span>`;
+                            setTimeout(() => { document.getElementById('aprox-modal-victoria').style.display = 'flex'; }, 700);
+                        } else {
+                            playSoundCommon('error');
+                            btn.classList.add('wrong');
+                            setTimeout(() => btn.classList.remove('wrong'), 400);
+                        }
+                    };
+                    grid.appendChild(btn);
+                });
+                wrapper.appendChild(grid);
+            }
             
-            const caja = document.getElementById('aprox-caja-respuesta');
-            caja.className = 'aprox-respuesta-box';
+            container.appendChild(wrapper);
         }
 
         function addAproxNum(n) {
@@ -1352,14 +1741,6 @@
 
         function actualizarCajaAprox() {
             document.getElementById('aprox-caja-respuesta').textContent = aproxInputUsuario;
-        }
-
-        function iniciarAprox(n) {
-            aproxNivelConfig = n;
-            document.getElementById('aprox-menu').classList.remove('active');
-            document.getElementById('aprox-juego').classList.add('active');
-            document.getElementById('aprox-modal-victoria').style.display = 'none';
-            generarPreguntaAprox();
         }
 
         function comprobarAprox() {
@@ -1400,7 +1781,7 @@
         }
 
         /* =====================================================================
-           LÓGICA JUEGO 4: COMPARACIÓN DE NÚMEROS NATURALES (NÚMEROS CONFUSOS/ANAGRAMAS)
+           LÓGICA JUEGO 4: COMPARACIÓN DE NÚMEROS NATURALES
            ===================================================================== */
         let compValor1, compValor2, compSignoCorrecto;
         let compNivelActual = 1;
@@ -1410,16 +1791,13 @@
             let prob = Math.random();
 
             if (prob < 0.2) {
-                // Caso 1: Números idénticos (=)
-                num1 = generarNumeroPorNivel(nivel);
+                num1 = generarNumeroPorNivelComp(nivel);
                 num2 = num1;
             } else if (prob < 0.6) {
-                // Caso 2: Mismas cifras pero permutadas / reordenadas (Obliga a comparar cifra por cifra)
-                num1 = generarNumeroPorNivel(nivel);
+                num1 = generarNumeroPorNivelComp(nivel);
                 num2 = permutarCifrasConfusas(num1);
             } else {
-                // Caso 3: Números muy parecidos que difieren solo en una cifra o posición de cero/nueve
-                num1 = generarNumeroPorNivel(nivel);
+                num1 = generarNumeroPorNivelComp(nivel);
                 num2 = variarUnaCifra(num1);
             }
 
@@ -1435,27 +1813,24 @@
             document.getElementById('comp-celda-signo').className = 'comp-simbolo-celda';
         }
 
-        function generarNumeroPorNivel(nivel) {
+        function generarNumeroPorNivelComp(nivel) {
             let min = 10, max = 99;
             if (nivel === 2) { min = 100; max = 999; }
             if (nivel === 3) { min = 1000; max = 9999; }
             if (nivel === 4) { min = 10000; max = 999999; }
-            if (nivel === 5) { min = 10000000; max = 999999999; }
+            if (nivel === 5) { min = 1000000; max = 9999999; }
+            if (nivel === 6) { min = 10000000; max = 999999999; }
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
         function permutarCifrasConfusas(num) {
             let arr = num.toString().split('');
             if (arr.length <= 1) return num;
-            
-            // Intercambiar dos dígitos aleatorios no iniciales o cercanos
             let idx1 = Math.floor(Math.random() * (arr.length - 1)) + 1;
             let idx2 = idx1 - 1;
-
             let temp = arr[idx1];
             arr[idx1] = arr[idx2];
             arr[idx2] = temp;
-
             let res = parseInt(arr.join(''), 10);
             return isNaN(res) ? num : res;
         }
@@ -1484,13 +1859,10 @@
                 playSoundCommon('sine', 800);
                 celda.textContent = s;
                 celda.className = 'comp-simbolo-celda correcta';
-                
                 let n1Txt = formatNumber(compValor1);
                 let n2Txt = formatNumber(compValor2);
                 let palabra = s === '>' ? "es mayor que" : (s === '<' ? "es menor que" : "es igual a");
-                
                 document.getElementById('comp-texto-explicativo').innerHTML = `${n1Txt} <span style="color:#e65100">${palabra}</span> ${n2Txt}`;
-                
                 setTimeout(() => { document.getElementById('comp-modal-victoria').style.display = 'flex'; }, 600);
             } else {
                 playSoundCommon('error');
@@ -1512,6 +1884,307 @@
         function volverAJugarMismoNivelComp() {
             document.getElementById('comp-modal-victoria').style.display = 'none';
             generarPreguntaComp(compNivelActual);
+        }
+
+        /* =====================================================================
+           CONSTRUCTOR INTELIGENTE DE NÚMEROS CON FRECUENCIA DE CEROS (MEJORADO)
+           ===================================================================== */
+        function generarNumeroConCerosFrecuentes(min, max) {
+            const r = Math.random();
+            if (r < 0.45 && max >= 1000) {
+                let baseMillon = Math.floor(Math.random() * 9) + 1;
+                let opcionesUnidadesMillar = [0, Math.floor(Math.random() * 9) + 1, Math.floor(Math.random() * 99) + 1];
+                let um = opcionesUnidadesMillar[Math.floor(Math.random() * opcionesUnidadesMillar.length)];
+                let centenasSueltas = Math.floor(Math.random() * 999);
+                
+                let num = (baseMillon * 1000000) + (um * 1000) + centenasSueltas;
+                if (num >= min && num <= max) return num;
+            } else if (r < 0.75 && max >= 10000) {
+                let dm = Math.floor(Math.random() * 9) + 1;
+                let umCero = 0;
+                let c = Math.floor(Math.random() * 9) + 1;
+                let dCero = 0;
+                let u = Math.floor(Math.random() * 9) + 1;
+                let num = (dm * 10000) + (umCero * 1000) + (c * 100) + (dCero * 10) + u;
+                if (num >= min && num <= max) return num;
+            }
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        /* =====================================================================
+           CONVERTIDOR UNIVERSAL DE NÚMEROS A LETRAS EN CASTELLANO
+           ===================================================================== */
+        function numeroALetras(num) {
+            if (num === 0) return "CERO";
+            if (num === 100) return "CIEN";
+
+            const unidades = ["", "UN", "DOS", "TRES", "CUATRO", "CINCO", "SEIS", "SIETE", "OCHO", "NUEVE"];
+            const decenas = ["", "DIEZ", "VEINTE", "TREINTA", "CUARENTA", "CINCUENTA", "SESENTA", "SETENTA", "OCHENTA", "NOVENTA"];
+            const diezDiecinueve = ["DIEZ", "ONCE", "DOCE", "TRECE", "CATORCE", "QUINCE", "DIECISEIS", "DIECISIETE", "DIECIOCHO", "DIECINUEVE"];
+            const veinti = ["VEINTICERO", "VEINTIUNO", "VEINTIDOS", "VEINTITRES", "VEINTICUATRO", "VEINTICINCO", "VEINTISEIS", "VEINTISIETE", "VEINTIOCHO", "VEINTINUEVE"];
+            const centenas = ["", "CIENTO", "DOSCIENTOS", "TRESCIENTOS", "CUATROCIENTOS", "QUINIENTOS", "SEISCIENTOS", "SETECIENTOS", "OCHOCIENTOS", "NOVECIENTOS"];
+
+            function convertirGrupo(n) {
+                if (n === 0) return "";
+                if (n === 100) return "CIEN";
+                let c = Math.floor(n / 100);
+                let resto = n % 100;
+                let d = Math.floor(resto / 10);
+                let u = resto % 10;
+
+                let strC = centenas[c];
+                let strResto = "";
+
+                if (resto >= 10 && resto <= 19) {
+                    strResto = diezDiecinueve[resto - 10];
+                } else if (resto >= 20 && resto <= 29) {
+                    strResto = veinti[u];
+                } else {
+                    let strD = decenas[d];
+                    let strU = unidades[u];
+                    if (d > 0 && u > 0) strResto = strD + " Y " + strU;
+                    else strResto = strD + strU;
+                }
+
+                if (c > 0 && resto > 0) return strC + " " + strResto;
+                return strC + strResto;
+            }
+
+            let millones = Math.floor(num / 1000000);
+            let miles = Math.floor((num % 1000000) / 1000);
+            let cientos = num % 1000;
+
+            let resultado = "";
+
+            if (millones > 0) {
+                if (millones === 1) resultado += "UN MILLON ";
+                else resultado += convertirGrupo(millones) + " MILLONES ";
+            }
+
+            if (miles > 0) {
+                if (miles === 1) resultado += "MIL ";
+                else resultado += convertirGrupo(miles) + " MIL ";
+            }
+
+            if (cientos > 0) {
+                resultado += convertirGrupo(cientos);
+            }
+
+            return resultado.trim();
+        }
+
+        /* =====================================================================
+           LÓGICA JUEGO 5: DE NÚMERO A LETRAS
+           ===================================================================== */
+        let n2lNivelActual = 1, n2lNumObjetivo = 0, n2lTextoCorrecto = "", n2lInputActual = "";
+
+        function iniciarNum2Let(n) {
+            n2lNivelActual = n;
+            document.getElementById('n2l-menu').classList.remove('active');
+            document.getElementById('n2l-juego').classList.add('active');
+            document.getElementById('n2l-modal-victoria').style.display = 'none';
+            generarPreguntaNum2Let();
+        }
+
+        function volverAlMenuNum2Let() {
+            document.getElementById('n2l-juego').classList.remove('active');
+            document.getElementById('n2l-menu').classList.add('active');
+            document.getElementById('n2l-modal-victoria').style.display = 'none';
+        }
+
+        function siguienteNum2Let() {
+            document.getElementById('n2l-modal-victoria').style.display = 'none';
+            generarPreguntaNum2Let();
+        }
+
+        function generarPreguntaNum2Let() {
+            n2lInputActual = "";
+            let min = 10, max = 99;
+            if (n2lNivelActual === 2) { min = 100; max = 999; }
+            if (n2lNivelActual === 3) { min = 1000; max = 9999; }
+            if (n2lNivelActual === 4) { min = 10000; max = 999999; }
+            if (n2lNivelActual === 5) { min = 1000000; max = 9999999; }
+            if (n2lNivelActual === 6) { min = 10000000; max = 999999999; }
+
+            n2lNumObjetivo = generarNumeroConCerosFrecuentes(min, max);
+            n2lTextoCorrecto = numeroALetras(n2lNumObjetivo);
+
+            document.getElementById('n2l-pregunta').textContent = formatNumber(n2lNumObjetivo);
+            renderTecladoNum2Let();
+            actualizarCajaNum2Let();
+        }
+
+        function renderTecladoNum2Let() {
+            const container = document.getElementById('n2l-teclado-container');
+            container.innerHTML = '';
+
+            const tecladoDiv = document.createElement('div');
+            tecladoDiv.className = 'pal-teclado-letras';
+
+            const filas = [
+                ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ñ'],
+                ['Z', 'X', 'C', 'V', 'B', 'N', 'M', 'Á', 'É', 'Í'],
+                ['Ó', 'Ú', '⌫', 'ENTER']
+            ];
+
+            filas.forEach(fila => {
+                const filaDiv = document.createElement('div');
+                filaDiv.className = 'pal-fila-teclas';
+                fila.forEach(tecla => {
+                    const btn = document.createElement('button');
+                    btn.className = 'pal-tecla-letra';
+                    btn.textContent = tecla;
+                    if (tecla === '⌫') {
+                        btn.className += ' pal-tecla-accion';
+                        btn.onclick = borrarNum2Let;
+                    } else if (tecla === 'ENTER') {
+                        btn.className += ' pal-tecla-espacio';
+                        btn.style.background = '#d1fae5';
+                        btn.style.color = '#065f46';
+                        btn.onclick = comprobarNum2Let;
+                    } else {
+                        btn.onclick = () => agregarLetraN2L(tecla);
+                    }
+                    filaDiv.appendChild(btn);
+                });
+                tecladoDiv.appendChild(filaDiv);
+            });
+
+            const espacioDiv = document.createElement('div');
+            espacioDiv.className = 'pal-fila-teclas';
+            const btnEspacio = document.createElement('button');
+            btnEspacio.className = 'pal-tecla-letra pal-tecla-espacio';
+            btnEspacio.textContent = 'ESPACIO';
+            btnEspacio.onclick = () => agregarLetraN2L(' ');
+            espacioDiv.appendChild(btnEspacio);
+            tecladoDiv.appendChild(espacioDiv);
+
+            container.appendChild(tecladoDiv);
+        }
+
+        function agregarLetraN2L(l) {
+            if (n2lInputActual.length < 60) {
+                n2lInputActual += l;
+                actualizarCajaNum2Let();
+            }
+        }
+
+        function borrarNum2Let() {
+            n2lInputActual = n2lInputActual.slice(0, -1);
+            actualizarCajaNum2Let();
+        }
+
+        function actualizarCajaNum2Let() {
+            document.getElementById('n2l-caja-respuesta').textContent = n2lInputActual;
+        }
+
+        function comprobarNum2Let() {
+            const caja = document.getElementById('n2l-caja-respuesta');
+            if (n2lInputActual.trim() === "") return;
+
+            let limpioUsuario = n2lInputActual.trim().replace(/\s+/g, ' ').toUpperCase();
+            let limpioCorrecto = n2lTextoCorrecto.trim().replace(/\s+/g, ' ').toUpperCase();
+
+            if (limpioUsuario === limpioCorrecto) {
+                playSoundCommon('sine', 800);
+                caja.className = 'pal-respuesta-box correcta';
+                document.getElementById('n2l-texto-explicativo').innerHTML = 
+                    `Número: <b>${formatNumber(n2lNumObjetivo)}</b><br>Correcto:<br><span style="color:#065f46; font-size:1.4rem;">${n2lTextoCorrecto}</span>`;
+                setTimeout(() => { document.getElementById('n2l-modal-victoria').style.display = 'flex'; }, 600);
+            } else {
+                playSoundCommon('error');
+                caja.className = 'pal-respuesta-box incorrecta';
+                setTimeout(() => {
+                    n2lInputActual = "";
+                    actualizarCajaNum2Let();
+                    caja.className = 'pal-respuesta-box';
+                }, 600);
+            }
+        }
+
+        /* =====================================================================
+           LÓGICA JUEGO 6: DE LETRAS A NÚMEROS
+           ===================================================================== */
+        let l2nNivelActual = 1, l2nNumObjetivo = 0, l2nTextoPregunta = "", l2nInputActual = "";
+
+        function iniciarLet2Num(n) {
+            l2nNivelActual = n;
+            document.getElementById('l2n-menu').classList.remove('active');
+            document.getElementById('l2n-juego').classList.add('active');
+            document.getElementById('l2n-modal-victoria').style.display = 'none';
+            generarPreguntaLet2Num();
+        }
+
+        function volverAlMenuLet2Num() {
+            document.getElementById('l2n-juego').classList.remove('active');
+            document.getElementById('l2n-menu').classList.add('active');
+            document.getElementById('l2n-modal-victoria').style.display = 'none';
+        }
+
+        function siguienteLet2Num() {
+            document.getElementById('l2n-modal-victoria').style.display = 'none';
+            generarPreguntaLet2Num();
+        }
+
+        function generarPreguntaLet2Num() {
+            l2nInputActual = "";
+            let min = 10, max = 99;
+            if (l2nNivelActual === 2) { min = 100; max = 999; }
+            if (l2nNivelActual === 3) { min = 1000; max = 9999; }
+            if (l2nNivelActual === 4) { min = 10000; max = 999999; }
+            if (l2nNivelActual === 5) { min = 1000000; max = 9999999; }
+            if (l2nNivelActual === 6) { min = 10000000; max = 999999999; }
+
+            l2nNumObjetivo = generarNumeroConCerosFrecuentes(min, max);
+            l2nTextoPregunta = numeroALetras(l2nNumObjetivo);
+
+            document.getElementById('l2n-pregunta').textContent = l2nTextoPregunta;
+            actualizarCajaLet2Num();
+        }
+
+        function agregarNumL2N(n) {
+            if (l2nInputActual.length < 12) {
+                l2nInputActual += n;
+                actualizarCajaLet2Num();
+            }
+        }
+
+        function borrarLet2Num() {
+            l2nInputActual = l2nInputActual.slice(0, -1);
+            actualizarCajaLet2Num();
+        }
+
+        function actualizarCajaLet2Num() {
+            const caja = document.getElementById('l2n-caja-respuesta');
+            if (l2nInputActual !== "") {
+                caja.textContent = formatNumber(l2nInputActual);
+            } else {
+                caja.textContent = "";
+            }
+        }
+
+        function comprobarLet2Num() {
+            const caja = document.getElementById('l2n-caja-respuesta');
+            if (l2nInputActual.trim() === "") return;
+
+            let numIngresado = parseInt(l2nInputActual, 10);
+
+            if (numIngresado === l2nNumObjetivo) {
+                playSoundCommon('sine', 800);
+                caja.className = 'pal-respuesta-box correcta';
+                document.getElementById('l2n-texto-explicativo').innerHTML = 
+                    `En letras: <b>${l2nTextoPregunta}</b><br>Número en cifras:<br><span style="color:#065f46; font-size:1.6rem;">${formatNumber(l2nNumObjetivo)}</span>`;
+                setTimeout(() => { document.getElementById('l2n-modal-victoria').style.display = 'flex'; }, 600);
+            } else {
+                playSoundCommon('error');
+                caja.className = 'pal-respuesta-box incorrecta';
+                setTimeout(() => {
+                    l2nInputActual = "";
+                    actualizarCajaLet2Num();
+                    caja.className = 'pal-respuesta-box';
+                }, 600);
+            }
         }
     </script>
 </body>
