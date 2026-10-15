@@ -1,17 +1,66 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Suite Educativa de Números Naturales</title>
+    <title>Suite Educativa de Números Naturales, Romanos y Potencias</title>
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&family=Outfit:wght@400;700;900&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;900&family=Outfit:wght@400;700;900&family=Orbitron:wght@700&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        arcade: {
+                            bg: '#05070f',
+                            card: '#0f172a',
+                            border: '#1e293b',
+                            primary: '#6366f1',
+                            primaryHover: '#4f46e5',
+                            gold: '#fbbf24',
+                            success: '#10b981',
+                            danger: '#ef4444',
+                            accent: '#a855f7'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        math: ['"Orbitron"', 'sans-serif'],
+                        roman: ['"Times New Roman"', 'Times', 'serif']
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-short': 'bounce 0.5s ease-in-out infinite',
+                        'shake': 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both',
+                        'float': 'float 3s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate'
+                    },
+                    keyframes: {
+                        shake: {
+                            '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                            '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                            '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+                            '40%, 60%': { transform: 'translate3d(4px, 0, 0)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-6px)' }
+                        },
+                        glow: {
+                            '0%': { textShadow: '0 0 5px rgba(251, 191, 36, 0.4)' },
+                            '100%': { textShadow: '0 0 20px rgba(251, 191, 36, 0.8), 0 0 30px rgba(99, 102, 241, 0.6)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     
     <style>
-        /* ==========================================================================
-           ESTILOS GLOBALES Y NAVEGACIÓN
-           ========================================================================== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -42,7 +91,6 @@
             overflow-x: hidden;
         }
 
-        /* Top Navigation Bar */
         .app-header {
             background-color: var(--nav-bg);
             border-bottom: 2px solid rgba(255, 255, 255, 0.1);
@@ -112,7 +160,6 @@
             color: white;
         }
 
-        /* Container principal */
         .main-container {
             flex: 1;
             display: flex;
@@ -124,7 +171,6 @@
             padding: 10px;
         }
 
-        /* Vistas de Juego */
         .game-view {
             display: none !important;
             width: 100%;
@@ -133,6 +179,8 @@
             animation: fadeIn 0.3s ease-in-out;
             padding: 10px;
             box-sizing: border-box;
+            align-items: center;
+            justify-content: center;
         }
 
         .game-view.active {
@@ -146,12 +194,13 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Vista Menú Principal */
         #view-main-menu {
             padding: 20px 10px;
             max-width: 1100px;
             margin: 0 auto;
             width: 100%;
+            align-items: stretch;
+            justify-content: flex-start;
         }
 
         .menu-title {
@@ -207,7 +256,6 @@
             line-height: 1.4;
         }
 
-        /* CONTENEDOR GENERAL DE TARJETA */
         .game-card-container {
             width: 100%;
             max-width: 1050px;
@@ -222,18 +270,54 @@
             position: relative;
         }
 
-        /* ---------------------------------------------------------------------
-           ESTILOS: JUEGO 1 - DESCOMPOSICIÓN DE NÚMEROS NATURALES
-           --------------------------------------------------------------------- */
-        .decomp-layout {
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+        }
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 99;
+        }
+        .math-root {
+            display: inline-flex;
+            align-items: center;
+            font-family: 'Orbitron', sans-serif;
+            position: relative;
+        }
+        .math-root svg {
+            width: 0.95em;
+            height: 1.3em;
+            vertical-align: middle;
+            margin-right: 2px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .math-radicand {
+            border-top: 2.2px solid currentColor;
+            padding-top: 1px;
+            padding-left: 5px;
+            padding-right: 5px;
+            margin-top: 1px;
+        }
+
+        .decomp-layout, .seq-contenido, .aprox-contenido, .comp-contenido, .pal-contenido {
             display: flex;
             width: 100%;
             gap: 20px;
             align-items: center;
             justify-content: space-between;
         }
-
-        .decomp-main {
+        .decomp-main, .seq-zona-operacion, .aprox-zona-operacion, .comp-zona-operacion, .pal-zona-operacion {
             flex: 1.5;
             display: flex;
             flex-direction: column;
@@ -241,8 +325,7 @@
             justify-content: center;
             width: 100%;
         }
-
-        .decomp-numpad-area {
+        .decomp-numpad-area, .seq-zona-teclado, .aprox-zona-teclado, .comp-zona-teclado, .pal-zona-teclado {
             flex: 0.8;
             width: 100%;
             max-width: 320px;
@@ -250,7 +333,6 @@
             flex-direction: column;
             gap: 10px;
         }
-
         .decomp-num-display {
             font-size: clamp(2rem, 5vw, 3.2rem);
             font-weight: 900;
@@ -264,41 +346,18 @@
             text-align: center;
             word-break: break-all;
         }
-
-        .decomp-grid {
-            display: grid;
-            gap: 6px;
-            width: 100%;
-        }
-
-        .decomp-col {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            min-width: 0;
-        }
-
-        .decomp-label {
-            width: 100%;
-            text-align: center;
-            color: white;
-            font-weight: bold;
-            padding: 6px 2px;
-            border-radius: 8px;
-            font-size: clamp(0.6rem, 1.1vw, 0.8rem);
-        }
-
-        /* COLORES EXACTOS DE LAS ÓRDENES (SEGÚN IMAGEN DE REFERENCIA) */
-        .c-cmm { background: #6b8e23; color: #fff; } /* C. de millón (Verde oliva) */
-        .c-dmm { background: #d9534f; color: #fff; } /* D. de millón (Rojo coral) */
-        .c-umm { background: #1d6fa5; color: #fff; } /* U. de millón (Azul oscuro) */
-        .c-cm  { background: #98fb98; color: #000; } /* CM (Verde claro) */
-        .c-dm  { background: #ff69b4; color: #fff; } /* DM (Fucsia / Magenta) */
-        .c-um  { background: #00bfff; color: #000; } /* UM (Celeste) */
-        .c-c   { background: #98fb98; color: #000; } /* C (Verde claro) */
-        .c-d   { background: #d9534f; color: #fff; } /* D (Rojo coral) */
-        .c-u   { background: #00bfff; color: #000; } /* U (Celeste) */
+        .decomp-grid { display: grid; gap: 6px; width: 100%; }
+        .decomp-col { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+        .decomp-label { width: 100%; text-align: center; color: white; font-weight: bold; padding: 6px 2px; border-radius: 8px; font-size: clamp(0.6rem, 1.1vw, 0.8rem); }
+        .c-cmm { background: #6b8e23; color: #fff; }
+        .c-dmm { background: #d9534f; color: #fff; }
+        .c-umm { background: #1d6fa5; color: #fff; }
+        .c-cm  { background: #98fb98; color: #000; }
+        .c-dm  { background: #ff69b4; color: #fff; }
+        .c-um  { background: #00bfff; color: #000; }
+        .c-c   { background: #98fb98; color: #000; }
+        .c-d   { background: #d9534f; color: #fff; }
+        .c-u   { background: #00bfff; color: #000; }
 
         .decomp-slot, .decomp-valor-container {
             width: 100%;
@@ -312,470 +371,108 @@
             border: 3px solid #cbd5e1;
             position: relative;
         }
-
-        .decomp-slot {
-            height: 60px;
-            font-size: clamp(1.2rem, 3vw, 2.2rem);
-            color: #1e1b4b;
+        .decomp-slot { height: 60px; font-size: clamp(1.2rem, 3vw, 2.2rem); color: #1e1b4b; }
+        .decomp-valor-container { height: 55px; flex-direction: column; }
+        .decomp-valor-input { font-size: clamp(0.75rem, 1.5vw, 1.1rem); color: #4338ca; width: 100%; text-align: center; padding-top: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .decomp-tag-label { position: absolute; top: 2px; left: 50%; transform: translateX(-50%); font-size: 0.55rem; color: #94a3b8; font-weight: 900; pointer-events: none; }
+        .active-input { border-color: #7c3aed !important; background: #f5f3ff !important; transform: scale(1.03); z-index: 5; }
+        .is-correct { background: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important; }
+        .is-wrong { background: #fee2e2 !important; border-color: #ef4444 !important; animation: shake 0.4s; }
+        .decomp-numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; }
+        .decomp-key { background: white; border: 1px solid #e2e8f0; padding: 12px 0; font-size: 1.6rem; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 0 #cbd5e1; color: #4338ca; transition: 0.1s; }
+        .decomp-key:active { transform: translateY(2px); box-shadow: 0 1px 0 #cbd5e1; }
+        .decomp-instr { background: #eef2ff; color: #4338ca; padding: 12px; border-radius: 15px; margin-bottom: 15px; font-weight: 800; text-align: center; font-size: 1.1rem; width: 100%; }
+        .decomp-screen, .seq-pantalla, .aprox-pantalla, .comp-pantalla, .pal-pantalla { display: none; width: 100%; flex-direction: column; align-items: center; }
+        .decomp-screen.active, .seq-pantalla.active, .aprox-pantalla.active, .comp-pantalla.active, .pal-pantalla.active { display: flex; }
+        .btn-decomp-level, .btn-seq-nivel, .btn-aprox-nivel, .btn-comp-nivel, .btn-pal-nivel {
+            width: 100%; max-width: 480px; padding: 14px; margin: 5px; border: none; border-radius: 16px; color: white; font-size: 1rem; font-weight: bold; cursor: pointer; box-shadow: 0 5px 0 rgba(0,0,0,0.15); transition: transform 0.1s;
         }
+        .btn-decomp-level:active, .btn-seq-nivel:active, .btn-aprox-nivel:active, .btn-comp-nivel:active, .btn-pal-nivel:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.15); }
 
-        .decomp-valor-container {
-            height: 55px;
-            flex-direction: column;
-        }
-
-        .decomp-valor-input {
-            font-size: clamp(0.75rem, 1.5vw, 1.1rem);
-            color: #4338ca;
-            width: 100%;
-            text-align: center;
-            padding-top: 10px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .decomp-tag-label {
-            position: absolute;
-            top: 2px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.55rem;
-            color: #94a3b8;
-            font-weight: 900;
-            pointer-events: none;
-        }
-
-        .active-input {
-            border-color: #7c3aed !important;
-            background: #f5f3ff !important;
-            transform: scale(1.03);
-            z-index: 5;
-        }
-
-        .is-correct {
-            background: #d1fae5 !important;
-            border-color: #10b981 !important;
-            color: #065f46 !important;
-        }
-
-        .is-wrong {
-            background: #fee2e2 !important;
-            border-color: #ef4444 !important;
-            animation: shake 0.4s;
-        }
-
-        .decomp-numpad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            width: 100%;
-        }
-
-        .decomp-key {
-            background: white;
-            border: 1px solid #e2e8f0;
-            padding: 12px 0;
-            font-size: 1.6rem;
-            font-weight: bold;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 4px 0 #cbd5e1;
-            color: #4338ca;
-            transition: 0.1s;
-        }
-
-        .decomp-key:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #cbd5e1;
-        }
-
-        .decomp-instr {
-            background: #eef2ff;
-            color: #4338ca;
-            padding: 12px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            font-weight: 800;
-            text-align: center;
-            font-size: 1.1rem;
-            width: 100%;
-        }
-
-        .decomp-screen {
-            display: none;
-            width: 100%;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .decomp-screen.active {
-            display: flex;
-        }
-
-        .btn-decomp-level {
-            width: 100%;
-            max-width: 480px;
-            padding: 14px;
-            margin: 5px;
-            border: none;
-            border-radius: 16px;
-            color: white;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.15);
-            transition: transform 0.1s;
-        }
-
-        .btn-decomp-level:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 rgba(0,0,0,0.15);
-        }
-
-        /* ---------------------------------------------------------------------
-           ESTILOS: JUEGO 2 - ANTERIOR Y POSTERIOR
-           --------------------------------------------------------------------- */
-        .seq-pantalla { display: none; width: 100%; flex-direction: column; align-items: center; }
-        .seq-pantalla.active { display: flex; }
-
-        .seq-instruccion {
-            background: #0d9488; color: white; padding: 12px;
-            border-radius: 12px; text-align: center; margin-bottom: 15px;
-            font-weight: bold; font-size: 1.1rem; width: 100%;
-        }
-
-        .seq-contenido { display: flex; width: 100%; gap: 15px; overflow: hidden; }
-
-        .seq-zona-operacion {
-            flex: 1.5; padding: 20px;
-            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-
-        .seq-boxes-container {
-            display: flex; gap: 10px; align-items: center; justify-content: center; width: 100%; margin-top: 10px;
-        }
-
-        .seq-box-item {
-            display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; min-width: 0;
-        }
-
+        .seq-instruccion { background: #0d9488; color: white; padding: 12px; border-radius: 12px; text-align: center; margin-bottom: 15px; font-weight: bold; font-size: 1.1rem; width: 100%; }
+        .seq-boxes-container { display: flex; gap: 10px; align-items: center; justify-content: center; width: 100%; margin-top: 10px; }
+        .seq-box-item { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; min-width: 0; }
         .seq-label { font-size: 0.85rem; font-weight: bold; color: #64748b; text-align: center; }
-
-        .seq-box {
-            width: 100%; height: 75px; border: 3px dashed #cbd5e1; border-radius: 15px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: clamp(1rem, 2.5vw, 1.6rem); font-weight: 900; background: white; color: #0d9488;
-            padding: 0 5px; text-align: center; word-break: break-all;
-        }
-
-        .seq-box.center-given {
-            border: 3px solid #0d9488; background: #ccfbf1; color: #0f766e;
-        }
-
-        .seq-box.active-seq {
-            border-color: #6366f1; background: #f5f3ff; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
-
-        .seq-box.correct {
-            border: 3px solid #10b981; background: #d1fae5; color: #065f46;
-        }
-
-        .seq-box.wrong {
-            border: 3px solid #ef4444; background: #fee2e2; animation: shake 0.4s;
-        }
-
-        .seq-zona-teclado {
-            flex: 1; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            background: #fff; padding: 5px; border-left: 2px solid #eee;
-        }
-
+        .seq-box { width: 100%; height: 75px; border: 3px dashed #cbd5e1; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: clamp(1rem, 2.5vw, 1.6rem); font-weight: 900; background: white; color: #0d9488; padding: 0 5px; text-align: center; word-break: break-all; }
+        .seq-box.center-given { border: 3px solid #0d9488; background: #ccfbf1; color: #0f766e; }
+        .seq-box.active-seq { border-color: #6366f1; background: #f5f3ff; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+        .seq-box.correct { border: 3px solid #10b981; background: #d1fae5; color: #065f46; }
+        .seq-box.wrong { border: 3px solid #ef4444; background: #fee2e2; animation: shake 0.4s; }
         .seq-teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 300px; }
-        .seq-key { 
-            padding: 15px 0; font-size: 1.6rem; border: none; border-radius: 12px; 
-            background: #f1f5f9; font-weight: bold; box-shadow: 0 4px #cbd5e1; cursor: pointer; color: #334155;
-        }
+        .seq-key { padding: 15px 0; font-size: 1.6rem; border: none; border-radius: 12px; background: #f1f5f9; font-weight: bold; box-shadow: 0 4px #cbd5e1; cursor: pointer; color: #334155; }
         .seq-key:active { box-shadow: 0 1px #cbd5e1; transform: translateY(3px); }
 
-        .btn-seq-nivel {
-            width: 100%; max-width: 480px; padding: 13px; margin: 5px auto; border: none;
-            border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem;
-        }
-
-        /* ---------------------------------------------------------------------
-           ESTILOS: JUEGO 3 - APROXIMACIÓN / REDONDEO
-           --------------------------------------------------------------------- */
-        .aprox-pantalla { display: none; width: 100%; flex-direction: column; }
-        .aprox-pantalla.active { display: flex; }
-
-        .aprox-instruccion {
-            background: #673ab7; color: white; padding: 12px;
-            border-radius: 12px; text-align: center; margin-bottom: 10px;
-            font-weight: bold; font-size: 1.1rem; flex-shrink: 0; width: 100%;
-        }
-
-        .aprox-contenido { display: flex; width: 100%; gap: 15px; overflow: hidden; }
-
-        .aprox-zona-operacion {
-            flex: 1.2; overflow-y: auto; padding: 15px;
-            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-
-        .aprox-zona-teclado {
-            flex: 1.3; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            background: #fff; padding: 5px; border-left: 2px solid #eee;
-        }
-
-        .aprox-pregunta-container { text-align: center; width: 100%; }
-
-        .aprox-num-original { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: bold; color: #333; margin-bottom: 10px; word-break: break-all; }
-
-        .aprox-objetivo-texto {
-            font-size: 1.2rem; color: #673ab7; font-weight: bold; margin-bottom: 20px;
-            background: #ede7f6; padding: 10px 20px; border-radius: 50px; display: inline-block;
-        }
-
-        .aprox-respuesta-box {
-            font-size: clamp(1.8rem, 4vw, 2.8rem); width: 100%; max-width: 320px; height: 80px; border: 4px dashed #bbb;
-            border-radius: 15px; display: flex; justify-content: center; margin: 0 auto;
-            align-items: center; color: #673ab7; background: #fff; font-weight: bold; word-break: break-all; padding: 0 10px;
-        }
-
+        .aprox-instruccion { background: #673ab7; color: white; padding: 12px; border-radius: 12px; text-align: center; margin-bottom: 10px; font-weight: bold; font-size: 1.1rem; width: 100%; }
+        /* CORREGIDO: Centrado del número a redondear */
+        .aprox-pregunta-container { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; text-align: center; }
+        .aprox-num-original { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: bold; color: #333; margin-bottom: 10px; word-break: break-all; text-align: center; width: 100%; }
+        .aprox-objetivo-texto { font-size: 1.2rem; color: #673ab7; font-weight: bold; margin-bottom: 20px; background: #ede7f6; padding: 10px 20px; border-radius: 50px; display: inline-block; text-align: center; }
+        .aprox-respuesta-box { font-size: clamp(1.8rem, 4vw, 2.8rem); width: 100%; max-width: 320px; height: 80px; border: 4px dashed #bbb; border-radius: 15px; display: flex; justify-content: center; margin: 0 auto; align-items: center; color: #673ab7; background: #fff; font-weight: bold; word-break: break-all; padding: 0 10px; text-align: center; }
         .aprox-respuesta-box.correcta { border: 4px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
         .aprox-respuesta-box.incorrecta { border: 4px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
-
         .aprox-teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 300px; }
-        .aprox-tecla { 
-            padding: 15px 0; font-size: 1.8rem; border: none; border-radius: 12px; 
-            background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; color: #333;
-        }
+        .aprox-tecla { padding: 15px 0; font-size: 1.8rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; color: #333; }
         .aprox-tecla:active { box-shadow: 0 1px #ccc; transform: translateY(3px); }
         .aprox-tecla-accion { background: #ffccbc; color: #d84315; }
         .aprox-tecla-enviar { background: #c8e6c9; color: #2e7d32; grid-column: span 3; margin-top: 5px; }
+        .aprox-modal-victoria, .comp-modal-victoria, .pal-modal-victoria { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column; justify-content: center; align-items: center; border-radius: 24px; text-align: center; padding: 20px; }
+        .aprox-solucion-texto, .comp-solucion-texto { font-size: 1.5rem; color: #333; margin: 20px 0; font-weight: bold; line-height: 1.4; }
+        .aprox-learning-step { display: flex; flex-direction: column; width: 100%; align-items: center; gap: 15px; }
+        .aprox-options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 420px; }
+        .aprox-opt-btn { background: #f3e8ff; border: 2px solid #c084fc; color: #581c87; padding: 15px; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 0 #d8b4fe; text-align: center; }
+        .aprox-opt-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #d8b4fe; }
+        .aprox-opt-btn.correct { background: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important; }
+        .aprox-opt-btn.wrong { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; animation: shake 0.3s; }
 
-        .aprox-modal-victoria {
-            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
-            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
-            padding: 20px;
-        }
-
-        .aprox-solucion-texto { font-size: 1.5rem; color: #333; margin: 20px 0; font-weight: bold; line-height: 1.4; }
-        .btn-aprox-nivel { width: 100%; max-width: 480px; padding: 13px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem; }
-
-        /* Estilos específicos para el Modo Aprendizaje de Aproximación */
-        .aprox-learning-step {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            align-items: center;
-            gap: 15px;
-        }
-        .aprox-options-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            width: 100%;
-            max-width: 420px;
-        }
-        .aprox-opt-btn {
-            background: #f3e8ff;
-            border: 2px solid #c084fc;
-            color: #581c87;
-            padding: 15px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 0 #d8b4fe;
-            text-align: center;
-        }
-        .aprox-opt-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #d8b4fe;
-        }
-        .aprox-opt-btn.correct {
-            background: #d1fae5 !important;
-            border-color: #10b981 !important;
-            color: #065f46 !important;
-        }
-        .aprox-opt-btn.wrong {
-            background: #fee2e2 !important;
-            border-color: #ef4444 !important;
-            color: #991b1b !important;
-            animation: shake 0.3s;
-        }
-
-        /* ---------------------------------------------------------------------
-           ESTILOS: JUEGO 4 - COMPARACIÓN DE NÚMEROS NATURALES
-           --------------------------------------------------------------------- */
-        .comp-pantalla { display: none; width: 100%; flex-direction: column; }
-        .comp-pantalla.active { display: flex; }
-
-        .comp-instruccion {
-            background: #1e88e5; color: white; padding: 12px;
-            border-radius: 12px; text-align: center; margin-bottom: 10px;
-            font-weight: bold; font-size: 1.1rem; flex-shrink: 0; width: 100%;
-        }
-
-        .comp-contenido { display: flex; width: 100%; gap: 15px; overflow: hidden; }
-
-        .comp-zona-operacion {
-            flex: 1.5; overflow-y: auto; padding: 15px;
-            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-
-        .comp-zona-teclado {
-            flex: 1; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            background: #fff; padding: 5px; border-left: 2px solid #eee;
-        }
-
-        .comp-comparacion-container {
-            display: flex; align-items: center; justify-content: center; gap: 15px;
-            font-size: clamp(1.1rem, 2.8vw, 2rem); font-weight: bold; color: #333; width: 100%;
-        }
-
-        .comp-num-box {
-            padding: 15px 10px; background: #f8f9fa; border-radius: 15px;
-            border: 2px solid #ddd; flex: 1; text-align: center; word-break: break-all; min-width: 0;
-        }
-
-        .comp-simbolo-celda {
-            width: 65px; height: 65px; border: 4px dashed #bbb;
-            border-radius: 15px; display: flex; justify-content: center;
-            align-items: center; font-size: 2.5rem; color: #1e88e5; background: #fff; flex-shrink: 0;
-        }
-
+        .comp-instruccion { background: #1e88e5; color: white; padding: 12px; border-radius: 12px; text-align: center; margin-bottom: 10px; font-weight: bold; font-size: 1.1rem; width: 100%; }
+        .comp-comparacion-container { display: flex; align-items: center; justify-content: center; gap: 15px; font-size: clamp(1.1rem, 2.8vw, 2rem); font-weight: bold; color: #333; width: 100%; }
+        .comp-num-box { padding: 15px 10px; background: #f8f9fa; border-radius: 15px; border: 2px solid #ddd; flex: 1; text-align: center; word-break: break-all; min-width: 0; }
+        .comp-simbolo-celda { width: 65px; height: 65px; border: 4px dashed #bbb; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; color: #1e88e5; background: #fff; flex-shrink: 0; }
         .comp-simbolo-celda.correcta { border: 4px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
         .comp-simbolo-celda.incorrecta { border: 4px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
-
         .comp-teclado { display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; max-width: 200px; }
-        .comp-tecla { 
-            padding: 18px 0; font-size: 2.5rem; border: none; border-radius: 15px; 
-            background: #f0f0f0; font-weight: bold; box-shadow: 0 6px #ccc; cursor: pointer; color: #333;
-        }
+        .comp-tecla { padding: 18px 0; font-size: 2.5rem; border: none; border-radius: 15px; background: #f0f0f0; font-weight: bold; box-shadow: 0 6px #ccc; cursor: pointer; color: #333; }
         .comp-tecla:active { box-shadow: 0 2px #ccc; transform: translateY(4px); }
         .comp-tecla-simbolo { background: #fff3e0; color: #e65100; border: 2px solid #ffe0b2; }
 
-        .comp-modal-victoria {
-            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
-            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
-            padding: 20px;
-        }
-
-        .comp-solucion-texto { font-size: 1.5rem; color: #333; margin: 20px 0; font-weight: bold; line-height: 1.4; }
-        .btn-comp-nivel { width: 100%; max-width: 480px; padding: 13px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem; }
-
-        /* ---------------------------------------------------------------------
-           ESTILOS: JUEGOS DE LETRAS Y NÚMEROS
-           --------------------------------------------------------------------- */
-        .pal-pantalla { display: none; width: 100%; flex-direction: column; }
-        .pal-pantalla.active { display: flex; }
-
-        .pal-instruccion {
-            background: #d97706; color: white; padding: 12px;
-            border-radius: 12px; text-align: center; margin-bottom: 10px;
-            font-weight: bold; font-size: 1.1rem; flex-shrink: 0; width: 100%;
-        }
-
-        .pal-contenido { display: flex; width: 100%; gap: 15px; overflow: hidden; }
-
-        .pal-zona-operacion {
-            flex: 1.5; overflow-y: auto; padding: 15px;
-            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center;
-        }
-
-        .pal-zona-teclado {
-            flex: 1.3; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            background: #fff; padding: 5px; border-left: 2px solid #eee;
-        }
-
-        .pal-pregunta-display {
-            font-size: clamp(1.5rem, 3.5vw, 2.4rem); font-weight: 900; color: #b45309;
-            margin-bottom: 15px; word-break: break-word; line-height: 1.3;
-        }
-
-        .pal-respuesta-box {
-            font-size: clamp(1.2rem, 3vw, 1.8rem); width: 100%; max-width: 400px; min-height: 75px; border: 4px dashed #cbd5e1;
-            border-radius: 15px; display: flex; justify-content: center; margin: 0 auto;
-            align-items: center; color: #1e293b; background: #fff; font-weight: bold; word-break: break-word; padding: 10px; text-align: center;
-        }
-
+        .pal-instruccion { background: #d97706; color: white; padding: 12px; border-radius: 12px; text-align: center; margin-bottom: 10px; font-weight: bold; font-size: 1.1rem; width: 100%; }
+        .pal-pregunta-display { font-size: clamp(1.5rem, 3.5vw, 2.4rem); font-weight: 900; color: #b45309; margin-bottom: 15px; word-break: break-word; line-height: 1.3; }
+        .pal-respuesta-box { font-size: clamp(1.2rem, 3vw, 1.8rem); width: 100%; max-width: 400px; min-height: 75px; border: 4px dashed #cbd5e1; border-radius: 15px; display: flex; justify-content: center; margin: 0 auto; align-items: center; color: #1e293b; background: #fff; font-weight: bold; word-break: break-word; padding: 10px; text-align: center; }
         .pal-respuesta-box.correcta { border: 4px solid #10b981; background: #d1fae5; color: #065f46; }
         .pal-respuesta-box.incorrecta { border: 4px solid #ef4444; background: #fee2e2; animation: shake 0.3s; }
-
         .pal-teclado-num { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 280px; }
-        .pal-tecla-num { 
-            padding: 12px 0; font-size: 1.5rem; border: none; border-radius: 10px; 
-            background: #f1f5f9; font-weight: bold; box-shadow: 0 3px #cbd5e1; cursor: pointer; color: #334155;
-        }
+        .pal-tecla-num { padding: 12px 0; font-size: 1.5rem; border: none; border-radius: 10px; background: #f1f5f9; font-weight: bold; box-shadow: 0 3px #cbd5e1; cursor: pointer; color: #334155; }
         .pal-tecla-num:active { box-shadow: 0 1px #cbd5e1; transform: translateY(2px); }
-
         .pal-teclado-letras { display: flex; flex-direction: column; gap: 5px; width: 100%; max-width: 400px; }
         .pal-fila-teclas { display: flex; justify-content: center; gap: 4px; width: 100%; }
-        .pal-tecla-letra {
-            background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px;
-            padding: 10px 0; font-size: 1.1rem; font-weight: bold; cursor: pointer;
-            color: #1e293b; flex: 1; max-width: 38px; box-shadow: 0 2px 0 #94a3b8;
-            transition: 0.1s; text-align: center;
-        }
+        .pal-tecla-letra { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 0; font-size: 1.1rem; font-weight: bold; cursor: pointer; color: #1e293b; flex: 1; max-width: 38px; box-shadow: 0 2px 0 #94a3b8; transition: 0.1s; text-align: center; }
         .pal-tecla-letra:active { transform: translateY(2px); box-shadow: 0 0 0 #94a3b8; }
         .pal-tecla-espacio { max-width: 140px; background: #e2e8f0; }
         .pal-tecla-accion { background: #fee2e2; color: #ef4444; max-width: 50px; }
 
-        .btn-pal-nivel { width: 100%; max-width: 480px; padding: 13px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        .overline-char { text-decoration: overline; text-decoration-thickness: 2px; display: inline-block; }
 
-        .pal-modal-victoria {
-            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
-            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
-            padding: 20px;
-        }
-
-        /* Media Queries Adaptativas */
         @media (max-width: 768px) {
-            .decomp-layout { flex-direction: column; }
-            .decomp-main { flex: 1; }
-            .decomp-numpad-area { max-width: 100%; }
+            .decomp-layout, .seq-contenido, .aprox-contenido, .comp-contenido, .pal-contenido { flex-direction: column; }
+            .decomp-main, .seq-zona-operacion, .aprox-zona-operacion, .comp-zona-operacion, .pal-zona-operacion { flex: 1; }
+            .decomp-numpad-area, .seq-zona-teclado, .aprox-zona-teclado, .comp-zona-teclado, .pal-zona-teclado { max-width: 100%; border-left: none; border-top: 2px solid #eee; }
             .decomp-num-display { font-size: 1.8rem; padding: 8px 15px; margin-bottom: 10px; }
             .decomp-slot { height: 45px; font-size: 1.2rem; }
             .decomp-valor-container { height: 45px; }
-
-            .seq-contenido { flex-direction: column; }
-            .seq-zona-teclado { border-left: none; border-top: 2px solid #eee; }
             .seq-box { height: 55px; }
-
-            .aprox-contenido { flex-direction: column; }
-            .aprox-zona-teclado { border-left: none; border-top: 2px solid #eee; }
             .aprox-num-original { font-size: 2.2rem; }
             .aprox-respuesta-box { height: 60px; }
             .aprox-tecla { padding: 10px 0; font-size: 1.4rem; }
-
-            .comp-contenido { flex-direction: column; }
-            .comp-zona-teclado { border-left: none; border-top: 2px solid #eee; }
-            .comp-comparacion-container { gap: 6px; }
             .comp-simbolo-celda { width: 50px; height: 50px; font-size: 1.8rem; }
-
-            .pal-contenido { flex-direction: column; }
-            .pal-zona-teclado { border-left: none; border-top: 2px solid #eee; }
             .pal-tecla-letra { padding: 8px 0; font-size: 0.95rem; max-width: 30px; }
         }
 
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
-<body>
+<body class="dark">
+
+    <canvas id="particle-canvas"></canvas>
 
     <header class="app-header">
         <div class="header-left">
@@ -784,7 +481,7 @@
             </a>
             <div class="app-title">
                 <i class="fas fa-calculator"></i>
-                <span id="app-title-text">Números Naturales</span>
+                <span id="app-title-text">Suite Educativa de Números</span>
             </div>
         </div>
         <button class="btn-menu-toggle" onclick="showMainMenu()">
@@ -832,6 +529,18 @@
                     <i class="fas fa-keyboard"></i>
                     <h3>De Letras a Números</h3>
                     <p>Lee el número escrito en palabras y escribe su valor numérico en cifras.</p>
+                </div>
+
+                <div class="menu-card" onclick="openGame('game-romanos')" style="border-color: rgba(168, 85, 247, 0.4); background: radial-gradient(circle at 50% 10%, rgba(30, 27, 75, 0.6) 0%, #1e293b 80%);">
+                    <i class="fas fa-chess-rook" style="color: #a855f7;"></i>
+                    <h3 style="color: #e2e8f0;">Academia de Romanos</h3>
+                    <p>Domina las reglas de la suma, resta, repetición y multiplicación con barra superior.</p>
+                </div>
+
+                <div class="menu-card" onclick="openGame('game-potencias')" style="border-color: rgba(56, 189, 248, 0.4); background: radial-gradient(circle at 50% 10%, rgba(14, 116, 144, 0.3) 0%, #1e293b 80%);">
+                    <i class="fa-solid fa-superscript text-sky-400"></i>
+                    <h3 style="color: #e2e8f0;">Potencias y Raíces</h3>
+                    <p>Tutoriales interactivos y práctica avanzada de exponentes, base 10 y raíces cuadradas.</p>
                 </div>
             </div>
         </div>
@@ -1112,16 +821,359 @@
             </div>
         </div>
 
+        <!-- JUEGO 7: ACADEMIA DE NÚMEROS ROMANOS (Rediseñado en formato de tarjeta unificada) -->
+        <div id="game-romanos" class="game-view">
+            <div class="game-card-container">
+                <div class="flex items-center justify-between pb-4 mb-6 border-b border-slate-200 w-full">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-amber-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                            <i class="fa-solid fa-chess-rook text-white text-lg"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase tracking-widest text-indigo-600 font-extrabold block">MathMathRuShow Suite</span>
+                            <h1 class="text-base sm:text-lg font-black tracking-tight text-slate-900 flex items-center gap-2">
+                                Academia de Números Romanos <span class="text-amber-600 font-roman italic">V̅I̅I̅I̅</span>
+                            </h1>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <button onclick="RomanApp.openHelpModal()" class="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 hover:text-indigo-600 transition" title="Guía de Reglas">
+                            <i class="fa-solid fa-book-open text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="romanos-menu-view" class="space-y-6 w-full">
+                    <div class="text-center space-y-2 py-2">
+                        <span class="inline-block px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold tracking-wide uppercase">
+                            Modo Arcade Educativo
+                        </span>
+                        <h2 class="text-2xl sm:text-3xl font-black text-slate-900">
+                            Domina el Legado de Roma
+                        </h2>
+                        <p class="text-slate-600 text-xs sm:text-sm max-w-md mx-auto">
+                            Selecciona una regla específica o enfréntate al modo infinito con el teclado virtual interactivo.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 w-full">
+                        <button onclick="RomanApp.selectMode(1)" class="group relative overflow-hidden text-left p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-indigo-500/50 hover:bg-indigo-50/50 transition-all duration-300 shadow-sm">
+                            <div class="flex items-start justify-between mb-2">
+                                <span class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm">I</span>
+                                <span class="text-[11px] text-slate-500 font-medium">Básico</span>
+                            </div>
+                            <strong class="block text-slate-900 font-bold text-base mb-1 group-hover:text-indigo-600 transition">Regla de la Suma</strong>
+                            <p class="text-xs text-slate-600">Símbolos menores a la derecha suman. Ej: <span class="font-roman text-amber-600 font-bold">VI</span> = 6</p>
+                        </button>
+
+                        <button onclick="RomanApp.selectMode(2)" class="group relative overflow-hidden text-left p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-purple-500/50 hover:bg-purple-50/50 transition-all duration-300 shadow-sm">
+                            <div class="flex items-start justify-between mb-2">
+                                <span class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-sm">II</span>
+                                <span class="text-[11px] text-slate-500 font-medium">Intermedio</span>
+                            </div>
+                            <strong class="block text-slate-900 font-bold text-base mb-1 group-hover:text-purple-600 transition">Regla de Repetición</strong>
+                            <p class="text-xs text-slate-600">Hasta 3 repeticiones de I, X, C, M. Ej: <span class="font-roman text-amber-600 font-bold">XXX</span> = 30</p>
+                        </button>
+
+                        <button onclick="RomanApp.selectMode(3)" class="group relative overflow-hidden text-left p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-amber-500/50 hover:bg-amber-50/50 transition-all duration-300 shadow-sm">
+                            <div class="flex items-start justify-between mb-2">
+                                <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-sm">III</span>
+                                <span class="text-[11px] text-slate-500 font-medium">Avanzado</span>
+                            </div>
+                            <strong class="block text-slate-900 font-bold text-base mb-1 group-hover:text-amber-600 transition">Regla de la Resta</strong>
+                            <p class="text-xs text-slate-600">I, X, C a la izquierda restan. Ej: <span class="font-roman text-amber-600 font-bold">IV</span> = 4</p>
+                        </button>
+
+                        <button onclick="RomanApp.selectMode(4)" class="group relative overflow-hidden text-left p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-rose-500/50 hover:bg-rose-50/50 transition-all duration-300 shadow-sm">
+                            <div class="flex items-start justify-between mb-2">
+                                <span class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-sm">IV</span>
+                                <span class="text-[11px] text-amber-600 font-bold flex items-center gap-1"><i class="fa-solid fa-star"></i> Barra Superior</span>
+                            </div>
+                            <strong class="block text-slate-900 font-bold text-base mb-1 group-hover:text-rose-600 transition">Multiplicación (V̅, X̅...)</strong>
+                            <p class="text-xs text-slate-600">Barra superior multiplica por 1.000.</p>
+                        </button>
+
+                        <button onclick="RomanApp.selectMode('infinite')" class="sm:col-span-2 group relative overflow-hidden text-left p-5 rounded-2xl bg-gradient-to-r from-indigo-900 via-purple-900 to-slate-900 text-white border border-indigo-500/40 hover:border-amber-400 transition-all duration-300 shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div class="space-y-1">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold uppercase tracking-wider">
+                                        <i class="fa-solid fa-bolt"></i> Desafío Total
+                                    </span>
+                                    <strong class="block text-white font-black text-lg group-hover:text-amber-300 transition">Modo Aleatorio Infinito</strong>
+                                    <p class="text-xs text-slate-200">Progresión dinámica con todas las reglas y teclado interactivo.</p>
+                                </div>
+                                <div class="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white group-hover:bg-amber-400 group-hover:text-slate-950 transition duration-300">
+                                    <i class="fa-solid fa-play text-lg"></i>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <button class="btn-decomp-level" style="background:#4338ca; width:100%; margin-top:15px; font-size:1rem; padding: 12px;" onclick="showMainMenu()">🏠 Volver al Menú Principal</button>
+                </div>
+
+                <div id="romanos-game-view" class="hidden space-y-5 w-full">
+                    <div class="flex items-center justify-between bg-slate-100 border border-slate-200 px-4 py-3 rounded-2xl w-full">
+                        <div class="flex items-center space-x-3">
+                            <button onclick="RomanApp.returnToMenu()" class="w-8 h-8 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-700 transition" title="Volver al Menú">
+                                <i class="fa-solid fa-arrow-left text-xs"></i>
+                            </button>
+                            <div>
+                                <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block" id="romanos-mode-badge">Módulo</span>
+                                <h2 id="romanos-rule-title" class="text-sm font-bold text-slate-900">Título de Regla</h2>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-3 text-xs font-bold">
+                            <div class="px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center gap-1.5">
+                                <i class="fa-solid fa-fire text-amber-500"></i>
+                                <span id="romanos-streak-counter">0</span>
+                            </div>
+                            <div class="px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center gap-1.5">
+                                <i class="fa-solid fa-star text-indigo-600"></i>
+                                <span id="romanos-score-counter">0 pts</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-xs text-slate-600 bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-200 flex items-center justify-between w-full">
+                        <span id="romanos-rule-desc"><i class="fa-solid fa-circle-info text-indigo-600 mr-1.5"></i> Descripción</span>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center relative overflow-hidden shadow-inner w-full">
+                        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-amber-500"></div>
+                        <div id="romanos-game-prompt" class="text-base sm:text-lg font-semibold text-slate-800 mb-4">
+                            Generando desafío...
+                        </div>
+                        <div id="romanos-interaction-area" class="space-y-4"></div>
+                    </div>
+
+                    <div id="romanos-feedback" class="text-center font-bold text-sm min-h-[1.5rem]"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JUEGO 8: ACADEMIA DE POTENCIAS Y RAÍCES (Rediseñado en formato de tarjeta unificada) -->
+        <div id="game-potencias" class="game-view">
+            <div class="game-card-container">
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200 w-full">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/30 animate-float">
+                            <i class="fa-solid fa-superscript text-white text-base"></i>
+                        </div>
+                        <div>
+                            <span class="text-[9px] uppercase tracking-widest text-sky-600 font-extrabold block">Entrenamiento Matemático</span>
+                            <h1 class="text-sm sm:text-base font-black tracking-tight text-slate-900 flex items-center gap-1.5">
+                                Superpoderes Numéricos
+                            </h1>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <button onclick="PowersApp.openHelpModal()" class="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 hover:text-indigo-600 transition" title="Guía de ayuda">
+                            <i class="fa-solid fa-book-open text-xs"></i>
+                        </button>
+                        <button onclick="showMainMenu()" class="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 hover:text-indigo-600 transition" title="Volver al Menú Principal">
+                            <i class="fa-solid fa-house text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="powers-menu-view" class="space-y-3 w-full">
+                    <div class="text-center space-y-1 py-1">
+                        <span class="inline-block px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-700 text-[11px] font-semibold uppercase tracking-wide">
+                            Elige tu misión de hoy
+                        </span>
+                        <h2 class="text-xl sm:text-2xl font-black text-slate-900">
+                            Potencias y Raíces
+                        </h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full">
+                        <button onclick="PowersApp.startLearning('powers')" class="group text-left p-3.5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-sky-500/50 hover:bg-sky-50/50 transition shadow-sm">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="px-2.5 py-0.5 rounded bg-sky-100 text-sky-700 text-[10px] font-bold uppercase">Aprende Jugando</span>
+                                <i class="fa-solid fa-graduation-cap text-sky-600 text-sm"></i>
+                            </div>
+                            <strong class="block text-slate-900 font-bold text-xs sm:text-sm mb-0.5 group-hover:text-sky-600">¿Qué son las potencias?</strong>
+                            <p class="text-[11px] text-slate-600">Tutorial paso a paso y minijuego guiado.</p>
+                        </button>
+
+                        <button onclick="PowersApp.startLearning('roots')" class="group text-left p-3.5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-indigo-500/50 hover:bg-indigo-50/50 transition shadow-sm">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="px-2.5 py-0.5 rounded bg-indigo-100 text-indigo-700 text-[10px] font-bold uppercase">Aprende Jugando</span>
+                                <i class="fa-solid fa-graduation-cap text-indigo-600 text-sm"></i>
+                            </div>
+                            <strong class="block text-slate-900 font-bold text-xs sm:text-sm mb-0.5 group-hover:text-indigo-600">¿Qué son las raíces?</strong>
+                            <p class="text-[11px] text-slate-600">Descubre la operación inversa con práctica.</p>
+                        </button>
+
+                        <button onclick="PowersApp.selectMode('base10')" class="group text-left p-3.5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-amber-500/50 hover:bg-amber-50/50 transition shadow-sm">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="px-2.5 py-0.5 rounded bg-amber-100 text-amber-700 text-[10px] font-bold uppercase">Práctica</span>
+                                <i class="fa-solid fa-10 text-amber-600 text-sm"></i>
+                            </div>
+                            <strong class="block text-slate-900 font-bold text-xs sm:text-sm mb-0.5 group-hover:text-amber-600">Potencias de Base 10</strong>
+                            <p class="text-[11px] text-slate-600">Domina los ceros y los grandes números.</p>
+                        </button>
+
+                        <button onclick="PowersApp.selectMode('infinite')" class="group text-left p-3.5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-purple-500/50 hover:bg-purple-50/50 transition shadow-sm">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="px-2.5 py-0.5 rounded bg-purple-100 text-purple-700 text-[10px] font-bold uppercase">Desafío</span>
+                                <i class="fa-solid fa-bolt text-purple-600 text-sm"></i>
+                            </div>
+                            <strong class="block text-slate-900 font-bold text-xs sm:text-sm mb-0.5 group-hover:text-purple-600">Modo Mixto Infinito</strong>
+                            <p class="text-[11px] text-slate-600">Entrenamiento libre combinando todo.</p>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="powers-learning-view" class="hidden space-y-3 w-full">
+                    <div class="flex items-center justify-between bg-slate-100 border border-slate-200 px-3 py-2 rounded-xl">
+                        <button onclick="PowersApp.returnToMenu()" class="text-xs text-slate-700 hover:text-indigo-600 font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrow-left"></i> Menú
+                        </button>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-[10px] text-amber-700 font-bold px-2 py-0.5 rounded bg-amber-50 border border-amber-200">Aciertos: <span id="learning-streak">0</span></span>
+                            <span id="learning-badge" class="text-[11px] text-sky-700 font-bold uppercase tracking-wider">Tutorial Interactivo</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3 shadow-inner">
+                        <div id="learning-content" class="text-slate-800 text-xs sm:text-sm space-y-2.5"></div>
+                        <div id="learning-interaction" class="pt-1"></div>
+                        <div id="learning-feedback" class="text-center font-bold text-xs min-h-[1.2rem]"></div>
+                    </div>
+                </div>
+
+                <div id="powers-game-view" class="hidden space-y-3 w-full">
+                    <div class="flex items-center justify-between bg-slate-100 border border-slate-200 px-3 py-2 rounded-xl">
+                        <div class="flex items-center space-x-2">
+                            <button onclick="PowersApp.returnToMenu()" class="w-7 h-7 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-700 transition" title="Volver al menú">
+                                <i class="fa-solid fa-arrow-left text-xs"></i>
+                            </button>
+                            <div>
+                                <span class="text-[9px] text-sky-600 font-bold uppercase tracking-wider block" id="powers-mode-badge">Módulo</span>
+                                <h2 id="powers-rule-title" class="text-xs font-bold text-slate-900">Práctica</h2>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-2 text-xs font-bold">
+                            <div class="px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 flex items-center gap-1">
+                                <i class="fa-solid fa-fire text-amber-500"></i>
+                                <span id="powers-streak-counter">0</span>
+                            </div>
+                            <div class="px-2.5 py-1 rounded-lg bg-sky-50 border border-sky-200 text-sky-700 flex items-center gap-1">
+                                <i class="fa-solid fa-star text-sky-600"></i>
+                                <span id="powers-score-counter">0 pts</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center relative overflow-hidden shadow-inner">
+                        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 via-indigo-500 to-amber-500"></div>
+                        
+                        <div class="text-[11px] text-slate-600 font-semibold mb-1">Calcula el resultado de:</div>
+                        <div id="powers-game-prompt" class="text-2xl sm:text-3xl font-black text-slate-900 mb-3 font-math flex items-center justify-center"></div>
+
+                        <div id="powers-answer-box" class="w-full max-w-[200px] mx-auto h-12 bg-white border-2 border-slate-300 rounded-xl flex items-center justify-center text-xl font-bold text-sky-600 tracking-wider shadow-inner mb-3">
+                            <span id="powers-user-typed-value" class="text-slate-400">Escribe aquí...</span>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-1.5 max-w-[220px] mx-auto">
+                            <button onclick="PowersApp.pressKey('1')" class="py-2.5 bg-white hover:bg-slate-100 active:scale-95 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 transition shadow-sm">1</button>
+                            <button onclick="PowersApp.pressKey('2')" class="py-2.5 bg-white hover:bg-slate-100 active:scale-95 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 transition shadow-sm">2</button>
+                            <button onclick="PowersApp.pressKey('3')" class="py-2.5 bg-white hover:bg-slate-100 active:scale-95 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 transition shadow-sm">3</button>
+                            <button onclick="PowersApp.pressKey('4')" class="py-2.5 bg-white hover:bg-slate-100 active:scale-95 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 transition shadow-sm">4</button>
+                            <button onclick="PowersApp.pressKey('5')" class="py-2.5 bg-white hover:bg-slate-100 active:scale-95 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 transition shadow-sm">5</button>
+                            <button onclick="PowersApp.pressKey('6')" class="py-2.5 bg-white hover:bg-slate-100 active:scale-95 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 transition shadow-sm">6</button>
+                            <button onclick="PowersApp.pressKey('7')" class="py-2.5 bg-white hover:bg-slate-100 active:scale-95 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 transition shadow-sm">7</button>
+                            <button onclick="PowersApp.pressKey('8')" class="py-2.5 bg-white hover:bg-slate-100 active:scale-95 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 transition shadow-sm">8</button>
+                            <button onclick="PowersApp.pressKey('9')" class="py-2.5 bg-white hover:bg-slate-100 active:scale-95 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 transition shadow-sm">9</button>
+                            <button onclick="PowersApp.deleteKey()" class="py-2.5 bg-rose-50 hover:bg-rose-100 active:scale-95 border border-rose-200 rounded-xl text-sm font-bold text-rose-600 transition shadow-sm" title="Borrar">⌫</button>
+                            <button onclick="PowersApp.pressKey('0')" class="py-2.5 bg-white hover:bg-slate-100 active:scale-95 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 transition shadow-sm">0</button>
+                            <button onclick="PowersApp.submitAnswer()" class="py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 border border-emerald-500 rounded-xl text-sm font-bold text-white transition shadow-sm" title="Comprobar">OK</button>
+                        </div>
+                    </div>
+
+                    <div id="powers-feedback" class="text-center font-bold text-xs sm:text-sm min-h-[1.2rem] transition-all"></div>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 
-    <!-- LÓGICA DE CONTROL Y JUEGOS -->
+    <!-- Modal de Ayuda de Romanos -->
+    <div id="romanos-help-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="game-card-container max-w-lg relative space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 w-full">
+                <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap text-amber-600"></i> Guía Interactiva de Números Romanos
+                </h3>
+                <button onclick="RomanApp.closeHelpModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-xs sm:text-sm text-slate-600 max-h-[60vh] overflow-y-auto pr-2 w-full text-left">
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <strong class="text-indigo-600 block mb-1">1. Regla de la Suma</strong>
+                    <p>Si un símbolo de menor o igual valor se coloca a la derecha de uno mayor, se suman sus valores (Ej: <span class="font-roman text-amber-600 font-bold">VI</span> = 6).</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <strong class="text-purple-600 block mb-1">2. Regla de la Repetición</strong>
+                    <p>Los símbolos I, X, C y M se pueden repetir hasta un máximo de tres veces consecutivas (Ej: <span class="font-roman text-amber-600 font-bold">XXX</span> = 30).</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <strong class="text-amber-600 block mb-1">3. Regla de la Resta</strong>
+                    <p>Los símbolos I, X y C situados a la izquierda de uno mayor restan su valor (Ej: <span class="font-roman text-amber-600 font-bold">IV</span> = 4).</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <strong class="text-rose-600 block mb-1">4. Regla de la Multiplicación (Barra Superior)</strong>
+                    <p>Una raya horizontal colocada encima de una letra romana multiplica su valor base por 1.000 (Ej: <span class="font-roman text-amber-600 font-bold overline">V</span> = 5.000).</p>
+                </div>
+            </div>
+            <button onclick="RomanApp.closeHelpModal()" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition shadow-lg shadow-indigo-600/30">
+                ¡Entendido, a Jugar!
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Ayuda de Potencias -->
+    <div id="powers-help-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="game-card-container max-w-md relative space-y-3 text-xs sm:text-sm text-slate-700 shadow-2xl">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200 w-full">
+                <h3 class="font-black text-slate-900 flex items-center gap-1.5">
+                    <i class="fa-solid fa-graduation-cap text-sky-600"></i> Guía de Potencias y Raíces
+                </h3>
+                <button onclick="PowersApp.closeHelpModal()" class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+            <div class="space-y-2 text-slate-600 w-full text-left">
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <strong class="text-sky-600 block mb-0.5">Dispositivos y Teclados</strong>
+                    <p>Puedes usar los botones táctiles o escribir directamente con tu teclado físico (pulsa <strong>Enter</strong> para enviar).</p>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <strong class="text-amber-600 block mb-0.5">Truco para Base 10</strong>
+                    <p>El exponente indica cuántos ceros acompañan al 1 (Ej: $10^3 = 1.000$).</p>
+                </div>
+            </div>
+            <button onclick="PowersApp.closeHelpModal()" class="w-full py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl transition shadow">
+                ¡Entendido, a Jugar!
+            </button>
+        </div>
+    </div>
+
+    <!-- SCRIPTS DE CONTROL DE JUEGOS -->
     <script>
         function formatNumber(num) {
             if (num === null || num === undefined) return '';
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
 
-        // Navegación General
         function openGame(gameId) {
             document.querySelectorAll('.game-view').forEach(view => view.classList.remove('active'));
             const targetView = document.getElementById(gameId);
@@ -1133,6 +1185,8 @@
                 if(gameId === 'game-comparacion') volverAlMenuComp();
                 if(gameId === 'game-num2let') volverAlMenuNum2Let();
                 if(gameId === 'game-let2num') volverAlMenuLet2Num();
+                if(gameId === 'game-romanos') RomanApp.returnToMenu();
+                if(gameId === 'game-potencias') PowersApp.returnToMenu();
             }
         }
 
@@ -1141,7 +1195,6 @@
             document.getElementById('view-main-menu').classList.add('active');
         }
 
-        // Sistema de Audio Web Audio API
         let audioCtx = null;
         function playSoundCommon(type, freqOverride) {
             try {
@@ -1170,7 +1223,6 @@
             } catch(e) {}
         }
 
-        // CONTROL DE TECLADO FÍSICO AUTOMÁTICO
         document.addEventListener('keydown', function(event) {
             if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
 
@@ -1186,7 +1238,6 @@
                     else if (key === 'Backspace' || key === 'Delete') deleteDecompContent();
                 }
             }
-
             if (activeView.id === 'game-secuencia') {
                 const subJuego = document.getElementById('seq-juego');
                 if (subJuego && subJuego.classList.contains('active')) {
@@ -1195,7 +1246,6 @@
                     else if (key === 'Enter') comprobarSeq();
                 }
             }
-
             if (activeView.id === 'game-aproximacion') {
                 const subJuego = document.getElementById('aprox-juego');
                 if (subJuego && subJuego.classList.contains('active')) {
@@ -1206,14 +1256,12 @@
                     }
                 }
             }
-
             if (activeView.id === 'game-comparacion') {
                 const subJuego = document.getElementById('comp-juego');
                 if (subJuego && subJuego.classList.contains('active')) {
                     if (key === '>' || key === '<' || key === '=') comprobarComp(key);
                 }
             }
-
             if (activeView.id === 'game-num2let') {
                 const subJuego = document.getElementById('n2l-juego');
                 if (subJuego && subJuego.classList.contains('active')) {
@@ -1223,7 +1271,6 @@
                     else if (key === 'Enter') comprobarNum2Let();
                 }
             }
-
             if (activeView.id === 'game-let2num') {
                 const subJuego = document.getElementById('l2n-juego');
                 if (subJuego && subJuego.classList.contains('active')) {
@@ -1232,960 +1279,695 @@
                     else if (key === 'Enter') comprobarLet2Num();
                 }
             }
+            if (activeView.id === 'game-romanos') {
+                const romanInput = document.getElementById('romanos-user-input-custom') || document.getElementById('romanos-user-input-num-custom');
+                if (romanInput) {
+                    if (document.getElementById('romanos-user-input-custom')) {
+                        if (key >= '0' && key <= '9') RomanApp.appendRomanNumKey(key);
+                        else if (key === 'Backspace') RomanApp.backspaceRoman();
+                        else if (key === 'Enter') RomanApp.submitTranslation();
+                    }
+                }
+            }
+            if (activeView.id === 'game-potencias') {
+                if (!document.getElementById('powers-game-view').classList.contains('hidden')) {
+                    if (key >= '0' && key <= '9') PowersApp.pressKey(key);
+                    else if (key === 'Backspace') PowersApp.deleteKey();
+                    else if (key === 'Enter') PowersApp.submitAnswer();
+                } else if (!document.getElementById('powers-learning-view').classList.contains('hidden')) {
+                    if (key >= '0' && key <= '9') PowersApp.pressLearningKey(key);
+                    else if (key === 'Backspace') PowersApp.clearLearningKey();
+                    else if (key === 'Enter') {
+                        const okBtn = document.getElementById('learning-ok-btn');
+                        if (okBtn) okBtn.click();
+                    }
+                }
+            }
         });
 
-        /* =====================================================================
-           LÓGICA JUEGO 1: DESCOMPOSICIÓN DE NÚMEROS NATURALES
-           ===================================================================== */
+        /* LÓGICA DE JUEGOS 1 a 6 */
         let decompNivel = 1, decompPaso = 1, decompColumnasActivas = [], decompIndiceActual = 0, decompTargetData = {}, decompBloqueado = false;
-        
         const decompConfig = { 
-            'cmm': { label: 'CMm', class: 'c-cmm' },
-            'dmm': { label: 'DMm', class: 'c-dmm' },
-            'umm': { label: 'UMm', class: 'c-umm' },
-            'ummillon': { label: 'U. Millón', class: 'c-umm' },
-            'cm':  { label: 'CM',  class: 'c-cm' }, 
-            'dm':  { label: 'DM',  class: 'c-dm' }, 
-            'um':  { label: 'UM',  class: 'c-um' }, 
-            'c':   { label: 'C',   class: 'c-c' }, 
-            'd':   { label: 'D',   class: 'c-d' }, 
-            'u':   { label: 'U',   class: 'c-u' } 
+            'cmm': { label: 'CMm', class: 'c-cmm' }, 'dmm': { label: 'DMm', class: 'c-dmm' }, 'umm': { label: 'UMm', class: 'c-umm' }, 'ummillon': { label: 'U. Millón', class: 'c-umm' },
+            'cm':  { label: 'CM',  class: 'c-cm' }, 'dm':  { label: 'DM',  class: 'c-dm' }, 'um':  { label: 'UM',  class: 'c-um' }, 'c':   { label: 'C',   class: 'c-c' }, 'd':   { label: 'D',   class: 'c-d' }, 'u':   { label: 'U',   class: 'c-u' } 
         };
-
-        function showDecompMenu() {
-            document.getElementById('decomp-menu').classList.add('active');
-            document.getElementById('decomp-game').classList.remove('active');
-        }
-
-        function startDecompGame(l) {
-            decompNivel = l;
-            document.getElementById('decomp-menu').classList.remove('active');
-            document.getElementById('decomp-game').classList.add('active');
-            decompNextRound();
-        }
-
+        function showDecompMenu() { document.getElementById('decomp-menu').classList.add('active'); document.getElementById('decomp-game').classList.remove('active'); }
+        function startDecompGame(l) { decompNivel = l; document.getElementById('decomp-menu').classList.remove('active'); document.getElementById('decomp-game').classList.add('active'); decompNextRound(); }
         function decompNextRound() {
-            decompPaso = 1;
-            decompIndiceActual = 0;
-            decompBloqueado = false;
+            decompPaso = 1; decompIndiceActual = 0; decompBloqueado = false;
             document.getElementById('decomp-instruccion').textContent = "PASO 1: COLOCA LAS CIFRAS EN SU LUGAR";
-
             if (decompNivel === 1) decompColumnasActivas = ['d', 'u'];
             else if (decompNivel === 2) decompColumnasActivas = ['c', 'd', 'u'];
             else if (decompNivel === 3) decompColumnasActivas = ['um', 'c', 'd', 'u'];
             else if (decompNivel === 4) decompColumnasActivas = ['cm', 'dm', 'um', 'c', 'd', 'u'];
             else if (decompNivel === 5) decompColumnasActivas = ['umm', 'cm', 'dm', 'um', 'c', 'd', 'u'];
             else decompColumnasActivas = ['cmm', 'dmm', 'umm', 'cm', 'dm', 'um', 'c', 'd', 'u'];
-
-            let numStr = "";
-            decompTargetData = {};
-
+            let numStr = ""; decompTargetData = {};
             decompColumnasActivas.forEach((col, idx) => {
                 let val = (idx === 0) ? Math.floor(Math.random() * 9) + 1 : Math.floor(Math.random() * 10);
-                decompTargetData[col] = val;
-                numStr += val.toString();
+                decompTargetData[col] = val; numStr += val.toString();
             });
-
             document.getElementById('decomp-target-num').textContent = formatNumber(numStr);
-            renderDecompGrid();
-            updateDecompActiveState();
+            renderDecompGrid(); updateDecompActiveState();
         }
-
         function renderDecompGrid() {
             const grid = document.getElementById('decomp-grid');
             grid.style.gridTemplateColumns = `repeat(${decompColumnasActivas.length}, 1fr)`;
             grid.innerHTML = '';
-
             decompColumnasActivas.forEach((colKey, index) => {
                 const conf = decompConfig[colKey];
                 const colEl = document.createElement('div');
                 colEl.className = 'decomp-col';
-                colEl.innerHTML = `
-                    <div class="decomp-label ${conf.class}">${conf.label}</div>
-                    <div class="decomp-slot" id="slot-${index}"></div>
-                    <div class="decomp-valor-container" id="val-box-${index}" style="display:none;">
-                        <span class="decomp-tag-label">VALOR (U)</span>
-                        <div class="decomp-valor-input" id="val-input-${index}"></div>
-                    </div>
-                `;
+                colEl.innerHTML = `<div class="decomp-label ${conf.class}">${conf.label}</div><div class="decomp-slot" id="slot-${index}"></div><div class="decomp-valor-container" id="val-box-${index}" style="display:none;"><span class="decomp-tag-label">VALOR (U)</span><div class="decomp-valor-input" id="val-input-${index}"></div></div>`;
                 grid.appendChild(colEl);
             });
         }
-
         function updateDecompActiveState() {
             document.querySelectorAll('.decomp-slot, .decomp-valor-container').forEach(e => e.classList.remove('active-input'));
-            
-            if (decompPaso === 1) {
-                const el = document.getElementById(`slot-${decompIndiceActual}`);
-                if (el) el.classList.add('active-input');
-            } else {
-                const el = document.getElementById(`val-box-${decompIndiceActual}`);
-                if (el) el.classList.add('active-input');
-            }
+            if (decompPaso === 1) { const el = document.getElementById(`slot-${decompIndiceActual}`); if (el) el.classList.add('active-input'); }
+            else { const el = document.getElementById(`val-box-${decompIndiceActual}`); if (el) el.classList.add('active-input'); }
         }
-
         function pressDecompKey(key) {
             if (decompBloqueado) return;
-
             if (decompPaso === 1) {
                 const slot = document.getElementById(`slot-${decompIndiceActual}`);
                 const colKey = decompColumnasActivas[decompIndiceActual];
-                const targetVal = decompTargetData[colKey].toString();
-
-                if (key === targetVal) {
-                    playSoundCommon('acierto');
-                    slot.textContent = key;
-                    slot.classList.add('is-correct');
-                    decompIndiceActual++;
-
+                if (key === decompTargetData[colKey].toString()) {
+                    playSoundCommon('acierto'); slot.textContent = key; slot.classList.add('is-correct'); decompIndiceActual++;
                     if (decompIndiceActual >= decompColumnasActivas.length) {
-                        decompPaso = 2;
-                        decompIndiceActual = 0;
+                        decompPaso = 2; decompIndiceActual = 0;
                         document.getElementById('decomp-instruccion').textContent = "PASO 2: VALOR DE CADA CIFRA EN UNIDADES (U)";
                         document.querySelectorAll('.decomp-valor-container').forEach(e => e.style.display = 'flex');
                         updateDecompActiveState();
-                    } else {
-                        updateDecompActiveState();
-                    }
-                } else {
-                    playSoundCommon('error');
-                    slot.classList.add('is-wrong');
-                    setTimeout(() => slot.classList.remove('is-wrong'), 400);
-                }
+                    } else { updateDecompActiveState(); }
+                } else { playSoundCommon('error'); slot.classList.add('is-wrong'); setTimeout(() => slot.classList.remove('is-wrong'), 400); }
             } else {
                 const valInput = document.getElementById(`val-input-${decompIndiceActual}`);
-                valInput.textContent += key;
-                checkDecompValPosicional();
+                valInput.textContent += key; checkDecompValPosicional();
             }
         }
-
         function deleteDecompContent() {
             if (decompBloqueado || decompPaso === 1) return;
             const valInput = document.getElementById(`val-input-${decompIndiceActual}`);
             valInput.textContent = valInput.textContent.slice(0, -1);
         }
-
         function getExpectedValPosicional(colKey) {
             let val = decompTargetData[colKey];
             switch(colKey) {
-                case 'cmm': return (val * 100000000).toString();
-                case 'dmm': return (val * 10000000).toString();
-                case 'umm': return (val * 1000000).toString();
-                case 'cm':  return (val * 100000).toString();
-                case 'dm':  return (val * 10000).toString();
-                case 'um':  return (val * 1000).toString();
-                case 'c':   return (val * 100).toString();
-                case 'd':   return (val * 10).toString();
-                case 'u':   return val.toString();
+                case 'cmm': return (val * 100000000).toString(); case 'dmm': return (val * 10000000).toString(); case 'umm': return (val * 1000000).toString();
+                case 'cm':  return (val * 100000).toString(); case 'dm':  return (val * 10000).toString(); case 'um':  return (val * 1000).toString();
+                case 'c':   return (val * 100).toString(); case 'd':   return (val * 10).toString(); case 'u':   return val.toString();
             }
         }
-
         function checkDecompValPosicional() {
             const valInput = document.getElementById(`val-input-${decompIndiceActual}`);
             const valBox = document.getElementById(`val-box-${decompIndiceActual}`);
             const colKey = decompColumnasActivas[decompIndiceActual];
             const target = getExpectedValPosicional(colKey);
-            const current = valInput.textContent;
-
-            if (current === target) {
-                playSoundCommon('acierto');
-                valBox.classList.add('is-correct');
-                decompIndiceActual++;
-
+            if (valInput.textContent === target) {
+                playSoundCommon('acierto'); valBox.classList.add('is-correct'); decompIndiceActual++;
                 if (decompIndiceActual >= decompColumnasActivas.length) {
-                    decompBloqueado = true;
-                    playSoundCommon('success');
+                    decompBloqueado = true; playSoundCommon('success');
                     document.getElementById('decomp-instruccion').textContent = "¡EXCELENTE! HAS COMPLETADO LA DESCOMPOSICIÓN";
-                    setTimeout(() => {
-                        decompNextRound();
-                    }, 2000);
-                } else {
-                    updateDecompActiveState();
-                }
-            } else if (!target.startsWith(current)) {
-                playSoundCommon('error');
-                valBox.classList.add('is-wrong');
-                setTimeout(() => {
-                    valInput.textContent = '';
-                    valBox.classList.remove('is-wrong');
-                }, 400);
+                    setTimeout(decompNextRound, 2000);
+                } else { updateDecompActiveState(); }
+            } else if (!target.startsWith(valInput.textContent)) {
+                playSoundCommon('error'); valBox.classList.add('is-wrong');
+                setTimeout(() => { valInput.textContent = ''; valBox.classList.remove('is-wrong'); }, 400);
             }
         }
 
-        /* =====================================================================
-           LÓGICA JUEGO 2: ANTERIOR Y POSTERIOR
-           ===================================================================== */
-        let seqNivelActual = 1, seqNumeroBase = 0, seqPaso = 1;
-        let seqInputUsuario = "";
-
-        function iniciarSeq(n) {
-            seqNivelActual = n;
-            document.getElementById('seq-menu').classList.remove('active');
-            document.getElementById('seq-juego').classList.add('active');
-            generarPreguntaSeq();
-        }
-
-        function volverAlMenuSeq() {
-            document.getElementById('seq-juego').classList.remove('active');
-            document.getElementById('seq-menu').classList.add('active');
-        }
-
+        /* Anterior y Posterior */
+        let seqNivelActual = 1, seqNumeroBase = 0, seqPaso = 1, seqInputUsuario = "";
+        function iniciarSeq(n) { seqNivelActual = n; document.getElementById('seq-menu').classList.remove('active'); document.getElementById('seq-juego').classList.add('active'); generarPreguntaSeq(); }
+        function volverAlMenuSeq() { document.getElementById('seq-juego').classList.remove('active'); document.getElementById('seq-menu').classList.add('active'); }
         function generarPreguntaSeq() {
-            seqPaso = 1;
-            seqInputUsuario = "";
-            let base = 0;
-            const r = Math.random();
-
-            if (seqNivelActual === 1) {
-                if (r < 0.4) base = [20, 30, 40, 50, 60, 70, 80, 90][Math.floor(Math.random() * 8)];
-                else if (r < 0.7) base = [19, 29, 39, 49, 59, 69, 79, 89][Math.floor(Math.random() * 8)];
-                else base = Math.floor(Math.random() * 89) + 10;
-            } 
-            else if (seqNivelActual === 2) {
-                if (r < 0.35) base = [100, 200, 500, 900, 300, 700][Math.floor(Math.random() * 6)];
-                else if (r < 0.7) base = [199, 299, 499, 999, 399, 799][Math.floor(Math.random() * 6)];
-                else base = Math.floor(Math.random() * 899) + 100;
-            } 
-            else if (seqNivelActual === 3) {
-                if (r < 0.35) base = [1000, 2000, 5000, 9000, 1009][Math.floor(Math.random() * 5)];
-                else if (r < 0.7) base = [999, 1999, 4999, 9999][Math.floor(Math.random() * 4)];
-                else base = Math.floor(Math.random() * 8999) + 1000;
-            } 
-            else if (seqNivelActual === 4) {
-                if (r < 0.35) base = [100000, 500000, 10000][Math.floor(Math.random() * 3)];
-                else if (r < 0.7) base = [99999, 199999, 999999][Math.floor(Math.random() * 3)];
-                else base = Math.floor(Math.random() * 899999) + 10000;
-            } 
-            else if (seqNivelActual === 5) {
-                if (r < 0.4) base = [1000000, 2000000, 5000000][Math.floor(Math.random() * 3)];
-                else if (r < 0.7) base = [999999, 1999999, 9999999][Math.floor(Math.random() * 3)];
-                else base = Math.floor(Math.random() * 8999999) + 1000000;
-            }
-            else {
-                if (r < 0.4) base = [10000000, 100000000][Math.floor(Math.random() * 2)];
-                else if (r < 0.7) base = [9999999, 999999999][Math.floor(Math.random() * 2)];
-                else base = Math.floor(Math.random() * 899999999) + 10000000;
-            }
-
+            seqPaso = 1; seqInputUsuario = ""; let base = 0;
+            if (seqNivelActual === 1) base = Math.floor(Math.random() * 89) + 10;
+            else if (seqNivelActual === 2) base = Math.floor(Math.random() * 899) + 100;
+            else if (seqNivelActual === 3) base = Math.floor(Math.random() * 8999) + 1000;
+            else if (seqNivelActual === 4) base = Math.floor(Math.random() * 899999) + 10000;
+            else if (seqNivelActual === 5) base = Math.floor(Math.random() * 8999999) + 1000000;
+            else base = Math.floor(Math.random() * 899999999) + 10000000;
             seqNumeroBase = base;
             document.getElementById('seq-box-num').textContent = formatNumber(seqNumeroBase);
-            document.getElementById('seq-box-ant').textContent = "";
-            document.getElementById('seq-box-post').textContent = "";
-            document.getElementById('seq-box-ant').className = "seq-box active-seq";
-            document.getElementById('seq-box-post').className = "seq-box";
+            document.getElementById('seq-box-ant').textContent = ""; document.getElementById('seq-box-post').textContent = "";
+            document.getElementById('seq-box-ant').className = "seq-box active-seq"; document.getElementById('seq-box-post').className = "seq-box";
             document.getElementById('seq-instruccion').textContent = "Escribe el número anterior (-1)";
         }
-
-        function addSeqNum(n) {
-            if (seqInputUsuario.length < 11) {
-                seqInputUsuario += n;
-                actualizarCajasSeq();
-            }
-        }
-
-        function borrarSeq() {
-            seqInputUsuario = seqInputUsuario.slice(0, -1);
-            actualizarCajasSeq();
-        }
-
-        function actualizarCajasSeq() {
-            const targetId = seqPaso === 1 ? 'seq-box-ant' : 'seq-box-post';
-            document.getElementById(targetId).textContent = seqInputUsuario;
-        }
-
+        function addSeqNum(n) { if (seqInputUsuario.length < 11) { seqInputUsuario += n; actualizarCajasSeq(); } }
+        function borrarSeq() { seqInputUsuario = seqInputUsuario.slice(0, -1); actualizarCajasSeq(); }
+        function actualizarCajasSeq() { document.getElementById(seqPaso === 1 ? 'seq-box-ant' : 'seq-box-post').textContent = seqInputUsuario; }
         function comprobarSeq() {
             if (seqInputUsuario === "") return;
-
-            let numIngresado = parseInt(seqInputUsuario, 10);
             let objetivo = seqPaso === 1 ? seqNumeroBase - 1 : seqNumeroBase + 1;
-            const targetId = seqPaso === 1 ? 'seq-box-ant' : 'seq-box-post';
-            const boxEl = document.getElementById(targetId);
-
-            if (numIngresado === objetivo) {
-                playSoundCommon('acierto');
-                boxEl.className = "seq-box correct";
-                boxEl.textContent = formatNumber(objetivo);
-
-                if (seqPaso === 1) {
-                    seqPaso = 2;
-                    seqInputUsuario = "";
-                    document.getElementById('seq-box-post').className = "seq-box active-seq";
-                    document.getElementById('seq-instruccion').textContent = "¡Muy bien! Ahora escribe el número posterior (+1)";
-                } else {
-                    playSoundCommon('success');
-                    document.getElementById('seq-instruccion').textContent = "¡EXCELENTE! SECUENCIA COMPLETADA";
-                    setTimeout(generarPreguntaSeq, 1800);
-                }
-            } else {
-                playSoundCommon('error');
-                boxEl.classList.add('wrong');
-                setTimeout(() => {
-                    boxEl.classList.remove('wrong');
-                    seqInputUsuario = "";
-                    actualizarCajasSeq();
-                }, 500);
-            }
+            const boxEl = document.getElementById(seqPaso === 1 ? 'seq-box-ant' : 'seq-box-post');
+            if (parseInt(seqInputUsuario, 10) === objetivo) {
+                playSoundCommon('acierto'); boxEl.className = "seq-box correct"; boxEl.textContent = formatNumber(objetivo);
+                if (seqPaso === 1) { seqPaso = 2; seqInputUsuario = ""; document.getElementById('seq-box-post').className = "seq-box active-seq"; document.getElementById('seq-instruccion').textContent = "¡Muy bien! Ahora escribe el posterior (+1)"; }
+                else { playSoundCommon('success'); document.getElementById('seq-instruccion').textContent = "¡EXCELENTE! SECUENCIA COMPLETADA"; setTimeout(generarPreguntaSeq, 1800); }
+            } else { playSoundCommon('error'); boxEl.classList.add('wrong'); setTimeout(() => { boxEl.classList.remove('wrong'); seqInputUsuario = ""; actualizarCajasSeq(); }, 500); }
         }
 
-        /* =====================================================================
-           LÓGICA JUEGO 3: REDONDEO / APROXIMACIÓN (CON NIVEL DE APRENDIZAJE)
-           ===================================================================== */
-        let aproxValorOriginal, aproxRespuestaCorrecta, aproxPrecisionActual;
-        let aproxNivelConfig = 0; 
-        let aproxInputUsuario = "";
-        let aproxModoAprendizaje = false;
-        let aproxLearningStep = 1; // 1: Dos números, 2: Cifra anterior, 3: Aproximación final
-
-        const aproxNombresPrecision = [
-            "a la Decena (D)", 
-            "a la Centena (C)", 
-            "a la Unidad de Millar (UM)",
-            "a la Centena de Millar (CM)",
-            "a la Unidad de Millón (UMm)",
-            "a la Centena de Millón (CMm)"
-        ];
-
+        /* Redondeo / Aproximación */
+        let aproxValorOriginal, aproxRespuestaCorrecta, aproxPrecisionActual, aproxNivelConfig = 0, aproxInputUsuario = "", aproxModoAprendizaje = false, aproxLearningStep = 1;
+        const aproxNombresPrecision = ["a la Decena (D)", "a la Centena (C)", "a la Unidad de Millar (UM)", "a la Centena de Millar (CM)", "a la Unidad de Millón (UMm)", "a la Centena de Millón (CMm)"];
         const aproxOrdenNombresCortos = ["Decenas", "Centenas", "Unidades de Millar", "Centenas de Millar", "Unidades de Millón", "Centenas de Millón"];
-
         function iniciarAprox(n, esAprendizaje = false) {
-            aproxNivelConfig = n;
-            aproxModoAprendizaje = esAprendizaje;
-            document.getElementById('aprox-menu').classList.remove('active');
-            document.getElementById('aprox-juego').classList.add('active');
-            document.getElementById('aprox-modal-victoria').style.display = 'none';
-            generarPreguntaAprox();
+            aproxNivelConfig = n; aproxModoAprendizaje = esAprendizaje;
+            document.getElementById('aprox-menu').classList.remove('active'); document.getElementById('aprox-juego').classList.add('active');
+            document.getElementById('aprox-modal-victoria').style.display = 'none'; generarPreguntaAprox();
         }
-
         function generarPreguntaAprox() {
-            aproxInputUsuario = "";
-            document.getElementById('aprox-caja-respuesta').style.display = 'flex';
-            document.getElementById('aprox-zona-teclado-panel').style.display = 'flex';
-            document.getElementById('aprox-learning-container').innerHTML = '';
-
-            if (aproxModoAprendizaje) {
-                // El juego decide aleatoriamente a qué orden aproximar (Decenas, Centenas o Unidades de Millar)
-                aproxPrecisionActual = Math.floor(Math.random() * 3); 
-                aproxLearningStep = 1; // Omitimos el paso 1 original y empezamos directamente en el paso de los dos números
-            } else {
-                if (aproxNivelConfig === 6) {
-                    aproxPrecisionActual = Math.floor(Math.random() * 6);
-                } else {
-                    aproxPrecisionActual = aproxNivelConfig;
-                }
-            }
-
-            let factor = 10;
-            if (aproxPrecisionActual === 1) factor = 100;
-            if (aproxPrecisionActual === 2) factor = 1000;
-            if (aproxPrecisionActual === 3) factor = 100000;
-            if (aproxPrecisionActual === 4) factor = 1000000;
-            if (aproxPrecisionActual === 5) factor = 100000000;
-
-            let min = factor * 2;
-            let max = factor * 98;
-            aproxValorOriginal = Math.floor(Math.random() * (max - min + 1)) + min;
-
-            if (Math.random() < 0.5) {
-                aproxValorOriginal = Math.floor(aproxValorOriginal / factor) * factor + (factor / 2) + Math.floor(Math.random() * 5 - 2);
-            }
-
+            aproxInputUsuario = ""; document.getElementById('aprox-caja-respuesta').style.display = 'flex';
+            document.getElementById('aprox-zona-teclado-panel').style.display = 'flex'; document.getElementById('aprox-learning-container').innerHTML = '';
+            aproxPrecisionActual = aproxModoAprendizaje ? Math.floor(Math.random() * 3) : (aproxNivelConfig === 6 ? Math.floor(Math.random() * 6) : aproxNivelConfig);
+            let factor = [10, 100, 1000, 100000, 1000000, 100000000][aproxPrecisionActual];
+            aproxValorOriginal = Math.floor(Math.random() * (factor * 96)) + (factor * 2);
             aproxRespuestaCorrecta = Math.round(aproxValorOriginal / factor) * factor;
-
             document.getElementById('aprox-num-display').textContent = formatNumber(aproxValorOriginal);
-
-            if (aproxModoAprendizaje) {
-                renderLearningStep();
-            } else {
-                document.getElementById('aprox-objetivo-display').textContent = "Aproxima " + aproxNombresPrecision[aproxPrecisionActual];
-                actualizarCajaAprox();
-            }
+            if (aproxModoAprendizaje) { aproxLearningStep = 1; renderLearningStep(); }
+            else { document.getElementById('aprox-objetivo-display').textContent = "Aproxima " + aproxNombresPrecision[aproxPrecisionActual]; actualizarCajaAprox(); }
         }
-
-        // Renderizador del Modo Aprendizaje Paso a Paso perfeccionado (Omitiendo el paso de selección de orden)
         function renderLearningStep() {
-            const container = document.getElementById('aprox-learning-container');
-            container.innerHTML = '';
-            document.getElementById('aprox-caja-respuesta').style.display = 'none';
-            document.getElementById('aprox-zona-teclado-panel').style.display = 'none';
-
-            let factor = 10;
-            let ordenAnteriorNombre = "unidades";
-            if (aproxPrecisionActual === 1) { factor = 100; ordenAnteriorNombre = "decenas"; }
-            if (aproxPrecisionActual === 2) { factor = 1000; ordenAnteriorNombre = "centenas"; }
-
-            let inf = Math.floor(aproxValorOriginal / factor) * factor;
-            let sup = inf + factor;
-
-            const wrapper = document.createElement('div');
-            wrapper.className = 'aprox-learning-step';
-
+            const container = document.getElementById('aprox-learning-container'); container.innerHTML = '';
+            document.getElementById('aprox-caja-respuesta').style.display = 'none'; document.getElementById('aprox-zona-teclado-panel').style.display = 'none';
+            let factor = [10, 100, 1000][aproxPrecisionActual] || 10;
+            let inf = Math.floor(aproxValorOriginal / factor) * factor, sup = inf + factor;
+            const wrapper = document.createElement('div'); wrapper.className = 'aprox-learning-step';
             if (aproxLearningStep === 1) {
-                // El juego ya ha decidido el orden y se lo indica al usuario en el título, pasando directo a los dos números
-                document.getElementById('aprox-objetivo-display').textContent = `Aproxima ${aproxNombresPrecision[aproxPrecisionActual]}. ¿Entre qué dos ${aproxOrdenNombresCortos[aproxPrecisionActual].toLowerCase()} está este número?`;
-
+                document.getElementById('aprox-objetivo-display').textContent = `Aproxima ${aproxNombresPrecision[aproxPrecisionActual]}. ¿Entre qué dos ${aproxOrdenNombresCortos[aproxPrecisionActual].toLowerCase()} está?`;
                 let parCorrecto = `${formatNumber(inf)} y ${formatNumber(sup)}`;
-                let parFalso1 = `${formatNumber(inf - factor)} y ${formatNumber(inf)}`;
-                let parFalso2 = `${formatNumber(sup)} y ${formatNumber(sup + factor)}`;
-                let parFalso3 = `${formatNumber(inf - (factor*2))} y ${formatNumber(inf - factor)}`;
-
-                let opciones = [parCorrecto, parFalso1, parFalso2, parFalso3];
-                opciones.sort(() => Math.random() - 0.5);
-
-                let grid = document.createElement('div');
-                grid.className = 'aprox-options-grid';
-                grid.style.gridTemplateColumns = '1fr';
+                let opciones = [parCorrecto, `${formatNumber(inf - factor)} y ${formatNumber(inf)}`, `${formatNumber(sup)} y ${formatNumber(sup + factor)}`].sort(() => Math.random() - 0.5);
+                let grid = document.createElement('div'); grid.className = 'aprox-options-grid'; grid.style.gridTemplateColumns = '1fr';
                 opciones.forEach(opt => {
-                    let btn = document.createElement('button');
-                    btn.className = 'aprox-opt-btn';
-                    btn.textContent = opt;
-                    btn.onclick = () => {
-                        if (opt === parCorrecto) {
-                            playSoundCommon('acierto');
-                            btn.classList.add('correct');
-                            setTimeout(() => { aproxLearningStep = 2; renderLearningStep(); }, 700);
-                        } else {
-                            playSoundCommon('error');
-                            btn.classList.add('wrong');
-                            setTimeout(() => btn.classList.remove('wrong'), 400);
-                        }
-                    };
+                    let btn = document.createElement('button'); btn.className = 'aprox-opt-btn'; btn.textContent = opt;
+                    btn.onclick = () => { if (opt === parCorrecto) { playSoundCommon('acierto'); btn.classList.add('correct'); setTimeout(() => { aproxLearningStep = 2; renderLearningStep(); }, 700); } else { playSoundCommon('error'); btn.classList.add('wrong'); setTimeout(() => btn.classList.remove('wrong'), 400); } };
                     grid.appendChild(btn);
                 });
                 wrapper.appendChild(grid);
-            }
-            else if (aproxLearningStep === 2) {
-                document.getElementById('aprox-objetivo-display').textContent = `¿En qué cifra del orden anterior (${ordenAnteriorNombre}) nos debemos fijar?`;
-
+            } else if (aproxLearningStep === 2) {
+                document.getElementById('aprox-objetivo-display').textContent = `¿En qué cifra nos fijamos?`;
                 let strNum = aproxValorOriginal.toString();
-                let cifraClave = '';
-                if (aproxPrecisionActual === 0) cifraClave = strNum[strNum.length - 1]; // U para aproximar a D
-                if (aproxPrecisionActual === 1) cifraClave = strNum[strNum.length - 2]; // D para aproximar a C
-                if (aproxPrecisionActual === 2) cifraClave = strNum[strNum.length - 3]; // C para aproximar a UM
-
-                let opciones = [cifraClave, '0', '5', '9'].filter((v, i, a) => a.indexOf(v) === i);
-                while(opciones.length < 4) {
-                    let rNum = Math.floor(Math.random() * 10).toString();
-                    if(!opciones.includes(rNum)) opciones.push(rNum);
-                }
-                opciones.sort(() => Math.random() - 0.5);
-
-                let grid = document.createElement('div');
-                grid.className = 'aprox-options-grid';
+                let cifraClave = strNum[strNum.length - 1 - aproxPrecisionActual] || '0';
+                let opciones = [cifraClave, '0', '5', '9'].filter((v, i, a) => a.indexOf(v) === i).sort(() => Math.random() - 0.5);
+                let grid = document.createElement('div'); grid.className = 'aprox-options-grid';
                 opciones.forEach(opt => {
-                    let btn = document.createElement('button');
-                    btn.className = 'aprox-opt-btn';
-                    btn.textContent = `La cifra es: ${opt}`;
-                    btn.onclick = () => {
-                        if (opt === cifraClave) {
-                            playSoundCommon('acierto');
-                            btn.classList.add('correct');
-                            setTimeout(() => { aproxLearningStep = 3; renderLearningStep(); }, 700);
-                        } else {
-                            playSoundCommon('error');
-                            btn.classList.add('wrong');
-                            setTimeout(() => btn.classList.remove('wrong'), 400);
-                        }
-                    };
+                    let btn = document.createElement('button'); btn.className = 'aprox-opt-btn'; btn.textContent = `Cifra: ${opt}`;
+                    btn.onclick = () => { if (opt === cifraClave) { playSoundCommon('acierto'); btn.classList.add('correct'); setTimeout(() => { aproxLearningStep = 3; renderLearningStep(); }, 700); } else { playSoundCommon('error'); btn.classList.add('wrong'); setTimeout(() => btn.classList.remove('wrong'), 400); } };
+                    grid.appendChild(btn);
+                });
+                wrapper.appendChild(grid);
+            } else {
+                document.getElementById('aprox-objetivo-display').textContent = `¡Elige el redondeo correcto!`;
+                let opciones = [aproxRespuestaCorrecta, (aproxRespuestaCorrecta === inf ? sup : inf)].sort(() => Math.random() - 0.5);
+                let grid = document.createElement('div'); grid.className = 'aprox-options-grid';
+                opciones.forEach(opt => {
+                    let btn = document.createElement('button'); btn.className = 'aprox-opt-btn'; btn.textContent = formatNumber(opt);
+                    btn.onclick = () => { if (opt === aproxRespuestaCorrecta) { playSoundCommon('sine', 800); btn.classList.add('correct'); document.getElementById('aprox-texto-explicativo').innerHTML = `¡Correcto!<br><span style="color:#43a047; font-size:1.8rem;">${formatNumber(aproxRespuestaCorrecta)}</span>`; setTimeout(() => { document.getElementById('aprox-modal-victoria').style.display = 'flex'; }, 700); } else { playSoundCommon('error'); btn.classList.add('wrong'); setTimeout(() => btn.classList.remove('wrong'), 400); } };
                     grid.appendChild(btn);
                 });
                 wrapper.appendChild(grid);
             }
-            else if (aproxLearningStep === 3) {
-                document.getElementById('aprox-objetivo-display').textContent = `¡Por último, elige entre qué número de los anteriores se redondea ${formatNumber(aproxValorOriginal)}!`;
-
-                let optCorrecta = aproxRespuestaCorrecta;
-                // Determinamos cuál es la otra opción entre los dos límites (inf y sup)
-                let optFalsa = (optCorrecta === inf) ? sup : inf;
-
-                let opciones = [optCorrecta, optFalsa];
-                opciones.sort(() => Math.random() - 0.5);
-
-                let grid = document.createElement('div');
-                grid.className = 'aprox-options-grid';
-                opciones.forEach(opt => {
-                    let btn = document.createElement('button');
-                    btn.className = 'aprox-opt-btn';
-                    btn.textContent = formatNumber(opt);
-                    btn.onclick = () => {
-                        if (opt === optCorrecta) {
-                            playSoundCommon('sine', 800);
-                            btn.classList.add('correct');
-                            document.getElementById('aprox-texto-explicativo').innerHTML = 
-                                `¡Has completado todos los pasos con éxito!<br>El número ${formatNumber(aproxValorOriginal)} aproximado es<br><span style="color:#43a047; font-size:1.8rem;">${formatNumber(aproxRespuestaCorrecta)}</span>`;
-                            setTimeout(() => { document.getElementById('aprox-modal-victoria').style.display = 'flex'; }, 700);
-                        } else {
-                            playSoundCommon('error');
-                            btn.classList.add('wrong');
-                            setTimeout(() => btn.classList.remove('wrong'), 400);
-                        }
-                    };
-                    grid.appendChild(btn);
-                });
-                wrapper.appendChild(grid);
-            }
-            
             container.appendChild(wrapper);
         }
-
-        function addAproxNum(n) {
-            if (aproxInputUsuario.length < 11) {
-                aproxInputUsuario += n;
-                actualizarCajaAprox();
-            }
-        }
-
-        function borrarAprox() {
-            aproxInputUsuario = aproxInputUsuario.slice(0, -1);
-            actualizarCajaAprox();
-        }
-
-        function actualizarCajaAprox() {
-            document.getElementById('aprox-caja-respuesta').textContent = aproxInputUsuario;
-        }
-
+        function addAproxNum(n) { if (aproxInputUsuario.length < 11) { aproxInputUsuario += n; actualizarCajaAprox(); } }
+        function borrarAprox() { aproxInputUsuario = aproxInputUsuario.slice(0, -1); actualizarCajaAprox(); }
+        function actualizarCajaAprox() { document.getElementById('aprox-caja-respuesta').textContent = aproxInputUsuario; }
         function comprobarAprox() {
             const caja = document.getElementById('aprox-caja-respuesta');
             if (aproxInputUsuario === "") return;
-
-            let numIntento = parseInt(aproxInputUsuario, 10);
-
-            if (numIntento === aproxRespuestaCorrecta) {
-                playSoundCommon('sine', 800);
-                caja.className = 'aprox-respuesta-box correcta';
-                caja.textContent = formatNumber(numIntento);
-                
-                document.getElementById('aprox-texto-explicativo').innerHTML = 
-                    `El número ${formatNumber(aproxValorOriginal)}<br>aproximado ${aproxNombresPrecision[aproxPrecisionActual]} es<br><span style="color:#43a047; font-size:1.8rem;">${formatNumber(aproxRespuestaCorrecta)}</span>`;
-                
+            if (parseInt(aproxInputUsuario, 10) === aproxRespuestaCorrecta) {
+                playSoundCommon('sine', 800); caja.className = 'aprox-respuesta-box correcta';
+                document.getElementById('aprox-texto-explicativo').innerHTML = `Aproximación correcta:<br><span style="color:#43a047; font-size:1.8rem;">${formatNumber(aproxRespuestaCorrecta)}</span>`;
                 setTimeout(() => { document.getElementById('aprox-modal-victoria').style.display = 'flex'; }, 600);
-            } else {
-                playSoundCommon('error');
-                caja.className = 'aprox-respuesta-box incorrecta';
-                setTimeout(() => {
-                    aproxInputUsuario = "";
-                    actualizarCajaAprox();
-                    caja.className = 'aprox-respuesta-box';
-                }, 500);
-            }
+            } else { playSoundCommon('error'); caja.className = 'aprox-respuesta-box incorrecta'; setTimeout(() => { aproxInputUsuario = ""; actualizarCajaAprox(); caja.className = 'aprox-respuesta-box'; }, 500); }
         }
+        function volverAlMenuAprox() { document.getElementById('aprox-juego').classList.remove('active'); document.getElementById('aprox-menu').classList.add('active'); document.getElementById('aprox-modal-victoria').style.display = 'none'; }
+        function volverAJugarMismoNivelAprox() { document.getElementById('aprox-modal-victoria').style.display = 'none'; generarPreguntaAprox(); }
 
-        function volverAlMenuAprox() {
-            document.getElementById('aprox-juego').classList.remove('active');
-            document.getElementById('aprox-menu').classList.add('active');
-            document.getElementById('aprox-modal-victoria').style.display = 'none';
-        }
-
-        function volverAJugarMismoNivelAprox() {
-            document.getElementById('aprox-modal-victoria').style.display = 'none';
-            generarPreguntaAprox();
-        }
-
-        /* =====================================================================
-           LÓGICA JUEGO 4: COMPARACIÓN DE NÚMEROS NATURALES
-           ===================================================================== */
-        let compValor1, compValor2, compSignoCorrecto;
-        let compNivelActual = 1;
-
+        /* Comparación */
+        let compValor1, compValor2, compSignoCorrecto, compNivelActual = 1;
+        function iniciarComp(n) { compNivelActual = n; document.getElementById('comp-menu').classList.remove('active'); document.getElementById('comp-juego').classList.add('active'); document.getElementById('comp-modal-victoria').style.display = 'none'; generarPreguntaComp(n); }
         function generarPreguntaComp(nivel) {
-            let num1, num2;
-            let prob = Math.random();
-
-            if (prob < 0.2) {
-                num1 = generarNumeroPorNivelComp(nivel);
-                num2 = num1;
-            } else if (prob < 0.6) {
-                num1 = generarNumeroPorNivelComp(nivel);
-                num2 = permutarCifrasConfusas(num1);
-            } else {
-                num1 = generarNumeroPorNivelComp(nivel);
-                num2 = variarUnaCifra(num1);
-            }
-
-            compValor1 = num1;
-            compValor2 = num2;
-
-            if (compValor1 === compValor2) compSignoCorrecto = '=';
-            else compSignoCorrecto = compValor1 > compValor2 ? '>' : '<';
-
+            let min = [10, 100, 1000, 10000, 1000000, 10000000][nivel - 1];
+            let max = [99, 999, 9999, 999999, 9999999, 999999999][nivel - 1];
+            compValor1 = Math.floor(Math.random() * (max - min + 1)) + min;
+            compValor2 = Math.random() < 0.3 ? compValor1 : Math.floor(Math.random() * (max - min + 1)) + min;
+            compSignoCorrecto = compValor1 === compValor2 ? '=' : (compValor1 > compValor2 ? '>' : '<');
             document.getElementById('comp-num-izq').textContent = formatNumber(compValor1);
             document.getElementById('comp-num-der').textContent = formatNumber(compValor2);
             document.getElementById('comp-celda-signo').textContent = '?';
             document.getElementById('comp-celda-signo').className = 'comp-simbolo-celda';
         }
-
-        function generarNumeroPorNivelComp(nivel) {
-            let min = 10, max = 99;
-            if (nivel === 2) { min = 100; max = 999; }
-            if (nivel === 3) { min = 1000; max = 9999; }
-            if (nivel === 4) { min = 10000; max = 999999; }
-            if (nivel === 5) { min = 1000000; max = 9999999; }
-            if (nivel === 6) { min = 10000000; max = 999999999; }
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-
-        function permutarCifrasConfusas(num) {
-            let arr = num.toString().split('');
-            if (arr.length <= 1) return num;
-            let idx1 = Math.floor(Math.random() * (arr.length - 1)) + 1;
-            let idx2 = idx1 - 1;
-            let temp = arr[idx1];
-            arr[idx1] = arr[idx2];
-            arr[idx2] = temp;
-            let res = parseInt(arr.join(''), 10);
-            return isNaN(res) ? num : res;
-        }
-
-        function variarUnaCifra(num) {
-            let arr = num.toString().split('');
-            let idx = Math.floor(Math.random() * arr.length);
-            let valOriginal = parseInt(arr[idx], 10);
-            let nuevoVal = (valOriginal + Math.floor(Math.random() * 3) + 1) % 10;
-            if (idx === 0 && nuevoVal === 0) nuevoVal = 1;
-            arr[idx] = nuevoVal.toString();
-            return parseInt(arr.join(''), 10);
-        }
-
-        function iniciarComp(n) {
-            compNivelActual = n;
-            document.getElementById('comp-menu').classList.remove('active');
-            document.getElementById('comp-juego').classList.add('active');
-            document.getElementById('comp-modal-victoria').style.display = 'none';
-            generarPreguntaComp(n);
-        }
-
         function comprobarComp(s) {
             const celda = document.getElementById('comp-celda-signo');
             if (s === compSignoCorrecto) {
-                playSoundCommon('sine', 800);
-                celda.textContent = s;
-                celda.className = 'comp-simbolo-celda correcta';
-                let n1Txt = formatNumber(compValor1);
-                let n2Txt = formatNumber(compValor2);
-                let palabra = s === '>' ? "es mayor que" : (s === '<' ? "es menor que" : "es igual a");
-                document.getElementById('comp-texto-explicativo').innerHTML = `${n1Txt} <span style="color:#e65100">${palabra}</span> ${n2Txt}`;
+                playSoundCommon('sine', 800); celda.textContent = s; celda.className = 'comp-simbolo-celda correcta';
+                document.getElementById('comp-texto-explicativo').innerHTML = `${formatNumber(compValor1)} <span style="color:#e65100">${s}</span> ${formatNumber(compValor2)}`;
                 setTimeout(() => { document.getElementById('comp-modal-victoria').style.display = 'flex'; }, 600);
-            } else {
-                playSoundCommon('error');
-                celda.textContent = s;
-                celda.className = 'comp-simbolo-celda incorrecta';
-                setTimeout(() => {
-                    celda.className = 'comp-simbolo-celda';
-                    celda.textContent = '?';
-                }, 500);
-            }
+            } else { playSoundCommon('error'); celda.textContent = s; celda.className = 'comp-simbolo-celda incorrecta'; setTimeout(() => { celda.className = 'comp-simbolo-celda'; celda.textContent = '?'; }, 500); }
         }
+        function volverAlMenuComp() { document.getElementById('comp-juego').classList.remove('active'); document.getElementById('comp-menu').classList.add('active'); document.getElementById('comp-modal-victoria').style.display = 'none'; }
+        function volverAJugarMismoNivelComp() { document.getElementById('comp-modal-victoria').style.display = 'none'; generarPreguntaComp(compNivelActual); }
 
-        function volverAlMenuComp() {
-            document.getElementById('comp-juego').classList.remove('active');
-            document.getElementById('comp-menu').classList.add('active');
-            document.getElementById('comp-modal-victoria').style.display = 'none';
-        }
-
-        function volverAJugarMismoNivelComp() {
-            document.getElementById('comp-modal-victoria').style.display = 'none';
-            generarPreguntaComp(compNivelActual);
-        }
-
-        /* =====================================================================
-           CONSTRUCTOR INTELIGENTE DE NÚMEROS CON FRECUENCIA DE CEROS (MEJORADO)
-           ===================================================================== */
-        function generarNumeroConCerosFrecuentes(min, max) {
-            const r = Math.random();
-            if (r < 0.45 && max >= 1000) {
-                let baseMillon = Math.floor(Math.random() * 9) + 1;
-                let opcionesUnidadesMillar = [0, Math.floor(Math.random() * 9) + 1, Math.floor(Math.random() * 99) + 1];
-                let um = opcionesUnidadesMillar[Math.floor(Math.random() * opcionesUnidadesMillar.length)];
-                let centenasSueltas = Math.floor(Math.random() * 999);
-                
-                let num = (baseMillon * 1000000) + (um * 1000) + centenasSueltas;
-                if (num >= min && num <= max) return num;
-            } else if (r < 0.75 && max >= 10000) {
-                let dm = Math.floor(Math.random() * 9) + 1;
-                let umCero = 0;
-                let c = Math.floor(Math.random() * 9) + 1;
-                let dCero = 0;
-                let u = Math.floor(Math.random() * 9) + 1;
-                let num = (dm * 10000) + (umCero * 1000) + (c * 100) + (dCero * 10) + u;
-                if (num >= min && num <= max) return num;
-            }
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-
-        /* =====================================================================
-           CONVERTIDOR UNIVERSAL DE NÚMEROS A LETRAS EN CASTELLANO
-           ===================================================================== */
+        /* De número a letras (Corregido: lenguaje natural sin errores como veinticero) */
         function numeroALetras(num) {
             if (num === 0) return "CERO";
             if (num === 100) return "CIEN";
-
             const unidades = ["", "UN", "DOS", "TRES", "CUATRO", "CINCO", "SEIS", "SIETE", "OCHO", "NUEVE"];
             const decenas = ["", "DIEZ", "VEINTE", "TREINTA", "CUARENTA", "CINCUENTA", "SESENTA", "SETENTA", "OCHENTA", "NOVENTA"];
             const diezDiecinueve = ["DIEZ", "ONCE", "DOCE", "TRECE", "CATORCE", "QUINCE", "DIECISEIS", "DIECISIETE", "DIECIOCHO", "DIECINUEVE"];
-            const veinti = ["VEINTICERO", "VEINTIUNO", "VEINTIDOS", "VEINTITRES", "VEINTICUATRO", "VEINTICINCO", "VEINTISEIS", "VEINTISIETE", "VEINTIOCHO", "VEINTINUEVE"];
+            const veinti = ["VEINTE", "VEINTIUNO", "VEINTIDOS", "VEINTITRES", "VEINTICUATRO", "VEINTICINCO", "VEINTISEIS", "VEINTISIETE", "VEINTIOCHO", "VEINTINUEVE"];
             const centenas = ["", "CIENTO", "DOSCIENTOS", "TRESCIENTOS", "CUATROCIENTOS", "QUINIENTOS", "SEISCIENTOS", "SETECIENTOS", "OCHOCIENTOS", "NOVECIENTOS"];
-
             function convertirGrupo(n) {
-                if (n === 0) return "";
-                if (n === 100) return "CIEN";
-                let c = Math.floor(n / 100);
-                let resto = n % 100;
-                let d = Math.floor(resto / 10);
-                let u = resto % 10;
-
-                let strC = centenas[c];
-                let strResto = "";
-
-                if (resto >= 10 && resto <= 19) {
-                    strResto = diezDiecinueve[resto - 10];
-                } else if (resto >= 20 && resto <= 29) {
-                    strResto = veinti[u];
-                } else {
-                    let strD = decenas[d];
-                    let strU = unidades[u];
-                    if (d > 0 && u > 0) strResto = strD + " Y " + strU;
-                    else strResto = strD + strU;
-                }
-
-                if (c > 0 && resto > 0) return strC + " " + strResto;
-                return strC + strResto;
+                if (n === 0) return ""; if (n === 100) return "CIEN";
+                let c = Math.floor(n / 100), resto = n % 100, d = Math.floor(resto / 10), u = resto % 10;
+                let strC = centenas[c], strResto = "";
+                if (resto >= 10 && resto <= 19) strResto = diezDiecinueve[resto - 10];
+                else if (resto >= 20 && resto <= 29) strResto = veinti[u];
+                else strResto = decenas[d] + (d > 0 && u > 0 ? " Y " : "") + unidades[u];
+                return (c > 0 && resto > 0 ? strC + " " : strC) + strResto;
             }
-
-            let millones = Math.floor(num / 1000000);
-            let miles = Math.floor((num % 1000000) / 1000);
-            let cientos = num % 1000;
-
-            let resultado = "";
-
-            if (millones > 0) {
-                if (millones === 1) resultado += "UN MILLON ";
-                else resultado += convertirGrupo(millones) + " MILLONES ";
-            }
-
-            if (miles > 0) {
-                if (miles === 1) resultado += "MIL ";
-                else resultado += convertirGrupo(miles) + " MIL ";
-            }
-
-            if (cientos > 0) {
-                resultado += convertirGrupo(cientos);
-            }
-
-            return resultado.trim();
+            let millones = Math.floor(num / 1000000), miles = Math.floor((num % 1000000) / 1000), cientos = num % 1000;
+            let res = "";
+            if (millones > 0) res += (millones === 1 ? "UN MILLON " : convertirGrupo(millones) + " MILLONES ");
+            if (miles > 0) res += (miles === 1 ? "MIL " : convertirGrupo(miles) + " MIL ");
+            if (cientos > 0) res += convertirGrupo(cientos);
+            return res.trim();
         }
 
-        /* =====================================================================
-           LÓGICA JUEGO 5: DE NÚMERO A LETRAS
-           ===================================================================== */
         let n2lNivelActual = 1, n2lNumObjetivo = 0, n2lTextoCorrecto = "", n2lInputActual = "";
-
-        function iniciarNum2Let(n) {
-            n2lNivelActual = n;
-            document.getElementById('n2l-menu').classList.remove('active');
-            document.getElementById('n2l-juego').classList.add('active');
-            document.getElementById('n2l-modal-victoria').style.display = 'none';
-            generarPreguntaNum2Let();
-        }
-
-        function volverAlMenuNum2Let() {
-            document.getElementById('n2l-juego').classList.remove('active');
-            document.getElementById('n2l-menu').classList.add('active');
-            document.getElementById('n2l-modal-victoria').style.display = 'none';
-        }
-
-        function siguienteNum2Let() {
-            document.getElementById('n2l-modal-victoria').style.display = 'none';
-            generarPreguntaNum2Let();
-        }
-
+        function iniciarNum2Let(n) { n2lNivelActual = n; document.getElementById('n2l-menu').classList.remove('active'); document.getElementById('n2l-juego').classList.add('active'); document.getElementById('n2l-modal-victoria').style.display = 'none'; generarPreguntaNum2Let(); }
+        function volverAlMenuNum2Let() { document.getElementById('n2l-juego').classList.remove('active'); document.getElementById('n2l-menu').classList.add('active'); document.getElementById('n2l-modal-victoria').style.display = 'none'; }
+        function siguienteNum2Let() { document.getElementById('n2l-modal-victoria').style.display = 'none'; generarPreguntaNum2Let(); }
         function generarPreguntaNum2Let() {
             n2lInputActual = "";
-            let min = 10, max = 99;
-            if (n2lNivelActual === 2) { min = 100; max = 999; }
-            if (n2lNivelActual === 3) { min = 1000; max = 9999; }
-            if (n2lNivelActual === 4) { min = 10000; max = 999999; }
-            if (n2lNivelActual === 5) { min = 1000000; max = 9999999; }
-            if (n2lNivelActual === 6) { min = 10000000; max = 999999999; }
-
-            n2lNumObjetivo = generarNumeroConCerosFrecuentes(min, max);
+            let min = [10, 100, 1000, 10000, 1000000, 10000000][n2lNivelActual - 1];
+            let max = [99, 999, 9999, 999999, 9999999, 999999999][n2lNivelActual - 1];
+            n2lNumObjetivo = Math.floor(Math.random() * (max - min + 1)) + min;
             n2lTextoCorrecto = numeroALetras(n2lNumObjetivo);
-
             document.getElementById('n2l-pregunta').textContent = formatNumber(n2lNumObjetivo);
-            renderTecladoNum2Let();
-            actualizarCajaNum2Let();
+            renderTecladoNum2Let(); actualizarCajaNum2Let();
         }
-
         function renderTecladoNum2Let() {
-            const container = document.getElementById('n2l-teclado-container');
-            container.innerHTML = '';
-
-            const tecladoDiv = document.createElement('div');
-            tecladoDiv.className = 'pal-teclado-letras';
-
-            const filas = [
-                ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-                ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ñ'],
-                ['Z', 'X', 'C', 'V', 'B', 'N', 'M', 'Á', 'É', 'Í'],
-                ['Ó', 'Ú', '⌫', 'ENTER']
-            ];
-
+            const container = document.getElementById('n2l-teclado-container'); container.innerHTML = '';
+            const tecladoDiv = document.createElement('div'); tecladoDiv.className = 'pal-teclado-letras';
+            const filas = [['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'], ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ñ'], ['Z', 'X', 'C', 'V', 'B', 'N', 'M', 'Á', 'É', 'Í'], ['Ó', 'Ú', '⌫', 'ENTER']];
             filas.forEach(fila => {
-                const filaDiv = document.createElement('div');
-                filaDiv.className = 'pal-fila-teclas';
+                const filaDiv = document.createElement('div'); filaDiv.className = 'pal-fila-teclas';
                 fila.forEach(tecla => {
-                    const btn = document.createElement('button');
-                    btn.className = 'pal-tecla-letra';
-                    btn.textContent = tecla;
-                    if (tecla === '⌫') {
-                        btn.className += ' pal-tecla-accion';
-                        btn.onclick = borrarNum2Let;
-                    } else if (tecla === 'ENTER') {
-                        btn.className += ' pal-tecla-espacio';
-                        btn.style.background = '#d1fae5';
-                        btn.style.color = '#065f46';
-                        btn.onclick = comprobarNum2Let;
-                    } else {
-                        btn.onclick = () => agregarLetraN2L(tecla);
-                    }
+                    const btn = document.createElement('button'); btn.className = 'pal-tecla-letra'; btn.textContent = tecla;
+                    if (tecla === '⌫') { btn.className += ' pal-tecla-accion'; btn.onclick = borrarNum2Let; }
+                    else if (tecla === 'ENTER') { btn.className += ' pal-tecla-espacio'; btn.style.background = '#d1fae5'; btn.style.color = '#065f46'; btn.onclick = comprobarNum2Let; }
+                    else { btn.onclick = () => agregarLetraN2L(tecla); }
                     filaDiv.appendChild(btn);
                 });
                 tecladoDiv.appendChild(filaDiv);
             });
-
-            const espacioDiv = document.createElement('div');
-            espacioDiv.className = 'pal-fila-teclas';
-            const btnEspacio = document.createElement('button');
-            btnEspacio.className = 'pal-tecla-letra pal-tecla-espacio';
-            btnEspacio.textContent = 'ESPACIO';
-            btnEspacio.onclick = () => agregarLetraN2L(' ');
-            espacioDiv.appendChild(btnEspacio);
-            tecladoDiv.appendChild(espacioDiv);
-
+            const espacioDiv = document.createElement('div'); espacioDiv.className = 'pal-fila-teclas';
+            const btnEspacio = document.createElement('button'); btnEspacio.className = 'pal-tecla-letra pal-tecla-espacio'; btnEspacio.textContent = 'ESPACIO';
+            btnEspacio.onclick = () => agregarLetraN2L(' '); espacioDiv.appendChild(btnEspacio); tecladoDiv.appendChild(espacioDiv);
             container.appendChild(tecladoDiv);
         }
-
-        function agregarLetraN2L(l) {
-            if (n2lInputActual.length < 60) {
-                n2lInputActual += l;
-                actualizarCajaNum2Let();
-            }
-        }
-
-        function borrarNum2Let() {
-            n2lInputActual = n2lInputActual.slice(0, -1);
-            actualizarCajaNum2Let();
-        }
-
-        function actualizarCajaNum2Let() {
-            document.getElementById('n2l-caja-respuesta').textContent = n2lInputActual;
-        }
-
+        function agregarLetraN2L(l) { if (n2lInputActual.length < 60) { n2lInputActual += l; actualizarCajaNum2Let(); } }
+        function borrarNum2Let() { n2lInputActual = n2lInputActual.slice(0, -1); actualizarCajaNum2Let(); }
+        function actualizarCajaNum2Let() { document.getElementById('n2l-caja-respuesta').textContent = n2lInputActual; }
         function comprobarNum2Let() {
             const caja = document.getElementById('n2l-caja-respuesta');
             if (n2lInputActual.trim() === "") return;
-
-            let limpioUsuario = n2lInputActual.trim().replace(/\s+/g, ' ').toUpperCase();
-            let limpioCorrecto = n2lTextoCorrecto.trim().replace(/\s+/g, ' ').toUpperCase();
-
-            if (limpioUsuario === limpioCorrecto) {
-                playSoundCommon('sine', 800);
-                caja.className = 'pal-respuesta-box correcta';
-                document.getElementById('n2l-texto-explicativo').innerHTML = 
-                    `Número: <b>${formatNumber(n2lNumObjetivo)}</b><br>Correcto:<br><span style="color:#065f46; font-size:1.4rem;">${n2lTextoCorrecto}</span>`;
+            if (n2lInputActual.trim().replace(/\s+/g, ' ').toUpperCase() === n2lTextoCorrecto.trim().replace(/\s+/g, ' ').toUpperCase()) {
+                playSoundCommon('sine', 800); caja.className = 'pal-respuesta-box correcta';
+                document.getElementById('n2l-texto-explicativo').innerHTML = `Correcto:<br><span style="color:#065f46; font-size:1.4rem;">${n2lTextoCorrecto}</span>`;
                 setTimeout(() => { document.getElementById('n2l-modal-victoria').style.display = 'flex'; }, 600);
-            } else {
-                playSoundCommon('error');
-                caja.className = 'pal-respuesta-box incorrecta';
-                setTimeout(() => {
-                    n2lInputActual = "";
-                    actualizarCajaNum2Let();
-                    caja.className = 'pal-respuesta-box';
-                }, 600);
-            }
+            } else { playSoundCommon('error'); caja.className = 'pal-respuesta-box incorrecta'; setTimeout(() => { n2lInputActual = ""; actualizarCajaNum2Let(); caja.className = 'pal-respuesta-box'; }, 600); }
         }
 
-        /* =====================================================================
-           LÓGICA JUEGO 6: DE LETRAS A NÚMEROS
-           ===================================================================== */
+        /* De letras a números */
         let l2nNivelActual = 1, l2nNumObjetivo = 0, l2nTextoPregunta = "", l2nInputActual = "";
-
-        function iniciarLet2Num(n) {
-            l2nNivelActual = n;
-            document.getElementById('l2n-menu').classList.remove('active');
-            document.getElementById('l2n-juego').classList.add('active');
-            document.getElementById('l2n-modal-victoria').style.display = 'none';
-            generarPreguntaLet2Num();
-        }
-
-        function volverAlMenuLet2Num() {
-            document.getElementById('l2n-juego').classList.remove('active');
-            document.getElementById('l2n-menu').classList.add('active');
-            document.getElementById('l2n-modal-victoria').style.display = 'none';
-        }
-
-        function siguienteLet2Num() {
-            document.getElementById('l2n-modal-victoria').style.display = 'none';
-            generarPreguntaLet2Num();
-        }
-
+        function iniciarLet2Num(n) { l2nNivelActual = n; document.getElementById('l2n-menu').classList.remove('active'); document.getElementById('l2n-juego').classList.add('active'); document.getElementById('l2n-modal-victoria').style.display = 'none'; generarPreguntaLet2Num(); }
+        function volverAlMenuLet2Num() { document.getElementById('l2n-juego').classList.remove('active'); document.getElementById('l2n-menu').classList.add('active'); document.getElementById('l2n-modal-victoria').style.display = 'none'; }
+        function siguienteLet2Num() { document.getElementById('l2n-modal-victoria').style.display = 'none'; generarPreguntaLet2Num(); }
         function generarPreguntaLet2Num() {
             l2nInputActual = "";
-            let min = 10, max = 99;
-            if (l2nNivelActual === 2) { min = 100; max = 999; }
-            if (l2nNivelActual === 3) { min = 1000; max = 9999; }
-            if (l2nNivelActual === 4) { min = 10000; max = 999999; }
-            if (l2nNivelActual === 5) { min = 1000000; max = 9999999; }
-            if (l2nNivelActual === 6) { min = 10000000; max = 999999999; }
-
-            l2nNumObjetivo = generarNumeroConCerosFrecuentes(min, max);
+            let min = [10, 100, 1000, 10000, 1000000, 10000000][l2nNivelActual - 1];
+            let max = [99, 999, 9999, 999999, 9999999, 999999999][l2nNivelActual - 1];
+            l2nNumObjetivo = Math.floor(Math.random() * (max - min + 1)) + min;
             l2nTextoPregunta = numeroALetras(l2nNumObjetivo);
-
-            document.getElementById('l2n-pregunta').textContent = l2nTextoPregunta;
-            actualizarCajaLet2Num();
+            document.getElementById('l2n-pregunta').textContent = l2nTextoPregunta; actualizarCajaLet2Num();
         }
-
-        function agregarNumL2N(n) {
-            if (l2nInputActual.length < 12) {
-                l2nInputActual += n;
-                actualizarCajaLet2Num();
-            }
-        }
-
-        function borrarLet2Num() {
-            l2nInputActual = l2nInputActual.slice(0, -1);
-            actualizarCajaLet2Num();
-        }
-
-        function actualizarCajaLet2Num() {
-            const caja = document.getElementById('l2n-caja-respuesta');
-            if (l2nInputActual !== "") {
-                caja.textContent = formatNumber(l2nInputActual);
-            } else {
-                caja.textContent = "";
-            }
-        }
-
+        function agregarNumL2N(n) { if (l2nInputActual.length < 12) { l2nInputActual += n; actualizarCajaLet2Num(); } }
+        function borrarLet2Num() { l2nInputActual = l2nInputActual.slice(0, -1); actualizarCajaLet2Num(); }
+        function actualizarCajaLet2Num() { document.getElementById('l2n-caja-respuesta').textContent = l2nInputActual !== "" ? formatNumber(l2nInputActual) : ""; }
         function comprobarLet2Num() {
             const caja = document.getElementById('l2n-caja-respuesta');
             if (l2nInputActual.trim() === "") return;
-
-            let numIngresado = parseInt(l2nInputActual, 10);
-
-            if (numIngresado === l2nNumObjetivo) {
-                playSoundCommon('sine', 800);
-                caja.className = 'pal-respuesta-box correcta';
-                document.getElementById('l2n-texto-explicativo').innerHTML = 
-                    `En letras: <b>${l2nTextoPregunta}</b><br>Número en cifras:<br><span style="color:#065f46; font-size:1.6rem;">${formatNumber(l2nNumObjetivo)}</span>`;
+            if (parseInt(l2nInputActual, 10) === l2nNumObjetivo) {
+                playSoundCommon('sine', 800); caja.className = 'pal-respuesta-box correcta';
+                document.getElementById('l2n-texto-explicativo').innerHTML = `Número correcto:<br><span style="color:#065f46; font-size:1.6rem;">${formatNumber(l2nNumObjetivo)}</span>`;
                 setTimeout(() => { document.getElementById('l2n-modal-victoria').style.display = 'flex'; }, 600);
-            } else {
-                playSoundCommon('error');
-                caja.className = 'pal-respuesta-box incorrecta';
-                setTimeout(() => {
-                    l2nInputActual = "";
-                    actualizarCajaLet2Num();
-                    caja.className = 'pal-respuesta-box';
-                }, 600);
+            } else { playSoundCommon('error'); caja.className = 'pal-respuesta-box incorrecta'; setTimeout(() => { l2nInputActual = ""; actualizarCajaLet2Num(); caja.className = 'pal-respuesta-box'; }, 600); }
+        }
+
+        /* Sistema de Partículas General */
+        class ParticleSystem {
+            constructor() {
+                this.canvas = document.getElementById('particle-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                this.animate();
+            }
+            resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; }
+            burst(x, y, color = '#38bdf8') {
+                for (let i = 0; i < 25; i++) {
+                    const angle = Math.random() * Math.PI * 2, speed = Math.random() * 5 + 2;
+                    this.particles.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, alpha: 1, color, size: Math.random() * 4 + 2 });
+                }
+            }
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    let p = this.particles[i]; p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.alpha -= 0.02;
+                    if (p.alpha <= 0) { this.particles.splice(i, 1); }
+                    else {
+                        this.ctx.save(); this.ctx.globalAlpha = p.alpha; this.ctx.fillStyle = p.color;
+                        this.ctx.beginPath(); this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); this.ctx.fill(); this.ctx.restore();
+                    }
+                }
+                requestAnimationFrame(() => this.animate());
             }
         }
+
+        /* Academia de Romanos (Adaptada al formato unificado de la suite) */
+        class RomanAcademyApp {
+            constructor() {
+                this.selectedMode = 'infinite'; this.score = 0; this.streak = 0; this.activeChallenge = null; this.isOverlineActive = false;
+                this.particles = new ParticleSystem();
+                this.rulesData = {
+                    1: { name: "Regla de la Suma", desc: "Los símbolos menores colocados a la derecha de uno mayor suman.", range: [1, 30] },
+                    2: { name: "Regla de la Repetición", desc: "I, X, C y M se pueden repetir hasta 3 veces seguidas.", range: [31, 399] },
+                    3: { name: "Regla de la Resta", desc: "I, X, C situados a la izquierda de uno mayor restan.", range: [400, 999] },
+                    4: { name: "Regla de Multiplicación (Barra Superior)", desc: "Una barra superior multiplica por 1.000.", range: [1000, 15000] }
+                };
+            }
+            openHelpModal() { document.getElementById('romanos-help-modal').classList.remove('hidden'); }
+            closeHelpModal() { document.getElementById('romanos-help-modal').classList.add('hidden'); }
+            selectMode(mode) {
+                this.selectedMode = mode; this.score = 0; this.streak = 0;
+                document.getElementById('romanos-menu-view').classList.add('hidden');
+                document.getElementById('romanos-game-view').classList.remove('hidden');
+                this.nextChallenge();
+            }
+            returnToMenu() {
+                document.getElementById('romanos-game-view').classList.add('hidden');
+                document.getElementById('romanos-menu-view').classList.remove('hidden');
+            }
+            toRoman(num) {
+                if (num >= 4000) {
+                    let t = Math.floor(num / 1000), rem = num % 1000;
+                    return `<span class="overline-char">${this.toRomanBasic(t)}</span>` + (rem > 0 ? this.toRomanBasic(rem) : '');
+                }
+                return this.toRomanBasic(num);
+            }
+            toRomanBasic(num) {
+                const lookup = {M:1000, CM:900, D:500, CD:400, C:100, XC:90, L:50, XL:40, X:10, IX:9, V:5, IV:4, I:1};
+                let roman = "";
+                for (let i in lookup) { while (num >= lookup[i]) { roman += i; num -= lookup[i]; } }
+                return roman;
+            }
+            nextChallenge() {
+                let lvl = this.selectedMode === 'infinite' ? (this.score >= 40 ? 4 : this.score >= 25 ? 3 : this.score >= 12 ? 2 : 1) : this.selectedMode;
+                let lvlData = this.rulesData[lvl];
+                document.getElementById("romanos-mode-badge").innerText = this.selectedMode === 'infinite' ? `Modo Infinito (Nivel ${lvl})` : `Módulo ${lvl}`;
+                document.getElementById("romanos-rule-title").innerText = lvlData.name;
+                document.getElementById("romanos-rule-desc").innerHTML = `<i class="fa-solid fa-circle-info text-indigo-600 mr-1.5"></i> ${lvlData.desc}`;
+                
+                let num = lvl === 4 ? Math.floor(Math.random() * 12 + 4) * 1000 + (Math.random() > 0.5 ? Math.floor(Math.random() * 800 + 100) : 0) : Math.floor(Math.random() * (lvlData.range[1] - lvlData.range[0] + 1)) + lvlData.range[0];
+                let romanHTML = this.toRoman(num), plainRoman = romanHTML.replace(/<[^>]*>/g, '');
+                
+                let isToRoman = Math.random() > 0.5 || num >= 4000;
+                this.activeChallenge = { answer: isToRoman ? plainRoman : num.toString() };
+                this.isOverlineActive = false;
+
+                if (isToRoman) {
+                    document.getElementById("romanos-game-prompt").innerHTML = `Escribe en números romanos el valor: <span class="text-amber-600 font-bold">${num}</span>`;
+                    document.getElementById("romanos-interaction-area").innerHTML = `
+                        <div class="space-y-3">
+                            <div id="romanos-user-input-custom" class="w-full py-3 px-4 text-center text-xl font-roman tracking-widest bg-white border-2 border-slate-300 rounded-xl text-slate-900 uppercase min-h-[50px] flex items-center justify-center shadow-inner"></div>
+                            <div class="flex items-center justify-between text-xs text-slate-600 px-1">
+                                <span>Teclado Romano:</span>
+                                <button type="button" id="overline-toggle-btn" onclick="RomanApp.toggleOverlineMode()" class="px-2 py-1 rounded bg-slate-100 text-slate-700 border border-slate-200">Barra Superior: <span id="overline-status" class="text-rose-600 font-bold">OFF</span></button>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1.5">
+                                <button onclick="RomanApp.appendRomanChar('I')" class="py-2.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded-xl font-roman font-bold text-slate-800 shadow-sm">I</button>
+                                <button onclick="RomanApp.appendRomanChar('V')" class="py-2.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded-xl font-roman font-bold text-slate-800 shadow-sm">V</button>
+                                <button onclick="RomanApp.appendRomanChar('X')" class="py-2.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded-xl font-roman font-bold text-slate-800 shadow-sm">X</button>
+                                <button onclick="RomanApp.appendRomanChar('L')" class="py-2.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded-xl font-roman font-bold text-slate-800 shadow-sm">L</button>
+                                <button onclick="RomanApp.appendRomanChar('C')" class="py-2.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded-xl font-roman font-bold text-slate-800 shadow-sm">C</button>
+                                <button onclick="RomanApp.appendRomanChar('D')" class="py-2.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded-xl font-roman font-bold text-slate-800 shadow-sm">D</button>
+                                <button onclick="RomanApp.appendRomanChar('M')" class="py-2.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded-xl font-roman font-bold text-slate-800 shadow-sm">M</button>
+                            </div>
+                            <div class="flex gap-2 pt-1">
+                                <button onclick="RomanApp.backspaceRoman()" class="flex-1 py-2.5 bg-rose-50 border border-rose-200 text-xs text-rose-600 font-bold rounded-xl shadow-sm">⌫ Borrar</button>
+                                <button onclick="RomanApp.submitTranslation()" class="flex-1 py-2.5 bg-indigo-600 text-xs text-white font-bold rounded-xl shadow-sm">Comprobar</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById("romanos-game-prompt").innerHTML = `¿A qué número corresponde el romano: <br><span class="font-roman text-amber-600 text-2xl font-bold mt-2 inline-block">${romanHTML}</span>?`;
+                    document.getElementById("romanos-interaction-area").innerHTML = `
+                        <div class="space-y-3">
+                            <div id="romanos-user-input-num-custom" class="w-full py-3 px-4 text-center text-xl font-bold bg-white border-2 border-slate-300 rounded-xl text-sky-600 min-h-[50px] flex items-center justify-center shadow-inner">Escribe aquí...</div>
+                            <div class="grid grid-cols-3 gap-1.5 max-w-[220px] mx-auto">
+                                <button onclick="RomanApp.appendRomanNumKey('1')" class="py-2.5 bg-white hover:bg-slate-100 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 shadow-sm">1</button>
+                                <button onclick="RomanApp.appendRomanNumKey('2')" class="py-2.5 bg-white hover:bg-slate-100 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 shadow-sm">2</button>
+                                <button onclick="RomanApp.appendRomanNumKey('3')" class="py-2.5 bg-white hover:bg-slate-100 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 shadow-sm">3</button>
+                                <button onclick="RomanApp.appendRomanNumKey('4')" class="py-2.5 bg-white hover:bg-slate-100 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 shadow-sm">4</button>
+                                <button onclick="RomanApp.appendRomanNumKey('5')" class="py-2.5 bg-white hover:bg-slate-100 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 shadow-sm">5</button>
+                                <button onclick="RomanApp.appendRomanNumKey('6')" class="py-2.5 bg-white hover:bg-slate-100 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 shadow-sm">6</button>
+                                <button onclick="RomanApp.appendRomanNumKey('7')" class="py-2.5 bg-white hover:bg-slate-100 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 shadow-sm">7</button>
+                                <button onclick="RomanApp.appendRomanNumKey('8')" class="py-2.5 bg-white hover:bg-slate-100 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 shadow-sm">8</button>
+                                <button onclick="RomanApp.appendRomanNumKey('9')" class="py-2.5 bg-white hover:bg-slate-100 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 shadow-sm">9</button>
+                                <button onclick="RomanApp.backspaceRomanNum()" class="py-2.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl text-sm font-bold text-rose-600 shadow-sm">⌫</button>
+                                <button onclick="RomanApp.appendRomanNumKey('0')" class="py-2.5 bg-white hover:bg-slate-100 border border-slate-300 rounded-xl text-lg font-bold text-slate-800 shadow-sm">0</button>
+                                <button onclick="RomanApp.submitTranslation()" class="py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-sm font-bold text-white shadow-sm">OK</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                document.getElementById("romanos-feedback").innerText = "";
+            }
+            toggleOverlineMode() {
+                this.isOverlineActive = !this.isOverlineActive;
+                const statusEl = document.getElementById('overline-status');
+                if (statusEl) {
+                    statusEl.innerText = this.isOverlineActive ? "ON" : "OFF";
+                    statusEl.className = this.isOverlineActive ? "text-emerald-600 font-bold" : "text-rose-600 font-bold";
+                }
+            }
+            appendRomanChar(char) {
+                const boxEl = document.getElementById("romanos-user-input-custom");
+                if (boxEl) {
+                    let current = boxEl.innerHTML;
+                    boxEl.innerHTML = current + (this.isOverlineActive ? `<span class="overline-char">${char}</span>` : char);
+                }
+            }
+            backspaceRoman() {
+                const boxEl = document.getElementById("romanos-user-input-custom");
+                if (boxEl) {
+                    let html = boxEl.innerHTML;
+                    if (html.endsWith('</span>')) {
+                        let lastIdx = html.lastIndexOf('<span');
+                        boxEl.innerHTML = html.substring(0, lastIdx);
+                    } else if (html.length > 0) {
+                        boxEl.innerHTML = html.substring(0, html.length - 1);
+                    }
+                }
+            }
+            appendRomanNumKey(n) {
+                const boxEl = document.getElementById("romanos-user-input-num-custom");
+                if (boxEl) {
+                    let current = boxEl.innerText === "Escribe aquí..." ? "" : boxEl.innerText;
+                    if (current.length < 8) {
+                        boxEl.innerText = current + n;
+                        boxEl.style.color = '#0284c7';
+                    }
+                }
+            }
+            backspaceRomanNum() {
+                const boxEl = document.getElementById("romanos-user-input-num-custom");
+                if (boxEl && boxEl.innerText !== "Escribe aquí...") {
+                    let current = boxEl.innerText;
+                    current = current.slice(0, -1);
+                    if (current === "") {
+                        boxEl.innerText = "Escribe aquí...";
+                        boxEl.style.color = "#94a3b8";
+                    } else {
+                        boxEl.innerText = current;
+                    }
+                }
+            }
+            submitTranslation() {
+                let val = "";
+                const boxRoman = document.getElementById("romanos-user-input-custom");
+                const boxNum = document.getElementById("romanos-user-input-num-custom");
+                
+                if (boxRoman) {
+                    let tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = boxRoman.innerHTML;
+                    val = tempDiv.textContent || tempDiv.innerText || "";
+                    val = val.trim().toUpperCase();
+                } else if (boxNum && boxNum.innerText !== "Escribe aquí...") {
+                    val = boxNum.innerText.trim();
+                }
+
+                if (!val) return;
+                const cleanAnswer = this.activeChallenge.answer.toUpperCase();
+                this.evaluate(val === cleanAnswer || val.normalize("NFD").replace(/[\u0300-\u036f]/g, "") === cleanAnswer.normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+            }
+            evaluate(isCorrect) {
+                const feedback = document.getElementById("romanos-feedback");
+                if (isCorrect) {
+                    this.score += 10; this.streak++; playSoundCommon('success', 800);
+                    feedback.className = "text-emerald-600 font-bold text-base";
+                    feedback.innerHTML = `¡Correcto! Racha: ${this.streak}`;
+                } else {
+                    this.streak = 0; playSoundCommon('error', 150);
+                    feedback.className = "text-rose-600 font-bold text-base";
+                    feedback.innerHTML = `Incorrecto. Era: ${this.activeChallenge.answer}`;
+                }
+                document.getElementById("romanos-streak-counter").innerText = this.streak;
+                document.getElementById("romanos-score-counter").innerText = `${this.score} pts`;
+                setTimeout(() => this.nextChallenge(), 1500);
+            }
+        }
+
+        /* ACADEMIA DE POTENCIAS Y RAÍCES (Adaptada al formato unificado de la suite) */
+        class getRootSvgHtmlHelper {
+            static get(num) {
+                return `<span class="math-root"><svg viewBox="0 0 32 32"><path d="M3 18h4l4 9 6-22h12" /></svg><span class="math-radicand">${num}</span></span>`;
+            }
+        }
+
+        class PowersRootsApp {
+            constructor() {
+                this.mode = 'infinite'; this.score = 0; this.streak = 0; this.activeChallenge = null;
+                this.userInputString = ""; this.learningType = 'powers'; this.learningStep = 1; this.learningStreak = 0; this.learningInputVal = "";
+            }
+            openHelpModal() { document.getElementById('powers-help-modal').classList.remove('hidden'); }
+            closeHelpModal() { document.getElementById('powers-help-modal').classList.add('hidden'); }
+            startLearning(type) {
+                this.learningType = type; this.learningStep = 1; this.learningStreak = 0; this.learningInputVal = "";
+                document.getElementById('powers-menu-view').classList.add('hidden');
+                document.getElementById('powers-learning-view').classList.remove('hidden');
+                this.renderLearningStep();
+            }
+            renderLearningStep() {
+                const contentEl = document.getElementById('learning-content'), interEl = document.getElementById('learning-interaction'), badgeEl = document.getElementById('learning-badge');
+                document.getElementById('learning-streak').innerText = this.learningStreak;
+                document.getElementById('learning-feedback').innerText = "";
+                if (this.learningStep === 1) {
+                    if (this.learningType === 'powers') {
+                        badgeEl.innerText = "Tutorial: Potencias";
+                        contentEl.innerHTML = `<p>Una potencia es una multiplicación en cadena del mismo número.</p><div class="p-3 bg-white border border-slate-200 rounded-xl text-center font-math text-base text-sky-600 font-bold">3<sup>4</sup> = 3 × 3 × 3 × 3 = 81</div>`;
+                    } else {
+                        badgeEl.innerText = "Tutorial: Raíces";
+                        contentEl.innerHTML = `<p>La raíz cuadrada busca qué número multiplicado por sí mismo da el valor.</p><div class="p-2.5 bg-white border border-slate-200 rounded-xl text-center font-math text-xs text-indigo-600 font-bold">${getRootSvgHtmlHelper.get(25)} = 5 porque 5 × 5 = 25</div>`;
+                    }
+                    interEl.innerHTML = `<button onclick="PowersApp.nextLearningStep()" class="w-full py-2.5 bg-sky-600 hover:bg-sky-500 font-bold rounded-xl text-xs text-white transition">Comenzar Práctica Guiada <i class="fa-solid fa-arrow-right ml-1"></i></button>`;
+                } else {
+                    badgeEl.innerText = "Práctica Libre";
+                    if (!this.currentLearningChallenge) {
+                        if (this.learningType === 'powers') {
+                            let b = Math.floor(Math.random() * 5) + 2, e = Math.random() > 0.5 ? 2 : 3;
+                            this.currentLearningChallenge = { prompt: `${b}<sup>${e}</sup>`, answer: Math.pow(b, e) };
+                        } else {
+                            let r = Math.floor(Math.random() * 7) + 2;
+                            this.currentLearningChallenge = { prompt: getRootSvgHtmlHelper.get(r * r), answer: r };
+                        }
+                    }
+                    contentEl.innerHTML = `<p>¡Resuelve y practica!</p><div class="text-center font-math text-2xl text-sky-600 py-1 font-bold">${this.currentLearningChallenge.prompt}</div>`;
+                    interEl.innerHTML = `<div class="space-y-2 max-w-[200px] mx-auto text-center"><div id="learning-box" class="h-10 bg-white border border-slate-300 rounded-xl flex items-center justify-center text-lg font-bold text-slate-400">?</div><div class="grid grid-cols-3 gap-1.5"><button onclick="PowersApp.pressLearningKey('1')" class="py-2 bg-white border border-slate-200 rounded-lg font-bold text-slate-800 shadow-sm">1</button><button onclick="PowersApp.pressLearningKey('2')" class="py-2 bg-white border border-slate-200 rounded-lg font-bold text-slate-800 shadow-sm">2</button><button onclick="PowersApp.pressLearningKey('3')" class="py-2 bg-white border border-slate-200 rounded-lg font-bold text-slate-800 shadow-sm">3</button><button onclick="PowersApp.pressLearningKey('4')" class="py-2 bg-white border border-slate-200 rounded-lg font-bold text-slate-800 shadow-sm">4</button><button onclick="PowersApp.pressLearningKey('5')" class="py-2 bg-white border border-slate-200 rounded-lg font-bold text-slate-800 shadow-sm">5</button><button onclick="PowersApp.pressLearningKey('6')" class="py-2 bg-white border border-slate-200 rounded-lg font-bold text-slate-800 shadow-sm">6</button><button onclick="PowersApp.pressLearningKey('7')" class="py-2 bg-white border border-slate-200 rounded-lg font-bold text-slate-800 shadow-sm">7</button><button onclick="PowersApp.pressLearningKey('8')" class="py-2 bg-white border border-slate-200 rounded-lg font-bold text-slate-800 shadow-sm">8</button><button onclick="PowersApp.pressLearningKey('9')" class="py-2 bg-white border border-slate-200 rounded-lg font-bold text-slate-800 shadow-sm">9</button><button onclick="PowersApp.clearLearningKey()" class="py-2 bg-rose-50 border border-rose-200 text-rose-600 rounded-lg font-bold shadow-sm">⌫</button><button onclick="PowersApp.pressLearningKey('0')" class="py-2 bg-white border border-slate-200 rounded-lg font-bold text-slate-800 shadow-sm">0</button><button id="learning-ok-btn" onclick="PowersApp.checkLearningAnswer()" class="py-2 bg-emerald-600 text-white rounded-lg font-bold shadow-sm">OK</button></div></div>`;
+                }
+            }
+            nextLearningStep() { this.learningStep++; this.currentLearningChallenge = null; this.renderLearningStep(); }
+            pressLearningKey(n) { if (this.learningInputVal.length < 4) { this.learningInputVal += n; document.getElementById('learning-box').innerText = this.learningInputVal; document.getElementById('learning-box').style.color = '#0284c7'; } }
+            clearLearningKey() { this.learningInputVal = ""; document.getElementById('learning-box').innerText = "?"; document.getElementById('learning-box').style.color = "#94a3b8"; }
+            checkLearningAnswer() {
+                if (!this.currentLearningChallenge || this.learningInputVal === "") return;
+                const feedbackEl = document.getElementById('learning-feedback');
+                if (parseInt(this.learningInputVal, 10) === this.currentLearningChallenge.answer) {
+                    playSoundCommon('success'); this.learningStreak++;
+                    feedbackEl.className = "text-emerald-600 font-bold text-xs"; feedbackEl.innerText = "¡Correcto!";
+                    setTimeout(() => { this.currentLearningChallenge = null; this.learningInputVal = ""; this.renderLearningStep(); }, 1000);
+                } else {
+                    playSoundCommon('error'); feedbackEl.className = "text-rose-600 font-bold text-xs"; feedbackEl.innerText = `Era: ${this.currentLearningChallenge.answer}`;
+                    setTimeout(() => { this.currentLearningChallenge = null; this.learningInputVal = ""; this.renderLearningStep(); }, 1200);
+                }
+            }
+            selectMode(mode) {
+                this.mode = mode; this.score = 0; this.streak = 0;
+                document.getElementById('powers-menu-view').classList.add('hidden');
+                document.getElementById('powers-game-view').classList.remove('hidden');
+                this.nextChallenge();
+            }
+            returnToMenu() {
+                document.getElementById('powers-game-view').classList.add('hidden');
+                document.getElementById('powers-learning-view').classList.add('hidden');
+                document.getElementById('powers-menu-view').classList.remove('hidden');
+            }
+            nextChallenge() {
+                let type = this.mode === 'infinite' ? (Math.random() < 0.4 ? 'powers' : Math.random() < 0.7 ? 'roots' : 'base10') : this.mode;
+                if (type === 'powers') {
+                    document.getElementById('powers-mode-badge').innerText = "Módulo Potencias";
+                    document.getElementById('powers-rule-title').innerText = "Calcula el Exponente";
+                    let b = Math.floor(Math.random() * 8) + 2, e = Math.random() > 0.4 ? 2 : 3;
+                    this.activeChallenge = { answer: Math.pow(b, e) };
+                    document.getElementById('powers-game-prompt').innerHTML = `${b}<sup>${e}</sup>`;
+                } else if (type === 'roots') {
+                    document.getElementById('powers-mode-badge').innerText = "Módulo Raíces";
+                    document.getElementById('powers-rule-title').innerText = "Raíz Cuadrada Exacta";
+                    let r = Math.floor(Math.random() * 10) + 2;
+                    this.activeChallenge = { answer: r };
+                    document.getElementById('powers-game-prompt').innerHTML = getRootSvgHtmlHelper.get(r * r);
+                } else {
+                    document.getElementById('powers-mode-badge').innerText = "Módulo Base 10";
+                    document.getElementById('powers-rule-title').innerText = "Potencias de 10";
+                    let e = Math.floor(Math.random() * 5) + 1;
+                    this.activeChallenge = { answer: Math.pow(10, e) };
+                    document.getElementById('powers-game-prompt').innerHTML = `10<sup>${e}</sup>`;
+                }
+                this.userInputString = ""; this.updateDisplayBox();
+                document.getElementById('powers-feedback').innerText = '';
+            }
+            pressKey(n) { if (this.userInputString.length < 6) { this.userInputString += n; this.updateDisplayBox(); } }
+            deleteKey() { this.userInputString = this.userInputString.slice(0, -1); this.updateDisplayBox(); }
+            updateDisplayBox() {
+                const span = document.getElementById('powers-user-typed-value');
+                span.innerText = this.userInputString === "" ? "Escribe aquí..." : this.userInputString;
+                span.className = this.userInputString === "" ? "text-slate-400 text-sm" : "text-sky-600 font-bold text-xl";
+            }
+            submitAnswer() {
+                if (this.userInputString === "") return;
+                const feedback = document.getElementById('powers-feedback');
+                if (parseInt(this.userInputString, 10) === this.activeChallenge.answer) {
+                    this.score += 10; this.streak++; playSoundCommon('success');
+                    feedback.className = "text-emerald-600 font-bold text-xs"; feedback.innerText = `¡Genial! Racha: ${this.streak}`;
+                } else {
+                    this.streak = 0; playSoundCommon('error');
+                    feedback.className = "text-rose-600 font-bold text-xs"; feedback.innerText = `Era el: ${this.activeChallenge.answer}`;
+                }
+                document.getElementById('powers-streak-counter').innerText = this.streak;
+                document.getElementById('powers-score-counter').innerText = `${this.score} pts`;
+                setTimeout(() => this.nextChallenge(), 1400);
+            }
+        }
+
+        const RomanApp = new RomanAcademyApp();
+        const PowersApp = new PowersRootsApp();
+        const globalParticles = new ParticleSystem();
     </script>
 </body>
 </html>
