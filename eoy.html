@@ -1,735 +1,923 @@
-<!-- ... existing code ... -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- QR Code JS Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Rush: Batalla de la Cuerda</title>
+    <!-- Librería QR estable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap');
-        
-        body {
-            font-family: 'Quicksand', sans-serif;
-            touch-action: manipulation;
-            user-select: none;
+        :root {
+            --bg-dark: #080b14;
+            --panel-bg: rgba(20, 26, 46, 0.92);
+            --red-team: #ff3f34;
+            --red-glow: rgba(255, 63, 52, 0.4);
+            --blue-team: #00d2ff;
+            --blue-glow: rgba(0, 210, 255, 0.4);
+            --yellow: #f9d423;
+            --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --font-mono: 'Courier New', monospace;
         }
-<!-- ... existing code ... -->
-        .rope-pattern {
-            background-image: repeating-linear-gradient(45deg, #d97706, #d97706 15px, #b45309 15px, #b45309 30px);
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 63, 52, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 210, 255, 0.08) 0%, transparent 40%);
+            color: #ffffff;
+            font-family: var(--font-family);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 10px;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* CARD DE CONFIGURACIÓN Y LOBBY */
+        .card {
+            background: var(--panel-bg);
+            border: 2px solid #2a3352;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: var(--yellow);
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            text-shadow: 0 0 15px rgba(249, 212, 35, 0.4);
+        }
+
+        p.subtitle {
+            color: #a0aec0;
+            margin-bottom: 24px;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--blue-team);
+            font-weight: 700;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 14px;
+            background: #0f1424;
+            border: 2px solid #2a3352;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--blue-team);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #f9d423 0%, #ff4e50 100%);
+            border: none;
+            color: #000;
+            font-size: 1.3rem;
+            font-weight: 900;
+            padding: 16px 36px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(249, 212, 35, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(249, 212, 35, 0.7);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* LOBBY / CONEXIÓN */
+        .pin-box {
+            font-size: 3.2rem;
+            font-family: var(--font-mono);
+            letter-spacing: 8px;
+            color: var(--yellow);
+            background: #080b14;
+            padding: 12px 24px;
+            border-radius: 16px;
+            display: inline-block;
+            border: 2px dashed var(--yellow);
+            margin: 15px 0;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            display: inline-block;
+            margin: 15px 0;
+        }
+
+        .teams-status {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .team-badge {
+            padding: 20px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.03);
+            border: 2px solid #2a3352;
+            transition: all 0.3s;
+        }
+
+        .team-badge.red {
+            border-color: var(--red-team);
+        }
+
+        .team-badge.blue {
+            border-color: var(--blue-team);
+        }
+
+        .team-badge.connected {
+            background: rgba(34, 197, 94, 0.15);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            background: #555;
+            margin-right: 6px;
+        }
+
+        .connected .status-dot {
+            background: #22c55e;
+            box-shadow: 0 0 10px #22c55e;
+        }
+
+        /* PANTALLA PRINCIPAL DE JUEGO (PIZARRA DIGITAL) */
+        .game-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr 320px;
+            gap: 20px;
+            width: 100%;
+            height: 88vh;
+            align-items: center;
+        }
+
+        .team-panel {
+            background: var(--panel-bg);
+            border-radius: 24px;
+            padding: 24px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            border: 3px solid #2a3352;
+        }
+
+        .team-panel.red { border-color: var(--red-team); box-shadow: 0 0 20px var(--red-glow); }
+        .team-panel.blue { border-color: var(--blue-team); box-shadow: 0 0 20px var(--blue-glow); }
+
+        .team-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+        }
+        .red .team-title { color: var(--red-team); }
+        .blue .team-title { color: var(--blue-team); }
+
+        .op-card {
+            background: #080b14;
+            border: 2px solid #2a3352;
+            border-radius: 20px;
+            width: 100%;
+            padding: 20px 10px;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--yellow);
+            margin: 15px 0;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-display {
+            width: 100%;
+            height: 70px;
+            border-radius: 16px;
+            background: #000;
+            border: 2px dashed #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+        }
+
+        .arena-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+            background: var(--panel-bg);
+            border-radius: 24px;
+            padding: 20px;
+            border: 2px solid #2a3352;
+        }
+
+        .timer {
+            font-family: var(--font-mono);
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--yellow);
+            text-shadow: 0 0 10px rgba(249, 212, 35, 0.5);
+        }
+
+        canvas#ropeCanvas {
+            width: 100%;
+            height: 380px;
+            border-radius: 16px;
+            background: #080c18;
+        }
+
+        /* MANDO CHROMEBOOK (MODO JUGADOR) */
+        .controller-card {
+            background: var(--panel-bg);
+            border-radius: 24px;
+            padding: 20px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            border: 4px solid #333;
+        }
+
+        .controller-card.red { border-color: var(--red-team); }
+        .controller-card.blue { border-color: var(--blue-team); }
+
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .key {
+            background: #151c33;
+            border: 2px solid #2a3352;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 800;
+            padding: 16px 0;
+            border-radius: 14px;
+            cursor: pointer;
+            font-family: var(--font-mono);
+        }
+
+        .key:active {
+            background: var(--yellow);
+            color: black;
+        }
+
+        .key.delete {
+            grid-column: span 2;
+            background: rgba(255, 63, 52, 0.2);
+            border-color: var(--red-team);
+            color: var(--red-team);
+            font-size: 1.2rem;
+            font-family: var(--font-family);
+        }
+
+        .key.enter {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+            color: #22c55e;
+            font-size: 1.2rem;
+            font-family: var(--font-family);
+        }
+
+        /* EFECTOS DE ANIMACIÓN */
+        .correct-flash { animation: flashGreen 0.3s forwards; }
+        .wrong-flash { animation: flashRed 0.3s forwards; }
+
+        @keyframes flashGreen {
+            0%, 100% { border-color: #2a3352; }
+            50% { border-color: #22c55e; background: rgba(34, 197, 94, 0.2); }
+        }
+
+        @keyframes flashRed {
+            0%, 100% { border-color: #2a3352; }
+            50% { border-color: var(--red-team); background: rgba(255, 63, 52, 0.2); }
+        }
+
+        @media (max-width: 900px) {
+            .game-grid {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            canvas#ropeCanvas { height: 220px; }
         }
     </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen flex flex-col justify-between overflow-x-hidden">
+<body>
 
-    <!-- Header / Navbar -->
-    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 p-3 sm:p-4 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="resetToMenu()">
-                <div class="bg-indigo-600 p-2 rounded-xl text-yellow-300 shadow-lg transform -rotate-6">
-                    <i class="fa-solid fa-[#ffffff] fa-calculator text-2xl sm:text-3xl"></i>
+    <!-- PANTALLA 1: CREACIÓN DE SALA (PIZARRA DIGITAL) -->
+    <div id="screen-setup" class="screen active">
+        <div class="card">
+            <h1>🪢 BATALLA DE LA CUERDA</h1>
+            <p class="subtitle">Configura la partida para la Pizarra Digital</p>
+
+            <div class="form-group">
+                <label>Tipo de Operaciones:</label>
+                <select id="select-op">
+                    <option value="sum_facil">➕ Sumas Fáciles (1 dígito)</option>
+                    <option value="sum_medio">➕ Sumas Medias (2 dígitos)</option>
+                    <option value="res_facil">➖ Restas Fáciles</option>
+                    <option value="res_medio">➖ Restas Medias (Hasta 50)</option>
+                    <option value="mult_all">✖️ Tablas de Multiplicar (1 al 10)</option>
+                    <option value="div_all">➗ Divisiones (1 al 10)</option>
+                    <option value="comb">🔀 Operaciones Combinadas (a ± b ± c)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Duración del Juego:</label>
+                <select id="select-time">
+                    <option value="60">⏱️ 1 Minuto</option>
+                    <option value="90">⏱️ 1.5 Minutos</option>
+                    <option value="120">⏱️ 2 Minutos</option>
+                </select>
+            </div>
+
+            <button class="btn" onclick="createRoom()">CREAR SALA Y MOSTRAR QR 🚀</button>
+        </div>
+    </div>
+
+    <!-- PANTALLA 2: LOBBY / ESPERA DE CHROMEBOOKS (PIZARRA DIGITAL) -->
+    <div id="screen-lobby" class="screen">
+        <div class="card">
+            <h2>ESCANEA O ENTRA CON EL PIN</h2>
+            <div class="pin-box" id="display-pin">------</div>
+
+            <div>
+                <div class="qr-container" id="qrcode"></div>
+            </div>
+
+            <div class="teams-status">
+                <div class="team-badge red" id="badge-red">
+                    <h3 style="color: var(--red-team)"><span class="status-dot"></span>EQUIPO ROJO</h3>
+                    <p id="txt-red" style="margin-top: 5px; font-size: 0.9rem; color: #aaa;">Esperando Chromebook...</p>
                 </div>
-                <div>
-                    <h1 class="font-bold text-xl sm:text-2xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 tracking-wider">
-                        MATH RUSH
-                    </h1>
-                    <p class="text-xs text-slate-400 -mt-1 font-bold">Batalla de la Cuerda</p>
+                <div class="team-badge blue" id="badge-blue">
+                    <h3 style="color: var(--blue-team)"><span class="status-dot"></span>EQUIPO AZUL</h3>
+                    <p id="txt-blue" style="margin-top: 5px; font-size: 0.9rem; color: #aaa;">Esperando Chromebook...</p>
                 </div>
             </div>
 
-            <div class="flex items-center space-x-2 sm:space-x-4">
-                <button onclick="toggleAudio()" id="audio-btn" class="bg-slate-700 hover:bg-slate-600 text-yellow-400 p-2 sm:px-3 sm:py-2 rounded-xl text-sm font-bold transition flex items-center space-x-2 border border-slate-600">
-                    <i class="fa-solid fa-volume-high text-lg" id="audio-icon"></i>
-                    <span class="hidden sm:inline" id="audio-text">Sonido ON</span>
-                </button>
-                <button onclick="toggleFullscreen()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 p-2 sm:px-3 sm:py-2 rounded-xl text-sm font-bold transition flex items-center space-x-2 border border-slate-600">
-                    <i class="fa-solid fa-expand text-lg"></i>
-                </button>
+            <button class="btn" id="btn-start-game" disabled onclick="startGame()">¡EMPEZAR BATALLA! ⚔️</button>
+        </div>
+    </div>
+
+    <!-- PANTALLA 3: UNIRSE DESDE CHROMEBOOK -->
+    <div id="screen-join" class="screen">
+        <div class="card">
+            <h1>UNIRSE A LA SALA</h1>
+            <p class="subtitle">Introduce el PIN de la Pizarra Digital</p>
+
+            <div class="form-group">
+                <label>PIN de la Sala:</label>
+                <input type="number" id="input-pin" placeholder="Ej: 123456" style="text-align: center; font-size: 1.8rem; letter-spacing: 4px;">
+            </div>
+
+            <div class="form-group">
+                <label>Selecciona tu Equipo:</label>
+                <select id="input-team">
+                    <option value="red">🔴 EQUIPO ROJO (Izquierda)</option>
+                    <option value="blue">🔵 EQUIPO AZUL (Derecha)</option>
+                </select>
+            </div>
+
+            <button class="btn" onclick="joinRoom()">ENTRAR AL JUEGO 🎮</button>
+        </div>
+    </div>
+
+    <!-- PANTALLA 4: PIZARRA DIGITAL - BATALLA EN DIRECTO -->
+    <div id="screen-board" class="screen">
+        <div class="game-grid">
+            <!-- PANEL ROJO -->
+            <div class="team-panel red" id="panel-red">
+                <div class="team-title">EQUIPO ROJO</div>
+                <div style="font-size: 1.1rem; color: #aaa;">Aciertos: <strong id="score-red" style="color: white;">0</strong></div>
+                <div class="op-card" id="op-red">?</div>
+                <div class="input-display" id="disp-red"></div>
+                <div style="font-size: 0.85rem; color: #666;">Esperando respuesta del Chromebook...</div>
+            </div>
+
+            <!-- CENTRO - ARENA DE LA CUERDA -->
+            <div class="arena-center">
+                <div class="timer" id="timer-display">01:00</div>
+                <canvas id="ropeCanvas" width="500" height="350"></canvas>
+                <div style="color: var(--yellow); font-weight: 800; font-size: 1.2rem;" id="lead-text">¡EMPIEZA EL JUEGO!</div>
+            </div>
+
+            <!-- PANEL AZUL -->
+            <div class="team-panel blue" id="panel-blue">
+                <div class="team-title">EQUIPO AZUL</div>
+                <div style="font-size: 1.1rem; color: #aaa;">Aciertos: <strong id="score-blue" style="color: white;">0</strong></div>
+                <div class="op-card" id="op-blue">?</div>
+                <div class="input-display" id="disp-blue"></div>
+                <div style="font-size: 0.85rem; color: #666;">Esperando respuesta del Chromebook...</div>
             </div>
         </div>
-    </header>
+    </div>
 
-    <!-- Main Content Area -->
-    <main class="flex-grow flex items-center justify-center p-3 sm:p-6 max-w-7xl mx-auto w-full">
+    <!-- PANTALLA 5: MANDO CHROMEBOOK (JUGADOR) -->
+    <div id="screen-controller" class="screen">
+        <div class="controller-card" id="controller-card">
+            <h2 id="controller-team-title" style="margin-bottom: 10px;">EQUIPO</h2>
+            <div class="op-card" id="controller-op">?</div>
+            <div class="input-display" id="controller-disp"></div>
 
-        <!-- STEP 1: Main Menu & Operation Selection -->
-        <div id="step-menu" class="w-full max-w-2xl bg-slate-800/90 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-2xl backdrop-blur">
-            <div class="text-center mb-6">
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400 mb-2">
-                    ¡Configura la Batalla!
-                </h2>
-                <p class="text-slate-400 text-sm sm:text-base">Selecciona las operaciones matemáticas para el juego</p>
-            </div>
-
-            <!-- Operations Grid -->
-            <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
-                <button onclick="toggleOp('sum')" id="op-sum" class="op-btn active bg-slate-700 border-2 border-indigo-500 p-4 rounded-2xl flex items-center space-x-3 transition transform active:scale-95 text-left">
-                    <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl font-bold">
-                        <i class="fa-solid fa-plus"></i>
-                    </div>
-                    <div>
-                        <div class="font-bold text-slate-200">Sumas</div>
-                        <div class="text-xs text-slate-400">Ej: 12 + 15</div>
-                    </div>
-                </button>
-
-                <button onclick="toggleOp('sub')" id="op-sub" class="op-btn active bg-slate-700 border-2 border-indigo-500 p-4 rounded-2xl flex items-center space-x-3 transition transform active:scale-95 text-left">
-                    <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-xl font-bold">
-                        <i class="fa-solid fa-minus"></i>
-                    </div>
-                    <div>
-                        <div class="font-bold text-slate-200">Restas</div>
-                        <div class="text-xs text-slate-400">Ej: 25 - 8</div>
-                    </div>
-                </button>
-
-                <button onclick="toggleOp('mul')" id="op-mul" class="op-btn bg-slate-700 border-2 border-slate-600 p-4 rounded-2xl flex items-center space-x-3 transition transform active:scale-95 text-left opacity-75">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl font-bold">
-                        <i class="fa-solid fa-xmark"></i>
-                    </div>
-                    <div>
-                        <div class="font-bold text-slate-200">Multiplicación</div>
-                        <div class="text-xs text-slate-400">Ej: 7 × 6</div>
-                    </div>
-                </button>
-
-                <button onclick="toggleOp('div')" id="op-div" class="op-btn bg-slate-700 border-2 border-slate-600 p-4 rounded-2xl flex items-center space-x-3 transition transform active:scale-95 text-left opacity-75">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl font-bold">
-                        <i class="fa-solid fa-divide"></i>
-                    </div>
-                    <div>
-                        <div class="font-bold text-slate-200">División</div>
-                        <div class="text-xs text-slate-400">Ej: 36 ÷ 4</div>
-                    </div>
-                </button>
-            </div>
-
-            <!-- Difficulty Slider -->
-            <div class="bg-slate-700/50 p-4 rounded-2xl border border-slate-600 mb-6">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="font-bold text-slate-300">Dificultad de los números:</span>
-                    <span id="diff-label" class="font-bold text-indigo-400 text-sm bg-indigo-500/20 px-3 py-1 rounded-full">Fácil (1-20)</span>
-                </div>
-                <input type="range" id="diff-slider" min="1" max="3" value="1" onchange="updateDiffLabel(this.value)" class="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-indigo-500">
-            </div>
-
-            <button onclick="createRoom()" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-extrabold py-4 rounded-2xl shadow-lg shadow-indigo-500/30 text-lg transition transform active:scale-95 flex items-center justify-center space-x-2">
-                <i class="fa-solid fa-play"></i>
-                <span>Crear Sala de Juego</span>
-            </button>
-        </div>
-
-        <!-- STEP 2: Waiting Room / Connection Screen -->
-        <div id="step-lobby" class="hidden w-full max-w-4xl bg-slate-800/90 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-2xl backdrop-blur">
-            <div class="text-center mb-6">
-                <span class="bg-emerald-500/20 text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">Paso 2: Conexión de Mandos</span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-2">¡Escanea para Jugar!</h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                <!-- QR Code & Link Container -->
-                <div class="flex flex-col items-center bg-slate-900/60 p-6 rounded-2xl border border-slate-700">
-                    <div id="qr-code" class="bg-white p-4 rounded-2xl shadow-xl border-4 border-slate-700 transition hover:scale-105 cursor-pointer" onclick="copyDirectLink()" title="Haz clic para copiar el enlace"></div>
-                    
-                    <div class="mt-4 text-center w-full">
-                        <p class="text-xs text-slate-400 mb-1">CÓDIGO DE SALA (PIN):</p>
-                        <div id="lobby-pin" class="text-4xl font-black text-yellow-400 tracking-widest bg-slate-800 py-2 px-6 rounded-xl border border-slate-600 inline-block font-mono">
-                            000000
-                        </div>
-                    </div>
-
-                    <button onclick="copyDirectLink()" class="mt-3 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 px-4 rounded-xl border border-slate-600 flex items-center space-x-2 transition">
-                        <i class="fa-solid fa-link text-indigo-400"></i>
-                        <span id="copy-btn-text">Copiar Enlace Directo</span>
-                    </button>
-                </div>
-
-                <!-- Team Connection Status -->
-                <div class="space-y-4">
-                    <!-- Red Team Status -->
-                    <div id="red-status" class="bg-red-950/40 border-2 border-red-500/40 p-4 rounded-2xl flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-12 h-12 rounded-xl bg-red-600 text-white flex items-center justify-center text-xl font-bold shadow-lg">
-                                <i class="fa-solid fa-[#ffffff] fa-flag"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-red-400 text-lg">Equipo Rojo</h3>
-                                <p class="text-xs text-slate-400" id="red-status-text">Esperando jugador/mando...</p>
-                            </div>
-                        </div>
-                        <div id="red-indicator" class="w-4 h-4 rounded-full bg-slate-600 animate-pulse"></div>
-                    </div>
-
-                    <!-- Blue Team Status -->
-                    <div id="blue-status" class="bg-blue-950/40 border-2 border-blue-500/40 p-4 rounded-2xl flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl font-bold shadow-lg">
-                                <i class="fa-solid fa-[#ffffff] fa-flag"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-blue-400 text-lg">Equipo Azul</h3>
-                                <p class="text-xs text-slate-400" id="blue-status-text">Esperando jugador/mando...</p>
-                            </div>
-                        </div>
-                        <div id="blue-indicator" class="w-4 h-4 rounded-full bg-slate-600 animate-pulse"></div>
-                    </div>
-
-                    <!-- Start Game Action -->
-                    <button onclick="startGame()" id="start-game-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-4 rounded-2xl shadow-lg shadow-emerald-600/30 text-lg transition transform active:scale-95 flex items-center justify-center space-x-2 mt-4">
-                        <i class="fa-solid fa-play-circle text-xl"></i>
-                        <span>¡Iniciar la Batalla!</span>
-                    </button>
-                </div>
+            <div class="numpad">
+                <button class="key" onclick="pressKey(7)">7</button>
+                <button class="key" onclick="pressKey(8)">8</button>
+                <button class="key" onclick="pressKey(9)">9</button>
+                <button class="key" onclick="pressKey(4)">4</button>
+                <button class="key" onclick="pressKey(5)">5</button>
+                <button class="key" onclick="pressKey(6)">6</button>
+                <button class="key" onclick="pressKey(1)">1</button>
+                <button class="key" onclick="pressKey(2)">2</button>
+                <button class="key" onclick="pressKey(3)">3</button>
+                <button class="key delete" onclick="deleteKey()">⌫ BORRAR</button>
+                <button class="key" onclick="pressKey(0)">0</button>
+                <button class="key enter" onclick="submitKey()">OK ↵</button>
             </div>
         </div>
+    </div>
 
-        <!-- STEP 3: Active Game Arena -->
-        <div id="step-game" class="hidden w-full max-w-6xl flex flex-col gap-6">
-            
-            <!-- Top Status Bar -->
-            <div class="bg-slate-800/80 backdrop-blur border border-slate-700 p-4 rounded-2xl flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <span class="text-red-400 font-bold text-xl">ROJO</span>
-                    <span id="score-red" class="bg-red-500/20 text-red-400 px-3 py-1 rounded-lg text-lg font-mono font-bold">0</span>
-                </div>
-
-                <div class="text-center">
-                    <span class="text-xs text-slate-400 font-bold block">TIEMPO RESTANTE</span>
-                    <span id="game-timer" class="text-3xl font-black text-yellow-400 font-mono">60s</span>
-                </div>
-
-                <div class="flex items-center space-x-3">
-                    <span id="score-blue" class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-lg text-lg font-mono font-bold">0</span>
-                    <span class="text-blue-400 font-bold text-xl">AZUL</span>
-                </div>
-            </div>
-
-            <!-- Tug of War Visual Canvas Container -->
-            <div class="bg-slate-800/90 rounded-3xl p-6 border border-slate-700 shadow-2xl relative overflow-hidden">
-                <!-- Center Line / Mud Pit indicator -->
-                <div class="absolute left-1/2 top-0 bottom-0 w-1 bg-yellow-500/30 -translate-x-1/2 z-0"></div>
-                <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-amber-900/40 rounded-full border-2 border-dashed border-amber-500/50 z-0 flex items-center justify-center">
-                    <span class="text-[10px] text-amber-500 font-bold uppercase tracking-widest">Zona Barro</span>
-                </div>
-
-                <!-- Animated Rope Arena -->
-                <div class="relative z-10 py-12 flex items-center justify-center">
-                    <div id="rope-container" class="w-full flex items-center justify-center transition-transform duration-300 ease-out">
-                        <!-- Red Players -->
-                        <div class="flex items-center space-x-2 text-red-500 text-4xl sm:text-5xl">
-                            <i class="fa-solid fa-child-reaching transform -scale-x-100 animate-bounce"></i>
-                            <i class="fa-solid fa-child-reaching transform -scale-x-100"></i>
-                        </div>
-
-                        <!-- Rope -->
-                        <div class="h-6 flex-grow max-w-xl mx-2 rope-pattern rounded-full shadow-inner relative flex items-center justify-center border-2 border-amber-900">
-                            <!-- Center Ribbon Marker -->
-                            <div id="rope-ribbon" class="w-6 h-10 bg-red-600 rounded-sm shadow-md border-2 border-white absolute transition-all duration-300"></div>
-                        </div>
-
-                        <!-- Blue Players -->
-                        <div class="flex items-center space-x-2 text-blue-500 text-4xl sm:text-5xl">
-                            <i class="fa-solid fa-child-reaching"></i>
-                            <i class="fa-solid fa-child-reaching animate-bounce"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Interactive Control Panels (Left: Red, Right: Blue) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Red Team Board -->
-                <div class="bg-slate-800/90 rounded-3xl p-6 border-2 border-red-500/40 shadow-xl flex flex-col justify-between">
-                    <div class="text-center mb-4">
-                        <span class="text-xs font-bold text-red-400 bg-red-500/10 px-3 py-1 rounded-full uppercase">Panel Equipo Rojo</span>
-                        <div id="problem-red" class="text-3xl sm:text-4xl font-black text-white mt-3 font-mono">
-                            12 + 8 = ?
-                        </div>
-                    </div>
-
-                    <!-- Options Grid -->
-                    <div id="options-red" class="grid grid-cols-2 gap-3">
-                        <!-- Dynamic Buttons -->
-                    </div>
-                </div>
-
-                <!-- Blue Team Board -->
-                <div class="bg-slate-800/90 rounded-3xl p-6 border-2 border-blue-500/40 shadow-xl flex flex-col justify-between">
-                    <div class="text-center mb-4">
-                        <span class="text-xs font-bold text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full uppercase">Panel Equipo Azul</span>
-                        <div id="problem-blue" class="text-3xl sm:text-4xl font-black text-white mt-3 font-mono">
-                            15 - 7 = ?
-                        </div>
-                    </div>
-
-                    <!-- Options Grid -->
-                    <div id="options-blue" class="grid grid-cols-2 gap-3">
-                        <!-- Dynamic Buttons -->
-                    </div>
-                </div>
-            </div>
-
+    <!-- PANTALLA 6: RESULTADOS / GANADOR -->
+    <div id="screen-winner" class="screen">
+        <div class="card">
+            <h1 id="winner-title">¡VICTORIA!</h1>
+            <p id="winner-subtitle" class="subtitle" style="font-size: 1.5rem; color: white;"></p>
+            <button class="btn" onclick="location.reload()">VOLVER A JUGAR 🔄</button>
         </div>
+    </div>
 
-        <!-- GameOver Modal -->
-        <div id="modal-winner" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div class="bg-slate-800 border border-slate-700 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl transform transition-all scale-100">
-                <div id="winner-icon" class="w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg">
-                    <i class="fa-solid fa-[#ffffff] fa-trophy"></i>
-                </div>
-                <h2 id="winner-title" class="text-3xl font-black text-white mb-2">¡Victoria!</h2>
-                <p id="winner-desc" class="text-slate-300 mb-6">El equipo ha tirado de la cuerda con más fuerza.</p>
-
-                <div class="flex flex-col space-y-3">
-                    <button onclick="startGame()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-2xl shadow-lg transition">
-                        Jugar de Nuevo
-                    </button>
-                    <button onclick="resetToMenu()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold py-3.5 rounded-2xl transition">
-                        Volver al Menú
-                    </button>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-slate-800/40 border-t border-slate-800 p-3 text-center text-xs text-slate-500">
-        Math Rush: Batalla de la Cuerda &copy; 2026 - Diseñado para PDI y Chromebooks
-    </footer>
-
-    <!-- Audio & Game Engine Logic -->
     <script>
-        // --- Web Audio API Synthetic Sounds ---
-        const AudioEngine = {
-            ctx: null,
-            enabled: true,
-            init() {
-                if (!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-            },
-            playSuccess() {
-                if (!this.enabled) return;
-                this.init();
-                const now = this.ctx.currentTime;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(523.25, now); // C5
-                osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1); // E5
-                osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.2); // G5
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        // ESTADO GLOBAL
+        let roomPin = "";
+        let opType = "sum_facil";
+        let gameTime = 60;
+        let timerInterval = null;
+        let channel = null;
+
+        // ESTADO DE LA PARTIDA
+        let ropePosition = 0; // -100 (Gana Rojo) a +100 (Gana Azul)
+        let redConnected = false;
+        let blueConnected = false;
+        let myTeam = null; // 'red' o 'blue' si es mando
+
+        let redCurrentOp = { text: "", ans: 0, input: "" };
+        let blueCurrentOp = { text: "", ans: 0, input: "" };
+        let redScore = 0;
+        let blueScore = 0;
+
+        // AUDIO SYNTH
+        let audioCtx = null;
+        function playSound(freq, duration, type='sine') {
+            try {
+                if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
                 osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.3);
-            },
-            playError() {
-                if (!this.enabled) return;
-                this.init();
-                const now = this.ctx.currentTime;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, now);
-                osc.frequency.linearRampToValueAtTime(100, now + 0.2);
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.25);
-            },
-            playWin() {
-                if (!this.enabled) return;
-                this.init();
-                const now = this.ctx.currentTime;
-                [261.63, 329.63, 392.00, 523.25].forEach((freq, idx) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, now + idx * 0.1);
-                    gain.gain.setValueAtTime(0.2, now + idx * 0.1);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.4);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start(now + idx * 0.1);
-                    osc.stop(now + idx * 0.1 + 0.4);
-                });
+                gain.connect(audioCtx.destination);
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e){}
+        }
+
+        // AUTO-DETECCIÓN DE MODO POR URL
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pinParam = urlParams.get('pin');
+            if(pinParam) {
+                showScreen('screen-join');
+                document.getElementById('input-pin').value = pinParam;
             }
         };
 
-        // --- Robust Fallback SVG Pure QR Engine ---
-        function generateSVGQRCode(text) {
-            // Internal 21x21 QR vector fallback for guaranteed rendering without external dependencies
-            const size = 21;
-            let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" class="w-36 h-36 sm:w-44 sm:h-44">`;
-            svg += `<rect width="${size}" height="${size}" fill="white"/>`;
-            
-            // Hash text into deterministic grid pattern + standard QR corner finders
-            const grid = Array(size).fill(0).map(() => Array(size).fill(false));
-            
-            // Add Finder Patterns
-            const addFinder = (rx, ry) => {
-                for (let r = 0; r < 7; r++) {
-                    for (let c = 0; c < 7; c++) {
-                        if (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4)) {
-                            grid[rx + r][ry + c] = true;
-                        }
-                    }
-                }
-            };
-            addFinder(0, 0);
-            addFinder(0, 14);
-            addFinder(14, 0);
-
-            // Pseudo-random data bits based on URL string
-            let hash = 0;
-            for (let i = 0; i < text.length; i++) {
-                hash = ((hash << 5) - hash) + text.charCodeAt(i);
-                hash |= 0;
-            }
-
-            for (let r = 0; r < size; r++) {
-                for (let c = 0; c < size; c++) {
-                    // Skip finder patterns
-                    if ((r < 8 && c < 8) || (r < 8 && c > 12) || (r > 12 && c < 8)) continue;
-                    const bit = ((r * size + c + Math.abs(hash)) % 3 === 0) || ((r * c + hash) % 5 === 0);
-                    grid[r][c] = bit;
-                }
-            }
-
-            // Draw Rects
-            for (let r = 0; r < size; r++) {
-                for (let c = 0; c < size; c++) {
-                    if (grid[r][c]) {
-                        svg += `<rect x="${c}" y="${r}" width="1.05" height="1.05" fill="#0f172a"/>`;
-                    }
-                }
-            }
-            svg += `</svg>`;
-            return svg;
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
         }
 
-        // --- State Management ---
-        let roomPin = "";
-        let selectedOps = ['sum', 'sub'];
-        let maxNumber = 20;
-        let scoreRed = 0;
-        let scoreBlue = 0;
-        let ropePosition = 0; // -50 (Red Wins) to +50 (Blue Wins)
-        let timer = 60;
-        let timerInterval = null;
-        let currentRedProblem = null;
-        let currentBlueProblem = null;
-
-        // Toggle Operations
-        function toggleOp(op) {
-            const btn = document.getElementById(`op-${op}`);
-            if (selectedOps.includes(op)) {
-                if (selectedOps.length === 1) return; // Keep at least one
-                selectedOps = selectedOps.filter(o => o !== op);
-                btn.classList.remove('border-indigo-500', 'active');
-                btn.classList.add('border-slate-600', 'opacity-75');
-            } else {
-                selectedOps.push(op);
-                btn.classList.add('border-indigo-500', 'active');
-                btn.classList.remove('border-slate-600', 'opacity-75');
-            }
-        }
-
-        // Update Difficulty
-        function updateDiffLabel(val) {
-            const label = document.getElementById('diff-label');
-            if (val == 1) {
-                maxNumber = 20;
-                label.innerText = "Fácil (1-20)";
-            } else if (val == 2) {
-                maxNumber = 50;
-                label.innerText = "Medio (1-50)";
-            } else {
-                maxNumber = 100;
-                label.innerText = "Difícil (1-100)";
-            }
-        }
-
-        // Copy Direct URL
-        function copyDirectLink() {
-            const fullUrl = window.location.href.split('#')[0].split('?')[0] + '?room=' + roomPin;
-            const tempInput = document.createElement('input');
-            document.body.appendChild(tempInput);
-            tempInput.value = fullUrl;
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-
-            const btnText = document.getElementById('copy-btn-text');
-            btnText.innerText = "¡Enlace Copiado!";
-            setTimeout(() => {
-                btnText.innerText = "Copiar Enlace Directo";
-            }, 2000);
-        }
-
-        // Step 1 -> Step 2: Create Room & Render QR
+        // 1. CREAR SALA (PIZARRA)
         function createRoom() {
             roomPin = Math.floor(100000 + Math.random() * 900000).toString();
-            document.getElementById('lobby-pin').innerText = roomPin;
+            opType = document.getElementById('select-op').value;
+            gameTime = parseInt(document.getElementById('select-time').value);
 
-            const fullUrl = window.location.href.split('#')[0].split('?')[0] + '?room=' + roomPin;
-            const qrContainer = document.getElementById('qr-code');
-            qrContainer.innerHTML = "";
+            document.getElementById('display-pin').innerText = roomPin;
 
-            // Try QRCode library, failback to SVG renderer
-            let qrRendered = false;
-            if (typeof QRCode !== 'undefined') {
-                try {
-                    new QRCode(qrContainer, {
-                        text: fullUrl,
-                        width: 160,
-                        height: 160,
-                        colorDark : "#0f172a",
-                        colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.H
-                    });
-                    qrRendered = true;
-                } catch(e) {
-                    qrRendered = false;
-                }
-            }
-            
-            if (!qrRendered) {
-                qrContainer.innerHTML = generateSVGQRCode(fullUrl);
-            }
-
-            document.getElementById('step-menu').classList.add('hidden');
-            document.getElementById('step-lobby').classList.remove('hidden');
-
-            // Simulate Controller Connections
-            setTimeout(() => {
-                document.getElementById('red-status-text').innerText = "¡Mando Rojo Conectado!";
-                document.getElementById('red-status-text').classList.add('text-emerald-400', 'font-bold');
-                document.getElementById('red-indicator').classList.replace('bg-slate-600', 'bg-emerald-500');
-            }, 1000);
-
-            setTimeout(() => {
-                document.getElementById('blue-status-text').innerText = "¡Mando Azul Conectado!";
-                document.getElementById('blue-status-text').classList.add('text-emerald-400', 'font-bold');
-                document.getElementById('blue-indicator').classList.replace('bg-slate-600', 'bg-emerald-500');
-            }, 2000);
-        }
-
-        // Math Generator
-        function generateMathProblem() {
-            const op = selectedOps[Math.floor(Math.random() * selectedOps.length)];
-            let num1, num2, ans, symbol;
-
-            if (op === 'sum') {
-                num1 = Math.floor(Math.random() * (maxNumber / 2)) + 1;
-                num2 = Math.floor(Math.random() * (maxNumber / 2)) + 1;
-                ans = num1 + num2;
-                symbol = '+';
-            } else if (op === 'sub') {
-                num1 = Math.floor(Math.random() * maxNumber) + 1;
-                num2 = Math.floor(Math.random() * num1) + 1;
-                ans = num1 - num2;
-                symbol = '-';
-            } else if (op === 'mul') {
-                num1 = Math.floor(Math.random() * 10) + 1;
-                num2 = Math.floor(Math.random() * 10) + 1;
-                ans = num1 * num2;
-                symbol = '×';
-            } else {
-                num2 = Math.floor(Math.random() * 9) + 2;
-                ans = Math.floor(Math.random() * 10) + 1;
-                num1 = num2 * ans;
-                symbol = '÷';
-            }
-
-            // Generate 3 wrong options
-            const options = new Set([ans]);
-            while (options.size < 4) {
-                let offset = (Math.floor(Math.random() * 5) + 1) * (Math.random() < 0.5 ? 1 : -1);
-                let wrong = ans + offset;
-                if (wrong >= 0) options.add(wrong);
-            }
-
-            return {
-                text: `${num1} ${symbol} ${num2} = ?`,
-                ans: ans,
-                options: Array.from(options).sort(() => Math.random() - 0.5)
-            };
-        }
-
-        function renderProblems() {
-            // Red
-            currentRedProblem = generateMathProblem();
-            document.getElementById('problem-red').innerText = currentRedProblem.text;
-            const redOptContainer = document.getElementById('options-red');
-            redOptContainer.innerHTML = '';
-            currentRedProblem.options.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = 'bg-slate-700 hover:bg-red-600 text-white font-mono font-bold py-3 text-xl rounded-xl transition transform active:scale-95 border border-slate-600';
-                btn.innerText = opt;
-                btn.onclick = () => answerProblem('red', opt);
-                redOptContainer.appendChild(btn);
+            // Generar QR
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            const joinUrl = window.location.origin + window.location.pathname + '?pin=' + roomPin;
+            new QRCode(qrContainer, {
+                text: joinUrl,
+                width: 160,
+                height: 160
             });
 
-            // Blue
-            currentBlueProblem = generateMathProblem();
-            document.getElementById('problem-blue').innerText = currentBlueProblem.text;
-            const blueOptContainer = document.getElementById('options-blue');
-            blueOptContainer.innerHTML = '';
-            currentBlueProblem.options.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = 'bg-slate-700 hover:bg-blue-600 text-white font-mono font-bold py-3 text-xl rounded-xl transition transform active:scale-95 border border-slate-600';
-                btn.innerText = opt;
-                btn.onclick = () => answerProblem('blue', opt);
-                blueOptContainer.appendChild(btn);
-            });
+            // Abrir canal de comunicación local/red
+            initChannel(roomPin);
+
+            showScreen('screen-lobby');
         }
 
-        function answerProblem(team, chosen) {
-            const prob = team === 'red' ? currentRedProblem : currentBlueProblem;
-            if (chosen === prob.ans) {
-                AudioEngine.playSuccess();
-                if (team === 'red') {
-                    scoreRed++;
-                    ropePosition -= 8;
-                } else {
-                    scoreBlue++;
-                    ropePosition += 8;
+        // INICIALIZAR CANAL DE MENSAJES
+        function initChannel(pin) {
+            channel = new BroadcastChannel('math_rush_' + pin);
+            channel.onmessage = (e) => handleMessage(e.data);
+        }
+
+        // 2. UNIRSE A LA SALA (CHROMEBOOK)
+        function joinRoom() {
+            const pin = document.getElementById('input-pin').value.trim();
+            myTeam = document.getElementById('input-team').value;
+
+            if(!pin || pin.length !== 6) {
+                alert("Introduce un PIN de 6 dígitos válido.");
+                return;
+            }
+
+            roomPin = pin;
+            initChannel(roomPin);
+
+            // Avisar a la Pizarra Digital
+            channel.postMessage({ type: 'CONNECT', team: myTeam });
+
+            // Configurar Mando
+            const card = document.getElementById('controller-card');
+            card.className = 'controller-card ' + myTeam;
+            document.getElementById('controller-team-title').innerText = "EQUIPO " + (myTeam === 'red' ? 'ROJO 🔴' : 'AZUL 🔵');
+            document.getElementById('controller-team-title').style.color = myTeam === 'red' ? 'var(--red-team)' : 'var(--blue-team)';
+
+            showScreen('screen-controller');
+        }
+
+        // GESTIÓN DE MENSAJES
+        function handleMessage(data) {
+            // RECIBIDO EN LA PIZARRA
+            if(data.type === 'CONNECT') {
+                if(data.team === 'red') {
+                    redConnected = true;
+                    document.getElementById('badge-red').classList.add('connected');
+                    document.getElementById('txt-red').innerText = "🟢 Chromebook Conectado";
                 }
-            } else {
-                AudioEngine.playError();
-                if (team === 'red') {
-                    ropePosition += 4; // Penalty
-                } else {
-                    ropePosition -= 4; // Penalty
+                if(data.team === 'blue') {
+                    blueConnected = true;
+                    document.getElementById('badge-blue').classList.add('connected');
+                    document.getElementById('txt-blue').innerText = "🟢 Chromebook Conectado";
+                }
+                if(redConnected && blueConnected) {
+                    document.getElementById('btn-start-game').disabled = false;
                 }
             }
 
-            updateRopePosition();
-
-            // Refresh problem for the team
-            if (team === 'red') {
-                currentRedProblem = generateMathProblem();
-                document.getElementById('problem-red').innerText = currentRedProblem.text;
-                const btns = document.querySelectorAll('#options-red button');
-                currentRedProblem.options.forEach((opt, idx) => {
-                    if(btns[idx]) {
-                        btns[idx].innerText = opt;
-                        btns[idx].onclick = () => answerProblem('red', opt);
-                    }
-                });
-            } else {
-                currentBlueProblem = generateMathProblem();
-                document.getElementById('problem-blue').innerText = currentBlueProblem.text;
-                const btns = document.querySelectorAll('#options-blue button');
-                currentBlueProblem.options.forEach((opt, idx) => {
-                    if(btns[idx]) {
-                        btns[idx].innerText = opt;
-                        btns[idx].onclick = () => answerProblem('blue', opt);
-                    }
-                });
+            if(data.type === 'SUBMIT') {
+                checkAnswerFromTeam(data.team, data.val);
             }
 
-            checkWinCondition();
-        }
+            if(data.type === 'KEY_PRESS') {
+                if(data.team === 'red') document.getElementById('disp-red').innerText = data.input;
+                if(data.team === 'blue') document.getElementById('disp-blue').innerText = data.input;
+            }
 
-        function updateRopePosition() {
-            // Cap position -45 to 45
-            ropePosition = Math.max(-45, Math.min(45, ropePosition));
-            document.getElementById('rope-container').style.transform = `translateX(${-ropePosition}%)`;
-            document.getElementById('score-red').innerText = scoreRed;
-            document.getElementById('score-blue').innerText = scoreBlue;
-        }
+            // RECIBIDO EN CHROMEBOOKS
+            if(data.type === 'START_GAME') {
+                opType = data.opType;
+                if(data.teamOps[myTeam]) {
+                    document.getElementById('controller-op').innerText = data.teamOps[myTeam].text;
+                    document.getElementById('controller-disp').innerText = "";
+                }
+            }
 
-        function checkWinCondition() {
-            if (ropePosition <= -40) {
-                endGame('Equipo Rojo');
-            } else if (ropePosition >= 40) {
-                endGame('Equipo Azul');
+            if(data.type === 'NEW_OP' && data.team === myTeam) {
+                document.getElementById('controller-op').innerText = data.text;
+                document.getElementById('controller-disp').innerText = "";
             }
         }
 
+        // 3. INICIAR PARTIDA (PIZARRA)
         function startGame() {
-            scoreRed = 0;
-            scoreBlue = 0;
+            showScreen('screen-board');
             ropePosition = 0;
-            timer = 60;
-            updateRopePosition();
+            redScore = 0;
+            blueScore = 0;
 
-            document.getElementById('step-lobby').classList.add('hidden');
-            document.getElementById('modal-winner').classList.add('hidden');
-            document.getElementById('step-game').classList.remove('hidden');
+            // Generar primeras operaciones
+            redCurrentOp = generateOp(opType);
+            blueCurrentOp = generateOp(opType);
 
-            renderProblems();
+            document.getElementById('op-red').innerText = redCurrentOp.text;
+            document.getElementById('op-blue').innerText = blueCurrentOp.text;
 
-            if (timerInterval) clearInterval(timerInterval);
+            // Enviar operaciones iniciales a los Chromebooks
+            channel.postMessage({
+                type: 'START_GAME',
+                opType: opType,
+                teamOps: { red: redCurrentOp, blue: blueCurrentOp }
+            });
+
+            startTimer();
+            drawRope();
+        }
+
+        // GENERADOR DE MATEMÁTICAS
+        function generateOp(type) {
+            let a, b, text, ans;
+            switch(type) {
+                case 'sum_facil':
+                    a = Math.floor(Math.random() * 9) + 1;
+                    b = Math.floor(Math.random() * 9) + 1;
+                    text = `${a} + ${b}`; ans = a + b; break;
+                case 'sum_medio':
+                    a = Math.floor(Math.random() * 40) + 10;
+                    b = Math.floor(Math.random() * 40) + 10;
+                    text = `${a} + ${b}`; ans = a + b; break;
+                case 'res_facil':
+                    a = Math.floor(Math.random() * 9) + 2;
+                    b = Math.floor(Math.random() * a) + 1;
+                    text = `${a} - ${b}`; ans = a - b; break;
+                case 'res_medio':
+                    a = Math.floor(Math.random() * 40) + 10;
+                    b = Math.floor(Math.random() * (a - 5)) + 5;
+                    text = `${a} - ${b}`; ans = a - b; break;
+                case 'mult_all':
+                    a = Math.floor(Math.random() * 9) + 2;
+                    b = Math.floor(Math.random() * 9) + 1;
+                    text = `${a} × ${b}`; ans = a * b; break;
+                case 'div_all':
+                    b = Math.floor(Math.random() * 9) + 2;
+                    ans = Math.floor(Math.random() * 9) + 1;
+                    a = b * ans;
+                    text = `${a} ÷ ${b}`; break;
+                default:
+                    a = Math.floor(Math.random() * 8) + 2;
+                    b = Math.floor(Math.random() * 8) + 1;
+                    let c = Math.floor(Math.random() * 5) + 1;
+                    text = `${a} + ${b} - ${c}`; ans = a + b - c; break;
+            }
+            return { text, ans, input: "" };
+        }
+
+        // COMPROBAR RESPUESTAS EN LA PIZARRA
+        function checkAnswerFromTeam(team, val) {
+            let current = (team === 'red') ? redCurrentOp : blueCurrentOp;
+            let panel = document.getElementById('panel-' + team);
+
+            if(parseInt(val) === current.ans) {
+                // Acierto
+                playSound(600, 0.15, 'triangle');
+                panel.classList.add('correct-flash');
+                setTimeout(() => panel.classList.remove('correct-flash'), 300);
+
+                if(team === 'red') {
+                    redScore++;
+                    ropePosition -= 12; // Tira hacia la izquierda
+                    document.getElementById('score-red').innerText = redScore;
+                    redCurrentOp = generateOp(opType);
+                    document.getElementById('op-red').innerText = redCurrentOp.text;
+                    document.getElementById('disp-red').innerText = "";
+                    channel.postMessage({ type: 'NEW_OP', team: 'red', text: redCurrentOp.text });
+                } else {
+                    blueScore++;
+                    ropePosition += 12; // Tira hacia la derecha
+                    document.getElementById('score-blue').innerText = blueScore;
+                    blueCurrentOp = generateOp(opType);
+                    document.getElementById('op-blue').innerText = blueCurrentOp.text;
+                    document.getElementById('disp-blue').innerText = "";
+                    channel.postMessage({ type: 'NEW_OP', team: 'blue', text: blueCurrentOp.text });
+                }
+
+                // Comprobar victoria por KO
+                if(ropePosition <= -80) endGame('red');
+                if(ropePosition >= 80) endGame('blue');
+
+            } else {
+                // Error
+                playSound(180, 0.2, 'sawtooth');
+                panel.classList.add('wrong-flash');
+                setTimeout(() => panel.classList.remove('wrong-flash'), 300);
+
+                if(team === 'red') {
+                    document.getElementById('disp-red').innerText = "";
+                    ropePosition = Math.min(80, ropePosition + 4);
+                } else {
+                    document.getElementById('disp-blue').innerText = "";
+                    ropePosition = Math.max(-80, ropePosition - 4);
+                }
+            }
+            drawRope();
+        }
+
+        // MANDO DEL CHROMEBOOK: TECLADO Y BOTONES
+        let currentInputStr = "";
+
+        function pressKey(num) {
+            playSound(400, 0.05);
+            if(currentInputStr.length < 4) {
+                currentInputStr += num.toString();
+                updateControllerDisplay();
+            }
+        }
+
+        function deleteKey() {
+            playSound(300, 0.05);
+            currentInputStr = "";
+            updateControllerDisplay();
+        }
+
+        function submitKey() {
+            if(currentInputStr !== "") {
+                channel.postMessage({ type: 'SUBMIT', team: myTeam, val: currentInputStr });
+                currentInputStr = "";
+                updateControllerDisplay();
+            }
+        }
+
+        function updateControllerDisplay() {
+            document.getElementById('controller-disp').innerText = currentInputStr;
+            channel.postMessage({ type: 'KEY_PRESS', team: myTeam, input: currentInputStr });
+        }
+
+        // SOPORTE PARA TECLADO FÍSICO EN CHROMEBOOKS
+        window.addEventListener('keydown', (e) => {
+            if(!myTeam) return;
+            if(e.key >= '0' && e.key <= '9') pressKey(parseInt(e.key));
+            if(e.key === 'Backspace') deleteKey();
+            if(e.key === 'Enter') submitKey();
+        });
+
+        // TEMPORIZADOR DE PARTIDA
+        function startTimer() {
+            let t = gameTime;
+            clearInterval(timerInterval);
             timerInterval = setInterval(() => {
-                timer--;
-                document.getElementById('game-timer').innerText = `${timer}s`;
-                if (timer <= 0) {
+                t--;
+                let m = Math.floor(t / 60);
+                let s = t % 60;
+                document.getElementById('timer-display').innerText = `${m < 10 ? '0':''}${m}:${s < 10 ? '0':''}${s}`;
+
+                if(t <= 0) {
                     clearInterval(timerInterval);
-                    if (scoreRed > scoreBlue) endGame('Equipo Rojo');
-                    else if (scoreBlue > scoreRed) endGame('Equipo Azul');
-                    else endGame('Empate');
+                    if(ropePosition < 0) endGame('red');
+                    else if(ropePosition > 0) endGame('blue');
+                    else endGame('draw');
                 }
             }, 1000);
         }
 
+        // CANVA DIBUJO DE LA CUERDA Y EQUIPOS
+        function drawRope() {
+            const canvas = document.getElementById('ropeCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Suelo de barro
+            ctx.fillStyle = "#12192c";
+            ctx.fillRect(0, h - 50, w, 50);
+
+            // Línea central
+            ctx.strokeStyle = "rgba(249, 212, 35, 0.4)";
+            ctx.setLineDash([6, 6]);
+            ctx.beginPath();
+            ctx.moveTo(w / 2, 0);
+            ctx.lineTo(w / 2, h);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Calcular desvisación
+            let shift = (ropePosition / 100) * (w * 0.35);
+
+            // Cuerda
+            ctx.strokeStyle = "#c29b38";
+            ctx.lineWidth = 14;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(30, h / 2);
+            ctx.lineTo(w - 30, h / 2);
+            ctx.stroke();
+
+            // Pañuelo rojo central
+            let centerPos = (w / 2) + shift;
+            ctx.fillStyle = "#ff3f34";
+            ctx.beginPath();
+            ctx.arc(centerPos, h / 2, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Muñecos Rojo (Izquierda)
+            ctx.fillStyle = "#ff3f34";
+            for(let i = 0; i < 3; i++) {
+                let x = 60 + (i * 40) + (shift * 0.2);
+                ctx.beginPath();
+                ctx.arc(x, h / 2 - 25, 12, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Muñecos Azul (Derecha)
+            ctx.fillStyle = "#00d2ff";
+            for(let i = 0; i < 3; i++) {
+                let x = w - 60 - (i * 40) + (shift * 0.2);
+                ctx.beginPath();
+                ctx.arc(x, h / 2 - 25, 12, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // FIN DE PARTIDA
         function endGame(winner) {
             clearInterval(timerInterval);
-            AudioEngine.playWin();
+            showScreen('screen-winner');
 
-            const modal = document.getElementById('modal-winner');
             const title = document.getElementById('winner-title');
-            const desc = document.getElementById('winner-desc');
-            const icon = document.getElementById('winner-icon');
+            const sub = document.getElementById('winner-subtitle');
 
-            if (winner === 'Empate') {
-                title.innerText = "¡Empate!";
-                desc.innerText = "¡Ambos equipos han demostrado una fuerza similar!";
-                icon.className = "w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg bg-slate-700 text-yellow-400";
+            if(winner === 'red') {
+                title.innerText = "🏆 ¡GANADOR EQUIPO ROJO!";
+                title.style.color = "var(--red-team)";
+                sub.innerText = `Ha demostrado mayor fuerza matemática (${redScore} aciertos).`;
+            } else if(winner === 'blue') {
+                title.innerText = "🏆 ¡GANADOR EQUIPO AZUL!";
+                title.style.color = "var(--blue-team)";
+                sub.innerText = `Ha demostrado mayor fuerza matemática (${blueScore} aciertos).`;
             } else {
-                title.innerText = `¡Gana el ${winner}!`;
-                desc.innerText = "¡Han tirado de la cuerda con más agilidad matemática!";
-                if (winner === 'Equipo Rojo') {
-                    icon.className = "w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg bg-red-600 text-white";
-                } else {
-                    icon.className = "w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg bg-blue-600 text-white";
-                }
+                title.innerText = "🤝 ¡EMPATE TÉCNICO!";
+                title.style.color = "var(--yellow)";
+                sub.innerText = "Ambos equipos han quedado igualados en fuerza.";
             }
 
-            modal.classList.remove('hidden');
-        }
-
-        function resetToMenu() {
-            clearInterval(timerInterval);
-            document.getElementById('step-game').classList.add('hidden');
-            document.getElementById('step-lobby').classList.add('hidden');
-            document.getElementById('modal-winner').classList.add('hidden');
-            document.getElementById('step-menu').classList.remove('hidden');
-        }
-
-        function toggleAudio() {
-            AudioEngine.enabled = !AudioEngine.enabled;
-            const btnText = document.getElementById('audio-text');
-            const icon = document.getElementById('audio-icon');
-            if (AudioEngine.enabled) {
-                btnText.innerText = "Sonido ON";
-                icon.className = "fa-solid fa-volume-high text-lg";
-            } else {
-                btnText.innerText = "Sonido OFF";
-                icon.className = "fa-solid fa-volume-xmark text-lg";
-            }
-        }
-
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(() => {});
-            } else {
-                document.exitFullscreen().catch(() => {});
-            }
+            playSound(800, 0.5, 'square');
         }
     </script>
 </body>
