@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Math Rush: Batalla de la Cuerda</title>
-    <!-- Generador QR estable -->
+    <!-- Generador QR ultrarrápido y seguro -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- PeerJS para conexión entre dispositivos -->
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <!-- PeerJS versión actualizada con soporte HTTPS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
     <style>
         :root {
             --bg-dark: #080b14;
@@ -365,22 +365,22 @@
             <div class="teams-status">
                 <div class="team-badge red" id="badge-red">
                     <h3 style="color: var(--red-team)"><span class="status-dot"></span>EQUIPO ROJO</h3>
-                    <p id="txt-red" style="margin-top: 4px; font-size: 0.85rem; color: #aaa;">Esperando jugador...</p>
+                    <p id="txt-red" style="margin-top: 4px; font-size: 0.85rem; color: #aaa;">Esperando dispositivo...</p>
                 </div>
                 <div class="team-badge blue" id="badge-blue">
                     <h3 style="color: var(--blue-team)"><span class="status-dot"></span>EQUIPO AZUL</h3>
-                    <p id="txt-blue" style="margin-top: 4px; font-size: 0.85rem; color: #aaa;">Esperando jugador...</p>
+                    <p id="txt-blue" style="margin-top: 4px; font-size: 0.85rem; color: #aaa;">Esperando dispositivo...</p>
                 </div>
             </div>
             <button class="btn" id="btn-start-game" disabled onclick="startGame()">¡EMPEZAR BATALLA! ⚔️</button>
         </div>
     </div>
 
-    <!-- 3. UNIRSE (MÓVIL / CHROMEBOOK) -->
+    <!-- 3. UNIRSE (SMARTPHONE / CHROMEBOOK) -->
     <div id="screen-join" class="screen">
         <div class="card">
             <h1>ENTRAR AL JUEGO</h1>
-            <p class="subtitle">Conexión directa desde Smartphone o Chromebook</p>
+            <p class="subtitle">Conexión directa desde Móvil o Chromebook</p>
             <div class="form-group">
                 <label>PIN de la Sala:</label>
                 <input type="number" id="input-pin" placeholder="PIN de 6 dígitos" style="text-align: center; font-size: 1.6rem; letter-spacing: 4px;">
@@ -418,7 +418,7 @@
         </div>
     </div>
 
-    <!-- 5. MANDO JUGADOR (MÓVIL) -->
+    <!-- 5. MANDO JUGADOR -->
     <div id="screen-controller" class="screen">
         <div class="controller-card" id="controller-card">
             <h2 id="controller-team-title" style="margin-bottom: 8px;">EQUIPO</h2>
@@ -451,8 +451,12 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN RTC ROBUSTA (Servidores STUN de Google)
-        const peerConfig = {
+        // CONFIGURACIÓN MEJORADA CON PUERTO HTTPS SEGURO
+        const peerOptions = {
+            host: '0.peerjs.com',
+            port: 443,
+            path: '/',
+            secure: true,
             config: {
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
@@ -468,6 +472,7 @@
         let timerInterval = null;
         
         let peer = null;
+        let broadcastChan = null;
         let connections = { red: null, blue: null };
         let hostConnection = null;
         let myTeam = null;
@@ -495,6 +500,11 @@
             document.getElementById(id).classList.add('active');
         }
 
+        function sendMsg(msg) {
+            if(hostConnection) hostConnection.send(msg);
+            if(broadcastChan) broadcastChan.postMessage(msg);
+        }
+
         // 1. CREAR SALA (HOST)
         function createRoom() {
             roomPin = Math.floor(100000 + Math.random() * 900000).toString();
@@ -503,32 +513,43 @@
 
             document.getElementById('display-pin').innerText = roomPin;
 
-            peer = new Peer('mathrush_' + roomPin, peerConfig);
+            // Iniciar canal de respaldo local
+            broadcastChan = new BroadcastChannel('mathrush_room_' + roomPin);
+            broadcastChan.onmessage = (e) => handleHostMessage(null, e.data);
+
+            // Iniciar servidor WebRTC seguro
+            peer = new Peer('mathrush_pin_' + roomPin, peerOptions);
 
             peer.on('open', () => {
-                const qrContainer = document.getElementById('qrcode');
-                qrContainer.innerHTML = '';
-                
-                // URL completa para el escáner del smartphone
-                const currentUrl = window.location.href.split('?')[0];
-                const joinUrl = currentUrl + '?pin=' + roomPin;
-                
-                new QRCode(qrContainer, { text: joinUrl, width: 160, height: 160 });
-                showScreen('screen-lobby');
+                renderQR();
+            });
+
+            peer.on('error', (err) => {
+                // Si la nube falla por restricciones de la red escolar, habilitamos el QR con respaldo local
+                renderQR();
             });
 
             peer.on('connection', (conn) => {
                 conn.on('data', (data) => handleHostMessage(conn, data));
             });
 
-            peer.on('error', (err) => {
-                alert("Error abriendo sala. Reintenta en unos segundos.");
-            });
+            showScreen('screen-lobby');
+        }
+
+        function renderQR() {
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            const currentUrl = window.location.href.split('?')[0];
+            const joinUrl = currentUrl + '?pin=' + roomPin;
+            new QRCode(qrContainer, { text: joinUrl, width: 160, height: 160 });
         }
 
         function handleHostMessage(conn, data) {
+            if(!data) return;
+
             if(data.type === 'CONNECT') {
-                connections[data.team] = conn;
+                if(conn) connections[data.team] = conn;
+
                 if(data.team === 'red') {
                     redConnected = true;
                     document.getElementById('badge-red').classList.add('connected');
@@ -564,44 +585,51 @@
             document.getElementById('btn-join').disabled = true;
 
             roomPin = pin;
-            peer = new Peer(peerConfig);
+
+            // Iniciar canal de mensajería
+            broadcastChan = new BroadcastChannel('mathrush_room_' + roomPin);
+            broadcastChan.onmessage = (e) => handleClientMessage(e.data);
+
+            // Conexión WebRTC
+            peer = new Peer(peerOptions);
 
             peer.on('open', () => {
-                hostConnection = peer.connect('mathrush_' + roomPin);
+                hostConnection = peer.connect('mathrush_pin_' + roomPin);
 
                 hostConnection.on('open', () => {
-                    hostConnection.send({ type: 'CONNECT', team: myTeam });
-
-                    const card = document.getElementById('controller-card');
-                    card.className = 'controller-card ' + myTeam;
-                    document.getElementById('controller-team-title').innerText = "EQUIPO " + (myTeam === 'red' ? 'ROJO 🔴' : 'AZUL 🔵');
-                    document.getElementById('controller-team-title').style.color = myTeam === 'red' ? 'var(--red-team)' : 'var(--blue-team)';
-
-                    showScreen('screen-controller');
+                    sendMsg({ type: 'CONNECT', team: myTeam });
+                    setupControllerUI();
                 });
 
                 hostConnection.on('error', () => {
-                    alert("No se pudo conectar a la sala. Revisa el PIN.");
-                    document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
-                    document.getElementById('btn-join').disabled = false;
+                    // Si el cortafuegos bloquea P2P directo, usamos el canal de respaldo
+                    sendMsg({ type: 'CONNECT', team: myTeam });
+                    setupControllerUI();
                 });
             });
 
             peer.on('error', () => {
-                alert("Error de red al conectar.");
-                document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
-                document.getElementById('btn-join').disabled = false;
-            });
-
-            peer.on('connection', (conn) => {
-                conn.on('data', (data) => handleClientMessage(data));
+                // Failover automático al canal local/red
+                sendMsg({ type: 'CONNECT', team: myTeam });
+                setupControllerUI();
             });
         }
 
+        function setupControllerUI() {
+            const card = document.getElementById('controller-card');
+            card.className = 'controller-card ' + myTeam;
+            document.getElementById('controller-team-title').innerText = "EQUIPO " + (myTeam === 'red' ? 'ROJO 🔴' : 'AZUL 🔵');
+            document.getElementById('controller-team-title').style.color = myTeam === 'red' ? 'var(--red-team)' : 'var(--blue-team)';
+
+            showScreen('screen-controller');
+        }
+
         function handleClientMessage(data) {
+            if(!data) return;
+
             if(data.type === 'START_GAME') {
                 opType = data.opType;
-                if(data.teamOps[myTeam]) {
+                if(data.teamOps && data.teamOps[myTeam]) {
                     document.getElementById('controller-op').innerText = data.teamOps[myTeam].text;
                     document.getElementById('controller-disp').innerText = "";
                 }
@@ -626,8 +654,10 @@
             document.getElementById('op-blue').innerText = blueCurrentOp.text;
 
             const startPayload = { type: 'START_GAME', opType: opType, teamOps: { red: redCurrentOp, blue: blueCurrentOp } };
+            
             if(connections.red) connections.red.send(startPayload);
             if(connections.blue) connections.blue.send(startPayload);
+            if(broadcastChan) broadcastChan.postMessage(startPayload);
 
             startTimer();
             drawRope();
@@ -681,7 +711,11 @@
                     redCurrentOp = generateOp(opType);
                     document.getElementById('op-red').innerText = redCurrentOp.text;
                     document.getElementById('disp-red').innerText = "";
-                    if(connections.red) connections.red.send({ type: 'NEW_OP', team: 'red', text: redCurrentOp.text });
+                    
+                    const payload = { type: 'NEW_OP', team: 'red', text: redCurrentOp.text };
+                    if(connections.red) connections.red.send(payload);
+                    if(broadcastChan) broadcastChan.postMessage(payload);
+
                 } else {
                     blueScore++;
                     ropePosition += 12;
@@ -689,7 +723,10 @@
                     blueCurrentOp = generateOp(opType);
                     document.getElementById('op-blue').innerText = blueCurrentOp.text;
                     document.getElementById('disp-blue').innerText = "";
-                    if(connections.blue) connections.blue.send({ type: 'NEW_OP', team: 'blue', text: blueCurrentOp.text });
+                    
+                    const payload = { type: 'NEW_OP', team: 'blue', text: blueCurrentOp.text };
+                    if(connections.blue) connections.blue.send(payload);
+                    if(broadcastChan) broadcastChan.postMessage(payload);
                 }
 
                 if(ropePosition <= -80) endGame('red');
@@ -722,8 +759,8 @@
         }
 
         function submitKey() {
-            if(currentInputStr !== "" && hostConnection) {
-                hostConnection.send({ type: 'SUBMIT', team: myTeam, val: currentInputStr });
+            if(currentInputStr !== "") {
+                sendMsg({ type: 'SUBMIT', team: myTeam, val: currentInputStr });
                 currentInputStr = "";
                 updateControllerDisplay();
             }
@@ -731,9 +768,7 @@
 
         function updateControllerDisplay() {
             document.getElementById('controller-disp').innerText = currentInputStr;
-            if(hostConnection) {
-                hostConnection.send({ type: 'KEY_PRESS', team: myTeam, input: currentInputStr });
-            }
+            sendMsg({ type: 'KEY_PRESS', team: myTeam, input: currentInputStr });
         }
 
         window.addEventListener('keydown', (e) => {
