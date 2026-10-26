@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Rush: Batalla de la Cuerda</title>
     <!-- Librería QR estable -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- PeerJS para conexión real entre la Pizarra y los Chromebooks -->
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         :root {
             --bg-dark: #080b14;
@@ -55,7 +57,6 @@
             display: flex;
         }
 
-        /* CARD DE CONFIGURACIÓN Y LOBBY */
         .card {
             background: var(--panel-bg);
             border: 2px solid #2a3352;
@@ -134,7 +135,6 @@
             box-shadow: none !important;
         }
 
-        /* LOBBY / CONEXIÓN */
         .pin-box {
             font-size: 3.2rem;
             font-family: var(--font-mono);
@@ -171,14 +171,8 @@
             transition: all 0.3s;
         }
 
-        .team-badge.red {
-            border-color: var(--red-team);
-        }
-
-        .team-badge.blue {
-            border-color: var(--blue-team);
-        }
-
+        .team-badge.red { border-color: var(--red-team); }
+        .team-badge.blue { border-color: var(--blue-team); }
         .team-badge.connected {
             background: rgba(34, 197, 94, 0.15);
             box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
@@ -198,7 +192,6 @@
             box-shadow: 0 0 10px #22c55e;
         }
 
-        /* PANTALLA PRINCIPAL DE JUEGO (PIZARRA DIGITAL) */
         .game-grid {
             display: grid;
             grid-template-columns: 320px 1fr 320px;
@@ -223,10 +216,7 @@
         .team-panel.red { border-color: var(--red-team); box-shadow: 0 0 20px var(--red-glow); }
         .team-panel.blue { border-color: var(--blue-team); box-shadow: 0 0 20px var(--blue-glow); }
 
-        .team-title {
-            font-size: 1.8rem;
-            font-weight: 900;
-        }
+        .team-title { font-size: 1.8rem; font-weight: 900; }
         .red .team-title { color: var(--red-team); }
         .blue .team-title { color: var(--blue-team); }
 
@@ -290,7 +280,6 @@
             background: #080c18;
         }
 
-        /* MANDO CHROMEBOOK (MODO JUGADOR) */
         .controller-card {
             background: var(--panel-bg);
             border-radius: 24px;
@@ -323,11 +312,7 @@
             font-family: var(--font-mono);
         }
 
-        .key:active {
-            background: var(--yellow);
-            color: black;
-        }
-
+        .key:active { background: var(--yellow); color: black; }
         .key.delete {
             grid-column: span 2;
             background: rgba(255, 63, 52, 0.2);
@@ -336,7 +321,6 @@
             font-size: 1.2rem;
             font-family: var(--font-family);
         }
-
         .key.enter {
             background: rgba(34, 197, 94, 0.2);
             border-color: #22c55e;
@@ -345,7 +329,6 @@
             font-family: var(--font-family);
         }
 
-        /* EFECTOS DE ANIMACIÓN */
         .correct-flash { animation: flashGreen 0.3s forwards; }
         .wrong-flash { animation: flashRed 0.3s forwards; }
 
@@ -353,29 +336,24 @@
             0%, 100% { border-color: #2a3352; }
             50% { border-color: #22c55e; background: rgba(34, 197, 94, 0.2); }
         }
-
         @keyframes flashRed {
             0%, 100% { border-color: #2a3352; }
             50% { border-color: var(--red-team); background: rgba(255, 63, 52, 0.2); }
         }
 
         @media (max-width: 900px) {
-            .game-grid {
-                grid-template-columns: 1fr;
-                height: auto;
-            }
+            .game-grid { grid-template-columns: 1fr; height: auto; }
             canvas#ropeCanvas { height: 220px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA 1: CREACIÓN DE SALA (PIZARRA DIGITAL) -->
+    <!-- 1. CREAR SALA (PIZARRA) -->
     <div id="screen-setup" class="screen active">
         <div class="card">
             <h1>🪢 BATALLA DE LA CUERDA</h1>
             <p class="subtitle">Configura la partida para la Pizarra Digital</p>
-
             <div class="form-group">
                 <label>Tipo de Operaciones:</label>
                 <select id="select-op">
@@ -388,7 +366,6 @@
                     <option value="comb">🔀 Operaciones Combinadas (a ± b ± c)</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label>Duración del Juego:</label>
                 <select id="select-time">
@@ -397,21 +374,18 @@
                     <option value="120">⏱️ 2 Minutos</option>
                 </select>
             </div>
-
             <button class="btn" onclick="createRoom()">CREAR SALA Y MOSTRAR QR 🚀</button>
         </div>
     </div>
 
-    <!-- PANTALLA 2: LOBBY / ESPERA DE CHROMEBOOKS (PIZARRA DIGITAL) -->
+    <!-- 2. LOBBY / ESPERA DE CHROMEBOOKS -->
     <div id="screen-lobby" class="screen">
         <div class="card">
             <h2>ESCANEA O ENTRA CON EL PIN</h2>
             <div class="pin-box" id="display-pin">------</div>
-
             <div>
                 <div class="qr-container" id="qrcode"></div>
             </div>
-
             <div class="teams-status">
                 <div class="team-badge red" id="badge-red">
                     <h3 style="color: var(--red-team)"><span class="status-dot"></span>EQUIPO ROJO</h3>
@@ -422,22 +396,19 @@
                     <p id="txt-blue" style="margin-top: 5px; font-size: 0.9rem; color: #aaa;">Esperando Chromebook...</p>
                 </div>
             </div>
-
             <button class="btn" id="btn-start-game" disabled onclick="startGame()">¡EMPEZAR BATALLA! ⚔️</button>
         </div>
     </div>
 
-    <!-- PANTALLA 3: UNIRSE DESDE CHROMEBOOK -->
+    <!-- 3. UNIRSE DESDE CHROMEBOOK -->
     <div id="screen-join" class="screen">
         <div class="card">
             <h1>UNIRSE A LA SALA</h1>
             <p class="subtitle">Introduce el PIN de la Pizarra Digital</p>
-
             <div class="form-group">
                 <label>PIN de la Sala:</label>
                 <input type="number" id="input-pin" placeholder="Ej: 123456" style="text-align: center; font-size: 1.8rem; letter-spacing: 4px;">
             </div>
-
             <div class="form-group">
                 <label>Selecciona tu Equipo:</label>
                 <select id="input-team">
@@ -445,48 +416,41 @@
                     <option value="blue">🔵 EQUIPO AZUL (Derecha)</option>
                 </select>
             </div>
-
             <button class="btn" onclick="joinRoom()">ENTRAR AL JUEGO 🎮</button>
         </div>
     </div>
 
-    <!-- PANTALLA 4: PIZARRA DIGITAL - BATALLA EN DIRECTO -->
+    <!-- 4. PIZARRA DIGITAL - BATALLA EN DIRECTO -->
     <div id="screen-board" class="screen">
         <div class="game-grid">
-            <!-- PANEL ROJO -->
             <div class="team-panel red" id="panel-red">
                 <div class="team-title">EQUIPO ROJO</div>
                 <div style="font-size: 1.1rem; color: #aaa;">Aciertos: <strong id="score-red" style="color: white;">0</strong></div>
                 <div class="op-card" id="op-red">?</div>
                 <div class="input-display" id="disp-red"></div>
-                <div style="font-size: 0.85rem; color: #666;">Esperando respuesta del Chromebook...</div>
+                <div style="font-size: 0.85rem; color: #666;">Chromebook Conectado</div>
             </div>
-
-            <!-- CENTRO - ARENA DE LA CUERDA -->
             <div class="arena-center">
                 <div class="timer" id="timer-display">01:00</div>
                 <canvas id="ropeCanvas" width="500" height="350"></canvas>
-                <div style="color: var(--yellow); font-weight: 800; font-size: 1.2rem;" id="lead-text">¡EMPIEZA EL JUEGO!</div>
+                <div style="color: var(--yellow); font-weight: 800; font-size: 1.2rem;" id="lead-text">¡BATALLA EN CURSO!</div>
             </div>
-
-            <!-- PANEL AZUL -->
             <div class="team-panel blue" id="panel-blue">
                 <div class="team-title">EQUIPO AZUL</div>
                 <div style="font-size: 1.1rem; color: #aaa;">Aciertos: <strong id="score-blue" style="color: white;">0</strong></div>
                 <div class="op-card" id="op-blue">?</div>
                 <div class="input-display" id="disp-blue"></div>
-                <div style="font-size: 0.85rem; color: #666;">Esperando respuesta del Chromebook...</div>
+                <div style="font-size: 0.85rem; color: #666;">Chromebook Conectado</div>
             </div>
         </div>
     </div>
 
-    <!-- PANTALLA 5: MANDO CHROMEBOOK (JUGADOR) -->
+    <!-- 5. MANDO CHROMEBOOK -->
     <div id="screen-controller" class="screen">
         <div class="controller-card" id="controller-card">
             <h2 id="controller-team-title" style="margin-bottom: 10px;">EQUIPO</h2>
             <div class="op-card" id="controller-op">?</div>
             <div class="input-display" id="controller-disp"></div>
-
             <div class="numpad">
                 <button class="key" onclick="pressKey(7)">7</button>
                 <button class="key" onclick="pressKey(8)">8</button>
@@ -504,7 +468,7 @@
         </div>
     </div>
 
-    <!-- PANTALLA 6: RESULTADOS / GANADOR -->
+    <!-- 6. RESULTADOS -->
     <div id="screen-winner" class="screen">
         <div class="card">
             <h1 id="winner-title">¡VICTORIA!</h1>
@@ -514,25 +478,25 @@
     </div>
 
     <script>
-        // ESTADO GLOBAL
         let roomPin = "";
         let opType = "sum_facil";
         let gameTime = 60;
         let timerInterval = null;
-        let channel = null;
+        
+        let peer = null;
+        let connections = { red: null, blue: null }; // Usado por la Pizarra
+        let hostConnection = null; // Usado por los Chromebooks
+        let myTeam = null;
 
-        // ESTADO DE LA PARTIDA
-        let ropePosition = 0; // -100 (Gana Rojo) a +100 (Gana Azul)
+        let ropePosition = 0;
         let redConnected = false;
         let blueConnected = false;
-        let myTeam = null; // 'red' o 'blue' si es mando
 
-        let redCurrentOp = { text: "", ans: 0, input: "" };
-        let blueCurrentOp = { text: "", ans: 0, input: "" };
+        let redCurrentOp = { text: "", ans: 0 };
+        let blueCurrentOp = { text: "", ans: 0 };
         let redScore = 0;
         let blueScore = 0;
 
-        // AUDIO SYNTH
         let audioCtx = null;
         function playSound(freq, duration, type='sine') {
             try {
@@ -549,7 +513,6 @@
             } catch(e){}
         }
 
-        // AUTO-DETECCIÓN DE MODO POR URL
         window.onload = () => {
             const urlParams = new URLSearchParams(window.location.search);
             const pinParam = urlParams.get('pin');
@@ -564,7 +527,7 @@
             document.getElementById(id).classList.add('active');
         }
 
-        // 1. CREAR SALA (PIZARRA)
+        // 1. CREAR SALA (PIZARRA DIGITAL COMO HOST)
         function createRoom() {
             roomPin = Math.floor(100000 + Math.random() * 900000).toString();
             opType = document.getElementById('select-op').value;
@@ -572,57 +535,33 @@
 
             document.getElementById('display-pin').innerText = roomPin;
 
-            // Generar QR
-            const qrContainer = document.getElementById('qrcode');
-            qrContainer.innerHTML = '';
-            const joinUrl = window.location.origin + window.location.pathname + '?pin=' + roomPin;
-            new QRCode(qrContainer, {
-                text: joinUrl,
-                width: 160,
-                height: 160
+            // Iniciar PeerJS usando el PIN como ID único de la sala
+            peer = new Peer('mathrush_' + roomPin);
+
+            peer.on('open', (id) => {
+                const qrContainer = document.getElementById('qrcode');
+                qrContainer.innerHTML = '';
+                const joinUrl = window.location.origin + window.location.pathname + '?pin=' + roomPin;
+                new QRCode(qrContainer, { text: joinUrl, width: 160, height: 160 });
+                showScreen('screen-lobby');
             });
 
-            // Abrir canal de comunicación local/red
-            initChannel(roomPin);
+            peer.on('connection', (conn) => {
+                conn.on('data', (data) => {
+                    handleHostMessage(conn, data);
+                });
+            });
 
-            showScreen('screen-lobby');
+            peer.on('error', (err) => {
+                alert("Error de conexión de sala. Inténtalo de nuevo.");
+            });
         }
 
-        // INICIALIZAR CANAL DE MENSAJES
-        function initChannel(pin) {
-            channel = new BroadcastChannel('math_rush_' + pin);
-            channel.onmessage = (e) => handleMessage(e.data);
-        }
-
-        // 2. UNIRSE A LA SALA (CHROMEBOOK)
-        function joinRoom() {
-            const pin = document.getElementById('input-pin').value.trim();
-            myTeam = document.getElementById('input-team').value;
-
-            if(!pin || pin.length !== 6) {
-                alert("Introduce un PIN de 6 dígitos válido.");
-                return;
-            }
-
-            roomPin = pin;
-            initChannel(roomPin);
-
-            // Avisar a la Pizarra Digital
-            channel.postMessage({ type: 'CONNECT', team: myTeam });
-
-            // Configurar Mando
-            const card = document.getElementById('controller-card');
-            card.className = 'controller-card ' + myTeam;
-            document.getElementById('controller-team-title').innerText = "EQUIPO " + (myTeam === 'red' ? 'ROJO 🔴' : 'AZUL 🔵');
-            document.getElementById('controller-team-title').style.color = myTeam === 'red' ? 'var(--red-team)' : 'var(--blue-team)';
-
-            showScreen('screen-controller');
-        }
-
-        // GESTIÓN DE MENSAJES
-        function handleMessage(data) {
-            // RECIBIDO EN LA PIZARRA
+        function handleHostMessage(conn, data) {
             if(data.type === 'CONNECT') {
+                connections[data.team] = conn;
+                conn.team = data.team;
+
                 if(data.team === 'red') {
                     redConnected = true;
                     document.getElementById('badge-red').classList.add('connected');
@@ -646,8 +585,48 @@
                 if(data.team === 'red') document.getElementById('disp-red').innerText = data.input;
                 if(data.team === 'blue') document.getElementById('disp-blue').innerText = data.input;
             }
+        }
 
-            // RECIBIDO EN CHROMEBOOKS
+        // 2. UNIRSE A LA SALA (CHROMEBOOK)
+        function joinRoom() {
+            const pin = document.getElementById('input-pin').value.trim();
+            myTeam = document.getElementById('input-team').value;
+
+            if(!pin || pin.length !== 6) {
+                alert("Introduce un PIN de 6 dígitos válido.");
+                return;
+            }
+
+            roomPin = pin;
+            peer = new Peer();
+
+            peer.on('open', () => {
+                hostConnection = peer.connect('mathrush_' + roomPin);
+
+                hostConnection.on('open', () => {
+                    // Enviar mensaje de conexión al host (Pizarra)
+                    hostConnection.send({ type: 'CONNECT', team: myTeam });
+
+                    // Configurar Mando
+                    const card = document.getElementById('controller-card');
+                    card.className = 'controller-card ' + myTeam;
+                    document.getElementById('controller-team-title').innerText = "EQUIPO " + (myTeam === 'red' ? 'ROJO 🔴' : 'AZUL 🔵');
+                    document.getElementById('controller-team-title').style.color = myTeam === 'red' ? 'var(--red-team)' : 'var(--blue-team)';
+
+                    showScreen('screen-controller');
+                });
+
+                hostConnection.on('error', () => {
+                    alert("No se pudo conectar con la sala. Comprueba el PIN.");
+                });
+            });
+
+            hostConnection.on('data', (data) => {
+                handleClientMessage(data);
+            });
+        }
+
+        function handleClientMessage(data) {
             if(data.type === 'START_GAME') {
                 opType = data.opType;
                 if(data.teamOps[myTeam]) {
@@ -669,25 +648,24 @@
             redScore = 0;
             blueScore = 0;
 
-            // Generar primeras operaciones
             redCurrentOp = generateOp(opType);
             blueCurrentOp = generateOp(opType);
 
             document.getElementById('op-red').innerText = redCurrentOp.text;
             document.getElementById('op-blue').innerText = blueCurrentOp.text;
 
-            // Enviar operaciones iniciales a los Chromebooks
-            channel.postMessage({
-                type: 'START_GAME',
-                opType: opType,
-                teamOps: { red: redCurrentOp, blue: blueCurrentOp }
-            });
+            // Enviar a ambos Chromebooks conectados
+            if(connections.red) {
+                connections.red.send({ type: 'START_GAME', opType: opType, teamOps: { red: redCurrentOp, blue: blueCurrentOp } });
+            }
+            if(connections.blue) {
+                connections.blue.send({ type: 'START_GAME', opType: opType, teamOps: { red: redCurrentOp, blue: blueCurrentOp } });
+            }
 
             startTimer();
             drawRope();
         }
 
-        // GENERADOR DE MATEMÁTICAS
         function generateOp(type) {
             let a, b, text, ans;
             switch(type) {
@@ -722,44 +700,40 @@
                     let c = Math.floor(Math.random() * 5) + 1;
                     text = `${a} + ${b} - ${c}`; ans = a + b - c; break;
             }
-            return { text, ans, input: "" };
+            return { text, ans };
         }
 
-        // COMPROBAR RESPUESTAS EN LA PIZARRA
         function checkAnswerFromTeam(team, val) {
             let current = (team === 'red') ? redCurrentOp : blueCurrentOp;
             let panel = document.getElementById('panel-' + team);
 
             if(parseInt(val) === current.ans) {
-                // Acierto
                 playSound(600, 0.15, 'triangle');
                 panel.classList.add('correct-flash');
                 setTimeout(() => panel.classList.remove('correct-flash'), 300);
 
                 if(team === 'red') {
                     redScore++;
-                    ropePosition -= 12; // Tira hacia la izquierda
+                    ropePosition -= 12;
                     document.getElementById('score-red').innerText = redScore;
                     redCurrentOp = generateOp(opType);
                     document.getElementById('op-red').innerText = redCurrentOp.text;
                     document.getElementById('disp-red').innerText = "";
-                    channel.postMessage({ type: 'NEW_OP', team: 'red', text: redCurrentOp.text });
+                    if(connections.red) connections.red.send({ type: 'NEW_OP', team: 'red', text: redCurrentOp.text });
                 } else {
                     blueScore++;
-                    ropePosition += 12; // Tira hacia la derecha
+                    ropePosition += 12;
                     document.getElementById('score-blue').innerText = blueScore;
                     blueCurrentOp = generateOp(opType);
                     document.getElementById('op-blue').innerText = blueCurrentOp.text;
                     document.getElementById('disp-blue').innerText = "";
-                    channel.postMessage({ type: 'NEW_OP', team: 'blue', text: blueCurrentOp.text });
+                    if(connections.blue) connections.blue.send({ type: 'NEW_OP', team: 'blue', text: blueCurrentOp.text });
                 }
 
-                // Comprobar victoria por KO
                 if(ropePosition <= -80) endGame('red');
                 if(ropePosition >= 80) endGame('blue');
 
             } else {
-                // Error
                 playSound(180, 0.2, 'sawtooth');
                 panel.classList.add('wrong-flash');
                 setTimeout(() => panel.classList.remove('wrong-flash'), 300);
@@ -775,7 +749,6 @@
             drawRope();
         }
 
-        // MANDO DEL CHROMEBOOK: TECLADO Y BOTONES
         let currentInputStr = "";
 
         function pressKey(num) {
@@ -793,8 +766,8 @@
         }
 
         function submitKey() {
-            if(currentInputStr !== "") {
-                channel.postMessage({ type: 'SUBMIT', team: myTeam, val: currentInputStr });
+            if(currentInputStr !== "" && hostConnection) {
+                hostConnection.send({ type: 'SUBMIT', team: myTeam, val: currentInputStr });
                 currentInputStr = "";
                 updateControllerDisplay();
             }
@@ -802,10 +775,11 @@
 
         function updateControllerDisplay() {
             document.getElementById('controller-disp').innerText = currentInputStr;
-            channel.postMessage({ type: 'KEY_PRESS', team: myTeam, input: currentInputStr });
+            if(hostConnection) {
+                hostConnection.send({ type: 'KEY_PRESS', team: myTeam, input: currentInputStr });
+            }
         }
 
-        // SOPORTE PARA TECLADO FÍSICO EN CHROMEBOOKS
         window.addEventListener('keydown', (e) => {
             if(!myTeam) return;
             if(e.key >= '0' && e.key <= '9') pressKey(parseInt(e.key));
@@ -813,7 +787,6 @@
             if(e.key === 'Enter') submitKey();
         });
 
-        // TEMPORIZADOR DE PARTIDA
         function startTimer() {
             let t = gameTime;
             clearInterval(timerInterval);
@@ -832,7 +805,6 @@
             }, 1000);
         }
 
-        // CANVA DIBUJO DE LA CUERDA Y EQUIPOS
         function drawRope() {
             const canvas = document.getElementById('ropeCanvas');
             const ctx = canvas.getContext('2d');
@@ -840,12 +812,9 @@
             const h = canvas.height;
 
             ctx.clearRect(0, 0, w, h);
-
-            // Suelo de barro
             ctx.fillStyle = "#12192c";
             ctx.fillRect(0, h - 50, w, 50);
 
-            // Línea central
             ctx.strokeStyle = "rgba(249, 212, 35, 0.4)";
             ctx.setLineDash([6, 6]);
             ctx.beginPath();
@@ -854,10 +823,8 @@
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Calcular desvisación
             let shift = (ropePosition / 100) * (w * 0.35);
 
-            // Cuerda
             ctx.strokeStyle = "#c29b38";
             ctx.lineWidth = 14;
             ctx.lineCap = "round";
@@ -866,7 +833,6 @@
             ctx.lineTo(w - 30, h / 2);
             ctx.stroke();
 
-            // Pañuelo rojo central
             let centerPos = (w / 2) + shift;
             ctx.fillStyle = "#ff3f34";
             ctx.beginPath();
@@ -876,26 +842,19 @@
             ctx.lineWidth = 3;
             ctx.stroke();
 
-            // Muñecos Rojo (Izquierda)
             ctx.fillStyle = "#ff3f34";
             for(let i = 0; i < 3; i++) {
                 let x = 60 + (i * 40) + (shift * 0.2);
-                ctx.beginPath();
-                ctx.arc(x, h / 2 - 25, 12, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(x, h / 2 - 25, 12, 0, Math.PI * 2); ctx.fill();
             }
 
-            // Muñecos Azul (Derecha)
             ctx.fillStyle = "#00d2ff";
             for(let i = 0; i < 3; i++) {
                 let x = w - 60 - (i * 40) + (shift * 0.2);
-                ctx.beginPath();
-                ctx.arc(x, h / 2 - 25, 12, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(x, h / 2 - 25, 12, 0, Math.PI * 2); ctx.fill();
             }
         }
 
-        // FIN DE PARTIDA
         function endGame(winner) {
             clearInterval(timerInterval);
             showScreen('screen-winner');
@@ -912,11 +871,10 @@
                 title.style.color = "var(--blue-team)";
                 sub.innerText = `Ha demostrado mayor fuerza matemática (${blueScore} aciertos).`;
             } else {
-                title.innerText = "🤝 ¡EMPATE TÉCNICO!";
+                title.innerText = "🏆 ¡EMPATE TÉCNICO!";
                 title.style.color = "var(--yellow)";
                 sub.innerText = "Ambos equipos han quedado igualados en fuerza.";
             }
-
             playSound(800, 0.5, 'square');
         }
     </script>
