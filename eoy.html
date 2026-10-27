@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Math Rush: Batalla de la Cuerda - Edición Profesional</title>
+    <title>Math Rush: Batalla de la Cuerda - Versión Producción</title>
     <!-- Generador QR optimizado -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
     <!-- PeerJS robusto con soporte HTTPS -->
@@ -619,12 +619,11 @@
         let timerInterval = null;
         
         let peer = null;
-        let broadcastChan = null;
         let connections = { red: null, blue: null };
         let hostConnection = null;
         let myTeam = null;
 
-        let ropePosition = 0; // -105 a 105 (límite exacto de 10 aciertos)
+        let ropePosition = 0; // -105 a 105
         let redConnected = false;
         let blueConnected = false;
 
@@ -719,8 +718,9 @@
         }
 
         function sendMsg(msg) {
-            if(hostConnection) hostConnection.send(msg);
-            if(broadcastChan) broadcastChan.postMessage(msg);
+            if(hostConnection && hostConnection.open) {
+                hostConnection.send(msg);
+            }
         }
 
         function createRoom() {
@@ -729,19 +729,35 @@
 
             document.getElementById('display-pin').innerText = roomPin;
 
-            try {
-                broadcastChan = new BroadcastChannel('mathrush_room_' + roomPin);
-                broadcastChan.onmessage = (e) => handleHostMessage(null, e.data);
-            } catch(err) {
-                console.warn("BroadcastChannel no soportado en este entorno", err);
+            if(peer) {
+                try { peer.destroy(); } catch(e){}
             }
 
             peer = new Peer('mathrush_pin_' + roomPin, peerOptions);
 
             peer.on('open', () => { renderQR(); });
-            peer.on('error', () => { renderQR(); });
+            peer.on('error', (err) => {
+                console.warn("Error en Peer host, reintentando...", err);
+                renderQR();
+            });
+            
             peer.on('connection', (conn) => {
                 conn.on('data', (data) => handleHostMessage(conn, data));
+                conn.on('close', () => {
+                    if(connections.red === conn) {
+                        redConnected = false;
+                        connections.red = null;
+                        document.getElementById('badge-red').classList.remove('connected');
+                        document.getElementById('txt-red').innerText = "Esperando dispositivo...";
+                    }
+                    if(connections.blue === conn) {
+                        blueConnected = false;
+                        connections.blue = null;
+                        document.getElementById('badge-blue').classList.remove('connected');
+                        document.getElementById('txt-blue').innerText = "Esperando dispositivo...";
+                    }
+                    document.getElementById('btn-start-game').disabled = true;
+                });
             });
 
             showScreen('screen-lobby');
@@ -750,10 +766,10 @@
         function renderQR() {
             const qrContainer = document.getElementById('qrcode');
             qrContainer.innerHTML = '';
-            const currentUrl = window.location.href.split('?')[0];
+            const currentUrl = window.location.origin + window.location.pathname;
             const joinUrl = `${currentUrl}?pin=${roomPin}`;
             try {
-                new QRCode(qrContainer, { text: joinUrl, width: 160, height: 160 });
+                new QRCode(qrContainer, { text: joinUrl, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.M });
             } catch(e) {
                 qrContainer.innerText = "Error generando QR";
             }
@@ -764,8 +780,9 @@
 
             if(data.type === 'CHECK_SLOT') {
                 let isOccupied = (data.team === 'red' && redConnected) || (data.team === 'blue' && blueConnected);
-                if(conn) conn.send({ type: 'SLOT_RESPONSE', allowed: !isOccupied });
-                if(broadcastChan) broadcastChan.postMessage({ type: 'SLOT_RESPONSE', team: data.team, allowed: !isOccupied });
+                if(conn && conn.open) {
+                    conn.send({ type: 'SLOT_RESPONSE', allowed: !isOccupied });
+                }
                 return;
             }
 
@@ -807,26 +824,19 @@
                 return;
             }
 
-            document.getElementById('btn-join').innerText = "COMPROBANDO...";
+            document.getElementById('btn-join').innerText = "CONECTANDO...";
             document.getElementById('btn-join').disabled = true;
 
             roomPin = pin;
-            try {
-                broadcastChan = new BroadcastChannel('mathrush_room_' + roomPin);
-                broadcastChan.onmessage = (e) => {
-                    if(e.data.type === 'SLOT_RESPONSE' && e.data.team === myTeam) {
-                        handleSlotResponse(e.data.allowed, errDiv);
-                    }
-                    handleClientMessage(e.data);
-                };
-            } catch(err) {
-                console.warn("BroadcastChannel no disponible", err);
+
+            if(peer) {
+                try { peer.destroy(); } catch(e){}
             }
 
             peer = new Peer(peerOptions);
 
             peer.on('open', () => {
-                hostConnection = peer.connect('mathrush_pin_' + roomPin);
+                hostConnection = peer.connect('mathrush_pin_' + roomPin, { reliable: true });
 
                 hostConnection.on('open', () => {
                     hostConnection.send({ type: 'CHECK_SLOT', team: myTeam });
@@ -834,30 +844,30 @@
 
                 hostConnection.on('data', (data) => {
                     if(data.type === 'SLOT_RESPONSE') {
-                        handleSlotResponse(data.allowed, errDiv);
+                        if(!data.allowed) {
+                            errDiv.innerText = "⚠️ ¡Este equipo ya está ocupado en la Pizarra Digital!";
+                            document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
+                            document.getElementById('btn-join').disabled = false;
+                        } else {
+                            proceedConnection();
+                        }
                     } else {
                         handleClientMessage(data);
                     }
                 });
 
-                hostConnection.on('error', () => { proceedConnection(); });
+                hostConnection.on('error', (err) => {
+                    errDiv.innerText = "Error de conexión con la sala.";
+                    document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
+                    document.getElementById('btn-join').disabled = false;
+                });
             });
 
-            peer.on('error', () => { 
-                errDiv.innerText = "No se pudo conectar con la sala. Comprueba el PIN.";
+            peer.on('error', (err) => { 
+                errDiv.innerText = "No se pudo conectar a la red. Verifica tu internet.";
                 document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
                 document.getElementById('btn-join').disabled = false;
             });
-        }
-
-        function handleSlotResponse(allowed, errDiv) {
-            if(!allowed) {
-                errDiv.innerText = "⚠️ ¡Este equipo ya está ocupado en la Pizarra Digital!";
-                document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
-                document.getElementById('btn-join').disabled = false;
-            } else {
-                proceedConnection();
-            }
         }
 
         function proceedConnection() {
@@ -903,9 +913,8 @@
 
             const startPayload = { type: 'START_GAME', opType: opType, teamOps: { red: redCurrentOp, blue: blueCurrentOp } };
             
-            if(connections.red) connections.red.send(startPayload);
-            if(connections.blue) connections.blue.send(startPayload);
-            if(broadcastChan) broadcastChan.postMessage(startPayload);
+            if(connections.red && connections.red.open) connections.red.send(startPayload);
+            if(connections.blue && connections.blue.open) connections.blue.send(startPayload);
 
             startTimer();
             drawRope();
@@ -986,8 +995,7 @@
                     document.getElementById('disp-red').innerText = "";
                     
                     const payload = { type: 'NEW_OP', team: 'red', text: redCurrentOp.text };
-                    if(connections.red) connections.red.send(payload);
-                    if(broadcastChan) broadcastChan.postMessage(payload);
+                    if(connections.red && connections.red.open) connections.red.send(payload);
 
                 } else {
                     blueScore++;
@@ -998,8 +1006,7 @@
                     document.getElementById('disp-blue').innerText = "";
                     
                     const payload = { type: 'NEW_OP', team: 'blue', text: blueCurrentOp.text };
-                    if(connections.blue) connections.blue.send(payload);
-                    if(broadcastChan) broadcastChan.postMessage(payload);
+                    if(connections.blue && connections.blue.open) connections.blue.send(payload);
                 }
 
                 if(ropePosition <= -105) endGame('red');
@@ -1074,7 +1081,6 @@
             }, 1000);
         }
 
-        // Motor Gráfico Responsive optimizado para alta tasa de refresco
         function drawRope() {
             const canvas = document.getElementById('ropeCanvas');
             if(!canvas) return;
@@ -1084,7 +1090,6 @@
 
             ctx.clearRect(0, 0, w, h);
 
-            // Zonas de advertencia en los extremos
             ctx.fillStyle = "rgba(255, 63, 52, 0.25)";
             ctx.fillRect(0, 0, 80, h);
             ctx.strokeStyle = "rgba(255, 63, 52, 0.6)";
@@ -1105,11 +1110,9 @@
             }
             ctx.stroke();
 
-            // Suelo de la arena
             ctx.fillStyle = "#111729";
             ctx.fillRect(0, h - 50, w, 50);
 
-            // Línea central de referencia
             ctx.strokeStyle = "rgba(249, 212, 35, 0.5)";
             ctx.lineWidth = 3;
             ctx.setLineDash([8, 8]);
@@ -1121,7 +1124,6 @@
 
             let shift = (ropePosition / 105) * (w * 0.38);
 
-            // Cuerda central
             ctx.strokeStyle = "#e5c158";
             ctx.lineWidth = 16;
             ctx.lineCap = "round";
@@ -1130,7 +1132,6 @@
             ctx.lineTo(w - 50, h / 2 - 10);
             ctx.stroke();
 
-            // Pañuelo central
             let centerPos = (w / 2) + shift;
             ctx.fillStyle = "#f9d423";
             ctx.beginPath();
@@ -1142,7 +1143,6 @@
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Equipo Rojo
             let redX = (w / 2) - 120 + shift;
             ctx.fillStyle = "#ff3f34";
             for(let i = 0; i < 3; i++) {
@@ -1151,7 +1151,6 @@
                 ctx.fillRect(x - 8, h / 2 - 20, 16, 25);
             }
 
-            // Equipo Azul
             let blueX = (w / 2) + 60 + shift;
             ctx.fillStyle = "#00d2ff";
             for(let i = 0; i < 3; i++) {
@@ -1160,7 +1159,6 @@
                 ctx.fillRect(x - 8, h / 2 - 20, 16, 25);
             }
 
-            // Alerta visual de caída inminente
             if(ropePosition <= -65) {
                 ctx.fillStyle = "rgba(255, 63, 52, 0.45)";
                 ctx.fillRect(0, 0, w, h);
