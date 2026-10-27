@@ -121,6 +121,12 @@
             width: 100%;
         }
 
+        .btn-secondary {
+            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            color: white;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+        }
+
         .btn:disabled {
             opacity: 0.4;
             cursor: not-allowed;
@@ -325,11 +331,23 @@
 </head>
 <body>
 
-    <!-- 1. CREAR SALA -->
-    <div id="screen-setup" class="screen active">
+    <!-- 0. PANTALLA DE SELECCIÓN INICIAL (HOME) -->
+    <div id="screen-home" class="screen active">
         <div class="card">
-            <h1>🪢 BATALLA DE LA CUERDA</h1>
-            <p class="subtitle">Pizarra Digital / Servidor Principal</p>
+            <h1>🪢 MATH RUSH</h1>
+            <p class="subtitle">Batalla de Cálculo Mental por Equipos</p>
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                <button class="btn" onclick="showScreen('screen-setup')">📺 CREAR SALA (Pizarra Digital)</button>
+                <button class="btn btn-secondary" onclick="showScreen('screen-join')">📱 UNIRME CON CÓDIGO PIN (Mando)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. CREAR SALA / CONFIGURACIÓN -->
+    <div id="screen-setup" class="screen">
+        <div class="card">
+            <h1>⚙️ CONFIGURAR PARTIDA</h1>
+            <p class="subtitle">Selecciona los parámetros de la batalla</p>
             <div class="form-group">
                 <label>Tipo de Operaciones:</label>
                 <select id="select-op">
@@ -343,21 +361,22 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>Duración del Juego:</label>
+                <label>Duración / Fin del Juego:</label>
                 <select id="select-time">
                     <option value="60">⏱️ 1 Minuto</option>
-                    <option value="90">⏱️ 1.5 Minutos</option>
                     <option value="120">⏱️ 2 Minutos</option>
+                    <option value="0">⚔️ Hasta que gane uno (Sin límite de tiempo)</option>
                 </select>
             </div>
-            <button class="btn" onclick="createRoom()">CREAR SALA Y MOSTRAR QR 🚀</button>
+            <button class="btn" onclick="createRoom()">GENERAR SALA Y QR 🚀</button>
+            <button class="btn btn-secondary" style="margin-top: 10px;" onclick="showScreen('screen-home')">⬅️ VOLVER</button>
         </div>
     </div>
 
-    <!-- 2. ESPERA DE JUGADORES -->
+    <!-- 2. ESPERA DE JUGADORES (LOBBY) -->
     <div id="screen-lobby" class="screen">
         <div class="card">
-            <h2>ENTRA CON EL CÓDIGO PIN</h2>
+            <h2>ESCANEA O ENTRA CON EL PIN</h2>
             <div class="pin-box" id="display-pin">------</div>
             <div>
                 <div class="qr-container" id="qrcode"></div>
@@ -376,11 +395,11 @@
         </div>
     </div>
 
-    <!-- 3. UNIRSE (SMARTPHONE / CHROMEBOOK) -->
+    <!-- 3. UNIRSE CON PIN -->
     <div id="screen-join" class="screen">
         <div class="card">
             <h1>ENTRAR AL JUEGO</h1>
-            <p class="subtitle">Conexión directa desde Móvil o Chromebook</p>
+            <p class="subtitle">Introduce el PIN que aparece en la Pizarra Digital</p>
             <div class="form-group">
                 <label>PIN de la Sala:</label>
                 <input type="number" id="input-pin" placeholder="PIN de 6 dígitos" style="text-align: center; font-size: 1.6rem; letter-spacing: 4px;">
@@ -393,6 +412,7 @@
                 </select>
             </div>
             <button class="btn" id="btn-join" onclick="joinRoom()">ENTRAR A LA SALA 🎮</button>
+            <button class="btn btn-secondary" style="margin-top: 10px;" onclick="showScreen('screen-home')">⬅️ VOLVER</button>
         </div>
     </div>
 
@@ -451,7 +471,6 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN MEJORADA CON PUERTO HTTPS SEGURO
         const peerOptions = {
             host: '0.peerjs.com',
             port: 443,
@@ -505,7 +524,6 @@
             if(broadcastChan) broadcastChan.postMessage(msg);
         }
 
-        // 1. CREAR SALA (HOST)
         function createRoom() {
             roomPin = Math.floor(100000 + Math.random() * 900000).toString();
             opType = document.getElementById('select-op').value;
@@ -513,22 +531,13 @@
 
             document.getElementById('display-pin').innerText = roomPin;
 
-            // Iniciar canal de respaldo local
             broadcastChan = new BroadcastChannel('mathrush_room_' + roomPin);
             broadcastChan.onmessage = (e) => handleHostMessage(null, e.data);
 
-            // Iniciar servidor WebRTC seguro
             peer = new Peer('mathrush_pin_' + roomPin, peerOptions);
 
-            peer.on('open', () => {
-                renderQR();
-            });
-
-            peer.on('error', (err) => {
-                // Si la nube falla por restricciones de la red escolar, habilitamos el QR con respaldo local
-                renderQR();
-            });
-
+            peer.on('open', () => { renderQR(); });
+            peer.on('error', () => { renderQR(); });
             peer.on('connection', (conn) => {
                 conn.on('data', (data) => handleHostMessage(conn, data));
             });
@@ -571,7 +580,6 @@
             }
         }
 
-        // 2. UNIRSE (SMARTPHONE / CHROMEBOOK)
         function joinRoom() {
             const pin = document.getElementById('input-pin').value.trim();
             myTeam = document.getElementById('input-team').value;
@@ -586,11 +594,9 @@
 
             roomPin = pin;
 
-            // Iniciar canal de mensajería
             broadcastChan = new BroadcastChannel('mathrush_room_' + roomPin);
             broadcastChan.onmessage = (e) => handleClientMessage(e.data);
 
-            // Conexión WebRTC
             peer = new Peer(peerOptions);
 
             peer.on('open', () => {
@@ -602,14 +608,12 @@
                 });
 
                 hostConnection.on('error', () => {
-                    // Si el cortafuegos bloquea P2P directo, usamos el canal de respaldo
                     sendMsg({ type: 'CONNECT', team: myTeam });
                     setupControllerUI();
                 });
             });
 
             peer.on('error', () => {
-                // Failover automático al canal local/red
                 sendMsg({ type: 'CONNECT', team: myTeam });
                 setupControllerUI();
             });
@@ -640,7 +644,6 @@
             }
         }
 
-        // 3. JUEGO
         function startGame() {
             showScreen('screen-board');
             ropePosition = 0;
@@ -779,6 +782,11 @@
         });
 
         function startTimer() {
+            if (gameTime === 0) {
+                document.getElementById('timer-display').innerText = "⚔️∞";
+                return; // Modo sin tiempo, solo gana por fuerza en la cuerda
+            }
+
             let t = gameTime;
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
