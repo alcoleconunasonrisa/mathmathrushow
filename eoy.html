@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Math Rush: Batalla de la Cuerda - Versión Producción</title>
-    <!-- Generador QR optimizado -->
+    <title>Math Math Rush Ow: Batalla de la Cuerda - Producción Móvil</title>
+    <!-- Generador QR -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
-    <!-- PeerJS robusto con soporte HTTPS -->
+    <!-- PeerJS robusto -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
     <style>
         :root {
@@ -598,16 +598,35 @@
     </div>
 
     <script>
+        // CONFIGURACIÓN DE RED CON SERVIDORES STUN Y TURN PÚBLICOS PARA MÓVILES
         const peerOptions = {
             host: '0.peerjs.com',
             port: 443,
             path: '/',
             secure: true,
+            debug: 1,
             config: {
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
                     { urls: 'stun:stun1.l.google.com:19302' },
-                    { urls: 'stun:stun2.l.google.com:19302' }
+                    { urls: 'stun:stun2.l.google.com:19302' },
+                    { urls: 'stun:stun3.l.google.com:19302' },
+                    { urls: 'stun:stun4.l.google.com:19302' },
+                    {
+                        urls: 'turn:openrelay.metered.ca:80',
+                        username: 'openrelayproject',
+                        credential: 'openrelayproject'
+                    },
+                    {
+                        urls: 'turn:openrelay.metered.ca:443',
+                        username: 'openrelayproject',
+                        credential: 'openrelayproject'
+                    },
+                    {
+                        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+                        username: 'openrelayproject',
+                        credential: 'openrelayproject'
+                    }
                 ]
             }
         };
@@ -623,7 +642,7 @@
         let hostConnection = null;
         let myTeam = null;
 
-        let ropePosition = 0; // -105 a 105
+        let ropePosition = 0;
         let redConnected = false;
         let blueConnected = false;
 
@@ -737,7 +756,7 @@
 
             peer.on('open', () => { renderQR(); });
             peer.on('error', (err) => {
-                console.warn("Error en Peer host, reintentando...", err);
+                console.warn("Error Host Peer:", err);
                 renderQR();
             });
             
@@ -864,7 +883,7 @@
             });
 
             peer.on('error', (err) => { 
-                errDiv.innerText = "No se pudo conectar a la red. Verifica tu internet.";
+                errDiv.innerText = "No se pudo conectar a la red. Verifica tu PIN o tu conexión.";
                 document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
                 document.getElementById('btn-join').disabled = false;
             });
