@@ -513,7 +513,7 @@
         let hostConnection = null;
         let myTeam = null;
 
-        let ropePosition = 0; // -100 a 100
+        let ropePosition = 0; // -105 a 105 (límite de 10 aciertos de diferencia)
         let redConnected = false;
         let blueConnected = false;
 
@@ -754,13 +754,14 @@
             }
             return { text, ans };
         }
-function checkAnswerFromTeam(team, val) {
+
+        function checkAnswerFromTeam(team, val) {
             let current = (team === 'red') ? redCurrentOp : blueCurrentOp;
 
             if(parseInt(val) === current.ans) {
                 if(team === 'red') {
                     redScore++;
-                    ropePosition -= 12; // Ajustado para que avance de forma equilibrada hacia los 10 aciertos de diferencia
+                    ropePosition -= 10.5; // 10 aciertos exactos llevan al límite de 105
                     document.getElementById('score-red').innerText = redScore;
                     redCurrentOp = generateOp(opType);
                     document.getElementById('op-red').innerText = redCurrentOp.text;
@@ -772,7 +773,7 @@ function checkAnswerFromTeam(team, val) {
 
                 } else {
                     blueScore++;
-                    ropePosition += 12; 
+                    ropePosition += 10.5; 
                     document.getElementById('score-blue').innerText = blueScore;
                     blueCurrentOp = generateOp(opType);
                     document.getElementById('op-blue').innerText = blueCurrentOp.text;
@@ -783,7 +784,6 @@ function checkAnswerFromTeam(team, val) {
                     if(broadcastChan) broadcastChan.postMessage(payload);
                 }
 
-                // NUEVO LÍMITE AMPLIADO
                 if(ropePosition <= -105) endGame('red');
                 if(ropePosition >= 105) endGame('blue');
 
@@ -798,6 +798,7 @@ function checkAnswerFromTeam(team, val) {
             }
             drawRope();
         }
+
         let currentInputStr = "";
 
         function pressKey(num) {
@@ -855,7 +856,7 @@ function checkAnswerFromTeam(team, val) {
             }, 1000);
         }
 
-        // GRÁFICOS ULTRA VISUALES PARA ALUMNADO 8-12 AÑOS
+        // GRÁFICOS ULTRA VISUALES Y DINÁMICOS PARA ALUMNADO 8-12 AÑOS
         function drawRope() {
             const canvas = document.getElementById('ropeCanvas');
             const ctx = canvas.getContext('2d');
@@ -864,11 +865,30 @@ function checkAnswerFromTeam(team, val) {
 
             ctx.clearRect(0, 0, w, h);
 
-            // Zonas de peligro laterales (rojo y azul muy visuales)
-            ctx.fillStyle = "rgba(255, 63, 52, 0.15)";
-            ctx.fillRect(0, 0, 70, h);
-            ctx.fillStyle = "rgba(0, 210, 255, 0.15)";
-            ctx.fillRect(w - 70, 0, 70, h);
+            // --- LÍNEAS DE META / PELIGRO EXTREMO EN LOS BORDES ---
+            // Zona roja izquierda (Peligro si se acerca)
+            ctx.fillStyle = "rgba(255, 63, 52, 0.25)";
+            ctx.fillRect(0, 0, 80, h);
+            // Rayas de advertencia rojas
+            ctx.strokeStyle = "rgba(255, 63, 52, 0.6)";
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            for(let i = 0; i < h; i += 20) {
+                ctx.moveTo(0, i); ctx.lineTo(40, i + 20);
+            }
+            ctx.stroke();
+
+            // Zona azul derecha (Peligro si se acerca)
+            ctx.fillStyle = "rgba(0, 210, 255, 0.25)";
+            ctx.fillRect(w - 80, 0, 80, h);
+            // Rayas de advertencia azules
+            ctx.strokeStyle = "rgba(0, 210, 255, 0.6)";
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            for(let i = 0; i < h; i += 20) {
+                ctx.moveTo(w - 40, i); ctx.lineTo(w, i + 20);
+            }
+            ctx.stroke();
 
             // Suelo de la arena
             ctx.fillStyle = "#111729";
@@ -884,57 +904,66 @@ function checkAnswerFromTeam(team, val) {
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Desplazamiento calculado (-85 a 85) mapeado al ancho de la pantalla
-            let shift = (ropePosition / 100) * (w * 0.38);
+            // Mapeo del desplazamiento de la cuerda (-105 a 105)
+            // Se amplía el factor de movimiento para que se acerque de forma dramática a los extremos
+            let shift = (ropePosition / 105) * (w * 0.38);
 
             // Cuerda central gruesa y robusta
             ctx.strokeStyle = "#e5c158";
             ctx.lineWidth = 16;
             ctx.lineCap = "round";
             ctx.beginPath();
-            ctx.moveTo(40, h / 2 - 10);
-            ctx.lineTo(w - 40, h / 2 - 10);
+            ctx.moveTo(50, h / 2 - 10);
+            ctx.lineTo(w - 50, h / 2 - 10);
             ctx.stroke();
 
             // Bandera / Pañuelo central muy llamativo
             let centerPos = (w / 2) + shift;
             ctx.fillStyle = "#f9d423";
             ctx.beginPath();
-            ctx.moveTo(centerPos, h / 2 - 50);
-            ctx.lineTo(centerPos + 25, h / 2 - 30);
-            ctx.lineTo(centerPos, h / 2 - 10);
+            ctx.moveTo(centerPos, h / 2 - 55);
+            ctx.lineTo(centerPos + 28, h / 2 - 32);
+            ctx.lineTo(centerPos, h / 2 - 9);
             ctx.fill();
             ctx.strokeStyle = "#fff";
             ctx.lineWidth = 2;
             ctx.stroke();
 
             // EQUIPO ROJO (Monigotes / Ficha izquierda)
+            let redX = (w / 2) - 120 + shift;
             ctx.fillStyle = "#ff3f34";
             for(let i = 0; i < 3; i++) {
-                let x = 60 + (i * 38) + (shift * 0.3);
-                // Cabeza
-                ctx.beginPath(); ctx.arc(x, h / 2 - 35, 14, 0, Math.PI * 2); ctx.fill();
-                // Cuerpo
-                ctx.fillRect(x - 8, h / 2 - 20, 16, 25);
+                let x = redX + (i * 32);
+                ctx.beginPath(); ctx.arc(x, h / 2 - 35, 14, 0, Math.PI * 2); ctx.fill(); // Cabeza
+                ctx.fillRect(x - 8, h / 2 - 20, 16, 25); // Cuerpo
             }
 
             // EQUIPO AZUL (Monigotes / Ficha derecha)
+            let blueX = (w / 2) + 60 + shift;
             ctx.fillStyle = "#00d2ff";
             for(let i = 0; i < 3; i++) {
-                let x = w - 60 - (i * 38) + (shift * 0.3);
-                // Cabeza
-                ctx.beginPath(); ctx.arc(x, h / 2 - 35, 14, 0, Math.PI * 2); ctx.fill();
-                // Cuerpo
-                ctx.fillRect(x - 8, h / 2 - 20, 16, 25);
+                let x = blueX + (i * 32);
+                ctx.beginPath(); ctx.arc(x, h / 2 - 35, 14, 0, Math.PI * 2); ctx.fill(); // Cabeza
+                ctx.fillRect(x - 8, h / 2 - 20, 16, 25); // Cuerpo
             }
 
-            // Indicador visual de alerta si está cerca de ganar
-            if(ropePosition <= -50) {
-                ctx.fillStyle = "rgba(255, 63, 52, 0.4)";
+            // --- ALERTA VISUAL EXTREMA CUANDO ESTÁ A PUNTO DE PERDER ---
+            if(ropePosition <= -65) {
+                // Alerta lado Rojo (está perdiendo terreno, el azul avanza)
+                ctx.fillStyle = "rgba(255, 63, 52, 0.45)";
                 ctx.fillRect(0, 0, w, h);
-            } else if(ropePosition >= 50) {
-                ctx.fillStyle = "rgba(0, 210, 255, 0.4)";
+                ctx.fillStyle = "#ff3f34";
+                ctx.font = "900 24px var(--font-family)";
+                ctx.textAlign = "left";
+                ctx.fillText("⚠️ ¡EL ROJO CAE!", 20, 40);
+            } else if(ropePosition >= 65) {
+                // Alerta lado Azul (está perdiendo terreno, el rojo avanza)
+                ctx.fillStyle = "rgba(0, 210, 255, 0.45)";
                 ctx.fillRect(0, 0, w, h);
+                ctx.fillStyle = "#00d2ff";
+                ctx.font = "900 24px var(--font-family)";
+                ctx.textAlign = "right";
+                ctx.fillText("¡EL AZUL CAE! ⚠️", w - 20, 40);
             }
         }
 
