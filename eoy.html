@@ -46,6 +46,35 @@
             padding: 10px;
         }
 
+        /* Botón de Inicio main-index */
+        .btn-home {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #1e272e;
+            border: 2px solid var(--blue-team);
+            color: var(--blue-team);
+            padding: 10px 18px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 0.95rem;
+            z-index: 1000;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+        }
+
+        .btn-home:hover {
+            background: var(--blue-team);
+            color: var(--bg-dark);
+            transform: scale(1.05);
+            box-shadow: 0 0 18px rgba(0, 210, 255, 0.6);
+        }
+
         .screen {
             display: none;
             width: 100%;
@@ -134,6 +163,75 @@
             opacity: 0.4;
             cursor: not-allowed;
             transform: none !important;
+        }
+
+        /* Estilos para rejillas de selección de modos avanzados */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .submenu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
+            gap: 8px;
+            width: 100%;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-mode {
+            padding: 14px 10px;
+            font-size: 1rem;
+            font-weight: 800;
+            background: #12182b;
+            color: var(--blue-team);
+            border: 2px solid var(--blue-team);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-mode:hover {
+            background: var(--blue-team);
+            color: var(--bg-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-mode-full {
+            grid-column: 1 / -1;
+            background: #1c152d;
+            border-color: #ec4899;
+            color: #ec4899;
+        }
+
+        .btn-mode-full:hover {
+            background: #ec4899;
+            color: white;
+        }
+
+        .btn-sub {
+            padding: 10px 5px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            background: #0a0a1a;
+            color: var(--yellow);
+            border: 2px solid var(--yellow);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-sub:hover {
+            background: var(--yellow);
+            color: var(--bg-dark);
         }
 
         .error-msg {
@@ -346,6 +444,9 @@
 </head>
 <body>
 
+    <!-- Botón de Inicio con acceso a main-index.html -->
+    <a href="main-index.html" class="btn-home">🏠 INICIO</a>
+
     <!-- 0. PANTALLA INICIAL (HOME) -->
     <div id="screen-home" class="screen active">
         <div class="card">
@@ -358,24 +459,35 @@
         </div>
     </div>
 
-    <!-- 1. CREAR SALA / CONFIGURACIÓN -->
+    <!-- 1. CREAR SALA / CONFIGURACIÓN CON TODOS LOS MODOS -->
     <div id="screen-setup" class="screen">
         <div class="card">
             <h1>⚙️ CONFIGURAR PARTIDA</h1>
-            <p class="subtitle">Selecciona los parámetros de la batalla</p>
-            <div class="form-group">
-                <label>Tipo de Operaciones:</label>
-                <select id="select-op">
-                    <option value="sum_facil">➕ Sumas Fáciles (1 dígito)</option>
-                    <option value="sum_medio">➕ Sumas Medias (2 dígitos)</option>
-                    <option value="res_facil">➖ Restas Fáciles</option>
-                    <option value="res_medio">➖ Restas Medias</option>
-                    <option value="mult_all">✖️ Tablas de Multiplicar (1 a 10)</option>
-                    <option value="div_all">➗ Divisiones (1 a 10)</option>
-                    <option value="comb">🔀 Operaciones Combinadas</option>
-                </select>
+            <p class="subtitle" id="statusDesc">Selecciona el tipo de operación:</p>
+            
+            <!-- Menú Principal de Modos -->
+            <div id="menuModes" class="menu-grid">
+                <button class="btn-mode" onclick="showSubmenu('SUM')">➕ SUMAS</button>
+                <button class="btn-mode" onclick="showSubmenu('RES')">➖ RESTAS</button>
+                <button class="btn-mode" onclick="showSubmenu('MULT')">✖️ MULTIPLICACIÓN</button>
+                <button class="btn-mode" onclick="showSubmenu('DIV')">➗ DIVISIONES</button>
+                <button class="btn-mode btn-mode-full" onclick="setMode('comb_sum_res', 'all', 'Operaciones Combinadas (a ± b ± c)')">🔀 COMBINADAS (a ± b ± c)</button>
             </div>
-            <div class="form-group">
+
+            <!-- Submenú dinámico para niveles y tablas -->
+            <div id="submenu" style="display:none; text-align: center; width: 100%;">
+                <p id="submenuTitle" style="margin-bottom: 12px; color: var(--yellow); font-weight: 800; font-size: 1.1rem;"></p>
+                <div id="presetButtons" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
+                
+                <div id="tableContainerWrapper" style="display:none;">
+                    <p style="font-size: 0.9rem; color: #a0aec0; margin-top: 8px; margin-bottom: 6px; font-weight: 600;">O elige una tabla específica:</p>
+                    <div class="submenu-grid" id="tableButtons"></div>
+                </div>
+                
+                <button class="btn-mode btn-mode-full" style="margin-top:10px; border-color: var(--red-team); color: var(--red-team);" onclick="backToMain()">⬅️ VOLVER A CATEGORÍAS</button>
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
                 <label>Duración / Fin del Juego:</label>
                 <select id="select-time">
                     <option value="60">⏱️ 1 Minuto</option>
@@ -383,8 +495,9 @@
                     <option value="0">⚔️ Hasta que gane uno (Sin límite de tiempo)</option>
                 </select>
             </div>
-            <button class="btn" onclick="createRoom()">GENERAR SALA Y QR 🚀</button>
-            <button class="btn btn-secondary" style="margin-top: 10px;" onclick="showScreen('screen-home')">⬅️ VOLVER</button>
+            
+            <button class="btn" id="btnCreateGame" style="display:none;" onclick="createRoom()">GENERAR SALA Y QR 🚀</button>
+            <button class="btn btn-secondary" style="margin-top: 10px;" onclick="showScreen('screen-home')">⬅️ VOLVER AL INICIO</button>
         </div>
     </div>
 
@@ -428,7 +541,7 @@
             </div>
             <button class="btn" id="btn-join" onclick="joinRoom()">ENTRAR A LA SALA 🎮</button>
             <div id="join-error-msg" class="error-msg"></div>
-            <button class="btn btn-secondary" style="margin-top: 10px;" onclick="showScreen('screen-home')">⬅️ VOLVER</button>
+            <button class="btn btn-secondary" style="margin-top: 10px;" onclick="showScreen('screen-home')">⬅️ VOLVER AL INICIO</button>
         </div>
     </div>
 
@@ -504,6 +617,7 @@
 
         let roomPin = "";
         let opType = "sum_facil";
+        let selectedTable = "all";
         let gameTime = 60;
         let timerInterval = null;
         
@@ -536,6 +650,77 @@
             document.getElementById(id).classList.add('active');
         }
 
+        // Lógica de selección de submenús avanzados (igual que calcula_3.html)
+        function showSubmenu(category) {
+            document.getElementById("menuModes").style.display = "none";
+            document.getElementById("submenu").style.display = "block";
+            
+            const presetContainer = document.getElementById("presetButtons");
+            const tableContainer = document.getElementById("tableButtons");
+            const tableWrapper = document.getElementById("tableContainerWrapper");
+            const title = document.getElementById("submenuTitle");
+            
+            presetContainer.innerHTML = '';
+            tableContainer.innerHTML = '';
+            tableWrapper.style.display = "none";
+
+            if(category === 'SUM') {
+                title.innerText = "➕ Niveles de Sumas:";
+                presetContainer.innerHTML = `
+                    <button class="btn-mode" onclick="setMode('sum_facil', 'all', 'Sumas Fáciles (1 dígito)')">Fácil (Dígitos 1 a 9)</button>
+                    <button class="btn-mode" onclick="setMode('sum_medio', 'all', 'Sumas Medias (2 dígitos)')">Medio (Números 10 a 50)</button>
+                    <button class="btn-mode" onclick="setMode('sum_dificil', 'all', 'Sumas Avanzadas')">Avanzado (Hasta 100)</button>
+                `;
+            } else if(category === 'RES') {
+                title.innerText = "➖ Niveles de Restas:";
+                presetContainer.innerHTML = `
+                    <button class="btn-mode" onclick="setMode('res_facil', 'all', 'Restas Fáciles')">Fácil (Resultados sencillos)</button>
+                    <button class="btn-mode" onclick="setMode('res_medio', 'all', 'Restas Medias')">Medio (Hasta 50)</button>
+                    <button class="btn-mode" onclick="setMode('res_dificil', 'all', 'Restas Avanzadas')">Avanzado (Hasta 100)</button>
+                `;
+            } else if(category === 'MULT') {
+                title.innerText = "✖️ Opciones de Multiplicación:";
+                tableWrapper.style.display = "block";
+                presetContainer.innerHTML = `
+                    <button class="btn-mode" onclick="setMode('mult_1_10', 'all', 'Todas las Tablas (1 a 10)')">Todas las Tablas (1 a 10)</button>
+                `;
+                for(let i=1; i<=10; i++) {
+                    let btn = document.createElement("button");
+                    btn.className = "btn-sub"; btn.innerText = i;
+                    btn.onclick = () => setMode('mult_custom', i, `Tabla del ${i}`);
+                    tableContainer.appendChild(btn);
+                }
+            } else if(category === 'DIV') {
+                title.innerText = "➗ Opciones de División:";
+                tableWrapper.style.display = "block";
+                presetContainer.innerHTML = `
+                    <button class="btn-mode" onclick="setMode('div_1_10', 'all', 'Todas las Divisiones (1 a 10)')">Todas las Divisiones (1 a 10)</button>
+                `;
+                for(let i=1; i<=10; i++) {
+                    let btn = document.createElement("button");
+                    btn.className = "btn-sub"; btn.innerText = i;
+                    btn.onclick = () => setMode('div_custom', i, `Divisiones entre ${i}`);
+                    tableContainer.appendChild(btn);
+                }
+            }
+        }
+
+        function backToMain() {
+            document.getElementById("menuModes").style.display = "grid";
+            document.getElementById("submenu").style.display = "none";
+            document.getElementById("btnCreateGame").style.display = "none";
+            document.getElementById("statusDesc").innerText = "Selecciona el tipo de operación:";
+        }
+
+        function setMode(mode, table = 'all', readableName = '') {
+            opType = mode;
+            selectedTable = table;
+            document.getElementById("menuModes").style.display = "none";
+            document.getElementById("submenu").style.display = "none";
+            document.getElementById("btnCreateGame").style.display = "block";
+            document.getElementById("statusDesc").innerText = `Modo Seleccionado: ${readableName}`;
+        }
+
         function sendMsg(msg) {
             if(hostConnection) hostConnection.send(msg);
             if(broadcastChan) broadcastChan.postMessage(msg);
@@ -543,7 +728,6 @@
 
         function createRoom() {
             roomPin = Math.floor(100000 + Math.random() * 900000).toString();
-            opType = document.getElementById('select-op').value;
             gameTime = parseInt(document.getElementById('select-time').value);
 
             document.getElementById('display-pin').innerText = roomPin;
@@ -718,6 +902,7 @@
             drawRope();
         }
 
+        // Generador de operaciones con todos los modos de calcula_3.html
         function generateOp(type) {
             let a, b, text, ans;
             switch(type) {
@@ -729,6 +914,10 @@
                     a = Math.floor(Math.random() * 40) + 10;
                     b = Math.floor(Math.random() * 40) + 10;
                     text = `${a} + ${b}`; ans = a + b; break;
+                case 'sum_dificil':
+                    a = Math.floor(Math.random() * 50) + 20;
+                    b = Math.floor(Math.random() * 50) + 20;
+                    text = `${a} + ${b}`; ans = a + b; break;
                 case 'res_facil':
                     a = Math.floor(Math.random() * 9) + 2;
                     b = Math.floor(Math.random() * a) + 1;
@@ -737,20 +926,41 @@
                     a = Math.floor(Math.random() * 40) + 10;
                     b = Math.floor(Math.random() * (a - 5)) + 5;
                     text = `${a} - ${b}`; ans = a - b; break;
-                case 'mult_all':
-                    a = Math.floor(Math.random() * 9) + 2;
-                    b = Math.floor(Math.random() * 9) + 1;
+                case 'res_dificil':
+                    a = Math.floor(Math.random() * 70) + 30;
+                    b = Math.floor(Math.random() * (a - 10)) + 10;
+                    text = `${a} - ${b}`; ans = a - b; break;
+                case 'mult_1_10':
+                    a = Math.floor(Math.random() * 10) + 1;
+                    b = Math.floor(Math.random() * 10) + 1;
                     text = `${a} × ${b}`; ans = a * b; break;
-                case 'div_all':
-                    b = Math.floor(Math.random() * 9) + 2;
-                    ans = Math.floor(Math.random() * 9) + 1;
+                case 'mult_custom':
+                    a = parseInt(selectedTable, 10);
+                    b = Math.floor(Math.random() * 10) + 1;
+                    text = `${a} × ${b}`; ans = a * b; break;
+                case 'div_1_10':
+                    b = Math.floor(Math.random() * 10) + 1;
+                    ans = Math.floor(Math.random() * 10) + 1;
                     a = b * ans;
                     text = `${a} ÷ ${b}`; break;
+                case 'div_custom':
+                    b = parseInt(selectedTable, 10);
+                    ans = Math.floor(Math.random() * 10) + 1;
+                    a = b * ans;
+                    text = `${a} ÷ ${b}`; break;
+                case 'comb_sum_res':
                 default:
-                    a = Math.floor(Math.random() * 8) + 2;
-                    b = Math.floor(Math.random() * 8) + 1;
-                    let c = Math.floor(Math.random() * 5) + 1;
-                    text = `${a} + ${b} - ${c}`; ans = a + b - c; break;
+                    let num1 = Math.floor(Math.random() * 9) + 5;
+                    let num2 = Math.floor(Math.random() * 9) + 1;
+                    let op1 = Math.random() > 0.5 ? '+' : '-';
+                    let tempResult = (op1 === '+') ? (num1 + num2) : (num1 - num2);
+                    let num3 = Math.floor(Math.random() * 9) + 1;
+                    let op2 = Math.random() > 0.5 ? '+' : '-';
+                    if (op2 === '-' && (tempResult - num3) < 0) op2 = '+';
+                    
+                    ans = (op2 === '+') ? (tempResult + num3) : (tempResult - num3);
+                    text = `${num1} ${op1} ${num2} ${op2} ${num3}`;
+                    break;
             }
             return { text, ans };
         }
@@ -866,10 +1076,8 @@
             ctx.clearRect(0, 0, w, h);
 
             // --- LÍNEAS DE META / PELIGRO EXTREMO EN LOS BORDES ---
-            // Zona roja izquierda (Peligro si se acerca)
             ctx.fillStyle = "rgba(255, 63, 52, 0.25)";
             ctx.fillRect(0, 0, 80, h);
-            // Rayas de advertencia rojas
             ctx.strokeStyle = "rgba(255, 63, 52, 0.6)";
             ctx.lineWidth = 4;
             ctx.beginPath();
@@ -878,10 +1086,8 @@
             }
             ctx.stroke();
 
-            // Zona azul derecha (Peligro si se acerca)
             ctx.fillStyle = "rgba(0, 210, 255, 0.25)";
             ctx.fillRect(w - 80, 0, 80, h);
-            // Rayas de advertencia azules
             ctx.strokeStyle = "rgba(0, 210, 255, 0.6)";
             ctx.lineWidth = 4;
             ctx.beginPath();
@@ -904,11 +1110,9 @@
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Mapeo del desplazamiento de la cuerda (-105 a 105)
-            // Se amplía el factor de movimiento para que se acerque de forma dramática a los extremos
             let shift = (ropePosition / 105) * (w * 0.38);
 
-            // Cuerda central gruesa y robusta
+            // Cuerda central
             ctx.strokeStyle = "#e5c158";
             ctx.lineWidth = 16;
             ctx.lineCap = "round";
@@ -917,7 +1121,7 @@
             ctx.lineTo(w - 50, h / 2 - 10);
             ctx.stroke();
 
-            // Bandera / Pañuelo central muy llamativo
+            // Pañuelo central
             let centerPos = (w / 2) + shift;
             ctx.fillStyle = "#f9d423";
             ctx.beginPath();
@@ -929,27 +1133,26 @@
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // EQUIPO ROJO (Monigotes / Ficha izquierda)
+            // EQUIPO ROJO
             let redX = (w / 2) - 120 + shift;
             ctx.fillStyle = "#ff3f34";
             for(let i = 0; i < 3; i++) {
                 let x = redX + (i * 32);
-                ctx.beginPath(); ctx.arc(x, h / 2 - 35, 14, 0, Math.PI * 2); ctx.fill(); // Cabeza
-                ctx.fillRect(x - 8, h / 2 - 20, 16, 25); // Cuerpo
+                ctx.beginPath(); ctx.arc(x, h / 2 - 35, 14, 0, Math.PI * 2); ctx.fill();
+                ctx.fillRect(x - 8, h / 2 - 20, 16, 25);
             }
 
-            // EQUIPO AZUL (Monigotes / Ficha derecha)
+            // EQUIPO AZUL
             let blueX = (w / 2) + 60 + shift;
             ctx.fillStyle = "#00d2ff";
             for(let i = 0; i < 3; i++) {
                 let x = blueX + (i * 32);
-                ctx.beginPath(); ctx.arc(x, h / 2 - 35, 14, 0, Math.PI * 2); ctx.fill(); // Cabeza
-                ctx.fillRect(x - 8, h / 2 - 20, 16, 25); // Cuerpo
+                ctx.beginPath(); ctx.arc(x, h / 2 - 35, 14, 0, Math.PI * 2); ctx.fill();
+                ctx.fillRect(x - 8, h / 2 - 20, 16, 25);
             }
 
-            // --- ALERTA VISUAL EXTREMA CUANDO ESTÁ A PUNTO DE PERDER ---
+            // --- ALERTA VISUAL EXTREMA ---
             if(ropePosition <= -65) {
-                // Alerta lado Rojo (está perdiendo terreno, el azul avanza)
                 ctx.fillStyle = "rgba(255, 63, 52, 0.45)";
                 ctx.fillRect(0, 0, w, h);
                 ctx.fillStyle = "#ff3f34";
@@ -957,7 +1160,6 @@
                 ctx.textAlign = "left";
                 ctx.fillText("⚠️ ¡EL ROJO CAE!", 20, 40);
             } else if(ropePosition >= 65) {
-                // Alerta lado Azul (está perdiendo terreno, el rojo avanza)
                 ctx.fillStyle = "rgba(0, 210, 255, 0.45)";
                 ctx.fillRect(0, 0, w, h);
                 ctx.fillStyle = "#00d2ff";
