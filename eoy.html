@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Math Math Rush Ow: Batalla de la Cuerda</title>
-    <!-- Generador QR ultrarrápido y seguro -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- PeerJS versión actualizada con soporte HTTPS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
+    <title>Math Rush: Batalla de la Cuerda - Edición Profesional</title>
+    <!-- Generador QR optimizado -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
+    <!-- PeerJS robusto con soporte HTTPS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
     <style>
         :root {
             --bg-dark: #080b14;
@@ -38,6 +38,7 @@
             color: #ffffff;
             font-family: var(--font-family);
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -46,9 +47,8 @@
             padding: 10px;
         }
 
-        /* Botón de Inicio main-index */
         .btn-home {
-            position: absolute;
+            position: fixed;
             top: 15px;
             left: 15px;
             background: #1e272e;
@@ -165,7 +165,6 @@
             transform: none !important;
         }
 
-        /* Estilos para rejillas de selección de modos avanzados */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -300,10 +299,11 @@
 
         .game-grid {
             display: grid;
-            grid-template-columns: 300px 1fr 300px;
+            grid-template-columns: 320px 1fr 320px;
             gap: 15px;
             width: 100%;
-            height: 90vh;
+            max-width: 1300px;
+            height: 88vh;
             align-items: center;
         }
 
@@ -444,10 +444,9 @@
 </head>
 <body>
 
-    <!-- Botón de Inicio con acceso a main-index.html -->
     <a href="main-index.html" class="btn-home">🏠 INICIO</a>
 
-    <!-- 0. PANTALLA INICIAL (HOME) -->
+    <!-- Pantalla de Inicio -->
     <div id="screen-home" class="screen active">
         <div class="card">
             <h1>🪢 MATH RUSH</h1>
@@ -459,13 +458,12 @@
         </div>
     </div>
 
-    <!-- 1. CREAR SALA / CONFIGURACIÓN CON TODOS LOS MODOS -->
+    <!-- Pantalla de Configuración -->
     <div id="screen-setup" class="screen">
         <div class="card">
             <h1>⚙️ CONFIGURAR PARTIDA</h1>
             <p class="subtitle" id="statusDesc">Selecciona el tipo de operación:</p>
             
-            <!-- Menú Principal de Modos -->
             <div id="menuModes" class="menu-grid">
                 <button class="btn-mode" onclick="showSubmenu('SUM')">➕ SUMAS</button>
                 <button class="btn-mode" onclick="showSubmenu('RES')">➖ RESTAS</button>
@@ -474,7 +472,6 @@
                 <button class="btn-mode btn-mode-full" onclick="setMode('comb_sum_res', 'all', 'Operaciones Combinadas (a ± b ± c)')">🔀 COMBINADAS (a ± b ± c)</button>
             </div>
 
-            <!-- Submenú dinámico para niveles y tablas -->
             <div id="submenu" style="display:none; text-align: center; width: 100%;">
                 <p id="submenuTitle" style="margin-bottom: 12px; color: var(--yellow); font-weight: 800; font-size: 1.1rem;"></p>
                 <div id="presetButtons" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
@@ -501,7 +498,7 @@
         </div>
     </div>
 
-    <!-- 2. ESPERA DE JUGADORES (LOBBY) -->
+    <!-- Pantalla de Lobby -->
     <div id="screen-lobby" class="screen">
         <div class="card">
             <h2>ESCANEA O ENTRA CON EL PIN</h2>
@@ -523,7 +520,7 @@
         </div>
     </div>
 
-    <!-- 3. UNIRSE CON PIN -->
+    <!-- Pantalla de Unirse con PIN -->
     <div id="screen-join" class="screen">
         <div class="card">
             <h1>ENTRAR AL JUEGO</h1>
@@ -545,7 +542,7 @@
         </div>
     </div>
 
-    <!-- 4. PANTALLA PIZARRA DIGITAL -->
+    <!-- Pizarra Digital del Juego -->
     <div id="screen-board" class="screen">
         <div class="game-grid">
             <div class="team-panel red">
@@ -556,7 +553,7 @@
             </div>
             <div class="arena-center">
                 <div class="timer" id="timer-display">01:00</div>
-                <canvas id="ropeCanvas" width="500" height="350"></canvas>
+                <canvas id="ropeCanvas" width="600" height="350"></canvas>
             </div>
             <div class="team-panel blue">
                 <div class="team-title">🔵 EQUIPO AZUL</div>
@@ -567,7 +564,7 @@
         </div>
     </div>
 
-    <!-- 5. MANDO JUGADOR -->
+    <!-- Mando de Control de Dispositivos -->
     <div id="screen-controller" class="screen">
         <div class="controller-card" id="controller-card">
             <h2 id="controller-team-title" style="margin-bottom: 8px;">EQUIPO</h2>
@@ -591,7 +588,7 @@
         </div>
     </div>
 
-    <!-- 6. RESULTADOS -->
+    <!-- Pantalla de Resultados -->
     <div id="screen-winner" class="screen">
         <div class="card">
             <h1 id="winner-title">¡VICTORIA!</h1>
@@ -627,7 +624,7 @@
         let hostConnection = null;
         let myTeam = null;
 
-        let ropePosition = 0; // -105 a 105 (límite de 10 aciertos de diferencia)
+        let ropePosition = 0; // -105 a 105 (límite exacto de 10 aciertos)
         let redConnected = false;
         let blueConnected = false;
 
@@ -636,21 +633,21 @@
         let redScore = 0;
         let blueScore = 0;
 
-        window.onload = () => {
+        window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const pinParam = urlParams.get('pin');
             if(pinParam) {
                 showScreen('screen-join');
                 document.getElementById('input-pin').value = pinParam;
             }
-        };
+        });
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+            const target = document.getElementById(id);
+            if(target) target.classList.add('active');
         }
 
-        // Lógica de selección de submenús avanzados (igual que calcula_3.html)
         function showSubmenu(category) {
             document.getElementById("menuModes").style.display = "none";
             document.getElementById("submenu").style.display = "block";
@@ -728,12 +725,16 @@
 
         function createRoom() {
             roomPin = Math.floor(100000 + Math.random() * 900000).toString();
-            gameTime = parseInt(document.getElementById('select-time').value);
+            gameTime = parseInt(document.getElementById('select-time').value, 10);
 
             document.getElementById('display-pin').innerText = roomPin;
 
-            broadcastChan = new BroadcastChannel('mathrush_room_' + roomPin);
-            broadcastChan.onmessage = (e) => handleHostMessage(null, e.data);
+            try {
+                broadcastChan = new BroadcastChannel('mathrush_room_' + roomPin);
+                broadcastChan.onmessage = (e) => handleHostMessage(null, e.data);
+            } catch(err) {
+                console.warn("BroadcastChannel no soportado en este entorno", err);
+            }
 
             peer = new Peer('mathrush_pin_' + roomPin, peerOptions);
 
@@ -750,8 +751,12 @@
             const qrContainer = document.getElementById('qrcode');
             qrContainer.innerHTML = '';
             const currentUrl = window.location.href.split('?')[0];
-            const joinUrl = currentUrl + '?pin=' + roomPin;
-            new QRCode(qrContainer, { text: joinUrl, width: 160, height: 160 });
+            const joinUrl = `${currentUrl}?pin=${roomPin}`;
+            try {
+                new QRCode(qrContainer, { text: joinUrl, width: 160, height: 160 });
+            } catch(e) {
+                qrContainer.innerText = "Error generando QR";
+            }
         }
 
         function handleHostMessage(conn, data) {
@@ -806,21 +811,17 @@
             document.getElementById('btn-join').disabled = true;
 
             roomPin = pin;
-            broadcastChan = new BroadcastChannel('mathrush_room_' + roomPin);
-            
-            broadcastChan.onmessage = (e) => {
-                if(e.data.type === 'SLOT_RESPONSE' && e.data.team === myTeam) {
-                    if(!e.data.allowed) {
-                        errDiv.innerText = "⚠️ ¡Este equipo ya está ocupado en la Pizarra Digital! Selecciona el otro equipo.";
-                        document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
-                        document.getElementById('btn-join').disabled = false;
-                        return;
-                    } else {
-                        proceedConnection();
+            try {
+                broadcastChan = new BroadcastChannel('mathrush_room_' + roomPin);
+                broadcastChan.onmessage = (e) => {
+                    if(e.data.type === 'SLOT_RESPONSE' && e.data.team === myTeam) {
+                        handleSlotResponse(e.data.allowed, errDiv);
                     }
-                }
-                handleClientMessage(e.data);
-            };
+                    handleClientMessage(e.data);
+                };
+            } catch(err) {
+                console.warn("BroadcastChannel no disponible", err);
+            }
 
             peer = new Peer(peerOptions);
 
@@ -833,13 +834,7 @@
 
                 hostConnection.on('data', (data) => {
                     if(data.type === 'SLOT_RESPONSE') {
-                        if(!data.allowed) {
-                            errDiv.innerText = "⚠️ ¡Este equipo ya está ocupado en la Pizarra Digital! Selecciona el otro equipo.";
-                            document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
-                            document.getElementById('btn-join').disabled = false;
-                        } else {
-                            proceedConnection();
-                        }
+                        handleSlotResponse(data.allowed, errDiv);
                     } else {
                         handleClientMessage(data);
                     }
@@ -848,7 +843,21 @@
                 hostConnection.on('error', () => { proceedConnection(); });
             });
 
-            peer.on('error', () => { proceedConnection(); });
+            peer.on('error', () => { 
+                errDiv.innerText = "No se pudo conectar con la sala. Comprueba el PIN.";
+                document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
+                document.getElementById('btn-join').disabled = false;
+            });
+        }
+
+        function handleSlotResponse(allowed, errDiv) {
+            if(!allowed) {
+                errDiv.innerText = "⚠️ ¡Este equipo ya está ocupado en la Pizarra Digital!";
+                document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
+                document.getElementById('btn-join').disabled = false;
+            } else {
+                proceedConnection();
+            }
         }
 
         function proceedConnection() {
@@ -902,7 +911,6 @@
             drawRope();
         }
 
-        // Generador de operaciones con todos los modos de calcula_3.html
         function generateOp(type) {
             let a, b, text, ans;
             switch(type) {
@@ -968,10 +976,10 @@
         function checkAnswerFromTeam(team, val) {
             let current = (team === 'red') ? redCurrentOp : blueCurrentOp;
 
-            if(parseInt(val) === current.ans) {
+            if(parseInt(val, 10) === current.ans) {
                 if(team === 'red') {
                     redScore++;
-                    ropePosition -= 10.5; // 10 aciertos exactos llevan al límite de 105
+                    ropePosition -= 10.5;
                     document.getElementById('score-red').innerText = redScore;
                     redCurrentOp = generateOp(opType);
                     document.getElementById('op-red').innerText = redCurrentOp.text;
@@ -1038,7 +1046,7 @@
 
         window.addEventListener('keydown', (e) => {
             if(!myTeam) return;
-            if(e.key >= '0' && e.key <= '9') pressKey(parseInt(e.key));
+            if(e.key >= '0' && e.key <= '9') pressKey(parseInt(e.key, 10));
             if(e.key === 'Backspace') deleteKey();
             if(e.key === 'Enter') submitKey();
         });
@@ -1066,16 +1074,17 @@
             }, 1000);
         }
 
-        // GRÁFICOS ULTRA VISUALES Y DINÁMICOS PARA ALUMNADO 8-12 AÑOS
+        // Motor Gráfico Responsive optimizado para alta tasa de refresco
         function drawRope() {
             const canvas = document.getElementById('ropeCanvas');
+            if(!canvas) return;
             const ctx = canvas.getContext('2d');
             const w = canvas.width;
             const h = canvas.height;
 
             ctx.clearRect(0, 0, w, h);
 
-            // --- LÍNEAS DE META / PELIGRO EXTREMO EN LOS BORDES ---
+            // Zonas de advertencia en los extremos
             ctx.fillStyle = "rgba(255, 63, 52, 0.25)";
             ctx.fillRect(0, 0, 80, h);
             ctx.strokeStyle = "rgba(255, 63, 52, 0.6)";
@@ -1133,7 +1142,7 @@
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // EQUIPO ROJO
+            // Equipo Rojo
             let redX = (w / 2) - 120 + shift;
             ctx.fillStyle = "#ff3f34";
             for(let i = 0; i < 3; i++) {
@@ -1142,7 +1151,7 @@
                 ctx.fillRect(x - 8, h / 2 - 20, 16, 25);
             }
 
-            // EQUIPO AZUL
+            // Equipo Azul
             let blueX = (w / 2) + 60 + shift;
             ctx.fillStyle = "#00d2ff";
             for(let i = 0; i < 3; i++) {
@@ -1151,7 +1160,7 @@
                 ctx.fillRect(x - 8, h / 2 - 20, 16, 25);
             }
 
-            // --- ALERTA VISUAL EXTREMA ---
+            // Alerta visual de caída inminente
             if(ropePosition <= -65) {
                 ctx.fillStyle = "rgba(255, 63, 52, 0.45)";
                 ctx.fillRect(0, 0, w, h);
