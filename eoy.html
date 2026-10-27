@@ -556,7 +556,22 @@
         function handleHostMessage(conn, data) {
             if(!data) return;
 
+            if(data.type === 'CHECK_SLOT') {
+                // Verificar si el equipo ya está ocupado
+                let isOccupied = (data.team === 'red' && redConnected) || (data.team === 'blue' && blueConnected);
+                if(conn) {
+                    conn.send({ type: 'SLOT_RESPONSE', allowed: !isOccupied });
+                }
+                if(broadcastChan) {
+                    broadcastChan.postMessage({ type: 'SLOT_RESPONSE', team: data.team, allowed: !isOccupied });
+                }
+                return;
+            }
+
             if(data.type === 'CONNECT') {
+                if(data.team === 'red' && redConnected) return; // Ya ocupado
+                if(data.team === 'blue' && blueConnected) return; // Ya ocupado
+
                 if(conn) connections[data.team] = conn;
 
                 if(data.team === 'red') {
@@ -589,13 +604,27 @@
                 return;
             }
 
-            document.getElementById('btn-join').innerText = "CONECTANDO...";
+            document.getElementById('btn-join').innerText = "COMPROBANDO...";
             document.getElementById('btn-join').disabled = true;
 
             roomPin = pin;
 
             broadcastChan = new BroadcastChannel('mathrush_room_' + roomPin);
-            broadcastChan.onmessage = (e) => handleClientMessage(e.data);
+            
+            // Canal de escucha para respuestas de cupo y del juego
+            broadcastChan.onmessage = (e) => {
+                if(e.data.type === 'SLOT_RESPONSE' && e.data.team === myTeam) {
+                    if(!e.data.allowed) {
+                        alert("¡Este equipo ya está ocupado en la Pizarra Digital! Selecciona el otro equipo.");
+                        document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
+                        document.getElementById('btn-join').disabled = false;
+                        return;
+                    } else {
+                        proceedConnection();
+                    }
+                }
+                handleClientMessage(e.data);
+            };
 
             peer = new Peer(peerOptions);
 
@@ -603,20 +632,37 @@
                 hostConnection = peer.connect('mathrush_pin_' + roomPin);
 
                 hostConnection.on('open', () => {
-                    sendMsg({ type: 'CONNECT', team: myTeam });
-                    setupControllerUI();
+                    // Primero comprobamos si el hueco está libre
+                    hostConnection.send({ type: 'CHECK_SLOT', team: myTeam });
+                });
+
+                hostConnection.on('data', (data) => {
+                    if(data.type === 'SLOT_RESPONSE') {
+                        if(!data.allowed) {
+                            alert("¡Este equipo ya está ocupado en la Pizarra Digital! Selecciona el otro equipo.");
+                            document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
+                            document.getElementById('btn-join').disabled = false;
+                        } else {
+                            proceedConnection();
+                        }
+                    } else {
+                        handleClientMessage(data);
+                    }
                 });
 
                 hostConnection.on('error', () => {
-                    sendMsg({ type: 'CONNECT', team: myTeam });
-                    setupControllerUI();
+                    proceedConnection(); // Respaldo local por canal Broadcast
                 });
             });
 
             peer.on('error', () => {
-                sendMsg({ type: 'CONNECT', team: myTeam });
-                setupControllerUI();
+                proceedConnection();
             });
+        }
+
+        function proceedConnection() {
+            sendMsg({ type: 'CONNECT', team: myTeam });
+            setupControllerUI();
         }
 
         function setupControllerUI() {
