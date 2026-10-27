@@ -785,7 +785,10 @@
         function renderQR() {
             const qrContainer = document.getElementById('qrcode');
             qrContainer.innerHTML = '';
-            const currentUrl = window.location.origin + window.location.pathname;
+            let currentUrl = window.location.origin + window.location.pathname;
+            if(window.location.protocol === 'file:') {
+                currentUrl = "https://localhost/";
+            }
             const joinUrl = `${currentUrl}?pin=${roomPin}`;
             try {
                 new QRCode(qrContainer, { text: joinUrl, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.M });
