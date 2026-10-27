@@ -754,14 +754,13 @@
             }
             return { text, ans };
         }
-
-        function checkAnswerFromTeam(team, val) {
+function checkAnswerFromTeam(team, val) {
             let current = (team === 'red') ? redCurrentOp : blueCurrentOp;
 
             if(parseInt(val) === current.ans) {
                 if(team === 'red') {
                     redScore++;
-                    ropePosition -= 14; // Más velocidad visual hacia el objetivo
+                    ropePosition -= 12; // Ajustado para que avance de forma equilibrada hacia los 10 aciertos de diferencia
                     document.getElementById('score-red').innerText = redScore;
                     redCurrentOp = generateOp(opType);
                     document.getElementById('op-red').innerText = redCurrentOp.text;
@@ -773,7 +772,7 @@
 
                 } else {
                     blueScore++;
-                    ropePosition += 14; // Más velocidad visual hacia el objetivo
+                    ropePosition += 12; 
                     document.getElementById('score-blue').innerText = blueScore;
                     blueCurrentOp = generateOp(opType);
                     document.getElementById('op-blue').innerText = blueCurrentOp.text;
@@ -784,21 +783,21 @@
                     if(broadcastChan) broadcastChan.postMessage(payload);
                 }
 
-                if(ropePosition <= -85) endGame('red');
-                if(ropePosition >= 85) endGame('blue');
+                // NUEVO LÍMITE AMPLIADO
+                if(ropePosition <= -105) endGame('red');
+                if(ropePosition >= 105) endGame('blue');
 
             } else {
                 if(team === 'red') {
                     document.getElementById('disp-red').innerText = "";
-                    ropePosition = Math.min(85, ropePosition + 5);
+                    ropePosition = Math.min(105, ropePosition + 5);
                 } else {
                     document.getElementById('disp-blue').innerText = "";
-                    ropePosition = Math.max(-85, ropePosition - 5);
+                    ropePosition = Math.max(-105, ropePosition - 5);
                 }
             }
             drawRope();
         }
-
         let currentInputStr = "";
 
         function pressKey(num) {
