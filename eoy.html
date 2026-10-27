@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Math Math Rush Ow: Batalla de la Cuerda - Producción Móvil</title>
+    <title>Math Rush Suite: Plataforma Multijuego de Aula</title>
     <!-- Generador QR -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
     <!-- PeerJS robusto -->
@@ -17,6 +17,7 @@
             --blue-team: #00d2ff;
             --blue-glow: rgba(0, 210, 255, 0.6);
             --yellow: #f9d423;
+            --green: #22c55e;
             --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             --font-mono: 'Courier New', monospace;
         }
@@ -94,7 +95,7 @@
             padding: 28px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
             width: 100%;
-            max-width: 700px;
+            max-width: 750px;
             text-align: center;
             backdrop-filter: blur(10px);
         }
@@ -159,10 +160,53 @@
             box-shadow: 0 0 25px rgba(0, 210, 255, 0.5);
         }
 
+        .btn-excel {
+            background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+            color: white;
+            box-shadow: 0 0 25px rgba(34, 197, 94, 0.5);
+        }
+
         .btn:disabled {
             opacity: 0.4;
             cursor: not-allowed;
             transform: none !important;
+        }
+
+        .minigame-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .minigame-card {
+            background: #101628;
+            border: 3px solid #2a3352;
+            border-radius: 18px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .minigame-card:hover, .minigame-card.selected {
+            border-color: var(--yellow);
+            background: #1a233d;
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(249, 212, 35, 0.3);
+        }
+
+        .minigame-card h3 {
+            color: var(--yellow);
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .minigame-card p {
+            color: #a0aec0;
+            font-size: 0.85rem;
+            line-height: 1.3;
         }
 
         .menu-grid {
@@ -233,14 +277,6 @@
             color: var(--bg-dark);
         }
 
-        .error-msg {
-            color: var(--red-team);
-            font-weight: 800;
-            margin-top: 10px;
-            font-size: 1rem;
-            text-shadow: 0 0 10px rgba(255, 63, 52, 0.4);
-        }
-
         .pin-box {
             font-size: 3rem;
             font-family: var(--font-mono);
@@ -262,39 +298,30 @@
             margin: 10px 0;
         }
 
-        .teams-status {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin: 20px 0;
+        .players-lobby-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
         }
 
-        .team-badge {
-            padding: 16px;
-            border-radius: 18px;
-            background: rgba(255,255,255,0.03);
-            border: 3px solid #2a3352;
-        }
-
-        .team-badge.red { border-color: var(--red-team); }
-        .team-badge.blue { border-color: var(--blue-team); }
-        .team-badge.connected {
-            background: rgba(34, 197, 94, 0.15);
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
-        }
-
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            background: #555;
-            margin-right: 6px;
-        }
-
-        .connected .status-dot {
-            background: #22c55e;
-            box-shadow: 0 0 10px #22c55e;
+        .player-chip {
+            background: #1a233d;
+            border: 2px solid var(--blue-team);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .game-grid {
@@ -307,24 +334,45 @@
             align-items: center;
         }
 
-        .team-panel {
-            background: var(--panel-bg);
-            border-radius: 24px;
-            padding: 20px;
-            height: 100%;
+        .arena-center {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
+            height: 100%;
+            width: 100%;
+            background: var(--panel-bg);
+            border-radius: 24px;
+            padding: 20px;
             border: 4px solid #2a3352;
         }
 
-        .team-panel.red { border-color: var(--red-team); box-shadow: 0 0 25px var(--red-glow); }
-        .team-panel.blue { border-color: var(--blue-team); box-shadow: 0 0 25px var(--blue-glow); }
+        .timer {
+            font-family: var(--font-mono);
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--yellow);
+            text-shadow: 0 0 10px rgba(249, 212, 35, 0.4);
+        }
 
-        .team-title { font-size: 1.8rem; font-weight: 900; }
-        .red .team-title { color: var(--red-team); }
-        .blue .team-title { color: var(--blue-team); }
+        canvas#gameCanvas {
+            width: 100%;
+            height: 400px;
+            border-radius: 18px;
+            background: #060913;
+            border: 2px solid #2a3352;
+        }
+
+        .controller-card {
+            background: var(--panel-bg);
+            border-radius: 28px;
+            padding: 20px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            border: 5px solid #333;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+        }
 
         .op-card {
             background: #080b14;
@@ -360,48 +408,6 @@
             color: white;
         }
 
-        .arena-center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            height: 100%;
-            background: var(--panel-bg);
-            border-radius: 24px;
-            padding: 20px;
-            border: 4px solid #2a3352;
-        }
-
-        .timer {
-            font-family: var(--font-mono);
-            font-size: 2.8rem;
-            font-weight: 900;
-            color: var(--yellow);
-            text-shadow: 0 0 10px rgba(249, 212, 35, 0.4);
-        }
-
-        canvas#ropeCanvas {
-            width: 100%;
-            height: 350px;
-            border-radius: 18px;
-            background: #060913;
-            border: 2px solid #2a3352;
-        }
-
-        .controller-card {
-            background: var(--panel-bg);
-            border-radius: 28px;
-            padding: 20px;
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
-            border: 5px solid #333;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
-        }
-
-        .controller-card.red { border-color: var(--red-team); box-shadow: 0 0 30px var(--red-glow); }
-        .controller-card.blue { border-color: var(--blue-team); box-shadow: 0 0 30px var(--blue-glow); }
-
         .numpad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -436,9 +442,34 @@
             font-size: 1.2rem;
         }
 
+        .podium-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 15px;
+            margin: 30px 0;
+            height: 200px;
+        }
+
+        .podium-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            width: 110px;
+            border-radius: 16px 16px 0 0;
+            padding-bottom: 10px;
+            font-weight: 900;
+        }
+
+        .podium-1 { height: 180px; background: linear-gradient(180deg, #f9d423, #d4ac0d); color: #000; }
+        .podium-2 { height: 140px; background: linear-gradient(180deg, #bdc3c7, #7f8c8d); color: #000; }
+        .podium-3 { height: 100px; background: linear-gradient(180deg, #e67e22, #a04000); color: #fff; }
+
         @media (max-width: 900px) {
             .game-grid { grid-template-columns: 1fr; height: auto; }
-            canvas#ropeCanvas { height: 220px; }
+            canvas#gameCanvas { height: 250px; }
+            .minigame-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -449,10 +480,10 @@
     <!-- Pantalla de Inicio -->
     <div id="screen-home" class="screen active">
         <div class="card">
-            <h1>🪢 MATH MATH RUSH OW</h1>
-            <p class="subtitle">Batalla de Cálculo Mental por Equipos</p>
-          📺  ¡¡¡ NOTA: SOLO SE PUEDE ACCEDER A LA SALA SI ESTÁ BAJO LA MISMA RED WIFI !!! 📺
-            <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+            <h1>🎮 MATH RUSH SUITE</h1>
+            <p class="subtitle">Plataforma Multijuego de Cálculo Mental para el Aula</p>
+            <p style="font-size: 0.85rem; color: #f9d423; margin-bottom: 15px;">📺 NOTA: Los dispositivos deben conectarse a la misma red Wi-Fi 📺</p>
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 10px;">
                 <button class="btn" onclick="showScreen('screen-setup')">📺 CREAR SALA (Pizarra Digital)</button>
                 <button class="btn btn-secondary" onclick="showScreen('screen-join')">📱 UNIRME CON CÓDIGO PIN (Mando)</button>
             </div>
@@ -463,7 +494,28 @@
     <div id="screen-setup" class="screen">
         <div class="card">
             <h1>⚙️ CONFIGURAR PARTIDA</h1>
-            <p class="subtitle" id="statusDesc">Selecciona el tipo de operación:</p>
+            <p class="subtitle">1. Selecciona el Minijuego:</p>
+            
+            <div class="minigame-grid">
+                <div class="minigame-card selected" id="game-rope" onclick="selectMinigame('rope')">
+                    <h3>🪢 La Cuerda</h3>
+                    <p>Duelo 1v1 por equipos. Fuerza táctica y velocidad de cálculo.</p>
+                </div>
+                <div class="minigame-card" id="game-birds" onclick="selectMinigame('birds')">
+                    <h3>🐦 Carrera de Aves</h3>
+                    <p>Todos contra todos. Avanza por la pista horizontal con cada acierto.</p>
+                </div>
+                <div class="minigame-card" id="game-jar" onclick="selectMinigame('jar')">
+                    <h3>🫙 Llenar la Jarra</h3>
+                    <p>Modo Cooperativo. Toda la clase suma gotas para llenar el recipiente.</p>
+                </div>
+                <div class="minigame-card" id="game-marathon" onclick="selectMinigame('marathon')">
+                    <h3>🏃 Modo Maratón</h3>
+                    <p>Resistencia individual sin distracciones. Máximos aciertos limpios.</p>
+                </div>
+            </div>
+
+            <p class="subtitle" id="statusDesc">2. Tipo de Operación Matemáticas:</p>
             
             <div id="menuModes" class="menu-grid">
                 <button class="btn-mode" onclick="showSubmenu('SUM')">➕ SUMAS</button>
@@ -486,11 +538,11 @@
             </div>
 
             <div class="form-group" style="margin-top: 15px;">
-                <label>Duración / Fin del Juego:</label>
+                <label>Duración del Juego:</label>
                 <select id="select-time">
                     <option value="60">⏱️ 1 Minuto</option>
                     <option value="120">⏱️ 2 Minutos</option>
-                    <option value="0">⚔️ Hasta que gane uno (Sin límite de tiempo)</option>
+                    <option value="180">⏱️ 3 Minutos</option>
                 </select>
             </div>
             
@@ -502,22 +554,18 @@
     <!-- Pantalla de Lobby -->
     <div id="screen-lobby" class="screen">
         <div class="card">
-            <h2>ESCANEA O ENTRA CON EL PIN</h2>
+            <h2 id="lobby-title">ESCANEA O ENTRA CON EL PIN</h2>
             <div class="pin-box" id="display-pin">------</div>
             <div>
                 <div class="qr-container" id="qrcode"></div>
             </div>
-            <div class="teams-status">
-                <div class="team-badge red" id="badge-red">
-                    <h3 style="color: var(--red-team)"><span class="status-dot"></span>EQUIPO ROJO</h3>
-                    <p id="txt-red" style="margin-top: 4px; font-size: 0.85rem; color: #aaa;">Esperando dispositivo...</p>
-                </div>
-                <div class="team-badge blue" id="badge-blue">
-                    <h3 style="color: var(--blue-team)"><span class="status-dot"></span>EQUIPO AZUL</h3>
-                    <p id="txt-blue" style="margin-top: 4px; font-size: 0.85rem; color: #aaa;">Esperando dispositivo...</p>
-                </div>
+
+            <p style="color: #a0aec0; font-size: 0.95rem; margin-top: 10px;">Jugadores Conectados:</p>
+            <div class="players-lobby-list" id="players-list">
+                <span style="color: #666; font-size: 0.9rem;">Esperando alumnos...</span>
             </div>
-            <button class="btn" id="btn-start-game" disabled onclick="startGame()">¡EMPEZAR BATALLA! ⚔️</button>
+
+            <button class="btn" id="btn-start-game" disabled onclick="startGame()">¡EMPEZAR JUEGO! ⚔️</button>
         </div>
     </div>
 
@@ -525,16 +573,20 @@
     <div id="screen-join" class="screen">
         <div class="card">
             <h1>ENTRAR AL JUEGO</h1>
-            <p class="subtitle">Introduce el PIN que aparece en la Pizarra Digital</p>
+            <p class="subtitle">Introduce tus datos para acceder a la Pizarra Digital</p>
+            <div class="form-group">
+                <label>Tu Nombre / Alias:</label>
+                <input type="text" id="input-name" placeholder="Ej: Mateo" maxlength="12" style="text-align: center; font-size: 1.3rem;">
+            </div>
             <div class="form-group">
                 <label>PIN de la Sala:</label>
                 <input type="number" id="input-pin" placeholder="PIN de 6 dígitos" style="text-align: center; font-size: 1.6rem; letter-spacing: 4px;">
             </div>
-            <div class="form-group">
-                <label>Elige tu Equipo:</label>
+            <div class="form-group" id="team-selector-group" style="display:none;">
+                <label>Elige tu Equipo (Solo La Cuerda):</label>
                 <select id="input-team">
-                    <option value="red">🔴 EQUIPO ROJO (Izquierda)</option>
-                    <option value="blue">🔵 EQUIPO AZUL (Derecha)</option>
+                    <option value="red">🔴 EQUIPO ROJO</option>
+                    <option value="blue">🔵 EQUIPO AZUL</option>
                 </select>
             </div>
             <button class="btn" id="btn-join" onclick="joinRoom()">ENTRAR A LA SALA 🎮</button>
@@ -545,30 +597,19 @@
 
     <!-- Pizarra Digital del Juego -->
     <div id="screen-board" class="screen">
-        <div class="game-grid">
-            <div class="team-panel red">
-                <div class="team-title">EQUIPO ROJO 🔴</div>
-                <div style="font-size: 1.1rem; color: #aaa;">Puntos: <strong id="score-red" style="color: white; font-size: 1.3rem;">0</strong></div>
-                <div class="op-card" id="op-red">?</div>
-                <div class="input-display" id="disp-red"></div>
-            </div>
-            <div class="arena-center">
+        <div class="arena-center">
+            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px;">
+                <h2 id="board-game-title" style="color: var(--yellow);">MATH RUSH</h2>
                 <div class="timer" id="timer-display">01:00</div>
-                <canvas id="ropeCanvas" width="600" height="350"></canvas>
             </div>
-            <div class="team-panel blue">
-                <div class="team-title">🔵 EQUIPO AZUL</div>
-                <div style="font-size: 1.1rem; color: #aaa;">Puntos: <strong id="score-blue" style="color: white; font-size: 1.3rem;">0</strong></div>
-                <div class="op-card" id="op-blue">?</div>
-                <div class="input-display" id="disp-blue"></div>
-            </div>
+            <canvas id="gameCanvas" width="800" height="400"></canvas>
         </div>
     </div>
 
     <!-- Mando de Control de Dispositivos -->
     <div id="screen-controller" class="screen">
-        <div class="controller-card" id="controller-card">
-            <h2 id="controller-team-title" style="margin-bottom: 8px;">EQUIPO</h2>
+        <div class="controller-card">
+            <h2 id="controller-name-title" style="margin-bottom: 8px; color: var(--yellow);">MANDO</h2>
             <p style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 5px;">Tu cálculo actual:</p>
             <div class="op-card" id="controller-op">?</div>
             <div class="input-display" id="controller-disp"></div>
@@ -589,17 +630,24 @@
         </div>
     </div>
 
-    <!-- Pantalla de Resultados -->
+    <!-- Pantalla de Resultados (Podio Top 3 y Descarga Excel) -->
     <div id="screen-winner" class="screen">
         <div class="card">
-            <h1 id="winner-title">¡VICTORIA!</h1>
-            <p id="winner-subtitle" class="subtitle" style="font-size: 1.4rem; color: white;"></p>
-            <button class="btn" onclick="location.reload()">NUEVA PARTIDA 🔄</button>
+            <h1>🏆 RESULTADOS FINALES</h1>
+            <p id="winner-subtitle" class="subtitle" style="font-size: 1.2rem; color: white;"></p>
+            
+            <div class="podium-container" id="podium-display">
+                <!-- Podio generado dinámicamente -->
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
+                <button class="btn btn-excel" onclick="downloadCSVReport()">📊 DESCARGAR DATOS DEL PROFESOR (CSV / Excel)</button>
+                <button class="btn" onclick="location.reload()">NUEVA PARTIDA 🔄</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // CONFIGURACIÓN DE RED CON SERVIDORES STUN Y TURN PÚBLICOS PARA MÓVILES
         const peerOptions = {
             host: '0.peerjs.com',
             port: 443,
@@ -609,29 +657,12 @@
             config: {
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
-                    { urls: 'stun:stun1.l.google.com:19302' },
-                    { urls: 'stun:stun2.l.google.com:19302' },
-                    { urls: 'stun:stun3.l.google.com:19302' },
-                    { urls: 'stun:stun4.l.google.com:19302' },
-                    {
-                        urls: 'turn:openrelay.metered.ca:80',
-                        username: 'openrelayproject',
-                        credential: 'openrelayproject'
-                    },
-                    {
-                        urls: 'turn:openrelay.metered.ca:443',
-                        username: 'openrelayproject',
-                        credential: 'openrelayproject'
-                    },
-                    {
-                        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-                        username: 'openrelayproject',
-                        credential: 'openrelayproject'
-                    }
+                    { urls: 'stun:stun1.l.google.com:19302' }
                 ]
             }
         };
 
+        let selectedMinigame = 'rope'; // 'rope', 'birds', 'jar', 'marathon'
         let roomPin = "";
         let opType = "sum_facil";
         let selectedTable = "all";
@@ -639,18 +670,17 @@
         let timerInterval = null;
         
         let peer = null;
-        let connections = { red: null, blue: null };
+        let connections = {}; // id -> conn
+        let players = {}; // id -> { name, team, score, hits, misses, currentOp }
         let hostConnection = null;
-        let myTeam = null;
+        let myId = "";
+        let myName = "";
+        let myTeam = "red";
 
-        let ropePosition = 0;
-        let redConnected = false;
-        let blueConnected = false;
-
-        let redCurrentOp = { text: "", ans: 0 };
-        let blueCurrentOp = { text: "", ans: 0 };
-        let redScore = 0;
-        let blueScore = 0;
+        // Variables de estado gráfico de minijuegos
+        let ropePosition = 0; // -105 a 105
+        let jarWaterLevel = 0; // 0 a 100
+        const JAR_TARGET = 50; // Gotas necesarias
 
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -665,6 +695,12 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             const target = document.getElementById(id);
             if(target) target.classList.add('active');
+        }
+
+        function selectMinigame(type) {
+            selectedMinigame = type;
+            document.querySelectorAll('.minigame-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('game-' + type).classList.add('selected');
         }
 
         function showSubmenu(category) {
@@ -683,14 +719,14 @@
             if(category === 'SUM') {
                 title.innerText = "➕ Niveles de Sumas:";
                 presetContainer.innerHTML = `
-                    <button class="btn-mode" onclick="setMode('sum_facil', 'all', 'Sumas Fáciles (1 dígito)')">Fácil (Dígitos 1 a 9)</button>
-                    <button class="btn-mode" onclick="setMode('sum_medio', 'all', 'Sumas Medias (2 dígitos)')">Medio (Números 10 a 50)</button>
+                    <button class="btn-mode" onclick="setMode('sum_facil', 'all', 'Sumas Fáciles (1 dígito)')">Fácil (1 dígito)</button>
+                    <button class="btn-mode" onclick="setMode('sum_medio', 'all', 'Sumas Medias (2 dígitos)')">Medio (10 a 50)</button>
                     <button class="btn-mode" onclick="setMode('sum_dificil', 'all', 'Sumas Avanzadas')">Avanzado (Hasta 100)</button>
                 `;
             } else if(category === 'RES') {
                 title.innerText = "➖ Niveles de Restas:";
                 presetContainer.innerHTML = `
-                    <button class="btn-mode" onclick="setMode('res_facil', 'all', 'Restas Fáciles')">Fácil (Resultados sencillos)</button>
+                    <button class="btn-mode" onclick="setMode('res_facil', 'all', 'Restas Fáciles')">Fácil</button>
                     <button class="btn-mode" onclick="setMode('res_medio', 'all', 'Restas Medias')">Medio (Hasta 50)</button>
                     <button class="btn-mode" onclick="setMode('res_dificil', 'all', 'Restas Avanzadas')">Avanzado (Hasta 100)</button>
                 `;
@@ -725,7 +761,7 @@
             document.getElementById("menuModes").style.display = "grid";
             document.getElementById("submenu").style.display = "none";
             document.getElementById("btnCreateGame").style.display = "none";
-            document.getElementById("statusDesc").innerText = "Selecciona el tipo de operación:";
+            document.getElementById("statusDesc").innerText = "2. Selecciona el tipo de operación:";
         }
 
         function setMode(mode, table = 'all', readableName = '') {
@@ -749,34 +785,19 @@
 
             document.getElementById('display-pin').innerText = roomPin;
 
-            if(peer) {
-                try { peer.destroy(); } catch(e){}
-            }
+            if(peer) { try { peer.destroy(); } catch(e){} }
 
-            peer = new Peer('mathrush_pin_' + roomPin, peerOptions);
+            peer = new Peer('mathrush_suite_' + roomPin, peerOptions);
 
             peer.on('open', () => { renderQR(); });
-            peer.on('error', (err) => {
-                console.warn("Error Host Peer:", err);
-                renderQR();
-            });
+            peer.on('error', (err) => { renderQR(); });
             
             peer.on('connection', (conn) => {
                 conn.on('data', (data) => handleHostMessage(conn, data));
                 conn.on('close', () => {
-                    if(connections.red === conn) {
-                        redConnected = false;
-                        connections.red = null;
-                        document.getElementById('badge-red').classList.remove('connected');
-                        document.getElementById('txt-red').innerText = "Esperando dispositivo...";
-                    }
-                    if(connections.blue === conn) {
-                        blueConnected = false;
-                        connections.blue = null;
-                        document.getElementById('badge-blue').classList.remove('connected');
-                        document.getElementById('txt-blue').innerText = "Esperando dispositivo...";
-                    }
-                    document.getElementById('btn-start-game').disabled = true;
+                    delete connections[conn.peer];
+                    delete players[conn.peer];
+                    updateLobbyUI();
                 });
             });
 
@@ -787,122 +808,110 @@
             const qrContainer = document.getElementById('qrcode');
             qrContainer.innerHTML = '';
             let currentUrl = window.location.origin + window.location.pathname;
-            if(window.location.protocol === 'file:') {
-                currentUrl = "https://localhost/";
-            }
+            if(window.location.protocol === 'file:') currentUrl = "https://localhost/";
             const joinUrl = `${currentUrl}?pin=${roomPin}`;
             try {
                 new QRCode(qrContainer, { text: joinUrl, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.M });
-            } catch(e) {
-                qrContainer.innerText = "Error generando QR";
-            }
+            } catch(e) { qrContainer.innerText = "Error generando QR"; }
         }
 
         function handleHostMessage(conn, data) {
             if(!data) return;
 
-            if(data.type === 'CHECK_SLOT') {
-                let isOccupied = (data.team === 'red' && redConnected) || (data.team === 'blue' && blueConnected);
-                if(conn && conn.open) {
-                    conn.send({ type: 'SLOT_RESPONSE', allowed: !isOccupied });
-                }
-                return;
-            }
-
             if(data.type === 'CONNECT') {
-                if(data.team === 'red' && redConnected) return;
-                if(data.team === 'blue' && blueConnected) return;
-
-                if(conn) connections[data.team] = conn;
-
-                if(data.team === 'red') {
-                    redConnected = true;
-                    document.getElementById('badge-red').classList.add('connected');
-                    document.getElementById('txt-red').innerText = "🟢 Conectado";
-                }
-                if(data.team === 'blue') {
-                    blueConnected = true;
-                    document.getElementById('badge-blue').classList.add('connected');
-                    document.getElementById('txt-blue').innerText = "🟢 Conectado";
-                }
-                if(redConnected && blueConnected) {
-                    document.getElementById('btn-start-game').disabled = false;
-                }
+                connections[conn.peer] = conn;
+                players[conn.peer] = {
+                    id: conn.peer,
+                    name: data.name || "Alumno",
+                    team: data.team || "red",
+                    score: 0,
+                    hits: 0,
+                    misses: 0,
+                    currentOp: generateOp(opType)
+                };
+                
+                conn.send({ type: 'CONNECTED_ACK', minigame: selectedMinigame, op: players[conn.peer].currentOp });
+                updateLobbyUI();
             }
-            if(data.type === 'SUBMIT') checkAnswerFromTeam(data.team, data.val);
-            if(data.type === 'KEY_PRESS') {
-                if(data.team === 'red') document.getElementById('disp-red').innerText = data.input;
-                if(data.team === 'blue') document.getElementById('disp-blue').innerText = data.input;
+
+            if(data.type === 'SUBMIT') {
+                checkAnswer(conn.peer, data.val);
             }
         }
 
+        function updateLobbyUI() {
+            const container = document.getElementById('players-list');
+            const keys = Object.keys(players);
+            if(keys.length === 0) {
+                container.innerHTML = '<span style="color: #666; font-size: 0.9rem;">Esperando alumnos...</span>';
+                document.getElementById('btn-start-game').disabled = true;
+                return;
+            }
+
+            container.innerHTML = '';
+            keys.forEach(k => {
+                const p = players[k];
+                const chip = document.createElement('div');
+                chip.className = 'player-chip';
+                chip.innerText = `👤 ${p.name}` + (selectedMinigame === 'rope' ? ` (${p.team === 'red' ? '🔴 Rojo' : '🔵 Azul'})` : '');
+                container.appendChild(chip);
+            });
+
+            document.getElementById('btn-start-game').disabled = false;
+        }
+
         function joinRoom() {
+            const name = document.getElementById('input-name').value.trim();
             const pin = document.getElementById('input-pin').value.trim();
             myTeam = document.getElementById('input-team').value;
             const errDiv = document.getElementById('join-error-msg');
             errDiv.innerText = "";
 
-            if(!pin || pin.length !== 6) {
-                errDiv.innerText = "Introduce un PIN de 6 dígitos válido.";
-                return;
-            }
+            if(!name) { errDiv.innerText = "Por favor, introduce tu nombre."; return; }
+            if(!pin || pin.length !== 6) { errDiv.innerText = "Introduce un PIN de 6 dígitos válido."; return; }
 
+            myName = name;
             document.getElementById('btn-join').innerText = "CONECTANDO...";
             document.getElementById('btn-join').disabled = true;
 
             roomPin = pin;
-
-            if(peer) {
-                try { peer.destroy(); } catch(e){}
-            }
+            if(peer) { try { peer.destroy(); } catch(e){} }
 
             peer = new Peer(peerOptions);
 
-            peer.on('open', () => {
-                hostConnection = peer.connect('mathrush_pin_' + roomPin, { reliable: true });
+            peer.on('open', (id) => {
+                myId = id;
+                hostConnection = peer.connect('mathrush_suite_' + roomPin, { reliable: true });
 
                 hostConnection.on('open', () => {
-                    hostConnection.send({ type: 'CHECK_SLOT', team: myTeam });
+                    sendMsg({ type: 'CONNECT', name: myName, team: myTeam });
                 });
 
                 hostConnection.on('data', (data) => {
-                    if(data.type === 'SLOT_RESPONSE') {
-                        if(!data.allowed) {
-                            errDiv.innerText = "⚠️ ¡Este equipo ya está ocupado en la Pizarra Digital!";
-                            document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
-                            document.getElementById('btn-join').disabled = false;
-                        } else {
-                            proceedConnection();
-                        }
+                    if(data.type === 'CONNECTED_ACK') {
+                        setupControllerUI(data.op);
                     } else {
                         handleClientMessage(data);
                     }
                 });
 
-                hostConnection.on('error', (err) => {
-                    errDiv.innerText = "Error de conexión con la sala.";
+                hostConnection.on('error', () => {
+                    errDiv.innerText = "Error de conexión con la Pizarra.";
                     document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
                     document.getElementById('btn-join').disabled = false;
                 });
             });
 
-            peer.on('error', (err) => { 
-                errDiv.innerText = "No se pudo conectar a la red. Verifica tu PIN o tu conexión.";
+            peer.on('error', () => {
+                errDiv.innerText = "No se pudo conectar a la red.";
                 document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
                 document.getElementById('btn-join').disabled = false;
             });
         }
 
-        function proceedConnection() {
-            sendMsg({ type: 'CONNECT', team: myTeam });
-            setupControllerUI();
-        }
-
-        function setupControllerUI() {
-            const card = document.getElementById('controller-card');
-            card.className = 'controller-card ' + myTeam;
-            document.getElementById('controller-team-title').innerText = "EQUIPO " + (myTeam === 'red' ? 'ROJO 🔴' : 'AZUL 🔵');
-            document.getElementById('controller-team-title').style.color = myTeam === 'red' ? 'var(--red-team)' : 'var(--blue-team)';
+        function setupControllerUI(initialOp) {
+            document.getElementById('controller-name-title').innerText = myName;
+            if(initialOp) document.getElementById('controller-op').innerText = initialOp.text;
             showScreen('screen-controller');
         }
 
@@ -910,13 +919,9 @@
             if(!data) return;
 
             if(data.type === 'START_GAME') {
-                opType = data.opType;
-                if(data.teamOps && data.teamOps[myTeam]) {
-                    document.getElementById('controller-op').innerText = data.teamOps[myTeam].text;
-                    document.getElementById('controller-disp').innerText = "";
-                }
+                document.getElementById('controller-disp').innerText = "";
             }
-            if(data.type === 'NEW_OP' && data.team === myTeam) {
+            if(data.type === 'NEW_OP') {
                 document.getElementById('controller-op').innerText = data.text;
                 document.getElementById('controller-disp').innerText = "";
             }
@@ -925,22 +930,25 @@
         function startGame() {
             showScreen('screen-board');
             ropePosition = 0;
-            redScore = 0;
-            blueScore = 0;
+            jarWaterLevel = 0;
 
-            redCurrentOp = generateOp(opType);
-            blueCurrentOp = generateOp(opType);
+            const minigameTitles = {
+                rope: '🪢 LA CUERDA',
+                birds: '🐦 CARRERA DE AVES',
+                jar: '🫙 LLENAR LA JARRA',
+                marathon: '🏃 MODO MARATÓN'
+            };
+            document.getElementById('board-game-title').innerText = minigameTitles[selectedMinigame];
 
-            document.getElementById('op-red').innerText = redCurrentOp.text;
-            document.getElementById('op-blue').innerText = blueCurrentOp.text;
-
-            const startPayload = { type: 'START_GAME', opType: opType, teamOps: { red: redCurrentOp, blue: blueCurrentOp } };
-            
-            if(connections.red && connections.red.open) connections.red.send(startPayload);
-            if(connections.blue && connections.blue.open) connections.blue.send(startPayload);
+            // Enviar inicio a todos los clientes
+            Object.keys(connections).forEach(id => {
+                if(connections[id].open) {
+                    connections[id].send({ type: 'START_GAME' });
+                }
+            });
 
             startTimer();
-            drawRope();
+            drawCanvas();
         }
 
         function generateOp(type) {
@@ -997,7 +1005,6 @@
                     let num3 = Math.floor(Math.random() * 9) + 1;
                     let op2 = Math.random() > 0.5 ? '+' : '-';
                     if (op2 === '-' && (tempResult - num3) < 0) op2 = '+';
-                    
                     ans = (op2 === '+') ? (tempResult + num3) : (tempResult - num3);
                     text = `${num1} ${op1} ${num2} ${op2} ${num3}`;
                     break;
@@ -1005,88 +1012,58 @@
             return { text, ans };
         }
 
-        function checkAnswerFromTeam(team, val) {
-            let current = (team === 'red') ? redCurrentOp : blueCurrentOp;
+        function checkAnswer(playerId, val) {
+            const p = players[playerId];
+            if(!p) return;
 
-            if(parseInt(val, 10) === current.ans) {
-                if(team === 'red') {
-                    redScore++;
-                    ropePosition -= 10.5;
-                    document.getElementById('score-red').innerText = redScore;
-                    redCurrentOp = generateOp(opType);
-                    document.getElementById('op-red').innerText = redCurrentOp.text;
-                    document.getElementById('disp-red').innerText = "";
-                    
-                    const payload = { type: 'NEW_OP', team: 'red', text: redCurrentOp.text };
-                    if(connections.red && connections.red.open) connections.red.send(payload);
+            if(parseInt(val, 10) === p.currentOp.ans) {
+                p.hits++;
+                p.score += 10;
 
-                } else {
-                    blueScore++;
-                    ropePosition += 10.5; 
-                    document.getElementById('score-blue').innerText = blueScore;
-                    blueCurrentOp = generateOp(opType);
-                    document.getElementById('op-blue').innerText = blueCurrentOp.text;
-                    document.getElementById('disp-blue').innerText = "";
-                    
-                    const payload = { type: 'NEW_OP', team: 'blue', text: blueCurrentOp.text };
-                    if(connections.blue && connections.blue.open) connections.blue.send(payload);
+                if(selectedMinigame === 'rope') {
+                    ropePosition += (p.team === 'red') ? -12 : 12;
+                    if(ropePosition <= -105 || ropePosition >= 105) endGame();
+                } else if(selectedMinigame === 'jar') {
+                    jarWaterLevel += 2;
+                    if(jarWaterLevel >= JAR_TARGET) endGame();
                 }
 
-                if(ropePosition <= -105) endGame('red');
-                if(ropePosition >= 105) endGame('blue');
-
+                p.currentOp = generateOp(opType);
+                if(connections[playerId] && connections[playerId].open) {
+                    connections[playerId].send({ type: 'NEW_OP', text: p.currentOp.text });
+                }
             } else {
-                if(team === 'red') {
-                    document.getElementById('disp-red').innerText = "";
-                    ropePosition = Math.min(105, ropePosition + 5);
-                } else {
-                    document.getElementById('disp-blue').innerText = "";
-                    ropePosition = Math.max(-105, ropePosition - 5);
+                p.misses++;
+                if(selectedMinigame === 'rope') {
+                    ropePosition += (p.team === 'red') ? 4 : -4;
                 }
             }
-            drawRope();
+            drawCanvas();
         }
 
         let currentInputStr = "";
-
         function pressKey(num) {
             if(currentInputStr.length < 4) {
                 currentInputStr += num.toString();
                 updateControllerDisplay();
             }
         }
-
         function deleteKey() {
             currentInputStr = "";
             updateControllerDisplay();
         }
-
         function submitKey() {
             if(currentInputStr !== "") {
-                sendMsg({ type: 'SUBMIT', team: myTeam, val: currentInputStr });
+                sendMsg({ type: 'SUBMIT', val: currentInputStr });
                 currentInputStr = "";
                 updateControllerDisplay();
             }
         }
-
         function updateControllerDisplay() {
             document.getElementById('controller-disp').innerText = currentInputStr;
-            sendMsg({ type: 'KEY_PRESS', team: myTeam, input: currentInputStr });
         }
 
-        window.addEventListener('keydown', (e) => {
-            if(!myTeam) return;
-            if(e.key >= '0' && e.key <= '9') pressKey(parseInt(e.key, 10));
-            if(e.key === 'Backspace') deleteKey();
-            if(e.key === 'Enter') submitKey();
-        });
-
         function startTimer() {
-            if (gameTime === 0) {
-                document.getElementById('timer-display').innerText = "⚔️∞";
-                return;
-            }
-
             let t = gameTime;
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
@@ -1097,128 +1074,140 @@
 
                 if(t <= 0) {
                     clearInterval(timerInterval);
-                    if(ropePosition < 0) endGame('red');
-                    else if(ropePosition > 0) endGame('blue');
-                    else endGame('draw');
+                    endGame();
                 }
             }, 1000);
         }
 
-        function drawRope() {
-            const canvas = document.getElementById('ropeCanvas');
+        function drawCanvas() {
+            const canvas = document.getElementById('gameCanvas');
             if(!canvas) return;
             const ctx = canvas.getContext('2d');
             const w = canvas.width;
             const h = canvas.height;
-
             ctx.clearRect(0, 0, w, h);
 
-            ctx.fillStyle = "rgba(255, 63, 52, 0.25)";
-            ctx.fillRect(0, 0, 80, h);
-            ctx.strokeStyle = "rgba(255, 63, 52, 0.6)";
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            for(let i = 0; i < h; i += 20) {
-                ctx.moveTo(0, i); ctx.lineTo(40, i + 20);
-            }
-            ctx.stroke();
-
-            ctx.fillStyle = "rgba(0, 210, 255, 0.25)";
-            ctx.fillRect(w - 80, 0, 80, h);
-            ctx.strokeStyle = "rgba(0, 210, 255, 0.6)";
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            for(let i = 0; i < h; i += 20) {
-                ctx.moveTo(w - 40, i); ctx.lineTo(w, i + 20);
-            }
-            ctx.stroke();
-
-            ctx.fillStyle = "#111729";
-            ctx.fillRect(0, h - 50, w, 50);
-
-            ctx.strokeStyle = "rgba(249, 212, 35, 0.5)";
-            ctx.lineWidth = 3;
-            ctx.setLineDash([8, 8]);
-            ctx.beginPath();
-            ctx.moveTo(w / 2, 0);
-            ctx.lineTo(w / 2, h - 50);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            let shift = (ropePosition / 105) * (w * 0.38);
-
-            ctx.strokeStyle = "#e5c158";
-            ctx.lineWidth = 16;
-            ctx.lineCap = "round";
-            ctx.beginPath();
-            ctx.moveTo(50, h / 2 - 10);
-            ctx.lineTo(w - 50, h / 2 - 10);
-            ctx.stroke();
-
-            let centerPos = (w / 2) + shift;
-            ctx.fillStyle = "#f9d423";
-            ctx.beginPath();
-            ctx.moveTo(centerPos, h / 2 - 55);
-            ctx.lineTo(centerPos + 28, h / 2 - 32);
-            ctx.lineTo(centerPos, h / 2 - 9);
-            ctx.fill();
-            ctx.strokeStyle = "#fff";
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            let redX = (w / 2) - 120 + shift;
-            ctx.fillStyle = "#ff3f34";
-            for(let i = 0; i < 3; i++) {
-                let x = redX + (i * 32);
-                ctx.beginPath(); ctx.arc(x, h / 2 - 35, 14, 0, Math.PI * 2); ctx.fill();
-                ctx.fillRect(x - 8, h / 2 - 20, 16, 25);
-            }
-
-            let blueX = (w / 2) + 60 + shift;
-            ctx.fillStyle = "#00d2ff";
-            for(let i = 0; i < 3; i++) {
-                let x = blueX + (i * 32);
-                ctx.beginPath(); ctx.arc(x, h / 2 - 35, 14, 0, Math.PI * 2); ctx.fill();
-                ctx.fillRect(x - 8, h / 2 - 20, 16, 25);
-            }
-
-            if(ropePosition <= -65) {
-                ctx.fillStyle = "rgba(255, 63, 52, 0.45)";
-                ctx.fillRect(0, 0, w, h);
-                ctx.fillStyle = "#ff3f34";
-                ctx.font = "900 24px var(--font-family)";
-                ctx.textAlign = "left";
-                ctx.fillText("⚠️ ¡EL ROJO CAE!", 20, 40);
-            } else if(ropePosition >= 65) {
-                ctx.fillStyle = "rgba(0, 210, 255, 0.45)";
-                ctx.fillRect(0, 0, w, h);
-                ctx.fillStyle = "#00d2ff";
-                ctx.font = "900 24px var(--font-family)";
-                ctx.textAlign = "right";
-                ctx.fillText("¡EL AZUL CAE! ⚠️", w - 20, 40);
-            }
+            if(selectedMinigame === 'rope') drawRopeMinigame(ctx, w, h);
+            else if(selectedMinigame === 'birds') drawBirdsMinigame(ctx, w, h);
+            else if(selectedMinigame === 'jar') drawJarMinigame(ctx, w, h);
+            else if(selectedMinigame === 'marathon') drawMarathonMinigame(ctx, w, h);
         }
 
-        function endGame(winner) {
+        // --- RENDERIZADO DE MINIJUEGOS EN CANVAS ---
+        function drawRopeMinigame(ctx, w, h) {
+            ctx.fillStyle = "#111729"; ctx.fillRect(0, h - 50, w, 50);
+            let shift = (ropePosition / 105) * (w * 0.38);
+
+            ctx.strokeStyle = "#e5c158"; ctx.lineWidth = 14; ctx.beginPath();
+            ctx.moveTo(50, h / 2); ctx.lineTo(w - 50, h / 2); ctx.stroke();
+
+            let centerPos = (w / 2) + shift;
+            ctx.fillStyle = "#f9d423"; ctx.beginPath();
+            ctx.arc(centerPos, h / 2, 16, 0, Math.PI * 2); ctx.fill();
+        }
+
+        function drawBirdsMinigame(ctx, w, h) {
+            const playerKeys = Object.keys(players);
+            const rowHeight = h / Math.max(playerKeys.length, 1);
+
+            playerKeys.forEach((id, index) => {
+                const p = players[id];
+                const y = (index * rowHeight) + (rowHeight / 2);
+                const progressX = Math.min(w - 60, 40 + (p.hits * 18));
+
+                ctx.strokeStyle = "rgba(255,255,255,0.1)";
+                ctx.beginPath(); ctx.moveTo(0, y + rowHeight/2); ctx.lineTo(w, y + rowHeight/2); ctx.stroke();
+
+                ctx.fillStyle = "#f9d423"; ctx.font = "bold 14px sans-serif";
+                ctx.fillText(p.name, 10, y - 10);
+
+                ctx.fillStyle = "#00d2ff"; ctx.beginPath();
+                ctx.arc(progressX, y, 16, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = "#000"; ctx.fillText("🐦", progressX - 8, y + 5);
+            });
+        }
+
+        function drawJarMinigame(ctx, w, h) {
+            const jarW = 140, jarH = 220;
+            const jarX = (w / 2) - (jarW / 2), jarY = h - jarH - 30;
+
+            ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 6;
+            ctx.strokeRect(jarX, jarY, jarW, jarH);
+
+            const fillH = (jarWaterLevel / JAR_TARGET) * jarH;
+            ctx.fillStyle = "rgba(0, 210, 255, 0.7)";
+            ctx.fillRect(jarX + 3, jarY + jarH - fillH, jarW - 6, fillH);
+
+            ctx.fillStyle = "#f9d423"; ctx.font = "900 22px var(--font-family)";
+            ctx.textAlign = "center";
+            ctx.fillText(`🫙 GOTAS: ${jarWaterLevel} / ${JAR_TARGET}`, w / 2, 50);
+        }
+
+        function drawMarathonMinigame(ctx, w, h) {
+            const sorted = Object.values(players).sort((a,b) => b.hits - a.hits);
+            ctx.fillStyle = "#ffffff"; ctx.font = "bold 20px sans-serif";
+            ctx.textAlign = "left";
+            ctx.fillText("🏃 CLASIFICACIÓN EN TIEMPO REAL:", 40, 40);
+
+            sorted.forEach((p, i) => {
+                ctx.fillStyle = (i === 0) ? "#f9d423" : "#a0aec0";
+                ctx.fillText(`${i + 1}. ${p.name} — ${p.hits} Aciertos (${p.score} pts)`, 40, 80 + (i * 35));
+            });
+        }
+
+        function endGame() {
             clearInterval(timerInterval);
             showScreen('screen-winner');
 
-            const title = document.getElementById('winner-title');
-            const sub = document.getElementById('winner-subtitle');
+            const podiumContainer = document.getElementById('podium-display');
+            podiumContainer.innerHTML = '';
 
-            if(winner === 'red') {
-                title.innerText = "🏆 ¡VICTORIA DEL EQUIPO ROJO! 🔴";
-                title.style.color = "var(--red-team)";
-                sub.innerText = `¡Han tirado con más fuerza matemática (${redScore} aciertos)!`;
-            } else if(winner === 'blue') {
-                title.innerText = "🏆 ¡VICTORIA DEL EQUIPO AZUL! 🔵";
-                title.style.color = "var(--blue-team)";
-                sub.innerText = `¡Han tirado con más fuerza matemática (${blueScore} aciertos)!`;
-            } else {
-                title.innerText = "🤝 ¡EMPATE TÉCNICO!";
-                title.style.color = "var(--yellow)";
-                sub.innerText = "¡Habéis estado igualados hasta el último segundo!";
-            }
+            const sorted = Object.values(players).sort((a,b) => b.score - a.score);
+
+            // Generar únicamente los tres primeros para la Pizarra
+            const top3 = sorted.slice(0, 3);
+            const classes = ['podium-2', 'podium-1', 'podium-3'];
+            const medals = ['🥈 2º', '🥇 1º', '🥉 3º'];
+            
+            // Reordenar visualmente para el podio (2º - 1º - 3º)
+            const displayOrder = [];
+            if(top3[1]) displayOrder.push({ p: top3[1], pos: 1 });
+            if(top3[0]) displayOrder.push({ p: top3[0], pos: 0 });
+            if(top3[2]) displayOrder.push({ p: top3[2], pos: 2 });
+
+            displayOrder.forEach(item => {
+                const step = document.createElement('div');
+                step.className = `podium-step ${classes[item.pos]}`;
+                step.innerHTML = `
+                    <div style="font-size: 1.1rem; margin-bottom: 5px;">${item.p.name}</div>
+                    <div style="font-size: 0.85rem;">${item.p.score} pts</div>
+                    <div style="margin-top: 8px;">${medals[item.pos]}</div>
+                `;
+                podiumContainer.appendChild(step);
+            });
+
+            document.getElementById('winner-subtitle').innerText = top3[0] ? 
+                `¡Felicidades a ${top3[0].name} por ganar la partida!` : "¡Partida finalizada!";
+        }
+
+        // Descarga de Informe en CSV para el Profesor
+        function downloadCSVReport() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Nombre,Aciertos,Fallos,Intentos Totales,Precision (%),Puntos\n";
+
+            Object.values(players).forEach(p => {
+                const totalAttempts = p.hits + p.misses;
+                const precision = totalAttempts > 0 ? ((p.hits / totalAttempts) * 100).toFixed(1) : 0;
+                csvContent += `"${p.name}",${p.hits},${p.misses},${totalAttempts},${precision}%,${p.score}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Informe_MathRush_${roomPin}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>
