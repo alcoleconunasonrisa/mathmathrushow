@@ -638,6 +638,7 @@
                     document.getElementById('controller-disp').innerText = "";
                 }
             }
+            // Sincronización automática de la nueva operación en el mando del usuario
             if(data.type === 'NEW_OP' && data.team === myTeam) {
                 document.getElementById('controller-op').innerText = data.text;
                 document.getElementById('controller-disp').innerText = "";
@@ -784,7 +785,7 @@
         function startTimer() {
             if (gameTime === 0) {
                 document.getElementById('timer-display').innerText = "⚔️∞";
-                return; // Modo sin tiempo, solo gana por fuerza en la cuerda
+                return;
             }
 
             let t = gameTime;
