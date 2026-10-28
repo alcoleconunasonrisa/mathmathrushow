@@ -623,7 +623,7 @@
         </div>
     </div>
 
-    <!-- Pantalla de Resultados (Podio Top 3 y Descarga PDF Universal) -->
+    <!-- Pantalla de Resultados -->
     <div id="screen-winner" class="screen">
         <div class="card">
             <h1>🏆 RESULTADOS FINALES</h1>
@@ -672,7 +672,7 @@
 
         let ropePosition = 0; 
         let jarWaterLevel = 0; 
-        const JAR_TARGET = 50; 
+        let dynamicJarTarget = 50; 
 
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -694,7 +694,7 @@
             document.querySelectorAll('.minigame-card').forEach(c => c.classList.remove('selected'));
             document.getElementById('game-' + type).classList.add('selected');
 
-            // Mostrar u ocultar selector de equipo según el minijuego
+            // Mostrar u ocultar selector de equipo exclusivamente para "La Cuerda"
             const teamGroup = document.getElementById('team-selector-group');
             if(type === 'rope') {
                 teamGroup.style.display = 'block';
@@ -939,6 +939,11 @@
             ropePosition = 0;
             jarWaterLevel = 0;
 
+            // Cálculo dinámico para la jarra: 20 aciertos por minuto y jugador
+            let totalMinutes = gameTime > 0 ? (gameTime / 60) : 1;
+            let playerCount = Math.max(Object.keys(players).length, 1);
+            dynamicJarTarget = Math.round(20 * totalMinutes * playerCount);
+
             const minigameTitles = {
                 rope: '🪢 LA CUERDA',
                 birds: '🐦 CARRERA DE AVES',
@@ -1030,8 +1035,8 @@
                     ropePosition += (p.team === 'red') ? -10.5 : 10.5;
                     if(ropePosition <= -105 || ropePosition >= 105) endGame();
                 } else if(selectedMinigame === 'jar') {
-                    jarWaterLevel += 2;
-                    if(jarWaterLevel >= JAR_TARGET) endGame();
+                    jarWaterLevel += 1;
+                    if(jarWaterLevel >= dynamicJarTarget) endGame();
                 }
 
                 p.currentOp = generateOp(opType);
@@ -1070,6 +1075,11 @@
         }
 
         function startTimer() {
+            if (gameTime === 0) {
+                document.getElementById('timer-display').innerText = "⚔️∞";
+                return;
+            }
+
             let t = gameTime;
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
@@ -1102,7 +1112,6 @@
         function drawRopeMinigame(ctx, w, h) {
             ctx.fillStyle = "rgba(255, 63, 52, 0.25)"; ctx.fillRect(0, 0, 80, h);
             ctx.fillStyle = "rgba(0, 210, 255, 0.25)"; ctx.fillRect(w - 80, 0, 80, h);
-
             ctx.fillStyle = "#111729"; ctx.fillRect(0, h - 50, w, 50);
 
             let shift = (ropePosition / 105) * (w * 0.38);
@@ -1119,6 +1128,10 @@
         }
 
         function drawBirdsMinigame(ctx, w, h) {
+            // Fondo específico vistoso y contrastado para la carrera de aves
+            ctx.fillStyle = "#162238";
+            ctx.fillRect(0, 0, w, h);
+
             const playerKeys = Object.keys(players);
             const rowHeight = h / Math.max(playerKeys.length, 1);
 
@@ -1127,32 +1140,34 @@
                 const y = (index * rowHeight) + (rowHeight / 2);
                 const progressX = Math.min(w - 60, 40 + (p.hits * 18));
 
-                ctx.strokeStyle = "rgba(255,255,255,0.1)";
-                ctx.beginPath(); ctx.moveTo(0, y + rowHeight/2); ctx.lineTo(w, y + rowHeight/2); ctx.stroke();
+                ctx.strokeStyle = "rgba(255,255,255,0.15)";
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(w - 40, y); ctx.stroke();
 
-                ctx.fillStyle = "#f9d423"; ctx.font = "bold 14px sans-serif";
-                ctx.fillText(p.name, 10, y - 10);
+                ctx.fillStyle = "#f9d423"; ctx.font = "bold 15px sans-serif";
+                ctx.fillText(p.name, 15, y - 12);
 
-                ctx.fillStyle = "#00d2ff"; ctx.beginPath();
-                ctx.arc(progressX, y, 16, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = "#000"; ctx.fillText("🐦", progressX - 8, y + 5);
+                ctx.fillStyle = "#ff4e50"; ctx.beginPath();
+                ctx.arc(progressX, y, 18, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = "#fff"; ctx.font = "14px sans-serif";
+                ctx.fillText("🐦", progressX - 10, y + 5);
             });
         }
 
         function drawJarMinigame(ctx, w, h) {
-            const jarW = 140, jarH = 220;
+            const jarW = 150, jarH = 230;
             const jarX = (w / 2) - (jarW / 2), jarY = h - jarH - 30;
 
             ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 6;
             ctx.strokeRect(jarX, jarY, jarW, jarH);
 
-            const fillH = (jarWaterLevel / JAR_TARGET) * jarH;
-            ctx.fillStyle = "rgba(0, 210, 255, 0.7)";
+            const fillH = (jarWaterLevel / dynamicJarTarget) * jarH;
+            ctx.fillStyle = "rgba(0, 210, 255, 0.75)";
             ctx.fillRect(jarX + 3, jarY + jarH - fillH, jarW - 6, fillH);
 
-            ctx.fillStyle = "#f9d423"; ctx.font = "900 22px var(--font-family)";
+            ctx.fillStyle = "#f9d423"; ctx.font = "900 24px var(--font-family)";
             ctx.textAlign = "center";
-            ctx.fillText(`🫙 GOTAS: ${jarWaterLevel} / ${JAR_TARGET}`, w / 2, 50);
+            ctx.fillText(`🫙 GOTAS: ${jarWaterLevel} / ${dynamicJarTarget}`, w / 2, 45);
         }
 
         function drawMarathonMinigame(ctx, w, h) {
@@ -1201,7 +1216,7 @@
                 `¡Felicidades a ${top3[0].name} por ganar la partida!` : "¡Partida finalizada!";
         }
 
-        // --- DESCARGA DE INFORME UNIVERSAL OPTIMIZADA PARA TABLETS Y PC (FORMATO PDF NATIVO) ---
+        // --- DESCARGA DE INFORME UNIVERSAL OPTIMIZADA PARA TABLETS Y PC (FORMATO PDF NATIVO SEGURO) ---
         function downloadPDFReport() {
             const sorted = Object.values(players).sort((a,b) => b.score - a.score);
             
@@ -1259,7 +1274,7 @@
                 </html>
             `;
 
-            // Creación de objeto Blob para asegurar compatibilidad total en tablets (iPad/Android) y PC
+            // Creación de objeto Blob con tipo MIME correcto para garantizar apertura en tablets y PC
             const blob = new Blob([htmlContent], { type: 'application/pdf;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             
