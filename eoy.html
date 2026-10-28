@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Math Math Rush Ow Suite: Plataforma Multijuego de Aula</title>
+    <title>MATH MATH RUSH OW: Plataforma Multijuego de Aula</title>
     <!-- Libs Externas desde CDN seguro -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
@@ -534,7 +534,7 @@
             <div class="minigame-grid">
                 <div class="minigame-card selected" id="game-rope" onclick="selectMinigame('rope')">
                     <h3>🪢 La Cuerda</h3>
-                    <p>Duelo táctico 1 vs 1 por equipos (Rojo vs Azul). ¡Atraed la cuerda hacia vuestro lado!</p>
+                    <p>Duelo por equipos (Rojo vs Azul). ¡Cuantos más acierten, más fuerza harán!</p>
                 </div>
                 <div class="minigame-card" id="game-birds" onclick="selectMinigame('birds')">
                     <h3>🐦 Carrera de Aves</h3>
@@ -619,7 +619,7 @@
                 <input type="number" id="input-pin" placeholder="PIN de 6 dígitos" style="text-align: center; font-size: 1.6rem; letter-spacing: 4px;">
             </div>
             
-            <!-- Selector de equipo visible SOLO para La Cuerda -->
+            <!-- Selector de equipo oculto porque se asigna automáticamente de forma alterna -->
             <div class="form-group" id="team-selector-group" style="display:none;">
                 <label>Elige tu Equipo:</label>
                 <select id="input-team">
@@ -753,13 +753,9 @@
             document.querySelectorAll('.minigame-card').forEach(c => c.classList.remove('selected'));
             document.getElementById('game-' + type).classList.add('selected');
 
-            // El selector de equipo solo aparece en "La Cuerda"
+            // Mantener oculto el selector manual ya que los equipos se asignan de forma automática y alternativa
             const teamGroup = document.getElementById('team-selector-group');
-            if(type === 'rope') {
-                teamGroup.style.display = 'block';
-            } else {
-                teamGroup.style.display = 'none';
-            }
+            teamGroup.style.display = 'none';
         }
 
         function showSubmenu(category) {
@@ -847,7 +843,7 @@
 
             if(peer) { try { peer.destroy(); } catch(e){} }
 
-            peer = new Peer('mathrush_suite_' + roomPin, peerOptions);
+            peer = new Peer('mathmathrush_suite_' + roomPin, peerOptions);
 
             peer.on('open', () => { renderQR(); });
             peer.on('error', () => { renderQR(); });
@@ -880,28 +876,17 @@
             if(!data) return;
 
             if(data.type === 'CONNECT') {
-                let assignedTeam = data.team || "red";
+                let assignedTeam = "red";
 
-                // REGLA ESTRICTA DE LA CUERDA: 1 VS 1 Y BALANCEO DE EQUIPOS
+                // ASIGNACIÓN AUTOMÁTICA Y ALTERNA PARA LA CUERDA (MÚLTIPLES JUGADORES)
                 if(selectedMinigame === 'rope') {
                     const currentPlayers = Object.values(players);
                     const redCount = currentPlayers.filter(p => p.team === 'red').length;
                     const blueCount = currentPlayers.filter(p => p.team === 'blue').length;
-
-                    if(redCount >= 1 && blueCount >= 1) {
-                        conn.send({ 
-                            type: 'REJECTED', 
-                            reason: '⚠️ La sala de "La Cuerda" ya está llena (Máximo 1 jugador por equipo).' 
-                        });
-                        conn.close();
-                        return;
-                    }
-
-                    if(assignedTeam === 'red' && redCount >= 1) {
-                        assignedTeam = 'blue';
-                    } else if(assignedTeam === 'blue' && blueCount >= 1) {
-                        assignedTeam = 'red';
-                    }
+                    // Se asigna al bando que tenga menos o igual jugadores para mantener el equilibrio
+                    assignedTeam = (redCount <= blueCount) ? 'red' : 'blue';
+                } else {
+                    assignedTeam = data.team || "red";
                 }
 
                 connections[conn.peer] = conn;
@@ -965,7 +950,6 @@
         function joinRoom() {
             const name = document.getElementById('input-name').value.trim();
             const pin = document.getElementById('input-pin').value.trim();
-            myTeam = document.getElementById('input-team').value;
             const errDiv = document.getElementById('join-error-msg');
             errDiv.innerText = "";
 
@@ -983,10 +967,10 @@
 
             peer.on('open', (id) => {
                 myId = id;
-                hostConnection = peer.connect('mathrush_suite_' + roomPin, { reliable: true });
+                hostConnection = peer.connect('mathmathrush_suite_' + roomPin, { reliable: true });
 
                 hostConnection.on('open', () => {
-                    sendMsg({ type: 'CONNECT', name: myName, team: myTeam });
+                    sendMsg({ type: 'CONNECT', name: myName, team: 'red' });
                 });
 
                 hostConnection.on('data', (data) => {
@@ -1059,7 +1043,7 @@
             recalculateJarTarget();
 
             const minigameTitles = {
-                rope: '🪢 LA CUERDA (EQUIPOS 1 vs 1)',
+                rope: '🪢 LA CUERDA (EQUIPOS MULTIJUGADOR)',
                 birds: '🐦 CARRERA DE AVES',
                 jar: '🫙 LLENAR LA JARRA (COOPERATIVO)',
                 marathon: '🏃 MODO MARATÓN'
@@ -1477,7 +1461,7 @@
                     }
                 });
 
-                doc.save(`Informe_MathRushOW_PIN_${roomPin}.pdf`);
+                doc.save(`Informe_MathMathRushOW_PIN_${roomPin}.pdf`);
 
             } catch (error) {
                 console.error("Error generando PDF:", error);
