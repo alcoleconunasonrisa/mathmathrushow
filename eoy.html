@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Math Rush Suite: Plataforma Multijuego de Aula</title>
+    <title>Math Math Rush Suite: Plataforma Multijuego de Aula</title>
     <!-- Libs Externas desde CDN seguro -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
@@ -499,7 +499,7 @@
     <!-- Pantalla de Inicio -->
     <div id="screen-home" class="screen active">
         <div class="card">
-            <h1>🎮 MATH RUSH OW</h1>
+            <h1>🎮 MATH MATH RUSH OW</h1>
             <p class="subtitle">Plataforma Multijuego de Cálculo Mental para el Aula</p>
             <p style="font-size: 0.9rem; color: #f9d423; margin-bottom: 18px; font-weight: 700;">
                 📺 NOTA: Los dispositivos deben conectarse a la misma red Wi-Fi
@@ -624,7 +624,7 @@
     <div id="screen-board" class="screen">
         <div class="arena-center">
             <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px;">
-                <h2 id="board-game-title" style="color: var(--yellow); font-size: 1.8rem;">MATH RUSH OW</h2>
+                <h2 id="board-game-title" style="color: var(--yellow); font-size: 1.8rem;">MATH MATH RUSH OW</h2>
                 <div class="timer" id="timer-display">01:00</div>
             </div>
             <canvas id="gameCanvas" width="900" height="420"></canvas>
@@ -662,7 +662,7 @@
             <p id="winner-subtitle" class="subtitle" style="font-size: 1.25rem; color: white;"></p>
             
             <div class="podium-container" id="podium-display">
-                <!-- Se genera dinámicamente por JS con los 3 primeros mejores resultados -->
+                <!-- Se genera dinámicamente por JS ordenado estrictamente -->
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
@@ -1211,7 +1211,6 @@
 
         /* ESCENA DE LA CUERDA DIBUJADA */
         function drawRopeMinigame(ctx, w, h) {
-            // Foso / Límite Rojo (Izquierda)
             ctx.fillStyle = "rgba(255, 63, 52, 0.25)";
             ctx.fillRect(0, 0, 90, h);
             ctx.strokeStyle = "rgba(255, 63, 52, 0.6)";
@@ -1222,7 +1221,6 @@
             }
             ctx.stroke();
 
-            // Foso / Límite Azul (Derecha)
             ctx.fillStyle = "rgba(0, 210, 255, 0.25)";
             ctx.fillRect(w - 90, 0, 90, h);
             ctx.strokeStyle = "rgba(0, 210, 255, 0.6)";
@@ -1233,11 +1231,9 @@
             }
             ctx.stroke();
 
-            // Suelo
             ctx.fillStyle = "#111729";
             ctx.fillRect(0, h - 60, w, 60);
 
-            // Línea central divisoria
             ctx.strokeStyle = "rgba(249, 212, 35, 0.5)";
             ctx.lineWidth = 3;
             ctx.setLineDash([8, 8]);
@@ -1246,10 +1242,8 @@
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Desplazamiento calculado
             let shift = (ropePosition / 105) * (w * 0.36);
 
-            // Cuerda Principal
             ctx.strokeStyle = "#e5c158";
             ctx.lineWidth = 18;
             ctx.lineCap = "round";
@@ -1258,7 +1252,6 @@
             ctx.lineTo(w - 60, h / 2 - 10);
             ctx.stroke();
 
-            // Nudo Central
             let centerPos = (w / 2) + shift;
             ctx.fillStyle = "#f9d423";
             ctx.beginPath();
@@ -1270,19 +1263,16 @@
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Personaje Rojo (1 jugador)
             let redX = (w / 2) - 100 + shift;
             ctx.fillStyle = "#ff3f34";
             ctx.beginPath(); ctx.arc(redX, h / 2 - 38, 16, 0, Math.PI * 2); ctx.fill();
             ctx.fillRect(redX - 10, h / 2 - 22, 20, 30);
 
-            // Personaje Azul (1 jugador)
             let blueX = (w / 2) + 100 + shift;
             ctx.fillStyle = "#00d2ff";
             ctx.beginPath(); ctx.arc(blueX, h / 2 - 38, 16, 0, Math.PI * 2); ctx.fill();
             ctx.fillRect(blueX - 10, h / 2 - 22, 20, 30);
 
-            // Alertas visuales dinámicas de peligro de caída
             if(ropePosition <= -65) {
                 ctx.fillStyle = "rgba(255, 63, 52, 0.4)";
                 ctx.fillRect(0, 0, w, h);
@@ -1300,7 +1290,7 @@
             }
         }
 
-        /* CARRERA DE AVES */
+        /* CARRERA DE AVES (MÁXIMO 8 PRIMEROS) */
         function drawBirdsMinigame(ctx, w, h) {
             let skyGradient = ctx.createLinearGradient(0, 0, 0, h);
             skyGradient.addColorStop(0, "#0c102b");
@@ -1315,8 +1305,8 @@
                 ctx.fillRect(starX, starY, 2, 2);
             }
 
-            // Ordenamiento por puntuación / aciertos
-            const sortedPlayers = Object.values(players).sort((a,b) => b.hits - a.hits || b.score - a.score);
+            // Ordenamiento por puntuación y aciertos, limitando a los 8 primeros
+            const sortedPlayers = Object.values(players).sort((a,b) => b.score - a.score || b.hits - a.hits).slice(0, 8);
             if(sortedPlayers.length === 0) return;
 
             const rowHeight = h / sortedPlayers.length;
@@ -1335,7 +1325,7 @@
                 ctx.fillStyle = "#f9d423"; 
                 ctx.font = "bold 15px sans-serif";
                 ctx.textAlign = "left";
-                ctx.fillText(p.name, 10, y - 10);
+                ctx.fillText(`${index + 1}º. ${p.name}`, 10, y - 10);
 
                 ctx.fillStyle = "#ec4899";
                 ctx.beginPath();
@@ -1384,12 +1374,12 @@
             ctx.fillStyle = "#0a0e1a";
             ctx.fillRect(0, 0, w, h);
 
-            const sorted = Object.values(players).sort((a,b) => b.score - a.score || b.hits - a.hits);
+            const sorted = Object.values(players).sort((a,b) => b.score - a.score || b.hits - a.hits).slice(0, 8);
             
             ctx.fillStyle = "#ffffff";
             ctx.font = "bold 22px var(--font-family)";
             ctx.textAlign = "left";
-            ctx.fillText("🏃 CLASIFICACIÓN MODO MARATÓN:", 40, 45);
+            ctx.fillText("🏃 CLASIFICACIÓN MODO MARATÓN (Top 8):", 40, 45);
 
             sorted.forEach((p, i) => {
                 ctx.fillStyle = (i === 0) ? "#f9d423" : (i === 1 ? "#e2e8f0" : (i === 2 ? "#f97316" : "#a0aec0"));
@@ -1398,7 +1388,7 @@
             });
         }
 
-        /* --- FINALIZACIÓN Y RESULTADOS --- */
+        /* --- FINALIZACIÓN Y RESULTADOS (CORREGIDO ORDEN DEL PODIO) --- */
         function endGame() {
             clearInterval(timerInterval);
             showScreen('screen-winner');
@@ -1406,27 +1396,25 @@
             const podiumContainer = document.getElementById('podium-display');
             podiumContainer.innerHTML = '';
 
-            // ORDEN ESTRICTO POR MEJORES RESULTADOS (Puntuación y Aciertos)
+            // ORDEN ESTRICTO POR PUNTUACIÓN DESCENDENTE
             const sorted = Object.values(players).sort((a,b) => b.score - a.score || b.hits - a.hits);
 
-            // LÍMITE ESTRICHO: Solo los 3 primeros mejores jugadores
+            // SOLO LOS 3 PRIMEROS
             const top3 = sorted.slice(0, 3);
-            const classes = ['podium-2', 'podium-1', 'podium-3'];
-            const medals = ['🥈 2º', '🥇 1º', '🥉 3º'];
             
-            // Ordenamiento visual del podio: 2º a la izquierda, 1º al centro, 3º a la derecha
-            const displayOrder = [];
-            if(top3[1]) displayOrder.push({ p: top3[1], pos: 1 });
-            if(top3[0]) displayOrder.push({ p: top3[0], pos: 0 });
-            if(top3[2]) displayOrder.push({ p: top3[2], pos: 2 });
+            // Asignación correcta de clases y medallas por posición real del ranking
+            const podiumData = [];
+            if(top3[1]) podiumData.push({ p: top3[1], className: 'podium-2', medal: '🥈 2º' }); // 2º puesto (Izquierda)
+            if(top3[0]) podiumData.push({ p: top3[0], className: 'podium-1', medal: '🥇 1º' }); // 1º puesto (Centro)
+            if(top3[2]) podiumData.push({ p: top3[2], className: 'podium-3', medal: '🥉 3º' }); // 3º puesto (Derecha)
 
-            displayOrder.forEach(item => {
+            podiumData.forEach(item => {
                 const step = document.createElement('div');
-                step.className = `podium-step ${classes[item.pos]}`;
+                step.className = `podium-step ${item.className}`;
                 step.innerHTML = `
                     <div style="font-size: 1.15rem; margin-bottom: 6px;">${item.p.name}</div>
                     <div style="font-size: 0.9rem;">${item.p.score} pts</div>
-                    <div style="margin-top: 10px;">${medals[item.pos]}</div>
+                    <div style="margin-top: 10px;">${item.medal}</div>
                 `;
                 podiumContainer.appendChild(step);
             });
