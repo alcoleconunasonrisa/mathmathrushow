@@ -368,50 +368,63 @@
             box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
         }
 
+        /* --- ESTILOS OPTIMIZADOS Y RESPONSIVOS DEL MANDO TÁCTIL --- */
         .controller-card {
             background: var(--panel-bg);
-            border-radius: 28px;
-            padding: 22px;
+            border-radius: 24px;
+            padding: clamp(12px, 3vh, 20px);
             width: 100%;
-            max-width: 440px;
+            max-width: 420px;
             text-align: center;
-            border: 5px solid #333;
+            border: 4px solid #333;
             box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+            max-height: 96dvh;
+            overflow-y: auto;
+            margin: auto;
         }
 
-        .controller-card.red { border-color: var(--red-team); box-shadow: 0 0 30px var(--red-glow); }
-        .controller-card.blue { border-color: var(--blue-team); box-shadow: 0 0 30px var(--blue-glow); }
+        .controller-card.red { border-color: var(--red-team); box-shadow: 0 0 25px var(--red-glow); }
+        .controller-card.blue { border-color: var(--blue-team); box-shadow: 0 0 25px var(--blue-glow); }
+
+        .controller-card h2 {
+            font-size: clamp(1.2rem, 4vw, 1.6rem);
+        }
+
+        .controller-card p {
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            margin-bottom: 4px !important;
+        }
 
         .op-card {
             background: #080b14;
-            border: 3px solid #2a3352;
-            border-radius: 20px;
+            border: 2px solid #2a3352;
+            border-radius: 16px;
             width: 100%;
-            padding: 18px 5px;
+            padding: clamp(8px, 2vh, 14px) 5px;
             text-align: center;
             font-family: var(--font-mono);
-            font-size: 2.4rem;
+            font-size: clamp(1.8rem, 6vw, 2.4rem);
             font-weight: 800;
             color: var(--yellow);
-            margin: 10px 0;
-            min-height: 85px;
+            margin: 8px 0;
+            min-height: clamp(60px, 10vh, 80px);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.6);
         }
 
         .input-display {
             width: 100%;
-            height: 65px;
-            border-radius: 16px;
+            height: clamp(45px, 8vh, 60px);
+            border-radius: 14px;
             background: #000;
-            border: 3px dashed #555;
+            border: 2px dashed #555;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: var(--font-mono);
-            font-size: 2.5rem;
+            font-size: clamp(1.8rem, 6vw, 2.4rem);
             font-weight: 800;
             color: white;
         }
@@ -419,37 +432,38 @@
         .numpad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 15px;
+            gap: clamp(6px, 1.5vh, 10px);
+            margin-top: 12px;
         }
 
         .key {
             background: #151c33;
             border: 2px solid #2a3352;
             color: white;
-            font-size: 1.8rem;
+            font-size: clamp(1.3rem, 5vw, 1.7rem);
             font-weight: 800;
-            padding: 16px 0;
-            border-radius: 14px;
+            padding: clamp(10px, 2.2vh, 14px) 0;
+            border-radius: 12px;
             cursor: pointer;
             font-family: var(--font-mono);
-            transition: background 0.1s;
+            transition: background 0.1s, transform 0.05s;
         }
 
-        .key:active { background: var(--yellow); color: black; }
+        .key:active { background: var(--yellow); color: black; transform: scale(0.96); }
         .key.delete {
             grid-column: span 2;
             background: rgba(255, 63, 52, 0.25);
             border-color: var(--red-team);
             color: var(--red-team);
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.5vw, 1.2rem);
         }
         .key.enter {
             background: rgba(34, 197, 94, 0.25);
             border-color: #22c55e;
             color: #22c55e;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.5vw, 1.2rem);
         }
+        /* -------------------------------------------------------- */
 
         .podium-container {
             display: flex;
@@ -634,8 +648,8 @@
     <!-- Mando de Control de Dispositivos -->
     <div id="screen-controller" class="screen">
         <div class="controller-card" id="controller-card">
-            <h2 id="controller-name-title" style="margin-bottom: 6px; color: var(--yellow);">MANDO</h2>
-            <p style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 5px;">Tu cálculo actual:</p>
+            <h2 id="controller-name-title" style="margin-bottom: 4px; color: var(--yellow);">MANDO</h2>
+            <p style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 2px;">Tu cálculo actual:</p>
             <div class="op-card" id="controller-op">?</div>
             <div class="input-display" id="controller-disp"></div>
             <div class="numpad">
@@ -1305,7 +1319,6 @@
                 ctx.fillRect(starX, starY, 2, 2);
             }
 
-            // Ordenamiento por puntuación y aciertos, limitando a los 8 primeros
             const sortedPlayers = Object.values(players).sort((a,b) => b.score - a.score || b.hits - a.hits).slice(0, 8);
             if(sortedPlayers.length === 0) return;
 
@@ -1388,7 +1401,7 @@
             });
         }
 
-        /* --- FINALIZACIÓN Y RESULTADOS (CORREGIDO ORDEN DEL PODIO) --- */
+        /* --- FINALIZACIÓN Y RESULTADOS --- */
         function endGame() {
             clearInterval(timerInterval);
             showScreen('screen-winner');
@@ -1396,17 +1409,13 @@
             const podiumContainer = document.getElementById('podium-display');
             podiumContainer.innerHTML = '';
 
-            // ORDEN ESTRICTO POR PUNTUACIÓN DESCENDENTE
             const sorted = Object.values(players).sort((a,b) => b.score - a.score || b.hits - a.hits);
-
-            // SOLO LOS 3 PRIMEROS
             const top3 = sorted.slice(0, 3);
             
-            // Asignación correcta de clases y medallas por posición real del ranking
             const podiumData = [];
-            if(top3[1]) podiumData.push({ p: top3[1], className: 'podium-2', medal: '🥈 2º' }); // 2º puesto (Izquierda)
-            if(top3[0]) podiumData.push({ p: top3[0], className: 'podium-1', medal: '🥇 1º' }); // 1º puesto (Centro)
-            if(top3[2]) podiumData.push({ p: top3[2], className: 'podium-3', medal: '🥉 3º' }); // 3º puesto (Derecha)
+            if(top3[1]) podiumData.push({ p: top3[1], className: 'podium-2', medal: '🥈 2º' });
+            if(top3[0]) podiumData.push({ p: top3[0], className: 'podium-1', medal: '🥇 1º' });
+            if(top3[2]) podiumData.push({ p: top3[2], className: 'podium-3', medal: '🥉 3º' });
 
             podiumData.forEach(item => {
                 const step = document.createElement('div');
