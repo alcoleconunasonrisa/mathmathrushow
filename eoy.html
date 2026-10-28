@@ -499,7 +499,7 @@
     <!-- Pantalla de Inicio -->
     <div id="screen-home" class="screen active">
         <div class="card">
-            <h1>🎮 MATH RUSH SUITE</h1>
+            <h1>🎮 MATH RUSH OW</h1>
             <p class="subtitle">Plataforma Multijuego de Cálculo Mental para el Aula</p>
             <p style="font-size: 0.9rem; color: #f9d423; margin-bottom: 18px; font-weight: 700;">
                 📺 NOTA: Los dispositivos deben conectarse a la misma red Wi-Fi
@@ -624,7 +624,7 @@
     <div id="screen-board" class="screen">
         <div class="arena-center">
             <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px;">
-                <h2 id="board-game-title" style="color: var(--yellow); font-size: 1.8rem;">MATH RUSH</h2>
+                <h2 id="board-game-title" style="color: var(--yellow); font-size: 1.8rem;">MATH RUSH OW</h2>
                 <div class="timer" id="timer-display">01:00</div>
             </div>
             <canvas id="gameCanvas" width="900" height="420"></canvas>
@@ -662,7 +662,7 @@
             <p id="winner-subtitle" class="subtitle" style="font-size: 1.25rem; color: white;"></p>
             
             <div class="podium-container" id="podium-display">
-                <!-- Se genera dinámicamente por JS ordenado por score -->
+                <!-- Se genera dinámicamente por JS con los 3 primeros mejores resultados -->
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
@@ -1315,13 +1315,13 @@
                 ctx.fillRect(starX, starY, 2, 2);
             }
 
-            const playerKeys = Object.keys(players);
-            if(playerKeys.length === 0) return;
+            // Ordenamiento por puntuación / aciertos
+            const sortedPlayers = Object.values(players).sort((a,b) => b.hits - a.hits || b.score - a.score);
+            if(sortedPlayers.length === 0) return;
 
-            const rowHeight = h / playerKeys.length;
+            const rowHeight = h / sortedPlayers.length;
 
-            playerKeys.forEach((id, index) => {
-                const p = players[id];
+            sortedPlayers.forEach((p, index) => {
                 const y = (index * rowHeight) + (rowHeight / 2);
                 const progressX = Math.min(w - 70, 60 + (p.hits * 22));
 
@@ -1384,7 +1384,7 @@
             ctx.fillStyle = "#0a0e1a";
             ctx.fillRect(0, 0, w, h);
 
-            const sorted = Object.values(players).sort((a,b) => b.score - a.score);
+            const sorted = Object.values(players).sort((a,b) => b.score - a.score || b.hits - a.hits);
             
             ctx.fillStyle = "#ffffff";
             ctx.font = "bold 22px var(--font-family)";
@@ -1406,12 +1406,15 @@
             const podiumContainer = document.getElementById('podium-display');
             podiumContainer.innerHTML = '';
 
-            const sorted = Object.values(players).sort((a,b) => b.score - a.score);
+            // ORDEN ESTRICTO POR MEJORES RESULTADOS (Puntuación y Aciertos)
+            const sorted = Object.values(players).sort((a,b) => b.score - a.score || b.hits - a.hits);
 
+            // LÍMITE ESTRICHO: Solo los 3 primeros mejores jugadores
             const top3 = sorted.slice(0, 3);
             const classes = ['podium-2', 'podium-1', 'podium-3'];
             const medals = ['🥈 2º', '🥇 1º', '🥉 3º'];
             
+            // Ordenamiento visual del podio: 2º a la izquierda, 1º al centro, 3º a la derecha
             const displayOrder = [];
             if(top3[1]) displayOrder.push({ p: top3[1], pos: 1 });
             if(top3[0]) displayOrder.push({ p: top3[0], pos: 0 });
@@ -1438,7 +1441,7 @@
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
 
-                const sorted = Object.values(players).sort((a,b) => b.score - a.score);
+                const sorted = Object.values(players).sort((a,b) => b.score - a.score || b.hits - a.hits);
 
                 doc.setFillColor(30, 41, 59);
                 doc.rect(0, 0, 210, 35, 'F');
@@ -1446,7 +1449,7 @@
                 doc.setTextColor(255, 255, 255);
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(20);
-                doc.text("INFORME DE RESULTADOS - MATH RUSH", 105, 18, { align: "center" });
+                doc.text("INFORME DE RESULTADOS - MATH RUSH OW", 105, 18, { align: "center" });
                 
                 doc.setFontSize(11);
                 doc.setFont("helvetica", "normal");
@@ -1477,7 +1480,7 @@
                     }
                 });
 
-                doc.save(`Informe_MathRush_PIN_${roomPin}.pdf`);
+                doc.save(`Informe_MathRushOW_PIN_${roomPin}.pdf`);
 
             } catch (error) {
                 console.error("Error generando PDF:", error);
