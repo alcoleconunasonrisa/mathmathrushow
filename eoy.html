@@ -160,10 +160,10 @@
             box-shadow: 0 0 25px rgba(0, 210, 255, 0.5);
         }
 
-        .btn-excel {
-            background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+        .btn-pdf {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
             color: white;
-            box-shadow: 0 0 25px rgba(34, 197, 94, 0.5);
+            box-shadow: 0 0 25px rgba(255, 65, 108, 0.5);
         }
 
         .btn:disabled {
@@ -324,16 +324,6 @@
             gap: 6px;
         }
 
-        .game-grid {
-            display: grid;
-            grid-template-columns: 320px 1fr 320px;
-            gap: 15px;
-            width: 100%;
-            max-width: 1300px;
-            height: 88vh;
-            align-items: center;
-        }
-
         .arena-center {
             display: flex;
             flex-direction: column;
@@ -373,6 +363,9 @@
             border: 5px solid #333;
             box-shadow: 0 15px 35px rgba(0,0,0,0.7);
         }
+
+        .controller-card.red { border-color: var(--red-team); box-shadow: 0 0 25px var(--red-glow); }
+        .controller-card.blue { border-color: var(--blue-team); box-shadow: 0 0 25px var(--blue-glow); }
 
         .op-card {
             background: #080b14;
@@ -447,7 +440,7 @@
             justify-content: center;
             align-items: flex-end;
             gap: 15px;
-            margin: 30px 0;
+            margin: 20px 0;
             height: 200px;
         }
 
@@ -499,7 +492,7 @@
             <div class="minigame-grid">
                 <div class="minigame-card selected" id="game-rope" onclick="selectMinigame('rope')">
                     <h3>🪢 La Cuerda</h3>
-                    <p>Duelo 1v1 por equipos. Fuerza táctica y velocidad de cálculo.</p>
+                    <p>Duelo por equipos (Rojo vs Azul). Fuerza táctica y cálculo.</p>
                 </div>
                 <div class="minigame-card" id="game-birds" onclick="selectMinigame('birds')">
                     <h3>🐦 Carrera de Aves</h3>
@@ -515,7 +508,7 @@
                 </div>
             </div>
 
-            <p class="subtitle" id="statusDesc">2. Tipo de Operación Matemáticas:</p>
+            <p class="subtitle" id="statusDesc">2. Tipo de Operación Matemática:</p>
             
             <div id="menuModes" class="menu-grid">
                 <button class="btn-mode" onclick="showSubmenu('SUM')">➕ SUMAS</button>
@@ -554,7 +547,7 @@
     <!-- Pantalla de Lobby -->
     <div id="screen-lobby" class="screen">
         <div class="card">
-            <h2 id="lobby-title">ESCANEA O ENTRA CON EL PIN</h2>
+            <h2>ESCANEA O ENTRA CON EL PIN</h2>
             <div class="pin-box" id="display-pin">------</div>
             <div>
                 <div class="qr-container" id="qrcode"></div>
@@ -582,11 +575,11 @@
                 <label>PIN de la Sala:</label>
                 <input type="number" id="input-pin" placeholder="PIN de 6 dígitos" style="text-align: center; font-size: 1.6rem; letter-spacing: 4px;">
             </div>
-            <div class="form-group" id="team-selector-group" style="display:none;">
-                <label>Elige tu Equipo (Solo La Cuerda):</label>
+            <div class="form-group" id="team-selector-group">
+                <label>Elige tu Equipo:</label>
                 <select id="input-team">
-                    <option value="red">🔴 EQUIPO ROJO</option>
-                    <option value="blue">🔵 EQUIPO AZUL</option>
+                    <option value="red">🔴 EQUIPO ROJO (Izquierda)</option>
+                    <option value="blue">🔵 EQUIPO AZUL (Derecha)</option>
                 </select>
             </div>
             <button class="btn" id="btn-join" onclick="joinRoom()">ENTRAR A LA SALA 🎮</button>
@@ -608,7 +601,7 @@
 
     <!-- Mando de Control de Dispositivos -->
     <div id="screen-controller" class="screen">
-        <div class="controller-card">
+        <div class="controller-card" id="controller-card">
             <h2 id="controller-name-title" style="margin-bottom: 8px; color: var(--yellow);">MANDO</h2>
             <p style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 5px;">Tu cálculo actual:</p>
             <div class="op-card" id="controller-op">?</div>
@@ -630,18 +623,18 @@
         </div>
     </div>
 
-    <!-- Pantalla de Resultados (Podio Top 3 y Descarga Excel) -->
+    <!-- Pantalla de Resultados (Podio Top 3 y Descarga PDF Universal) -->
     <div id="screen-winner" class="screen">
         <div class="card">
             <h1>🏆 RESULTADOS FINALES</h1>
             <p id="winner-subtitle" class="subtitle" style="font-size: 1.2rem; color: white;"></p>
             
             <div class="podium-container" id="podium-display">
-                <!-- Podio generado dinámicamente -->
+                <!-- Podio ordenado estrictamente por puntos -->
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
-                <button class="btn btn-excel" onclick="downloadCSVReport()">📊 DESCARGAR DATOS DEL PROFESOR (CSV / Excel)</button>
+                <button class="btn btn-pdf" onclick="downloadPDFReport()">📄 DESCARGAR INFORME DE ALUMNOS (PDF)</button>
                 <button class="btn" onclick="location.reload()">NUEVA PARTIDA 🔄</button>
             </div>
         </div>
@@ -662,7 +655,7 @@
             }
         };
 
-        let selectedMinigame = 'rope'; // 'rope', 'birds', 'jar', 'marathon'
+        let selectedMinigame = 'rope'; 
         let roomPin = "";
         let opType = "sum_facil";
         let selectedTable = "all";
@@ -670,17 +663,16 @@
         let timerInterval = null;
         
         let peer = null;
-        let connections = {}; // id -> conn
-        let players = {}; // id -> { name, team, score, hits, misses, currentOp }
+        let connections = {}; 
+        let players = {}; 
         let hostConnection = null;
         let myId = "";
         let myName = "";
         let myTeam = "red";
 
-        // Variables de estado gráfico de minijuegos
-        let ropePosition = 0; // -105 a 105
-        let jarWaterLevel = 0; // 0 a 100
-        const JAR_TARGET = 50; // Gotas necesarias
+        let ropePosition = 0; 
+        let jarWaterLevel = 0; 
+        const JAR_TARGET = 50; 
 
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -701,6 +693,14 @@
             selectedMinigame = type;
             document.querySelectorAll('.minigame-card').forEach(c => c.classList.remove('selected'));
             document.getElementById('game-' + type).classList.add('selected');
+
+            // Mostrar u ocultar selector de equipo según el minijuego
+            const teamGroup = document.getElementById('team-selector-group');
+            if(type === 'rope') {
+                teamGroup.style.display = 'block';
+            } else {
+                teamGroup.style.display = 'none';
+            }
         }
 
         function showSubmenu(category) {
@@ -853,7 +853,8 @@
                 const p = players[k];
                 const chip = document.createElement('div');
                 chip.className = 'player-chip';
-                chip.innerText = `👤 ${p.name}` + (selectedMinigame === 'rope' ? ` (${p.team === 'red' ? '🔴 Rojo' : '🔵 Azul'})` : '');
+                let teamText = selectedMinigame === 'rope' ? (p.team === 'red' ? ' 🔴 (Rojo)' : ' 🔵 (Azul)') : '';
+                chip.innerText = `👤 ${p.name}${teamText}`;
                 container.appendChild(chip);
             });
 
@@ -911,6 +912,12 @@
 
         function setupControllerUI(initialOp) {
             document.getElementById('controller-name-title').innerText = myName;
+            const card = document.getElementById('controller-card');
+            if(selectedMinigame === 'rope') {
+                card.className = 'controller-card ' + myTeam;
+            } else {
+                card.className = 'controller-card';
+            }
             if(initialOp) document.getElementById('controller-op').innerText = initialOp.text;
             showScreen('screen-controller');
         }
@@ -940,7 +947,6 @@
             };
             document.getElementById('board-game-title').innerText = minigameTitles[selectedMinigame];
 
-            // Enviar inicio a todos los clientes
             Object.keys(connections).forEach(id => {
                 if(connections[id].open) {
                     connections[id].send({ type: 'START_GAME' });
@@ -1021,7 +1027,7 @@
                 p.score += 10;
 
                 if(selectedMinigame === 'rope') {
-                    ropePosition += (p.team === 'red') ? -12 : 12;
+                    ropePosition += (p.team === 'red') ? -10.5 : 10.5;
                     if(ropePosition <= -105 || ropePosition >= 105) endGame();
                 } else if(selectedMinigame === 'jar') {
                     jarWaterLevel += 2;
@@ -1035,7 +1041,7 @@
             } else {
                 p.misses++;
                 if(selectedMinigame === 'rope') {
-                    ropePosition += (p.team === 'red') ? 4 : -4;
+                    ropePosition += (p.team === 'red') ? 5 : -5;
                 }
             }
             drawCanvas();
@@ -1093,17 +1099,23 @@
             else if(selectedMinigame === 'marathon') drawMarathonMinigame(ctx, w, h);
         }
 
-        // --- RENDERIZADO DE MINIJUEGOS EN CANVAS ---
         function drawRopeMinigame(ctx, w, h) {
+            ctx.fillStyle = "rgba(255, 63, 52, 0.25)"; ctx.fillRect(0, 0, 80, h);
+            ctx.fillStyle = "rgba(0, 210, 255, 0.25)"; ctx.fillRect(w - 80, 0, 80, h);
+
             ctx.fillStyle = "#111729"; ctx.fillRect(0, h - 50, w, 50);
+
             let shift = (ropePosition / 105) * (w * 0.38);
 
-            ctx.strokeStyle = "#e5c158"; ctx.lineWidth = 14; ctx.beginPath();
-            ctx.moveTo(50, h / 2); ctx.lineTo(w - 50, h / 2); ctx.stroke();
+            ctx.strokeStyle = "#e5c158"; ctx.lineWidth = 16; ctx.lineCap = "round";
+            ctx.beginPath(); ctx.moveTo(50, h / 2 - 10); ctx.lineTo(w - 50, h / 2 - 10); ctx.stroke();
 
             let centerPos = (w / 2) + shift;
             ctx.fillStyle = "#f9d423"; ctx.beginPath();
-            ctx.arc(centerPos, h / 2, 16, 0, Math.PI * 2); ctx.fill();
+            ctx.moveTo(centerPos, h / 2 - 55);
+            ctx.lineTo(centerPos + 28, h / 2 - 32);
+            ctx.lineTo(centerPos, h / 2 - 9);
+            ctx.fill();
         }
 
         function drawBirdsMinigame(ctx, w, h) {
@@ -1162,14 +1174,13 @@
             const podiumContainer = document.getElementById('podium-display');
             podiumContainer.innerHTML = '';
 
+            // ORDEN ESTRICTO POR PUNTUACIÓN DESCENDENTE (Soluciona el fallo del orden de entrada)
             const sorted = Object.values(players).sort((a,b) => b.score - a.score);
 
-            // Generar únicamente los tres primeros para la Pizarra
             const top3 = sorted.slice(0, 3);
             const classes = ['podium-2', 'podium-1', 'podium-3'];
             const medals = ['🥈 2º', '🥇 1º', '🥉 3º'];
             
-            // Reordenar visualmente para el podio (2º - 1º - 3º)
             const displayOrder = [];
             if(top3[1]) displayOrder.push({ p: top3[1], pos: 1 });
             if(top3[0]) displayOrder.push({ p: top3[0], pos: 0 });
@@ -1190,24 +1201,75 @@
                 `¡Felicidades a ${top3[0].name} por ganar la partida!` : "¡Partida finalizada!";
         }
 
-        // Descarga de Informe en CSV para el Profesor
-        function downloadCSVReport() {
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Nombre,Aciertos,Fallos,Intentos Totales,Precision (%),Puntos\n";
+        // --- DESCARGA DE INFORME UNIVERSAL OPTIMIZADA PARA TABLETS Y PC (FORMATO PDF NATIVO) ---
+        function downloadPDFReport() {
+            const sorted = Object.values(players).sort((a,b) => b.score - a.score);
+            
+            let htmlContent = `
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>Informe de Resultados - Math Rush</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
+                        h1 { color: #1e3a8a; text-align: center; }
+                        p { text-align: center; color: #666; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 25px; }
+                        th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: center; }
+                        th { background-color: #f1f5f9; color: #1e293b; }
+                        tr:nth-child(even) { background-color: #f8fafc; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Informe de Resultados - Math Rush Suite</h1>
+                    <p>Sala PIN: <strong>${roomPin}</strong> | Minijuego: <strong>${selectedMinigame.toUpperCase()}</strong></p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Posición</th>
+                                <th>Nombre del Alumno</th>
+                                <th>Aciertos</th>
+                                <th>Fallos</th>
+                                <th>Precisión</th>
+                                <th>Puntuación Final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
 
-            Object.values(players).forEach(p => {
+            sorted.forEach((p, index) => {
                 const totalAttempts = p.hits + p.misses;
                 const precision = totalAttempts > 0 ? ((p.hits / totalAttempts) * 100).toFixed(1) : 0;
-                csvContent += `"${p.name}",${p.hits},${p.misses},${totalAttempts},${precision}%,${p.score}\n`;
+                htmlContent += `
+                    <tr>
+                        <td><strong>#${index + 1}</strong></td>
+                        <td>${p.name}</td>
+                        <td>${p.hits}</td>
+                        <td>${p.misses}</td>
+                        <td>${precision}%</td>
+                        <td><strong>${p.score} pts</strong></td>
+                    </tr>
+                `;
             });
 
-            const encodedUri = encodeURI(csvContent);
+            htmlContent += `
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `;
+
+            // Creación de objeto Blob para asegurar compatibilidad total en tablets (iPad/Android) y PC
+            const blob = new Blob([htmlContent], { type: 'application/pdf;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Informe_MathRush_${roomPin}.csv`);
+            link.href = url;
+            link.download = `Informe_MathRush_${roomPin}.pdf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
         }
     </script>
 </body>
