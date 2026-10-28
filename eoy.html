@@ -499,7 +499,7 @@
     <!-- Pantalla de Inicio -->
     <div id="screen-home" class="screen active">
         <div class="card">
-            <h1>🎮 MATH MATH RUSH OW SUITE</h1>
+            <h1>🎮 MATH RUSH SUITE</h1>
             <p class="subtitle">Plataforma Multijuego de Cálculo Mental para el Aula</p>
             <p style="font-size: 0.9rem; color: #f9d423; margin-bottom: 18px; font-weight: 700;">
                 📺 NOTA: Los dispositivos deben conectarse a la misma red Wi-Fi
@@ -520,7 +520,7 @@
             <div class="minigame-grid">
                 <div class="minigame-card selected" id="game-rope" onclick="selectMinigame('rope')">
                     <h3>🪢 La Cuerda</h3>
-                    <p>Duelo táctico por equipos (Rojo vs Azul). ¡Atraed la cuerda hacia vuestro lado!</p>
+                    <p>Duelo táctico 1 vs 1 por equipos (Rojo vs Azul). ¡Atraed la cuerda hacia vuestro lado!</p>
                 </div>
                 <div class="minigame-card" id="game-birds" onclick="selectMinigame('birds')">
                     <h3>🐦 Carrera de Aves</h3>
@@ -866,13 +866,36 @@
             if(!data) return;
 
             if(data.type === 'CONNECT') {
+                let assignedTeam = data.team || "red";
+
+                // REGLA ESTRICTA DE LA CUERDA: 1 VS 1 Y BALANCEO DE EQUIPOS
+                if(selectedMinigame === 'rope') {
+                    const currentPlayers = Object.values(players);
+                    const redCount = currentPlayers.filter(p => p.team === 'red').length;
+                    const blueCount = currentPlayers.filter(p => p.team === 'blue').length;
+
+                    if(redCount >= 1 && blueCount >= 1) {
+                        conn.send({ 
+                            type: 'REJECTED', 
+                            reason: '⚠️ La sala de "La Cuerda" ya está llena (Máximo 1 jugador por equipo).' 
+                        });
+                        conn.close();
+                        return;
+                    }
+
+                    if(assignedTeam === 'red' && redCount >= 1) {
+                        assignedTeam = 'blue';
+                    } else if(assignedTeam === 'blue' && blueCount >= 1) {
+                        assignedTeam = 'red';
+                    }
+                }
+
                 connections[conn.peer] = conn;
                 
-                // Múltiples conexiones por equipo permitidas
                 players[conn.peer] = {
                     id: conn.peer,
                     name: data.name || "Alumno",
-                    team: data.team || "red",
+                    team: assignedTeam,
                     score: 0,
                     hits: 0,
                     misses: 0,
@@ -882,6 +905,7 @@
                 conn.send({ 
                     type: 'CONNECTED_ACK', 
                     minigame: selectedMinigame, 
+                    team: assignedTeam,
                     op: players[conn.peer].currentOp 
                 });
                 
@@ -954,7 +978,11 @@
                 hostConnection.on('data', (data) => {
                     if(data.type === 'CONNECTED_ACK') {
                         selectedMinigame = data.minigame;
+                        if(data.team) myTeam = data.team;
                         setupControllerUI(data.op);
+                    } else if(data.type === 'REJECTED') {
+                        errDiv.innerText = data.reason || "Acceso denegado.";
+                        resetJoinButton();
                     } else {
                         handleClientMessage(data);
                     }
@@ -1006,7 +1034,6 @@
         function recalculateJarTarget() {
             const numPlayers = Math.max(Object.keys(players).length, 1);
             const durationMinutes = gameTime / 60;
-            // Fórmula especificada: 20 aciertos por minuto y jugador
             dynamicJarTarget = Math.max(10, Math.round(20 * durationMinutes * numPlayers));
         }
 
@@ -1018,7 +1045,7 @@
             recalculateJarTarget();
 
             const minigameTitles = {
-                rope: '🪢 LA CUERDA (EQUIPOS)',
+                rope: '🪢 LA CUERDA (EQUIPOS 1 vs 1)',
                 birds: '🐦 CARRERA DE AVES',
                 jar: '🫙 LLENAR LA JARRA (COOPERATIVO)',
                 marathon: '🏃 MODO MARATÓN'
@@ -1182,9 +1209,9 @@
             else if(selectedMinigame === 'marathon') drawMarathonMinigame(ctx, w, h);
         }
 
-        /* SCENA DE LA CUERDA VISTOSA RECUPERADA Y DIBUJADA */
+        /* ESCENA DE LA CUERDA DIBUJADA */
         function drawRopeMinigame(ctx, w, h) {
-            // Foso o Zona de Límite Rojo (Izquierda)
+            // Foso / Límite Rojo (Izquierda)
             ctx.fillStyle = "rgba(255, 63, 52, 0.25)";
             ctx.fillRect(0, 0, 90, h);
             ctx.strokeStyle = "rgba(255, 63, 52, 0.6)";
@@ -1195,7 +1222,7 @@
             }
             ctx.stroke();
 
-            // Foso o Zona de Límite Azul (Derecha)
+            // Foso / Límite Azul (Derecha)
             ctx.fillStyle = "rgba(0, 210, 255, 0.25)";
             ctx.fillRect(w - 90, 0, 90, h);
             ctx.strokeStyle = "rgba(0, 210, 255, 0.6)";
@@ -1206,7 +1233,7 @@
             }
             ctx.stroke();
 
-            // Suelo de la plataforma
+            // Suelo
             ctx.fillStyle = "#111729";
             ctx.fillRect(0, h - 60, w, 60);
 
@@ -1219,10 +1246,10 @@
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Desplazamiento calculado de la cuerda
+            // Desplazamiento calculado
             let shift = (ropePosition / 105) * (w * 0.36);
 
-            // Dibujo de la Cuerda Principal
+            // Cuerda Principal
             ctx.strokeStyle = "#e5c158";
             ctx.lineWidth = 18;
             ctx.lineCap = "round";
@@ -1231,7 +1258,7 @@
             ctx.lineTo(w - 60, h / 2 - 10);
             ctx.stroke();
 
-            // Pañuelo / Nudo Central
+            // Nudo Central
             let centerPos = (w / 2) + shift;
             ctx.fillStyle = "#f9d423";
             ctx.beginPath();
@@ -1243,24 +1270,17 @@
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Monigotes / Personajes sosteniendo la Cuerda
-            // Equipo Rojo (3 monigotes)
-            let redX = (w / 2) - 140 + shift;
+            // Personaje Rojo (1 jugador)
+            let redX = (w / 2) - 100 + shift;
             ctx.fillStyle = "#ff3f34";
-            for(let i = 0; i < 3; i++) {
-                let x = redX + (i * 35);
-                ctx.beginPath(); ctx.arc(x, h / 2 - 38, 15, 0, Math.PI * 2); ctx.fill();
-                ctx.fillRect(x - 9, h / 2 - 22, 18, 28);
-            }
+            ctx.beginPath(); ctx.arc(redX, h / 2 - 38, 16, 0, Math.PI * 2); ctx.fill();
+            ctx.fillRect(redX - 10, h / 2 - 22, 20, 30);
 
-            // Equipo Azul (3 monigotes)
-            let blueX = (w / 2) + 65 + shift;
+            // Personaje Azul (1 jugador)
+            let blueX = (w / 2) + 100 + shift;
             ctx.fillStyle = "#00d2ff";
-            for(let i = 0; i < 3; i++) {
-                let x = blueX + (i * 35);
-                ctx.beginPath(); ctx.arc(x, h / 2 - 38, 15, 0, Math.PI * 2); ctx.fill();
-                ctx.fillRect(x - 9, h / 2 - 22, 18, 28);
-            }
+            ctx.beginPath(); ctx.arc(blueX, h / 2 - 38, 16, 0, Math.PI * 2); ctx.fill();
+            ctx.fillRect(blueX - 10, h / 2 - 22, 20, 30);
 
             // Alertas visuales dinámicas de peligro de caída
             if(ropePosition <= -65) {
@@ -1280,16 +1300,14 @@
             }
         }
 
-        /* CARRERA DE AVES CON FONDO CONTRASTADO */
+        /* CARRERA DE AVES */
         function drawBirdsMinigame(ctx, w, h) {
-            // Fondo Cielo Nocturno Degradado Vistoso
             let skyGradient = ctx.createLinearGradient(0, 0, 0, h);
             skyGradient.addColorStop(0, "#0c102b");
             skyGradient.addColorStop(1, "#1e1b4b");
             ctx.fillStyle = skyGradient;
             ctx.fillRect(0, 0, w, h);
 
-            // Dibujar Estrellas Luminosas de Fondo
             ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
             for(let i = 0; i < 25; i++) {
                 let starX = (i * 37) % w;
@@ -1307,7 +1325,6 @@
                 const y = (index * rowHeight) + (rowHeight / 2);
                 const progressX = Math.min(w - 70, 60 + (p.hits * 22));
 
-                // Pista/Carril delimitado futurista
                 ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
                 ctx.fillRect(40, y - rowHeight/2 + 4, w - 80, rowHeight - 8);
 
@@ -1315,13 +1332,11 @@
                 ctx.lineWidth = 2;
                 ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(w - 40, y); ctx.stroke();
 
-                // Nombre del Alumno con fondo oscuro para máxima legibilidad
                 ctx.fillStyle = "#f9d423"; 
                 ctx.font = "bold 15px sans-serif";
                 ctx.textAlign = "left";
                 ctx.fillText(p.name, 10, y - 10);
 
-                // Avatar del Ave (🐦)
                 ctx.fillStyle = "#ec4899";
                 ctx.beginPath();
                 ctx.arc(progressX, y, 20, 0, Math.PI * 2);
@@ -1333,21 +1348,18 @@
             });
         }
 
-        /* LLENAR LA JARRA CON ESCALA PROPORCIONAL */
+        /* LLENAR LA JARRA */
         function drawJarMinigame(ctx, w, h) {
-            // Fondo suave
             ctx.fillStyle = "#0a0e1a";
             ctx.fillRect(0, 0, w, h);
 
             const jarW = 160, jarH = 250;
             const jarX = (w / 2) - (jarW / 2), jarY = h - jarH - 35;
 
-            // Borde cristal de la Jarra
             ctx.strokeStyle = "#ffffff";
             ctx.lineWidth = 7;
             ctx.strokeRect(jarX, jarY, jarW, jarH);
 
-            // Nivel de Agua
             const fillH = Math.min(1, jarWaterLevel / dynamicJarTarget) * jarH;
             
             let waterGradient = ctx.createLinearGradient(0, jarY + jarH - fillH, 0, jarY + jarH);
@@ -1357,7 +1369,6 @@
             ctx.fillStyle = waterGradient;
             ctx.fillRect(jarX + 4, jarY + jarH - fillH, jarW - 8, fillH);
 
-            // Texto informativo superior
             ctx.fillStyle = "#f9d423";
             ctx.font = "900 24px var(--font-family)";
             ctx.textAlign = "center";
@@ -1387,7 +1398,7 @@
             });
         }
 
-        /* --- FINALIZACIÓN Y RESULTADOS CON PODIO CORREGIDO --- */
+        /* --- FINALIZACIÓN Y RESULTADOS --- */
         function endGame() {
             clearInterval(timerInterval);
             showScreen('screen-winner');
@@ -1395,14 +1406,12 @@
             const podiumContainer = document.getElementById('podium-display');
             podiumContainer.innerHTML = '';
 
-            // ORDEN ESTRICTO POR PUNTUACIÓN DESCENDENTE (Soluciona fallo de orden)
             const sorted = Object.values(players).sort((a,b) => b.score - a.score);
 
             const top3 = sorted.slice(0, 3);
             const classes = ['podium-2', 'podium-1', 'podium-3'];
             const medals = ['🥈 2º', '🥇 1º', '🥉 3º'];
             
-            // Orden visual del podio: 2º a la izquierda, 1º al centro, 3º a la derecha
             const displayOrder = [];
             if(top3[1]) displayOrder.push({ p: top3[1], pos: 1 });
             if(top3[0]) displayOrder.push({ p: top3[0], pos: 0 });
@@ -1423,7 +1432,7 @@
                 `¡Felicidades a ${top3[0].name} por el primer puesto!` : "¡Partida finalizada con éxito!";
         }
 
-        /* --- DESCARGA DE INFORME PDF REAL CON JSPDF + AUTOTABLE (100% FUNCIONAL Y LEGIBLE) --- */
+        /* --- INFORME PDF --- */
         function downloadPDFReport() {
             try {
                 const { jsPDF } = window.jspdf;
@@ -1431,7 +1440,6 @@
 
                 const sorted = Object.values(players).sort((a,b) => b.score - a.score);
 
-                // Encabezado del PDF
                 doc.setFillColor(30, 41, 59);
                 doc.rect(0, 0, 210, 35, 'F');
                 
@@ -1444,7 +1452,6 @@
                 doc.setFont("helvetica", "normal");
                 doc.text(`Sala PIN: ${roomPin}  |  Minijuego: ${selectedMinigame.toUpperCase()}`, 105, 27, { align: "center" });
 
-                // Preparación de los datos para la tabla
                 const tableBody = sorted.map((p, index) => {
                     const totalAttempts = p.hits + p.misses;
                     const precision = totalAttempts > 0 ? ((p.hits / totalAttempts) * 100).toFixed(1) + "%" : "0%";
@@ -1458,7 +1465,6 @@
                     ];
                 });
 
-                // Generación de tabla estilizada con AutoTable
                 doc.autoTable({
                     startY: 45,
                     head: [['Posición', 'Nombre del Alumno', 'Aciertos', 'Fallos', 'Precisión', 'Puntuación']],
@@ -1471,7 +1477,6 @@
                     }
                 });
 
-                // Descarga real en formato PDF binario universal
                 doc.save(`Informe_MathRush_PIN_${roomPin}.pdf`);
 
             } catch (error) {
