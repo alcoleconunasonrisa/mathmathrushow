@@ -3,20 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Math Math Rush Ow Suite: Plataforma Multijuego de Aula</title>
-    <!-- Generador QR -->
+    <title>Math Rush Suite: Plataforma Multijuego de Aula</title>
+    <!-- Libs Externas desde CDN seguro -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
-    <!-- PeerJS robusto -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
+    <!-- Biblioteca jsPDF y Plugin AutoTable para PDF Nativo Real -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js" crossorigin="anonymous"></script>
+    
     <style>
         :root {
-            --bg-dark: #080b14;
-            --panel-bg: rgba(20, 26, 46, 0.95);
+            --bg-dark: #070a13;
+            --panel-bg: rgba(18, 24, 43, 0.95);
             --red-team: #ff3f34;
             --red-glow: rgba(255, 63, 52, 0.6);
             --blue-team: #00d2ff;
             --blue-glow: rgba(0, 210, 255, 0.6);
             --yellow: #f9d423;
+            --purple-accent: #a855f7;
             --green: #22c55e;
             --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             --font-mono: 'Courier New', monospace;
@@ -34,8 +38,9 @@
         body {
             background-color: var(--bg-dark);
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(255, 63, 52, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(0, 210, 255, 0.1) 0%, transparent 40%);
+                radial-gradient(circle at 15% 20%, rgba(255, 63, 52, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(0, 210, 255, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 60%);
             color: #ffffff;
             font-family: var(--font-family);
             min-height: 100vh;
@@ -45,7 +50,7 @@
             align-items: center;
             justify-content: center;
             overflow-x: hidden;
-            padding: 10px;
+            padding: 12px;
         }
 
         .btn-home {
@@ -66,14 +71,14 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+            box-shadow: 0 0 12px rgba(0, 210, 255, 0.25);
         }
 
         .btn-home:hover {
             background: var(--blue-team);
             color: var(--bg-dark);
             transform: scale(1.05);
-            box-shadow: 0 0 18px rgba(0, 210, 255, 0.6);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.6);
         }
 
         .screen {
@@ -93,11 +98,11 @@
             border: 3px solid #2a3352;
             border-radius: 28px;
             padding: 28px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
             width: 100%;
-            max-width: 750px;
+            max-width: 780px;
             text-align: center;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
         }
 
         h1 {
@@ -135,6 +140,11 @@
             color: white;
             font-size: 1.1rem;
             outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--yellow);
         }
 
         .btn {
@@ -146,24 +156,24 @@
             padding: 16px 30px;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 0 25px rgba(249, 212, 35, 0.5);
-            transition: transform 0.2s;
+            box-shadow: 0 0 25px rgba(249, 212, 35, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
             margin-top: 10px;
             width: 100%;
         }
 
-        .btn:hover { transform: scale(1.02); }
+        .btn:hover { transform: scale(1.02); box-shadow: 0 0 30px rgba(249, 212, 35, 0.6); }
 
         .btn-secondary {
             background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
             color: white;
-            box-shadow: 0 0 25px rgba(0, 210, 255, 0.5);
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.4);
         }
 
         .btn-pdf {
-            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
             color: white;
-            box-shadow: 0 0 25px rgba(255, 65, 108, 0.5);
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.4);
         }
 
         .btn:disabled {
@@ -303,12 +313,13 @@
             flex-wrap: wrap;
             gap: 10px;
             justify-content: center;
-            max-height: 200px;
+            max-height: 220px;
             overflow-y: auto;
             margin: 15px 0;
-            padding: 10px;
-            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            background: rgba(0,0,0,0.35);
             border-radius: 16px;
+            border: 1px solid #2a3352;
         }
 
         .player-chip {
@@ -323,6 +334,9 @@
             align-items: center;
             gap: 6px;
         }
+
+        .player-chip.red { border-color: var(--red-team); background: rgba(255, 63, 52, 0.15); }
+        .player-chip.blue { border-color: var(--blue-team); background: rgba(0, 210, 255, 0.15); }
 
         .arena-center {
             display: flex;
@@ -347,48 +361,49 @@
 
         canvas#gameCanvas {
             width: 100%;
-            height: 400px;
+            height: 420px;
             border-radius: 18px;
             background: #060913;
             border: 2px solid #2a3352;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
         }
 
         .controller-card {
             background: var(--panel-bg);
             border-radius: 28px;
-            padding: 20px;
+            padding: 22px;
             width: 100%;
-            max-width: 420px;
+            max-width: 440px;
             text-align: center;
             border: 5px solid #333;
             box-shadow: 0 15px 35px rgba(0,0,0,0.7);
         }
 
-        .controller-card.red { border-color: var(--red-team); box-shadow: 0 0 25px var(--red-glow); }
-        .controller-card.blue { border-color: var(--blue-team); box-shadow: 0 0 25px var(--blue-glow); }
+        .controller-card.red { border-color: var(--red-team); box-shadow: 0 0 30px var(--red-glow); }
+        .controller-card.blue { border-color: var(--blue-team); box-shadow: 0 0 30px var(--blue-glow); }
 
         .op-card {
             background: #080b14;
             border: 3px solid #2a3352;
             border-radius: 20px;
             width: 100%;
-            padding: 20px 5px;
+            padding: 18px 5px;
             text-align: center;
             font-family: var(--font-mono);
             font-size: 2.4rem;
             font-weight: 800;
             color: var(--yellow);
             margin: 10px 0;
-            min-height: 90px;
+            min-height: 85px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
         }
 
         .input-display {
             width: 100%;
-            height: 70px;
+            height: 65px;
             border-radius: 16px;
             background: #000;
             border: 3px dashed #555;
@@ -418,6 +433,7 @@
             border-radius: 14px;
             cursor: pointer;
             font-family: var(--font-mono);
+            transition: background 0.1s;
         }
 
         .key:active { background: var(--yellow); color: black; }
@@ -440,8 +456,8 @@
             justify-content: center;
             align-items: flex-end;
             gap: 15px;
-            margin: 20px 0;
-            height: 200px;
+            margin: 25px 0 15px 0;
+            height: 220px;
         }
 
         .podium-step {
@@ -449,33 +465,45 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-end;
-            width: 110px;
+            width: 120px;
             border-radius: 16px 16px 0 0;
-            padding-bottom: 10px;
+            padding: 12px 6px;
             font-weight: 900;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
 
-        .podium-1 { height: 180px; background: linear-gradient(180deg, #f9d423, #d4ac0d); color: #000; }
-        .podium-2 { height: 140px; background: linear-gradient(180deg, #bdc3c7, #7f8c8d); color: #000; }
-        .podium-3 { height: 100px; background: linear-gradient(180deg, #e67e22, #a04000); color: #fff; }
+        .podium-1 { height: 190px; background: linear-gradient(180deg, #f9d423, #d4ac0d); color: #000; }
+        .podium-2 { height: 145px; background: linear-gradient(180deg, #e2e8f0, #94a3b8); color: #000; }
+        .podium-3 { height: 110px; background: linear-gradient(180deg, #f97316, #c2410c); color: #fff; }
+
+        .error-msg {
+            color: var(--red-team);
+            font-weight: 800;
+            margin-top: 10px;
+            font-size: 1rem;
+            text-shadow: 0 0 10px rgba(255, 63, 52, 0.4);
+        }
 
         @media (max-width: 900px) {
-            .game-grid { grid-template-columns: 1fr; height: auto; }
-            canvas#gameCanvas { height: 250px; }
+            canvas#gameCanvas { height: 280px; }
             .minigame-grid { grid-template-columns: 1fr; }
+            .podium-container { height: 180px; gap: 8px; }
+            .podium-step { width: 95px; }
         }
     </style>
 </head>
 <body>
 
-    <a href="main-index.html" class="btn-home">🏠 INICIO</a>
+    <a href="index.html" class="btn-home">🏠 INICIO</a>
 
     <!-- Pantalla de Inicio -->
     <div id="screen-home" class="screen active">
         <div class="card">
-            <h1>🎮 MATH RUSH SUITE</h1>
+            <h1>🎮 MATH MATH RUSH OW SUITE</h1>
             <p class="subtitle">Plataforma Multijuego de Cálculo Mental para el Aula</p>
-            <p style="font-size: 0.85rem; color: #f9d423; margin-bottom: 15px;">📺 NOTA: Los dispositivos deben conectarse a la misma red Wi-Fi 📺</p>
+            <p style="font-size: 0.9rem; color: #f9d423; margin-bottom: 18px; font-weight: 700;">
+                📺 NOTA: Los dispositivos deben conectarse a la misma red Wi-Fi
+            </p>
             <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 10px;">
                 <button class="btn" onclick="showScreen('screen-setup')">📺 CREAR SALA (Pizarra Digital)</button>
                 <button class="btn btn-secondary" onclick="showScreen('screen-join')">📱 UNIRME CON CÓDIGO PIN (Mando)</button>
@@ -492,19 +520,19 @@
             <div class="minigame-grid">
                 <div class="minigame-card selected" id="game-rope" onclick="selectMinigame('rope')">
                     <h3>🪢 La Cuerda</h3>
-                    <p>Duelo por equipos (Rojo vs Azul). Fuerza táctica y cálculo.</p>
+                    <p>Duelo táctico por equipos (Rojo vs Azul). ¡Atraed la cuerda hacia vuestro lado!</p>
                 </div>
                 <div class="minigame-card" id="game-birds" onclick="selectMinigame('birds')">
                     <h3>🐦 Carrera de Aves</h3>
-                    <p>Todos contra todos. Avanza por la pista horizontal con cada acierto.</p>
+                    <p>Todos contra todos. Avanza velozmente por la pista con cada acierto.</p>
                 </div>
                 <div class="minigame-card" id="game-jar" onclick="selectMinigame('jar')">
                     <h3>🫙 Llenar la Jarra</h3>
-                    <p>Modo Cooperativo. Toda la clase suma gotas para llenar el recipiente.</p>
+                    <p>Cooperativo. La clase suma gotas para llenar el gran recipiente antes de que expire el tiempo.</p>
                 </div>
                 <div class="minigame-card" id="game-marathon" onclick="selectMinigame('marathon')">
                     <h3>🏃 Modo Maratón</h3>
-                    <p>Resistencia individual sin distracciones. Máximos aciertos limpios.</p>
+                    <p>Resistencia individual. Clasificación en tiempo real basada en aciertos limpios.</p>
                 </div>
             </div>
 
@@ -536,6 +564,7 @@
                     <option value="60">⏱️ 1 Minuto</option>
                     <option value="120">⏱️ 2 Minutos</option>
                     <option value="180">⏱️ 3 Minutos</option>
+                    <option value="300">⏱️ 5 Minutos</option>
                 </select>
             </div>
             
@@ -553,9 +582,9 @@
                 <div class="qr-container" id="qrcode"></div>
             </div>
 
-            <p style="color: #a0aec0; font-size: 0.95rem; margin-top: 10px;">Jugadores Conectados:</p>
+            <p style="color: #a0aec0; font-size: 1rem; margin-top: 10px; font-weight: 700;">Jugadores Conectados:</p>
             <div class="players-lobby-list" id="players-list">
-                <span style="color: #666; font-size: 0.9rem;">Esperando alumnos...</span>
+                <span style="color: #718096; font-size: 0.95rem;">Esperando alumnos...</span>
             </div>
 
             <button class="btn" id="btn-start-game" disabled onclick="startGame()">¡EMPEZAR JUEGO! ⚔️</button>
@@ -566,22 +595,25 @@
     <div id="screen-join" class="screen">
         <div class="card">
             <h1>ENTRAR AL JUEGO</h1>
-            <p class="subtitle">Introduce tus datos para acceder a la Pizarra Digital</p>
+            <p class="subtitle">Introduce tus datos para conectarte a la Pizarra</p>
             <div class="form-group">
                 <label>Tu Nombre / Alias:</label>
-                <input type="text" id="input-name" placeholder="Ej: Mateo" maxlength="12" style="text-align: center; font-size: 1.3rem;">
+                <input type="text" id="input-name" placeholder="Ej: Sofía" maxlength="12" style="text-align: center; font-size: 1.3rem;">
             </div>
             <div class="form-group">
                 <label>PIN de la Sala:</label>
                 <input type="number" id="input-pin" placeholder="PIN de 6 dígitos" style="text-align: center; font-size: 1.6rem; letter-spacing: 4px;">
             </div>
-            <div class="form-group" id="team-selector-group">
+            
+            <!-- Selector de equipo visible SOLO para La Cuerda -->
+            <div class="form-group" id="team-selector-group" style="display:none;">
                 <label>Elige tu Equipo:</label>
                 <select id="input-team">
                     <option value="red">🔴 EQUIPO ROJO (Izquierda)</option>
                     <option value="blue">🔵 EQUIPO AZUL (Derecha)</option>
                 </select>
             </div>
+
             <button class="btn" id="btn-join" onclick="joinRoom()">ENTRAR A LA SALA 🎮</button>
             <div id="join-error-msg" class="error-msg"></div>
             <button class="btn btn-secondary" style="margin-top: 10px;" onclick="showScreen('screen-home')">⬅️ VOLVER AL INICIO</button>
@@ -592,17 +624,17 @@
     <div id="screen-board" class="screen">
         <div class="arena-center">
             <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px;">
-                <h2 id="board-game-title" style="color: var(--yellow);">MATH RUSH</h2>
+                <h2 id="board-game-title" style="color: var(--yellow); font-size: 1.8rem;">MATH RUSH</h2>
                 <div class="timer" id="timer-display">01:00</div>
             </div>
-            <canvas id="gameCanvas" width="800" height="400"></canvas>
+            <canvas id="gameCanvas" width="900" height="420"></canvas>
         </div>
     </div>
 
     <!-- Mando de Control de Dispositivos -->
     <div id="screen-controller" class="screen">
         <div class="controller-card" id="controller-card">
-            <h2 id="controller-name-title" style="margin-bottom: 8px; color: var(--yellow);">MANDO</h2>
+            <h2 id="controller-name-title" style="margin-bottom: 6px; color: var(--yellow);">MANDO</h2>
             <p style="color: #a0aec0; font-size: 0.9rem; margin-bottom: 5px;">Tu cálculo actual:</p>
             <div class="op-card" id="controller-op">?</div>
             <div class="input-display" id="controller-disp"></div>
@@ -627,20 +659,21 @@
     <div id="screen-winner" class="screen">
         <div class="card">
             <h1>🏆 RESULTADOS FINALES</h1>
-            <p id="winner-subtitle" class="subtitle" style="font-size: 1.2rem; color: white;"></p>
+            <p id="winner-subtitle" class="subtitle" style="font-size: 1.25rem; color: white;"></p>
             
             <div class="podium-container" id="podium-display">
-                <!-- Podio ordenado estrictamente por puntos -->
+                <!-- Se genera dinámicamente por JS ordenado por score -->
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
-                <button class="btn btn-pdf" onclick="downloadPDFReport()">📄 DESCARGAR INFORME DE ALUMNOS (PDF)</button>
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+                <button class="btn btn-pdf" onclick="downloadPDFReport()">📄 DESCARGAR INFORME EN PDF (REAL)</button>
                 <button class="btn" onclick="location.reload()">NUEVA PARTIDA 🔄</button>
             </div>
         </div>
     </div>
 
     <script>
+        /* --- CONFIGURACIÓN DE PEERJS --- */
         const peerOptions = {
             host: '0.peerjs.com',
             port: 443,
@@ -655,6 +688,7 @@
             }
         };
 
+        /* --- VARIABLES GLOBALES DEL JUEGO --- */
         let selectedMinigame = 'rope'; 
         let roomPin = "";
         let opType = "sum_facil";
@@ -670,9 +704,10 @@
         let myName = "";
         let myTeam = "red";
 
-        let ropePosition = 0; 
+        // Variables específicas de los minijuegos
+        let ropePosition = 0; // Posición de la cuerda (-105 a +105)
         let jarWaterLevel = 0; 
-        let dynamicJarTarget = 50; 
+        let dynamicJarTarget = 20; 
 
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -681,6 +716,16 @@
                 showScreen('screen-join');
                 document.getElementById('input-pin').value = pinParam;
             }
+
+            // Teclado físico
+            window.addEventListener('keydown', (e) => {
+                const screenCtrl = document.getElementById('screen-controller');
+                if(screenCtrl && screenCtrl.classList.contains('active')) {
+                    if(e.key >= '0' && e.key <= '9') pressKey(parseInt(e.key, 10));
+                    if(e.key === 'Backspace') deleteKey();
+                    if(e.key === 'Enter') submitKey();
+                }
+            });
         });
 
         function showScreen(id) {
@@ -694,7 +739,7 @@
             document.querySelectorAll('.minigame-card').forEach(c => c.classList.remove('selected'));
             document.getElementById('game-' + type).classList.add('selected');
 
-            // Mostrar u ocultar selector de equipo exclusivamente para "La Cuerda"
+            // El selector de equipo solo aparece en "La Cuerda"
             const teamGroup = document.getElementById('team-selector-group');
             if(type === 'rope') {
                 teamGroup.style.display = 'block';
@@ -720,13 +765,13 @@
                 title.innerText = "➕ Niveles de Sumas:";
                 presetContainer.innerHTML = `
                     <button class="btn-mode" onclick="setMode('sum_facil', 'all', 'Sumas Fáciles (1 dígito)')">Fácil (1 dígito)</button>
-                    <button class="btn-mode" onclick="setMode('sum_medio', 'all', 'Sumas Medias (2 dígitos)')">Medio (10 a 50)</button>
-                    <button class="btn-mode" onclick="setMode('sum_dificil', 'all', 'Sumas Avanzadas')">Avanzado (Hasta 100)</button>
+                    <button class="btn-mode" onclick="setMode('sum_medio', 'all', 'Sumas Medias (10 a 50)')">Medio (10 a 50)</button>
+                    <button class="btn-mode" onclick="setMode('sum_dificil', 'all', 'Sumas Avanzadas (Hasta 100)')">Avanzado (Hasta 100)</button>
                 `;
             } else if(category === 'RES') {
                 title.innerText = "➖ Niveles de Restas:";
                 presetContainer.innerHTML = `
-                    <button class="btn-mode" onclick="setMode('res_facil', 'all', 'Restas Fáciles')">Fácil</button>
+                    <button class="btn-mode" onclick="setMode('res_facil', 'all', 'Restas Fáciles')">Fácil (Resultados positivos)</button>
                     <button class="btn-mode" onclick="setMode('res_medio', 'all', 'Restas Medias')">Medio (Hasta 50)</button>
                     <button class="btn-mode" onclick="setMode('res_dificil', 'all', 'Restas Avanzadas')">Avanzado (Hasta 100)</button>
                 `;
@@ -779,6 +824,7 @@
             }
         }
 
+        /* --- SALA Y PEERJS SERVIDOR (PIZARRA) --- */
         function createRoom() {
             roomPin = Math.floor(100000 + Math.random() * 900000).toString();
             gameTime = parseInt(document.getElementById('select-time').value, 10);
@@ -790,7 +836,7 @@
             peer = new Peer('mathrush_suite_' + roomPin, peerOptions);
 
             peer.on('open', () => { renderQR(); });
-            peer.on('error', (err) => { renderQR(); });
+            peer.on('error', () => { renderQR(); });
             
             peer.on('connection', (conn) => {
                 conn.on('data', (data) => handleHostMessage(conn, data));
@@ -798,6 +844,7 @@
                     delete connections[conn.peer];
                     delete players[conn.peer];
                     updateLobbyUI();
+                    recalculateJarTarget();
                 });
             });
 
@@ -820,6 +867,8 @@
 
             if(data.type === 'CONNECT') {
                 connections[conn.peer] = conn;
+                
+                // Múltiples conexiones por equipo permitidas
                 players[conn.peer] = {
                     id: conn.peer,
                     name: data.name || "Alumno",
@@ -830,8 +879,14 @@
                     currentOp: generateOp(opType)
                 };
                 
-                conn.send({ type: 'CONNECTED_ACK', minigame: selectedMinigame, op: players[conn.peer].currentOp });
+                conn.send({ 
+                    type: 'CONNECTED_ACK', 
+                    minigame: selectedMinigame, 
+                    op: players[conn.peer].currentOp 
+                });
+                
                 updateLobbyUI();
+                recalculateJarTarget();
             }
 
             if(data.type === 'SUBMIT') {
@@ -843,7 +898,7 @@
             const container = document.getElementById('players-list');
             const keys = Object.keys(players);
             if(keys.length === 0) {
-                container.innerHTML = '<span style="color: #666; font-size: 0.9rem;">Esperando alumnos...</span>';
+                container.innerHTML = '<span style="color: #718096; font-size: 0.95rem;">Esperando alumnos...</span>';
                 document.getElementById('btn-start-game').disabled = true;
                 return;
             }
@@ -852,15 +907,23 @@
             keys.forEach(k => {
                 const p = players[k];
                 const chip = document.createElement('div');
-                chip.className = 'player-chip';
-                let teamText = selectedMinigame === 'rope' ? (p.team === 'red' ? ' 🔴 (Rojo)' : ' 🔵 (Azul)') : '';
-                chip.innerText = `👤 ${p.name}${teamText}`;
+                
+                if(selectedMinigame === 'rope') {
+                    chip.className = `player-chip ${p.team}`;
+                    let teamIcon = p.team === 'red' ? '🔴 Rojo' : '🔵 Azul';
+                    chip.innerText = `👤 ${p.name} (${teamIcon})`;
+                } else {
+                    chip.className = 'player-chip';
+                    chip.innerText = `👤 ${p.name}`;
+                }
+                
                 container.appendChild(chip);
             });
 
             document.getElementById('btn-start-game').disabled = false;
         }
 
+        /* --- UNIRSE COMO CLIENTE (MANDO) --- */
         function joinRoom() {
             const name = document.getElementById('input-name').value.trim();
             const pin = document.getElementById('input-pin').value.trim();
@@ -890,6 +953,7 @@
 
                 hostConnection.on('data', (data) => {
                     if(data.type === 'CONNECTED_ACK') {
+                        selectedMinigame = data.minigame;
                         setupControllerUI(data.op);
                     } else {
                         handleClientMessage(data);
@@ -898,21 +962,25 @@
 
                 hostConnection.on('error', () => {
                     errDiv.innerText = "Error de conexión con la Pizarra.";
-                    document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
-                    document.getElementById('btn-join').disabled = false;
+                    resetJoinButton();
                 });
             });
 
             peer.on('error', () => {
-                errDiv.innerText = "No se pudo conectar a la red.";
-                document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
-                document.getElementById('btn-join').disabled = false;
+                errDiv.innerText = "No se pudo conectar. Revisa el PIN o tu red Wi-Fi.";
+                resetJoinButton();
             });
+        }
+
+        function resetJoinButton() {
+            document.getElementById('btn-join').innerText = "ENTRAR A LA SALA 🎮";
+            document.getElementById('btn-join').disabled = false;
         }
 
         function setupControllerUI(initialOp) {
             document.getElementById('controller-name-title').innerText = myName;
             const card = document.getElementById('controller-card');
+            
             if(selectedMinigame === 'rope') {
                 card.className = 'controller-card ' + myTeam;
             } else {
@@ -934,20 +1002,25 @@
             }
         }
 
+        /* --- LÓGICA Y CÁLCULO DINÁMICO DE META PARA LA JARRA --- */
+        function recalculateJarTarget() {
+            const numPlayers = Math.max(Object.keys(players).length, 1);
+            const durationMinutes = gameTime / 60;
+            // Fórmula especificada: 20 aciertos por minuto y jugador
+            dynamicJarTarget = Math.max(10, Math.round(20 * durationMinutes * numPlayers));
+        }
+
         function startGame() {
             showScreen('screen-board');
             ropePosition = 0;
             jarWaterLevel = 0;
 
-            // Cálculo dinámico para la jarra: 20 aciertos por minuto y jugador
-            let totalMinutes = gameTime > 0 ? (gameTime / 60) : 1;
-            let playerCount = Math.max(Object.keys(players).length, 1);
-            dynamicJarTarget = Math.round(20 * totalMinutes * playerCount);
+            recalculateJarTarget();
 
             const minigameTitles = {
-                rope: '🪢 LA CUERDA',
+                rope: '🪢 LA CUERDA (EQUIPOS)',
                 birds: '🐦 CARRERA DE AVES',
-                jar: '🫙 LLENAR LA JARRA',
+                jar: '🫙 LLENAR LA JARRA (COOPERATIVO)',
                 marathon: '🏃 MODO MARATÓN'
             };
             document.getElementById('board-game-title').innerText = minigameTitles[selectedMinigame];
@@ -962,6 +1035,7 @@
             drawCanvas();
         }
 
+        /* --- GENERADOR DE OPERACIONES MATEMÁTICAS --- */
         function generateOp(type) {
             let a, b, text, ans;
             switch(type) {
@@ -1023,6 +1097,7 @@
             return { text, ans };
         }
 
+        /* --- VERIFICACIÓN DE RESPUESTAS --- */
         function checkAnswer(playerId, val) {
             const p = players[playerId];
             if(!p) return;
@@ -1052,6 +1127,7 @@
             drawCanvas();
         }
 
+        /* --- EVENTOS MANDO TÁCTIL --- */
         let currentInputStr = "";
         function pressKey(num) {
             if(currentInputStr.length < 4) {
@@ -1074,12 +1150,8 @@
             document.getElementById('controller-disp').innerText = currentInputStr;
         }
 
+        /* --- TEMPORIZADOR --- */
         function startTimer() {
-            if (gameTime === 0) {
-                document.getElementById('timer-display').innerText = "⚔️∞";
-                return;
-            }
-
             let t = gameTime;
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
@@ -1095,6 +1167,7 @@
             }, 1000);
         }
 
+        /* --- DIBUJO Y RENDERIZADO EN CANVAS --- */
         function drawCanvas() {
             const canvas = document.getElementById('gameCanvas');
             if(!canvas) return;
@@ -1109,79 +1182,212 @@
             else if(selectedMinigame === 'marathon') drawMarathonMinigame(ctx, w, h);
         }
 
+        /* SCENA DE LA CUERDA VISTOSA RECUPERADA Y DIBUJADA */
         function drawRopeMinigame(ctx, w, h) {
-            ctx.fillStyle = "rgba(255, 63, 52, 0.25)"; ctx.fillRect(0, 0, 80, h);
-            ctx.fillStyle = "rgba(0, 210, 255, 0.25)"; ctx.fillRect(w - 80, 0, 80, h);
-            ctx.fillStyle = "#111729"; ctx.fillRect(0, h - 50, w, 50);
+            // Foso o Zona de Límite Rojo (Izquierda)
+            ctx.fillStyle = "rgba(255, 63, 52, 0.25)";
+            ctx.fillRect(0, 0, 90, h);
+            ctx.strokeStyle = "rgba(255, 63, 52, 0.6)";
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            for(let i = 0; i < h; i += 24) {
+                ctx.moveTo(0, i); ctx.lineTo(45, i + 24);
+            }
+            ctx.stroke();
 
-            let shift = (ropePosition / 105) * (w * 0.38);
+            // Foso o Zona de Límite Azul (Derecha)
+            ctx.fillStyle = "rgba(0, 210, 255, 0.25)";
+            ctx.fillRect(w - 90, 0, 90, h);
+            ctx.strokeStyle = "rgba(0, 210, 255, 0.6)";
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            for(let i = 0; i < h; i += 24) {
+                ctx.moveTo(w - 45, i); ctx.lineTo(w, i + 24);
+            }
+            ctx.stroke();
 
-            ctx.strokeStyle = "#e5c158"; ctx.lineWidth = 16; ctx.lineCap = "round";
-            ctx.beginPath(); ctx.moveTo(50, h / 2 - 10); ctx.lineTo(w - 50, h / 2 - 10); ctx.stroke();
+            // Suelo de la plataforma
+            ctx.fillStyle = "#111729";
+            ctx.fillRect(0, h - 60, w, 60);
 
+            // Línea central divisoria
+            ctx.strokeStyle = "rgba(249, 212, 35, 0.5)";
+            ctx.lineWidth = 3;
+            ctx.setLineDash([8, 8]);
+            ctx.beginPath();
+            ctx.moveTo(w / 2, 0); ctx.lineTo(w / 2, h - 60);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Desplazamiento calculado de la cuerda
+            let shift = (ropePosition / 105) * (w * 0.36);
+
+            // Dibujo de la Cuerda Principal
+            ctx.strokeStyle = "#e5c158";
+            ctx.lineWidth = 18;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(60, h / 2 - 10);
+            ctx.lineTo(w - 60, h / 2 - 10);
+            ctx.stroke();
+
+            // Pañuelo / Nudo Central
             let centerPos = (w / 2) + shift;
-            ctx.fillStyle = "#f9d423"; ctx.beginPath();
-            ctx.moveTo(centerPos, h / 2 - 55);
-            ctx.lineTo(centerPos + 28, h / 2 - 32);
-            ctx.lineTo(centerPos, h / 2 - 9);
+            ctx.fillStyle = "#f9d423";
+            ctx.beginPath();
+            ctx.moveTo(centerPos, h / 2 - 58);
+            ctx.lineTo(centerPos + 30, h / 2 - 32);
+            ctx.lineTo(centerPos, h / 2 - 6);
             ctx.fill();
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Monigotes / Personajes sosteniendo la Cuerda
+            // Equipo Rojo (3 monigotes)
+            let redX = (w / 2) - 140 + shift;
+            ctx.fillStyle = "#ff3f34";
+            for(let i = 0; i < 3; i++) {
+                let x = redX + (i * 35);
+                ctx.beginPath(); ctx.arc(x, h / 2 - 38, 15, 0, Math.PI * 2); ctx.fill();
+                ctx.fillRect(x - 9, h / 2 - 22, 18, 28);
+            }
+
+            // Equipo Azul (3 monigotes)
+            let blueX = (w / 2) + 65 + shift;
+            ctx.fillStyle = "#00d2ff";
+            for(let i = 0; i < 3; i++) {
+                let x = blueX + (i * 35);
+                ctx.beginPath(); ctx.arc(x, h / 2 - 38, 15, 0, Math.PI * 2); ctx.fill();
+                ctx.fillRect(x - 9, h / 2 - 22, 18, 28);
+            }
+
+            // Alertas visuales dinámicas de peligro de caída
+            if(ropePosition <= -65) {
+                ctx.fillStyle = "rgba(255, 63, 52, 0.4)";
+                ctx.fillRect(0, 0, w, h);
+                ctx.fillStyle = "#ff3f34";
+                ctx.font = "900 26px var(--font-family)";
+                ctx.textAlign = "left";
+                ctx.fillText("⚠️ ¡EL ROJO CAE!", 25, 45);
+            } else if(ropePosition >= 65) {
+                ctx.fillStyle = "rgba(0, 210, 255, 0.4)";
+                ctx.fillRect(0, 0, w, h);
+                ctx.fillStyle = "#00d2ff";
+                ctx.font = "900 26px var(--font-family)";
+                ctx.textAlign = "right";
+                ctx.fillText("¡EL AZUL CAE! ⚠️", w - 25, 45);
+            }
         }
 
+        /* CARRERA DE AVES CON FONDO CONTRASTADO */
         function drawBirdsMinigame(ctx, w, h) {
-            // Fondo específico vistoso y contrastado para la carrera de aves
-            ctx.fillStyle = "#162238";
+            // Fondo Cielo Nocturno Degradado Vistoso
+            let skyGradient = ctx.createLinearGradient(0, 0, 0, h);
+            skyGradient.addColorStop(0, "#0c102b");
+            skyGradient.addColorStop(1, "#1e1b4b");
+            ctx.fillStyle = skyGradient;
             ctx.fillRect(0, 0, w, h);
 
+            // Dibujar Estrellas Luminosas de Fondo
+            ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+            for(let i = 0; i < 25; i++) {
+                let starX = (i * 37) % w;
+                let starY = (i * 19) % h;
+                ctx.fillRect(starX, starY, 2, 2);
+            }
+
             const playerKeys = Object.keys(players);
-            const rowHeight = h / Math.max(playerKeys.length, 1);
+            if(playerKeys.length === 0) return;
+
+            const rowHeight = h / playerKeys.length;
 
             playerKeys.forEach((id, index) => {
                 const p = players[id];
                 const y = (index * rowHeight) + (rowHeight / 2);
-                const progressX = Math.min(w - 60, 40 + (p.hits * 18));
+                const progressX = Math.min(w - 70, 60 + (p.hits * 22));
 
-                ctx.strokeStyle = "rgba(255,255,255,0.15)";
+                // Pista/Carril delimitado futurista
+                ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
+                ctx.fillRect(40, y - rowHeight/2 + 4, w - 80, rowHeight - 8);
+
+                ctx.strokeStyle = "rgba(0, 210, 255, 0.3)";
                 ctx.lineWidth = 2;
                 ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(w - 40, y); ctx.stroke();
 
-                ctx.fillStyle = "#f9d423"; ctx.font = "bold 15px sans-serif";
-                ctx.fillText(p.name, 15, y - 12);
+                // Nombre del Alumno con fondo oscuro para máxima legibilidad
+                ctx.fillStyle = "#f9d423"; 
+                ctx.font = "bold 15px sans-serif";
+                ctx.textAlign = "left";
+                ctx.fillText(p.name, 10, y - 10);
 
-                ctx.fillStyle = "#ff4e50"; ctx.beginPath();
-                ctx.arc(progressX, y, 18, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = "#fff"; ctx.font = "14px sans-serif";
-                ctx.fillText("🐦", progressX - 10, y + 5);
+                // Avatar del Ave (🐦)
+                ctx.fillStyle = "#ec4899";
+                ctx.beginPath();
+                ctx.arc(progressX, y, 20, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.font = "20px sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText("🐦", progressX, y + 7);
             });
         }
 
+        /* LLENAR LA JARRA CON ESCALA PROPORCIONAL */
         function drawJarMinigame(ctx, w, h) {
-            const jarW = 150, jarH = 230;
-            const jarX = (w / 2) - (jarW / 2), jarY = h - jarH - 30;
+            // Fondo suave
+            ctx.fillStyle = "#0a0e1a";
+            ctx.fillRect(0, 0, w, h);
 
-            ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 6;
+            const jarW = 160, jarH = 250;
+            const jarX = (w / 2) - (jarW / 2), jarY = h - jarH - 35;
+
+            // Borde cristal de la Jarra
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 7;
             ctx.strokeRect(jarX, jarY, jarW, jarH);
 
-            const fillH = (jarWaterLevel / dynamicJarTarget) * jarH;
-            ctx.fillStyle = "rgba(0, 210, 255, 0.75)";
-            ctx.fillRect(jarX + 3, jarY + jarH - fillH, jarW - 6, fillH);
+            // Nivel de Agua
+            const fillH = Math.min(1, jarWaterLevel / dynamicJarTarget) * jarH;
+            
+            let waterGradient = ctx.createLinearGradient(0, jarY + jarH - fillH, 0, jarY + jarH);
+            waterGradient.addColorStop(0, "#00d2ff");
+            waterGradient.addColorStop(1, "#3b82f6");
+            
+            ctx.fillStyle = waterGradient;
+            ctx.fillRect(jarX + 4, jarY + jarH - fillH, jarW - 8, fillH);
 
-            ctx.fillStyle = "#f9d423"; ctx.font = "900 24px var(--font-family)";
+            // Texto informativo superior
+            ctx.fillStyle = "#f9d423";
+            ctx.font = "900 24px var(--font-family)";
             ctx.textAlign = "center";
-            ctx.fillText(`🫙 GOTAS: ${jarWaterLevel} / ${dynamicJarTarget}`, w / 2, 45);
+            ctx.fillText(`🫙 GOTAS EN LA JARRA: ${jarWaterLevel} / ${dynamicJarTarget}`, w / 2, 45);
+
+            ctx.fillStyle = "#a0aec0";
+            ctx.font = "600 16px var(--font-family)";
+            ctx.fillText(`(Calculado dinámicamente: 20 gotas / min / alumno)`, w / 2, 75);
         }
 
+        /* MODO MARATÓN */
         function drawMarathonMinigame(ctx, w, h) {
-            const sorted = Object.values(players).sort((a,b) => b.hits - a.hits);
-            ctx.fillStyle = "#ffffff"; ctx.font = "bold 20px sans-serif";
+            ctx.fillStyle = "#0a0e1a";
+            ctx.fillRect(0, 0, w, h);
+
+            const sorted = Object.values(players).sort((a,b) => b.score - a.score);
+            
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 22px var(--font-family)";
             ctx.textAlign = "left";
-            ctx.fillText("🏃 CLASIFICACIÓN EN TIEMPO REAL:", 40, 40);
+            ctx.fillText("🏃 CLASIFICACIÓN MODO MARATÓN:", 40, 45);
 
             sorted.forEach((p, i) => {
-                ctx.fillStyle = (i === 0) ? "#f9d423" : "#a0aec0";
-                ctx.fillText(`${i + 1}. ${p.name} — ${p.hits} Aciertos (${p.score} pts)`, 40, 80 + (i * 35));
+                ctx.fillStyle = (i === 0) ? "#f9d423" : (i === 1 ? "#e2e8f0" : (i === 2 ? "#f97316" : "#a0aec0"));
+                ctx.font = "bold 18px var(--font-family)";
+                ctx.fillText(`${i + 1}º. ${p.name} — ${p.hits} Aciertos (${p.score} pts)`, 40, 95 + (i * 38));
             });
         }
 
+        /* --- FINALIZACIÓN Y RESULTADOS CON PODIO CORREGIDO --- */
         function endGame() {
             clearInterval(timerInterval);
             showScreen('screen-winner');
@@ -1189,13 +1395,14 @@
             const podiumContainer = document.getElementById('podium-display');
             podiumContainer.innerHTML = '';
 
-            // ORDEN ESTRICTO POR PUNTUACIÓN DESCENDENTE (Soluciona el fallo del orden de entrada)
+            // ORDEN ESTRICTO POR PUNTUACIÓN DESCENDENTE (Soluciona fallo de orden)
             const sorted = Object.values(players).sort((a,b) => b.score - a.score);
 
             const top3 = sorted.slice(0, 3);
             const classes = ['podium-2', 'podium-1', 'podium-3'];
             const medals = ['🥈 2º', '🥇 1º', '🥉 3º'];
             
+            // Orden visual del podio: 2º a la izquierda, 1º al centro, 3º a la derecha
             const displayOrder = [];
             if(top3[1]) displayOrder.push({ p: top3[1], pos: 1 });
             if(top3[0]) displayOrder.push({ p: top3[0], pos: 0 });
@@ -1205,86 +1412,72 @@
                 const step = document.createElement('div');
                 step.className = `podium-step ${classes[item.pos]}`;
                 step.innerHTML = `
-                    <div style="font-size: 1.1rem; margin-bottom: 5px;">${item.p.name}</div>
-                    <div style="font-size: 0.85rem;">${item.p.score} pts</div>
-                    <div style="margin-top: 8px;">${medals[item.pos]}</div>
+                    <div style="font-size: 1.15rem; margin-bottom: 6px;">${item.p.name}</div>
+                    <div style="font-size: 0.9rem;">${item.p.score} pts</div>
+                    <div style="margin-top: 10px;">${medals[item.pos]}</div>
                 `;
                 podiumContainer.appendChild(step);
             });
 
             document.getElementById('winner-subtitle').innerText = top3[0] ? 
-                `¡Felicidades a ${top3[0].name} por ganar la partida!` : "¡Partida finalizada!";
+                `¡Felicidades a ${top3[0].name} por el primer puesto!` : "¡Partida finalizada con éxito!";
         }
 
-        // --- DESCARGA DE INFORME UNIVERSAL OPTIMIZADA PARA TABLETS Y PC (FORMATO PDF NATIVO SEGURO) ---
+        /* --- DESCARGA DE INFORME PDF REAL CON JSPDF + AUTOTABLE (100% FUNCIONAL Y LEGIBLE) --- */
         function downloadPDFReport() {
-            const sorted = Object.values(players).sort((a,b) => b.score - a.score);
-            
-            let htmlContent = `
-                <html>
-                <head>
-                    <meta charset="utf-8">
-                    <title>Informe de Resultados - Math Rush</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
-                        h1 { color: #1e3a8a; text-align: center; }
-                        p { text-align: center; color: #666; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 25px; }
-                        th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: center; }
-                        th { background-color: #f1f5f9; color: #1e293b; }
-                        tr:nth-child(even) { background-color: #f8fafc; }
-                    </style>
-                </head>
-                <body>
-                    <h1>Informe de Resultados - Math Rush Suite</h1>
-                    <p>Sala PIN: <strong>${roomPin}</strong> | Minijuego: <strong>${selectedMinigame.toUpperCase()}</strong></p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Posición</th>
-                                <th>Nombre del Alumno</th>
-                                <th>Aciertos</th>
-                                <th>Fallos</th>
-                                <th>Precisión</th>
-                                <th>Puntuación Final</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
 
-            sorted.forEach((p, index) => {
-                const totalAttempts = p.hits + p.misses;
-                const precision = totalAttempts > 0 ? ((p.hits / totalAttempts) * 100).toFixed(1) : 0;
-                htmlContent += `
-                    <tr>
-                        <td><strong>#${index + 1}</strong></td>
-                        <td>${p.name}</td>
-                        <td>${p.hits}</td>
-                        <td>${p.misses}</td>
-                        <td>${precision}%</td>
-                        <td><strong>${p.score} pts</strong></td>
-                    </tr>
-                `;
-            });
+                const sorted = Object.values(players).sort((a,b) => b.score - a.score);
 
-            htmlContent += `
-                        </tbody>
-                    </table>
-                </body>
-                </html>
-            `;
+                // Encabezado del PDF
+                doc.setFillColor(30, 41, 59);
+                doc.rect(0, 0, 210, 35, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(20);
+                doc.text("INFORME DE RESULTADOS - MATH RUSH", 105, 18, { align: "center" });
+                
+                doc.setFontSize(11);
+                doc.setFont("helvetica", "normal");
+                doc.text(`Sala PIN: ${roomPin}  |  Minijuego: ${selectedMinigame.toUpperCase()}`, 105, 27, { align: "center" });
 
-            // Creación de objeto Blob con tipo MIME correcto para garantizar apertura en tablets y PC
-            const blob = new Blob([htmlContent], { type: 'application/pdf;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = `Informe_MathRush_${roomPin}.pdf`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            setTimeout(() => URL.revokeObjectURL(url), 100);
+                // Preparación de los datos para la tabla
+                const tableBody = sorted.map((p, index) => {
+                    const totalAttempts = p.hits + p.misses;
+                    const precision = totalAttempts > 0 ? ((p.hits / totalAttempts) * 100).toFixed(1) + "%" : "0%";
+                    return [
+                        `#${index + 1}`,
+                        p.name,
+                        p.hits,
+                        p.misses,
+                        precision,
+                        `${p.score} pts`
+                    ];
+                });
+
+                // Generación de tabla estilizada con AutoTable
+                doc.autoTable({
+                    startY: 45,
+                    head: [['Posición', 'Nombre del Alumno', 'Aciertos', 'Fallos', 'Precisión', 'Puntuación']],
+                    body: tableBody,
+                    theme: 'striped',
+                    headStyles: { fillColor: [59, 130, 246], textColor: 255, fontStyle: 'bold' },
+                    styles: { fontSize: 10, alignment: 'center' },
+                    columnStyles: {
+                        1: { halign: 'left' }
+                    }
+                });
+
+                // Descarga real en formato PDF binario universal
+                doc.save(`Informe_MathRush_PIN_${roomPin}.pdf`);
+
+            } catch (error) {
+                console.error("Error generando PDF:", error);
+                alert("Ocurrió un error generando el PDF. Asegúrate de tener conexión a internet.");
+            }
         }
     </script>
 </body>
