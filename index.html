@@ -5,15 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <meta name="application-name" content="Math Rush">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Math Rush">
     <meta name="description" content="Entrena tu cerebro a máxima velocidad con Math Math Rush Ow">
     <meta name="theme-color" content="#0f172a">
 
-    <link rel="manifest" href="/manifest.json?v=5.0">
     <link rel="icon" type="image/png" href="/icon-192.png">
-    <link rel="apple-touch-icon" href="/icon-192.png">
 
     <title>Math Math Rush Ow - ¡Bienvenido!</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -35,7 +30,6 @@
         }
 
         body {
-            /* DISEÑO IGUAL AL MAIN-INDEX (FONDO MARCA DE AGUA) */
             background:
                 linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)),
                 url('iconkid.jpg') no-repeat center center fixed;
@@ -131,25 +125,6 @@
             box-shadow: 0 0px 0px transparent;
         }
 
-        #installButton {
-            display: none;
-            padding: 12px 30px;
-            background: transparent;
-            color: white;
-            border: 2px solid white;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 10px;
-        }
-
-        #installButton:hover {
-            background: white;
-            color: #0f172a;
-        }
-
         footer {
             position: absolute;
             bottom: 20px;
@@ -178,10 +153,6 @@
             <a href="main-index.html" class="play-button">
                 <i class="fas fa-rocket"></i> EMPEZAR
             </a>
-
-            <button id="installButton">
-                <i class="fas fa-download"></i> INSTALAR APP
-            </button>
         </div>
     </div>
 
@@ -190,41 +161,5 @@
     <a href="terms-of-service.html">Términos de Servicio</a>
     <p>© 2026 Math Math Rush Ow - Academia de Aventuras</p>
     </footer>
-
-    <script>
-        // Lógica del Service Worker y PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js?v=5.0')
-                    .then(reg => console.log('✅ SW registrado'))
-                    .catch(err => console.error('❌ Error SW:', err));
-            });
-        }
-
-        let deferredPrompt;
-        const installButton = document.getElementById('installButton');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installButton.style.display = 'block';
-        });
-
-        installButton.addEventListener('click', async () => {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            deferredPrompt = null;
-            installButton.style.display = 'none';
-        });
-
-        // Autoredirección si ya es PWA
-        window.addEventListener('load', () => {
-            if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-                installButton.style.display = 'none';
-            }
-        });
-    </script>
 </body>
 </html>
-
