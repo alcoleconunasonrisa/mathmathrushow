@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Laboratorio de Teoría de Números | MathMathRuShow</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Orbitron:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            bg: '#0a0e17',
+                            card: '#111827',
+                            border: '#1f2937',
+                            accent: '#38bdf8',
+                            indigo: '#6366f1',
+                            amber: '#f59e0b',
+                            emerald: '#10b981',
+                            rose: '#f43f5e',
+                            purple: '#a855f7',
+                            sky: '#0284c7',
+                            teal: '#0d9488'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'Inter', 'sans-serif'],
+                        math: ['Orbitron', 'monospace']
+                    },
+                    animation: {
+                        'shake': 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both',
+                        'pulse-glow': 'pulseGlow 2s infinite'
+                    },
+                    keyframes: {
+                        shake: {
+                            '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                            '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                            '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+                            '40%, 60%': { transform: 'translate3d(4px, 0, 0)' }
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(56, 189, 248, 0.4)' },
+                            '50%': { boxShadow: '0 0 25px rgba(56, 189, 248, 0.8)' }
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #0a0e17;
+            color: #f8fafc;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .app-header {
+            background-color: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 100%;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px;
+            z-index: 10;
+        }
+
+        @media (min-width: 640px) {
+            .main-container {
+                padding: 16px;
+            }
+        }
+
+        .game-view {
+            display: none !important;
+            width: 100%;
+            max-width: 900px;
+            animation: fadeIn 0.3s ease-out;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-view.active {
+            display: flex !important;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .menu-card {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 1.25rem;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (min-width: 640px) {
+            .menu-card {
+                padding: 20px;
+            }
+        }
+
+        .menu-card:hover {
+            transform: translateY(-4px);
+            border-color: #38bdf8;
+            box-shadow: 0 12px 24px -10px rgba(56, 189, 248, 0.3);
+        }
+
+        .game-card-container {
+            width: 100%;
+            background: #ffffff;
+            color: #0f172a;
+            border-radius: 1.25rem;
+            padding: 14px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @media (min-width: 640px) {
+            .game-card-container {
+                border-radius: 1.5rem;
+                padding: 24px;
+            }
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .numpad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        @media (min-width: 640px) {
+            .numpad-grid {
+                gap: 10px;
+            }
+        }
+
+        .numpad-key {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            min-height: 44px;
+            padding: 10px 0;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #1e293b;
+            box-shadow: 0 3px 0 #cbd5e1;
+            cursor: pointer;
+            transition: all 0.1s;
+            text-align: center;
+            touch-action: manipulation;
+        }
+
+        @media (min-width: 640px) {
+            .numpad-key {
+                border-radius: 12px;
+                padding: 14px 0;
+                font-size: 1.3rem;
+            }
+        }
+
+        .numpad-key:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #cbd5e1;
+        }
+
+        .numpad-key.key-action {
+            background: #fee2e2;
+            color: #ef4444;
+            box-shadow: 0 3px 0 #fca5a5;
+        }
+
+        .numpad-key.key-submit {
+            background: #d1fae5;
+            color: #059669;
+            box-shadow: 0 3px 0 #6ee7b7;
+        }
+
+        .bubble-btn {
+            aspect-ratio: 1;
+            min-height: 44px;
+            border-radius: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            touch-action: manipulation;
+        }
+
+        @media (min-width: 640px) {
+            .bubble-btn {
+                border-radius: 1rem;
+                font-size: 1.25rem;
+            }
+        }
+
+        .bubble-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .level-badge {
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Header Principal -->
+    <header class="app-header">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <a href="main-index.html" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-white hover:bg-rose-600 transition shadow-sm" title="Menú Principal">
+                <i class="fas fa-home text-sm sm:text-base"></i>
+            </a>
+            <div class="flex items-center gap-2">
+                <i class="fas fa-cubes text-sky-400 text-lg sm:text-xl"></i>
+                <span class="font-bold text-base sm:text-lg text-slate-100 font-math">MathMathRuShow</span>
+            </div>
+        </div>
+        <button onclick="showMainMenu()" class="px-3 py-1.5 sm:px-4 sm:py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition">
+            <i class="fas fa-th-large"></i> <span class="hidden sm:inline">Menú</span>
+        </button>
+    </header>
+
+    <div class="main-container">
+
+        <!-- MENÚ PRINCIPAL PROGRESIVO -->
+        <div id="view-main-menu" class="game-view active">
+            <div class="text-center mb-5 sm:mb-6 px-2">
+                <h1 class="text-2xl sm:text-4xl font-black text-sky-400 tracking-tight mb-2">Laboratorio de Teoría de Números</h1>
+                <p class="text-slate-400 text-xs sm:text-base max-w-2xl mx-auto">Secuencia didáctica: Múltiplos y divisores → Listas simples → Descomposición prima.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
+                
+                <div class="menu-card" onclick="openGame('game-multiplos')">
+                    <span class="level-badge bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Nivel 1</span>
+                    <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl mb-3">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-1">Caza de Múltiplos</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Identifica rápidamente los múltiplos exactos de un número en esferas.</p>
+                </div>
+
+                <div class="menu-card" onclick="openGame('game-divisores')">
+                    <span class="level-badge bg-amber-500/20 text-amber-300 border border-amber-500/30">Nivel 2</span>
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-3">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-1">Cofre de Divisores</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Halla TODOS los divisores de un número sin excepción.</p>
+                </div>
+
+                <div class="menu-card" onclick="openGame('game-generador-multiplos')">
+                    <span class="level-badge bg-sky-500/20 text-sky-300 border border-sky-500/30">Nivel 3</span>
+                    <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center text-xl mb-3">
+                        <i class="fas fa-list-ol"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-1">Generador de Múltiplos</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Escribe los primeros N múltiplos en secuencia exacta y ordenada.</p>
+                </div>
+
+                <div class="menu-card" onclick="openGame('game-mcm-listas')">
+                    <span class="level-badge bg-teal-500/20 text-teal-300 border border-teal-500/30">Nivel 4</span>
+                    <div class="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center text-xl mb-3">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-1">m.c.m. por Listado</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Genera los múltiplos de ambos números y halla el primer común.</p>
+                </div>
+
+                <div class="menu-card" onclick="openGame('game-mcd-listas')">
+                    <span class="level-badge bg-blue-500/20 text-blue-300 border border-blue-500/30">Nivel 5</span>
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-xl mb-3">
+                        <i class="fas fa-filter"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-1">M.C.D. por Listado</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Escribe todos los divisores de ambos números y halla el mayor común.</p>
+                </div>
+
+                <div class="menu-card" onclick="openGame('game-factorizacion')">
+                    <span class="level-badge bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Nivel 6</span>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-3">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-1">Descomposición Prima</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Algoritmo de división vertical con orden primo obligatorio (2, 3, 5...).</p>
+                </div>
+
+                <div class="menu-card" onclick="openGame('game-mcm-fact')">
+                    <span class="level-badge bg-purple-500/20 text-purple-300 border border-purple-500/30">Nivel 7</span>
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-xl mb-3">
+                        <i class="fas fa-arrow-up-right-dots"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-1">m.c.m. con Descomposición</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Descompón ambos números en primos y calcula el m.c.m. final.</p>
+                </div>
+
+                <div class="menu-card" onclick="openGame('game-mcd-fact')">
+                    <span class="level-badge bg-rose-500/20 text-rose-300 border border-rose-500/30">Nivel 8</span>
+                    <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-xl mb-3">
+                        <i class="fas fa-arrow-down-short-wide"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-1">M.C.D. con Descomposición</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Descompón ambos números y halla el M.C.D. con factores comunes.</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ACTIVIDAD 1: CAZA DE MÚLTIPLOS -->
+        <div id="game-multiplos" class="game-view">
+            <div class="game-card-container">
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200 w-full">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow">🎯</div>
+                        <div>
+                            <span class="text-[10px] uppercase tracking-widest text-indigo-600 font-black block">Nivel 1</span>
+                            <h2 class="text-base sm:text-lg font-black tracking-tight text-slate-900">Caza de Múltiplos</h2>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-lg text-xs font-bold">Puntos: <span id="mult-score-val">0</span></span>
+                </div>
+
+                <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 w-full text-center mb-4">
+                    <span class="text-xs uppercase text-indigo-500 font-bold tracking-wider block">Selecciona las esferas que sean múltiplos de:</span>
+                    <div class="text-3xl sm:text-4xl font-black text-indigo-600 font-math mt-1" id="mult-target-num">4</div>
+                </div>
+
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-2.5 sm:gap-3 w-full max-w-lg mb-4" id="mult-grid-bubbles"></div>
+                <div id="mult-feedback" class="text-center font-bold text-xs sm:text-sm min-h-[1.5rem] mb-3"></div>
+
+                <div class="flex gap-2 w-full max-w-md">
+                    <button onclick="nextMultiplesRound()" class="flex-1 py-2.5 bg-indigo-600 text-white font-bold text-xs sm:text-sm rounded-xl hover:bg-indigo-700 transition shadow">
+                        <i class="fas fa-rotate-right mr-1"></i> Nueva Ronda
+                    </button>
+                    <button onclick="showMainMenu()" class="py-2.5 px-4 bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm rounded-xl hover:bg-slate-300 transition">🏠</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVIDAD 2: COFRE DE DIVISORES -->
+        <div id="game-divisores" class="game-view">
+            <div class="game-card-container">
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200 w-full">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-white font-bold text-lg shadow">🔑</div>
+                        <div>
+                            <span class="text-[10px] uppercase tracking-widest text-amber-600 font-black block">Nivel 2</span>
+                            <h2 class="text-base sm:text-lg font-black tracking-tight text-slate-900">Cofre de Divisores</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 w-full text-center mb-4">
+                    <span class="text-xs uppercase text-amber-600 font-bold tracking-wider block">Encuentra TODOS los divisores exactos de:</span>
+                    <div class="text-3xl sm:text-4xl font-black text-amber-600 font-math mt-1" id="div-target-num">24</div>
+                    <span id="div-count-info" class="text-xs text-amber-800 font-bold block mt-1">Encontrados: 0 / 8</span>
+                </div>
+
+                <div class="flex flex-wrap gap-2 justify-center w-full mb-4 max-w-md min-h-[50px]" id="div-slots-container"></div>
+
+                <div id="div-display-box" class="w-full max-w-xs h-11 sm:h-12 bg-slate-100 border-2 border-slate-300 rounded-xl flex items-center justify-center text-lg sm:text-xl font-black text-amber-600 mb-3 shadow-inner">
+                    <span id="div-typed-val" class="text-slate-400 text-sm sm:text-base">Escribe un divisor...</span>
+                </div>
+
+                <div class="numpad-grid mb-4">
+                    <button class="numpad-key" onclick="pressDivKey('1')">1</button>
+                    <button class="numpad-key" onclick="pressDivKey('2')">2</button>
+                    <button class="numpad-key" onclick="pressDivKey('3')">3</button>
+                    <button class="numpad-key" onclick="pressDivKey('4')">4</button>
+                    <button class="numpad-key" onclick="pressDivKey('5')">5</button>
+                    <button class="numpad-key" onclick="pressDivKey('6')">6</button>
+                    <button class="numpad-key" onclick="pressDivKey('7')">7</button>
+                    <button class="numpad-key" onclick="pressDivKey('8')">8</button>
+                    <button class="numpad-key" onclick="pressDivKey('9')">9</button>
+                    <button class="numpad-key key-action" onclick="deleteDivKey()">⌫</button>
+                    <button class="numpad-key" onclick="pressDivKey('0')">0</button>
+                    <button class="numpad-key key-submit" onclick="submitDivisorAnswer()">OK</button>
+                </div>
+
+                <div id="div-feedback" class="text-center font-bold text-xs sm:text-sm min-h-[1.5rem] mb-3"></div>
+
+                <div class="flex gap-2 w-full max-w-md">
+                    <button onclick="setupDivisoresRound()" class="flex-1 py-2.5 bg-amber-500 text-white font-bold text-xs sm:text-sm rounded-xl hover:bg-amber-600 transition shadow">
+                        <i class="fas fa-dice mr-1"></i> Otro Número
+                    </button>
+                    <button onclick="showMainMenu()" class="py-2.5 px-4 bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm rounded-xl hover:bg-slate-300 transition">🏠</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVIDAD 3: GENERADOR DE MÚLTIPLOS -->
+        <div id="game-generador-multiplos" class="game-view">
+            <div class="game-card-container">
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200 w-full">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-sky-600 flex items-center justify-center text-white font-bold text-lg shadow">🔢</div>
+                        <div>
+                            <span class="text-[10px] uppercase tracking-widest text-sky-600 font-black block">Nivel 3</span>
+                            <h2 class="text-base sm:text-lg font-black tracking-tight text-slate-900">Generador de Múltiplos</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-sky-50 border border-sky-200 rounded-2xl p-4 w-full text-center mb-4">
+                    <span class="text-xs uppercase text-sky-600 font-bold tracking-wider block" id="genm-title-text">Escribe los primeros 6 múltiplos de (empezando por 0):</span>
+                    <div class="text-2xl sm:text-3xl font-black text-sky-800 font-math mt-1" id="genm-target-text">Número 6</div>
+                    <span class="text-xs text-sky-700 font-bold block mt-1" id="genm-progress-text">Progreso: 0 / 6</span>
+                </div>
+
+                <div class="flex flex-wrap gap-2 justify-center w-full mb-4 max-w-md" id="genm-slots-container"></div>
+
+                <div id="genm-display-box" class="w-full max-w-xs h-11 sm:h-12 bg-slate-100 border-2 border-slate-300 rounded-xl flex items-center justify-center text-lg sm:text-xl font-black text-sky-600 mb-3 shadow-inner">
+                    <span id="genm-typed-val" class="text-slate-400 text-sm sm:text-base">Escribe el siguiente múltiplo...</span>
+                </div>
+
+                <div class="numpad-grid mb-4">
+                    <button class="numpad-key" onclick="pressGenMKey('1')">1</button>
+                    <button class="numpad-key" onclick="pressGenMKey('2')">2</button>
+                    <button class="numpad-key" onclick="pressGenMKey('3')">3</button>
+                    <button class="numpad-key" onclick="pressGenMKey('4')">4</button>
+                    <button class="numpad-key" onclick="pressGenMKey('5')">5</button>
+                    <button class="numpad-key" onclick="pressGenMKey('6')">6</button>
+                    <button class="numpad-key" onclick="pressGenMKey('7')">7</button>
+                    <button class="numpad-key" onclick="pressGenMKey('8')">8</button>
+                    <button class="numpad-key" onclick="pressGenMKey('9')">9</button>
+                    <button class="numpad-key key-action" onclick="deleteGenMKey()">⌫</button>
+                    <button class="numpad-key" onclick="pressGenMKey('0')">0</button>
+                    <button class="numpad-key key-submit" onclick="submitGenMAnswer()">OK</button>
+                </div>
+
+                <div id="genm-feedback" class="text-center font-bold text-xs sm:text-sm min-h-[1.5rem] mb-3"></div>
+
+                <div class="flex gap-2 w-full max-w-md">
+                    <button onclick="generarMultiplosRound()" class="flex-1 py-2.5 bg-sky-600 text-white font-bold text-xs sm:text-sm rounded-xl hover:bg-sky-700 transition shadow">
+                        <i class="fas fa-rotate-right mr-1"></i> Nuevo Ejercicio
+                    </button>
+                    <button onclick="showMainMenu()" class="py-2.5 px-4 bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm rounded-xl hover:bg-slate-300 transition">🏠</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVIDAD 4: MCM POR LISTAS DE MÚLTIPLOS -->
+        <div id="game-mcm-listas" class="game-view">
+            <div class="game-card-container">
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200 w-full">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center text-white font-bold text-lg shadow">📊</div>
+                        <div>
+                            <span class="text-[10px] uppercase tracking-widest text-teal-600 font-black block">Nivel 4</span>
+                            <h2 class="text-base sm:text-lg font-black tracking-tight text-slate-900">m.c.m. por Listado de Múltiplos</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-teal-50 border border-teal-200 rounded-2xl p-4 w-full text-center mb-4">
+                    <span class="text-xs uppercase text-teal-600 font-bold tracking-wider block" id="mcml-step-instruction">Paso 1: Escribe los múltiplos de ambos números (empezando por 0)</span>
+                    <div class="text-2xl sm:text-3xl font-black text-teal-800 font-math mt-1" id="mcml-target-text">m.c.m.(4, 6)</div>
+                </div>
+
+                <div class="w-full max-w-md space-y-3 mb-4">
+                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                        <span class="text-xs font-extrabold text-teal-700 block mb-1" id="mcml-label-1">Múltiplos de 4:</span>
+                        <div class="flex flex-wrap gap-1.5 min-h-[32px]" id="mcml-list-1"></div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                        <span class="text-xs font-extrabold text-teal-700 block mb-1" id="mcml-label-2">Múltiplos de 6:</span>
+                        <div class="flex flex-wrap gap-1.5 min-h-[32px]" id="mcml-list-2"></div>
+                    </div>
+                </div>
+
+                <div id="mcml-display-box" class="w-full max-w-xs h-11 sm:h-12 bg-slate-100 border-2 border-slate-300 rounded-xl flex items-center justify-center text-lg sm:text-xl font-black text-teal-600 mb-3 shadow-inner">
+                    <span id="mcml-typed-val" class="text-slate-400 text-sm sm:text-base">Escribe el siguiente número...</span>
+                </div>
+
+                <div class="numpad-grid mb-4">
+                    <button class="numpad-key" onclick="pressMCMLKey('1')">1</button>
+                    <button class="numpad-key" onclick="pressMCMLKey('2')">2</button>
+                    <button class="numpad-key" onclick="pressMCMLKey('3')">3</button>
+                    <button class="numpad-key" onclick="pressMCMLKey('4')">4</button>
+                    <button class="numpad-key" onclick="pressMCMLKey('5')">5</button>
+                    <button class="numpad-key" onclick="pressMCMLKey('6')">6</button>
+                    <button class="numpad-key" onclick="pressMCMLKey('7')">7</button>
+                    <button class="numpad-key" onclick="pressMCMLKey('8')">8</button>
+                    <button class="numpad-key" onclick="pressMCMLKey('9')">9</button>
+                    <button class="numpad-key key-action" onclick="deleteMCMLKey()">⌫</button>
+                    <button class="numpad-key" onclick="pressMCMLKey('0')">0</button>
+                    <button class="numpad-key key-submit" onclick="submitMCMLAnswer()">OK</button>
+                </div>
+
+                <div id="mcml-feedback" class="text-center font-bold text-xs sm:text-sm min-h-[1.5rem] mb-3"></div>
+
+                <div class="flex gap-2 w-full max-w-md">
+                    <button onclick="generarEjercicioMCMListas()" class="flex-1 py-2.5 bg-teal-600 text-white font-bold text-xs sm:text-sm rounded-xl hover:bg-teal-700 transition shadow">
+                        <i class="fas fa-rotate-right mr-1"></i> Siguiente Pareja
+                    </button>
+                    <button onclick="showMainMenu()" class="py-2.5 px-4 bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm rounded-xl hover:bg-slate-300 transition">🏠</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVIDAD 5: MCD POR LISTA DE DIVISORES -->
+        <div id="game-mcd-listas" class="game-view">
+            <div class="game-card-container">
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200 w-full">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow">🔍</div>
+                        <div>
+                            <span class="text-[10px] uppercase tracking-widest text-blue-600 font-black block">Nivel 5</span>
+                            <h2 class="text-base sm:text-lg font-black tracking-tight text-slate-900">M.C.D. por Lista de Divisores</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 w-full text-center mb-4">
+                    <span class="text-xs uppercase text-blue-600 font-bold tracking-wider block" id="mcdl-step-instruction">Paso 1: Escribe todos los divisores de ambos números</span>
+                    <div class="text-2xl sm:text-3xl font-black text-blue-800 font-math mt-1" id="mcdl-target-text">M.C.D.(12, 18)</div>
+                </div>
+
+                <div class="w-full max-w-md space-y-3 mb-4">
+                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                        <span class="text-xs font-extrabold text-blue-700 block mb-1" id="mcdl-label-1">Divisores de 12:</span>
+                        <div class="flex flex-wrap gap-1.5 min-h-[32px]" id="mcdl-list-1"></div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                        <span class="text-xs font-extrabold text-blue-700 block mb-1" id="mcdl-label-2">Divisores de 18:</span>
+                        <div class="flex flex-wrap gap-1.5 min-h-[32px]" id="mcdl-list-2"></div>
+                    </div>
+                </div>
+
+                <div id="mcdl-display-box" class="w-full max-w-xs h-11 sm:h-12 bg-slate-100 border-2 border-slate-300 rounded-xl flex items-center justify-center text-lg sm:text-xl font-black text-blue-600 mb-3 shadow-inner">
+                    <span id="mcdl-typed-val" class="text-slate-400 text-sm sm:text-base">Escribe un divisor...</span>
+                </div>
+
+                <div class="numpad-grid mb-4">
+                    <button class="numpad-key" onclick="pressMCDLKey('1')">1</button>
+                    <button class="numpad-key" onclick="pressMCDLKey('2')">2</button>
+                    <button class="numpad-key" onclick="pressMCDLKey('3')">3</button>
+                    <button class="numpad-key" onclick="pressMCDLKey('4')">4</button>
+                    <button class="numpad-key" onclick="pressMCDLKey('5')">5</button>
+                    <button class="numpad-key" onclick="pressMCDLKey('6')">6</button>
+                    <button class="numpad-key" onclick="pressMCDLKey('7')">7</button>
+                    <button class="numpad-key" onclick="pressMCDLKey('8')">8</button>
+                    <button class="numpad-key" onclick="pressMCDLKey('9')">9</button>
+                    <button class="numpad-key key-action" onclick="deleteMCDLKey()">⌫</button>
+                    <button class="numpad-key" onclick="pressMCDLKey('0')">0</button>
+                    <button class="numpad-key key-submit" onclick="submitMCDLAnswer()">OK</button>
+                </div>
+
+                <div id="mcdl-feedback" class="text-center font-bold text-xs sm:text-sm min-h-[1.5rem] mb-3"></div>
+
+                <div class="flex gap-2 w-full max-w-md">
+                    <button onclick="generarEjercicioMCDListas()" class="flex-1 py-2.5 bg-blue-600 text-white font-bold text-xs sm:text-sm rounded-xl hover:bg-blue-700 transition shadow">
+                        <i class="fas fa-rotate-right mr-1"></i> Siguiente Pareja
+                    </button>
+                    <button onclick="showMainMenu()" class="py-2.5 px-4 bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm rounded-xl hover:bg-slate-300 transition">🏠</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVIDAD 6: DESCOMPOSICIÓN PRIMA CON ORDEN ESTRICTO -->
+        <div id="game-factorizacion" class="game-view">
+            <div class="game-card-container">
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200 w-full">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow">🌐</div>
+                        <div>
+                            <span class="text-[10px] uppercase tracking-widest text-emerald-600 font-black block">Nivel 6</span>
+                            <h2 class="text-base sm:text-lg font-black tracking-tight text-slate-900">Descomposición Prima Ordenada</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full mb-4 items-start">
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl flex flex-col items-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Cuaderno de División</span>
+                        <div id="vertical-factor-table" class="w-full max-w-[200px] font-mono text-lg sm:text-xl space-y-1"></div>
+                    </div>
+
+                    <div class="space-y-3 sm:space-y-4">
+                        <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl">
+                            <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider block">Regla de Trabajo:</span>
+                            <p class="text-xs font-semibold text-emerald-950 mt-1" id="fact-instruction">
+                                Debes dividir primero entre el número primo menor posible (2, luego 3, luego 5...).
+                            </p>
+                        </div>
+
+                        <div class="text-xs font-bold text-slate-600">Elige divisor primo:</div>
+                        <div class="flex flex-wrap gap-2" id="prime-selector-buttons"></div>
+
+                        <div id="fact-feedback" class="text-center font-bold text-xs min-h-[1.5rem]"></div>
+
+                        <div id="fact-result-box" class="hidden bg-emerald-100 border border-emerald-300 p-3 rounded-xl text-center shadow-sm">
+                            <span class="text-xs text-emerald-700 font-bold uppercase tracking-wider block">¡Expresión Exponencial Final!</span>
+                            <div class="text-xl sm:text-2xl font-black text-emerald-900 font-math mt-1" id="fact-final-math"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 w-full max-w-md">
+                    <button onclick="iniciarFactorizacion()" class="flex-1 py-2.5 bg-emerald-600 text-white font-bold text-xs sm:text-sm rounded-xl hover:bg-emerald-700 transition shadow">
+                        <i class="fas fa-shuffle mr-1"></i> Probar Otro Número
+                    </button>
+                    <button onclick="showMainMenu()" class="py-2.5 px-4 bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm rounded-xl hover:bg-slate-300 transition">🏠</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVIDAD 7: MCM CON DESCOMPOSICIÓN INTERACTIVA PREVIA -->
+        <div id="game-mcm-fact" class="game-view">
+            <div class="game-card-container">
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200 w-full">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center text-white font-bold text-lg shadow">📈</div>
+                        <div>
+                            <span class="text-[10px] uppercase tracking-widest text-purple-600 font-black block">Nivel 7</span>
+                            <h2 class="text-base sm:text-lg font-black tracking-tight text-slate-900">m.c.m. con Descomposición Prima</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-purple-50 border border-purple-200 rounded-2xl p-4 w-full text-center mb-4">
+                    <span class="text-xs uppercase text-purple-600 font-bold tracking-wider block" id="mcmf-step-title">Paso 1: Realiza la descomposición prima del primer número</span>
+                    <div class="text-2xl sm:text-3xl font-black text-purple-700 font-math mt-1" id="mcmf-target-pair">m.c.m.(12, 18)</div>
+                </div>
+
+                <!-- Tablas de Descomposición -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full mb-4">
+                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl flex flex-col items-center">
+                        <span class="text-xs font-bold text-slate-500 mb-2" id="mcmf-num1-title">Descomposición de 12</span>
+                        <div id="mcmf-table-1" class="w-full max-w-[150px] font-mono text-sm space-y-1"></div>
+                        <div id="mcmf-decomp-expr-1" class="mt-2 text-xs font-bold text-purple-800 bg-purple-100 px-2.5 py-1 rounded-lg border border-purple-200 hidden"></div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl flex flex-col items-center">
+                        <span class="text-xs font-bold text-slate-500 mb-2" id="mcmf-num2-title">Descomposición de 18</span>
+                        <div id="mcmf-table-2" class="w-full max-w-[150px] font-mono text-sm space-y-1"></div>
+                        <div id="mcmf-decomp-expr-2" class="mt-2 text-xs font-bold text-purple-800 bg-purple-100 px-2.5 py-1 rounded-lg border border-purple-200 hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Contenedor con resumen de Descomposición Factorial Factorizada -->
+                <div id="mcmf-summary-box" class="hidden w-full bg-purple-100 border border-purple-300 p-3 rounded-xl text-center mb-4 shadow-sm">
+                    <span class="text-xs font-bold uppercase tracking-wider text-purple-700 block mb-1">Descomposición Factorial Completa</span>
+                    <div class="text-sm sm:text-base font-extrabold text-purple-950 font-math flex flex-wrap justify-center gap-4" id="mcmf-summary-math"></div>
+                    <p class="text-[11px] text-purple-800 font-medium mt-1">Factores comunes y no comunes elevados al <strong>mayor exponente</strong>.</p>
+                </div>
+
+                <div id="mcmf-primes-container" class="flex flex-wrap gap-2 justify-center mb-4"></div>
+
+                <div id="mcmf-calc-section" class="hidden w-full max-w-xs flex flex-col items-center mb-4">
+                    <span class="text-xs font-bold text-purple-700 uppercase tracking-wider mb-2">Calcula el m.c.m. final:</span>
+                    <div id="mcmf-display-box" class="w-full h-11 sm:h-12 bg-slate-100 border-2 border-slate-300 rounded-xl flex items-center justify-center text-lg sm:text-xl font-black text-purple-600 shadow-inner">
+                        <span id="mcmf-typed-val" class="text-slate-400 text-sm sm:text-base">m.c.m. = ?</span>
+                    </div>
+                </div>
+
+                <div id="mcmf-numpad" class="hidden numpad-grid mb-4">
+                    <button class="numpad-key" onclick="pressMCMFKey('1')">1</button>
+                    <button class="numpad-key" onclick="pressMCMFKey('2')">2</button>
+                    <button class="numpad-key" onclick="pressMCMFKey('3')">3</button>
+                    <button class="numpad-key" onclick="pressMCMFKey('4')">4</button>
+                    <button class="numpad-key" onclick="pressMCMFKey('5')">5</button>
+                    <button class="numpad-key" onclick="pressMCMFKey('6')">6</button>
+                    <button class="numpad-key" onclick="pressMCMFKey('7')">7</button>
+                    <button class="numpad-key" onclick="pressMCMFKey('8')">8</button>
+                    <button class="numpad-key" onclick="pressMCMFKey('9')">9</button>
+                    <button class="numpad-key key-action" onclick="deleteMCMFKey()">⌫</button>
+                    <button class="numpad-key" onclick="pressMCMFKey('0')">0</button>
+                    <button class="numpad-key key-submit" onclick="submitMCMFAnswer()">OK</button>
+                </div>
+
+                <div id="mcmf-feedback" class="text-center font-bold text-xs sm:text-sm min-h-[1.5rem] mb-3"></div>
+
+                <div class="flex gap-2 w-full max-w-md">
+                    <button onclick="iniciarMCMFactRound()" class="flex-1 py-2.5 bg-purple-600 text-white font-bold text-xs sm:text-sm rounded-xl hover:bg-purple-700 transition shadow">
+                        <i class="fas fa-rotate-right mr-1"></i> Siguiente Ejercicio
+                    </button>
+                    <button onclick="showMainMenu()" class="py-2.5 px-4 bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm rounded-xl hover:bg-slate-300 transition">🏠</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVIDAD 8: MCD CON DESCOMPOSICIÓN INTERACTIVA PREVIA -->
+        <div id="game-mcd-fact" class="game-view">
+            <div class="game-card-container">
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200 w-full">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-rose-600 flex items-center justify-center text-white font-bold text-lg shadow">📉</div>
+                        <div>
+                            <span class="text-[10px] uppercase tracking-widest text-rose-600 font-black block">Nivel 8</span>
+                            <h2 class="text-base sm:text-lg font-black tracking-tight text-slate-900">M.C.D. con Descomposición Prima</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-rose-50 border border-rose-200 rounded-2xl p-4 w-full text-center mb-4">
+                    <span class="text-xs uppercase text-rose-600 font-bold tracking-wider block" id="mcdf-step-title">Paso 1: Realiza la descomposición prima del primer número</span>
+                    <div class="text-2xl sm:text-3xl font-black text-rose-700 font-math mt-1" id="mcdf-target-pair">M.C.D.(24, 36)</div>
+                </div>
+
+                <!-- Tablas de Descomposición -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full mb-4">
+                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl flex flex-col items-center">
+                        <span class="text-xs font-bold text-slate-500 mb-2" id="mcdf-num1-title">Descomposición de 24</span>
+                        <div id="mcdf-table-1" class="w-full max-w-[150px] font-mono text-sm space-y-1"></div>
+                        <div id="mcdf-decomp-expr-1" class="mt-2 text-xs font-bold text-rose-800 bg-rose-100 px-2.5 py-1 rounded-lg border border-rose-200 hidden"></div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl flex flex-col items-center">
+                        <span class="text-xs font-bold text-slate-500 mb-2" id="mcdf-num2-title">Descomposición de 36</span>
+                        <div id="mcdf-table-2" class="w-full max-w-[150px] font-mono text-sm space-y-1"></div>
+                        <div id="mcdf-decomp-expr-2" class="mt-2 text-xs font-bold text-rose-800 bg-rose-100 px-2.5 py-1 rounded-lg border border-rose-200 hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Contenedor con resumen de Descomposición Factorial Factorizada -->
+                <div id="mcdf-summary-box" class="hidden w-full bg-rose-100 border border-rose-300 p-3 rounded-xl text-center mb-4 shadow-sm">
+                    <span class="text-xs font-bold uppercase tracking-wider text-rose-700 block mb-1">Descomposición Factorial Completa</span>
+                    <div class="text-sm sm:text-base font-extrabold text-rose-950 font-math flex flex-wrap justify-center gap-4" id="mcdf-summary-math"></div>
+                    <p class="text-[11px] text-rose-800 font-medium mt-1">Factores comunes elevados al <strong>menor exponente</strong>.</p>
+                </div>
+
+                <div id="mcdf-primes-container" class="flex flex-wrap gap-2 justify-center mb-4"></div>
+
+                <div id="mcdf-calc-section" class="hidden w-full max-w-xs flex flex-col items-center mb-4">
+                    <span class="text-xs font-bold text-rose-700 uppercase tracking-wider mb-2">Calcula el M.C.D. final:</span>
+                    <div id="mcdf-display-box" class="w-full h-11 sm:h-12 bg-slate-100 border-2 border-slate-300 rounded-xl flex items-center justify-center text-lg sm:text-xl font-black text-rose-600 shadow-inner">
+                        <span id="mcdf-typed-val" class="text-slate-400 text-sm sm:text-base">M.C.D. = ?</span>
+                    </div>
+                </div>
+
+                <div id="mcdf-numpad" class="hidden numpad-grid mb-4">
+                    <button class="numpad-key" onclick="pressMCDFKey('1')">1</button>
+                    <button class="numpad-key" onclick="pressMCDFKey('2')">2</button>
+                    <button class="numpad-key" onclick="pressMCDFKey('3')">3</button>
+                    <button class="numpad-key" onclick="pressMCDFKey('4')">4</button>
+                    <button class="numpad-key" onclick="pressMCDFKey('5')">5</button>
+                    <button class="numpad-key" onclick="pressMCDFKey('6')">6</button>
+                    <button class="numpad-key" onclick="pressMCDFKey('7')">7</button>
+                    <button class="numpad-key" onclick="pressMCDFKey('8')">8</button>
+                    <button class="numpad-key" onclick="pressMCDFKey('9')">9</button>
+                    <button class="numpad-key key-action" onclick="deleteMCDFKey()">⌫</button>
+                    <button class="numpad-key" onclick="pressMCDFKey('0')">0</button>
+                    <button class="numpad-key key-submit" onclick="submitMCDFAnswer()">OK</button>
+                </div>
+
+                <div id="mcdf-feedback" class="text-center font-bold text-xs sm:text-sm min-h-[1.5rem] mb-3"></div>
+
+                <div class="flex gap-2 w-full max-w-md">
+                    <button onclick="iniciarMCDFactRound()" class="flex-1 py-2.5 bg-rose-600 text-white font-bold text-xs sm:text-sm rounded-xl hover:bg-rose-700 transition shadow">
+                        <i class="fas fa-rotate-right mr-1"></i> Siguiente Ejercicio
+                    </button>
+                    <button onclick="showMainMenu()" class="py-2.5 px-4 bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm rounded-xl hover:bg-slate-300 transition">🏠</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CONTROL SCRIPT SENIOR -->
+    <script>
+        const AudioEngine = {
+            ctx: null,
+            init() {
+                if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            },
+            play(type) {
+                try {
+                    this.init();
+                    if (this.ctx.state === 'suspended') this.ctx.resume();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    if (type === 'correct') {
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(587.33, this.ctx.currentTime);
+                        osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.15);
+                        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+                        osc.start();
+                        osc.stop(this.ctx.currentTime + 0.2);
+                    } else {
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+                        osc.frequency.exponentialRampToValueAtTime(110, this.ctx.currentTime + 0.2);
+                        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+                        osc.start();
+                        osc.stop(this.ctx.currentTime + 0.2);
+                    }
+                } catch(e) {}
+            }
+        };
+
+        function formatFactorExp(steps) {
+            const counts = {};
+            steps.forEach(x => { counts[x] = (counts[x] || 0) + 1; });
+            return Object.keys(counts).map(k => counts[k] > 1 ? `${k}<sup>${counts[k]}</sup>` : `${k}`).join(' × ');
+        }
+
+        function getMCMFormulaHtml(stepsA, stepsB) {
+            const countsA = {}, countsB = {};
+            stepsA.forEach(x => { countsA[x] = (countsA[x] || 0) + 1; });
+            stepsB.forEach(x => { countsB[x] = (countsB[x] || 0) + 1; });
+
+            const allPrimes = Array.from(new Set([...Object.keys(countsA), ...Object.keys(countsB)])).map(Number).sort((a,b)=>a-b);
+            const terms = allPrimes.map(p => {
+                const maxExp = Math.max(countsA[p] || 0, countsB[p] || 0);
+                return maxExp > 1 ? `${p}<sup>${maxExp}</sup>` : `${p}`;
+            });
+            return terms.join(' × ');
+        }
+
+        function getMCDFormulaHtml(stepsA, stepsB) {
+            const countsA = {}, countsB = {};
+            stepsA.forEach(x => { countsA[x] = (countsA[x] || 0) + 1; });
+            stepsB.forEach(x => { countsB[x] = (countsB[x] || 0) + 1; });
+
+            const commonPrimes = Object.keys(countsA).filter(p => countsB[p]).map(Number).sort((a,b)=>a-b);
+            if (commonPrimes.length === 0) return '1';
+            const terms = commonPrimes.map(p => {
+                const minExp = Math.min(countsA[p], countsB[p]);
+                return minExp > 1 ? `${p}<sup>${minExp}</sup>` : `${p}`;
+            });
+            return terms.join(' × ');
+        }
+
+        function openGame(gameId) {
+            document.querySelectorAll('.game-view').forEach(v => v.classList.remove('active'));
+            const target = document.getElementById(gameId);
+            if (target) {
+                target.classList.add('active');
+                if (gameId === 'game-multiplos') nextMultiplesRound();
+                if (gameId === 'game-divisores') setupDivisoresRound();
+                if (gameId === 'game-generador-multiplos') generarMultiplosRound();
+                if (gameId === 'game-mcm-listas') generarEjercicioMCMListas();
+                if (gameId === 'game-mcd-listas') generarEjercicioMCDListas();
+                if (gameId === 'game-factorizacion') iniciarFactorizacion();
+                if (gameId === 'game-mcm-fact') iniciarMCMFactRound();
+                if (gameId === 'game-mcd-fact') iniciarMCDFactRound();
+            }
+        }
+
+        function showMainMenu() {
+            document.querySelectorAll('.game-view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-main-menu').classList.add('active');
+        }
+
+        // ==========================================
+        // 1. CAZA DE MÚLTIPLOS (INCLUYE 0 COMO MÚLTIPLO VÁLIDO)
+        // ==========================================
+        let multTarget = 4, multScore = 0, multGridData = [], multRemaining = 0;
+
+        function nextMultiplesRound() {
+            const targets = [2, 3, 4, 5, 6, 7, 8, 9, 10, 12];
+            multTarget = targets[Math.floor(Math.random() * targets.length)];
+            document.getElementById('mult-target-num').textContent = multTarget;
+            document.getElementById('mult-feedback').textContent = '';
+
+            const grid = document.getElementById('mult-grid-bubbles');
+            grid.innerHTML = '';
+            
+            let correctCount = 4;
+            let generated = [0];
+
+            while (generated.length < correctCount) {
+                let factor = Math.floor(Math.random() * 10) + 1;
+                let val = multTarget * factor;
+                if (!generated.includes(val)) generated.push(val);
+            }
+
+            multRemaining = correctCount;
+            let items = generated.map(v => ({ value: v, isMultiple: true, found: false }));
+
+            while (items.length < 12) {
+                let candidate = Math.floor(Math.random() * 60) + 1;
+                if (candidate % multTarget !== 0) {
+                    items.push({ value: candidate, isMultiple: false, found: false });
+                }
+            }
+
+            multGridData = items.sort(() => Math.random() - 0.5);
+
+            multGridData.forEach((item, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "bubble-btn bg-slate-100 hover:bg-slate-200 text-slate-800 border-2 border-slate-300";
+                btn.textContent = item.value;
+                btn.onclick = () => clickMultipleBubble(idx, btn);
+                grid.appendChild(btn);
+            });
+        }
+
+        function clickMultipleBubble(idx, btn) {
+            const item = multGridData[idx];
+            if (item.found) return;
+
+            if (item.isMultiple) {
+                AudioEngine.play('correct');
+                item.found = true;
+                multScore += 10;
+                multRemaining--;
+                document.getElementById('mult-score-val').textContent = multScore;
+                btn.className = "bubble-btn bg-emerald-500 text-white border-2 border-emerald-300 scale-95";
+                btn.innerHTML = `<i class="fas fa-check"></i>`;
+
+                if (multRemaining === 0) {
+                    const fb = document.getElementById('mult-feedback');
+                    fb.className = "text-emerald-600 font-bold text-center";
+                    fb.textContent = "¡Excelente! Has encontrado todos los múltiplos de la ronda.";
+                }
+            } else {
+                AudioEngine.play('wrong');
+                btn.classList.add('animate-shake', 'bg-rose-500', 'text-white');
+                setTimeout(() => btn.classList.remove('animate-shake'), 400);
+            }
+        }
+
+        // ==========================================
+        // 2. COFRE DE DIVISORES
+        // ==========================================
+        let divTarget = 24, divAllSet = new Set(), divFoundSet = new Set(), divTyped = "";
+
+        function setupDivisoresRound() {
+            const candidates = [12, 16, 18, 20, 24, 28, 30, 36, 40, 48];
+            divTarget = candidates[Math.floor(Math.random() * candidates.length)];
+            document.getElementById('div-target-num').textContent = divTarget;
+            divFoundSet.clear();
+            divAllSet.clear();
+            divTyped = "";
+            updateDivDisplay();
+
+            for (let i = 1; i <= divTarget; i++) {
+                if (divTarget % i === 0) divAllSet.add(i);
+            }
+
+            renderDivSlots();
+            document.getElementById('div-feedback').textContent = '';
+        }
+
+        function renderDivSlots() {
+            const container = document.getElementById('div-slots-container');
+            container.innerHTML = '';
+            document.getElementById('div-count-info').textContent = `Encontrados: ${divFoundSet.size} / ${divAllSet.size}`;
+
+            const sortedDivs = Array.from(divAllSet).sort((a,b) => a - b);
+            sortedDivs.forEach(val => {
+                const found = divFoundSet.has(val);
+                const chip = document.createElement('div');
+                chip.className = `px-3 py-2 rounded-xl border font-black text-sm transition ${found ? 'bg-amber-100 border-amber-400 text-amber-900 shadow-sm' : 'bg-slate-100 border-dashed border-slate-300 text-slate-400'}`;
+                chip.textContent = found ? val : '?';
+                container.appendChild(chip);
+            });
+        }
+
+        function pressDivKey(n) { if (divTyped.length < 3) divTyped += n; updateDivDisplay(); }
+        function deleteDivKey() { divTyped = divTyped.slice(0, -1); updateDivDisplay(); }
+        function updateDivDisplay() {
+            const span = document.getElementById('div-typed-val');
+            span.textContent = divTyped === "" ? "Escribe un divisor..." : divTyped;
+            span.className = divTyped === "" ? "text-slate-400 text-sm sm:text-base" : "text-amber-600 font-black";
+        }
+
+        function submitDivisorAnswer() {
+            if (!divTyped) return;
+            let val = parseInt(divTyped);
+            const feedback = document.getElementById('div-feedback');
+
+            if (divAllSet.has(val)) {
+                if (divFoundSet.has(val)) {
+                    feedback.className = "text-amber-600 font-bold text-center";
+                    feedback.textContent = `Ya habías encontrado el divisor ${val}.`;
+                } else {
+                    AudioEngine.play('correct');
+                    divFoundSet.add(val);
+                    renderDivSlots();
+                    feedback.className = "text-emerald-600 font-bold text-center";
+                    feedback.textContent = `¡Excelente! ${val} es divisor de ${divTarget}.`;
+
+                    if (divFoundSet.size === divAllSet.size) {
+                        feedback.textContent = "¡Cofre completado! Has hallado TODOS los divisores.";
+                    }
+                }
+            } else {
+                AudioEngine.play('wrong');
+                feedback.className = "text-rose-600 font-bold text-center";
+                feedback.textContent = `${val} no es divisor de ${divTarget}.`;
+            }
+            divTyped = "";
+            updateDivDisplay();
+        }
+
+        // ==========================================
+        // 3. GENERADOR DE MÚLTIPLOS (INICIANDO DESDE 0)
+        // ==========================================
+        let genmBase = 6, genmCount = 6, genmFoundList = [], genmTyped = "";
+
+        function generarMultiplosRound() {
+            const bases = [3, 4, 5, 6, 7, 8, 9, 10, 12];
+            genmBase = bases[Math.floor(Math.random() * bases.length)];
+            genmCount = 6;
+            genmFoundList = [];
+            genmTyped = "";
+
+            document.getElementById('genm-title-text').textContent = `Escribe los primeros ${genmCount} múltiplos de (empezando por 0):`;
+            document.getElementById('genm-target-text').textContent = `Número ${genmBase}`;
+            
+            updateGenMDisplay();
+            renderGenMSlots();
+            document.getElementById('genm-feedback').textContent = '';
+        }
+
+        function renderGenMSlots() {
+            const container = document.getElementById('genm-slots-container');
+            container.innerHTML = '';
+            document.getElementById('genm-progress-text').textContent = `Progreso: ${genmFoundList.length} / ${genmCount}`;
+
+            for (let i = 0; i < genmCount; i++) {
+                const isDone = i < genmFoundList.length;
+                const slot = document.createElement('div');
+                slot.className = `w-12 sm:w-14 h-10 sm:h-12 rounded-xl border-2 flex items-center justify-center font-black text-sm sm:text-base ${isDone ? 'bg-sky-100 border-sky-500 text-sky-900' : 'bg-slate-50 border-dashed border-slate-300 text-slate-300'}`;
+                slot.textContent = isDone ? genmFoundList[i] : `x${i}`;
+                container.appendChild(slot);
+            }
+        }
+
+        function pressGenMKey(n) { if (genmTyped.length < 3) genmTyped += n; updateGenMDisplay(); }
+        function deleteGenMKey() { genmTyped = genmTyped.slice(0, -1); updateGenMDisplay(); }
+        function updateGenMDisplay() {
+            const span = document.getElementById('genm-typed-val');
+            span.textContent = genmTyped === "" ? "Escribe el siguiente múltiplo..." : genmTyped;
+            span.className = genmTyped === "" ? "text-slate-400 text-sm sm:text-base" : "text-sky-600 font-black";
+        }
+
+        function submitGenMAnswer() {
+            if (!genmTyped || genmFoundList.length >= genmCount) return;
+            const val = parseInt(genmTyped);
+            const expected = genmBase * genmFoundList.length;
+            const feedback = document.getElementById('genm-feedback');
+
+            if (val === expected) {
+                AudioEngine.play('correct');
+                genmFoundList.push(val);
+                renderGenMSlots();
+                feedback.className = "text-emerald-600 font-bold text-center";
+                feedback.textContent = `¡Correcto! ${genmBase} × ${genmFoundList.length - 1} = ${val}`;
+
+                if (genmFoundList.length === genmCount) {
+                    feedback.textContent = `¡Perfecto! Has generado los primeros ${genmCount} múltiplos de ${genmBase} (iniciando en 0).`;
+                }
+            } else {
+                AudioEngine.play('wrong');
+                feedback.className = "text-rose-600 font-bold text-center";
+                feedback.textContent = `Incorrecto. El múltiplo #${genmFoundList.length} de ${genmBase} es ${expected}.`;
+            }
+            genmTyped = "";
+            updateGenMDisplay();
+        }
+
+        // ==========================================
+        // 4. MCM POR LISTAS DE MÚLTIPLOS (INICIANDO DESDE 0)
+        // ==========================================
+        let mcmlA = 4, mcmlB = 6, mcmlList1 = [], mcmlList2 = [], mcmlStep = 1, mcmlAns = 12, mcmlTyped = "";
+
+        function generarEjercicioMCMListas() {
+            const pairs = [
+                {a: 3, b: 4, ans: 12},
+                {a: 4, b: 6, ans: 12},
+                {a: 6, b: 8, ans: 24},
+                {a: 5, b: 10, ans: 10},
+                {a: 6, b: 9, ans: 18},
+                {a: 8, b: 12, ans: 24}
+            ];
+            const item = pairs[Math.floor(Math.random() * pairs.length)];
+            mcmlA = item.a; mcmlB = item.b; mcmlAns = item.ans;
+            mcmlList1 = []; mcmlList2 = []; mcmlStep = 1; mcmlTyped = "";
+
+            document.getElementById('mcml-target-text').textContent = `m.c.m.(${mcmlA}, ${mcmlB})`;
+            document.getElementById('mcml-label-1').textContent = `Múltiplos de ${mcmlA}:`;
+            document.getElementById('mcml-label-2').textContent = `Múltiplos de ${mcmlB}:`;
+
+            renderMCMLLists();
+            updateMCMLDisplay();
+            document.getElementById('mcml-feedback').textContent = '';
+        }
+
+        function renderMCMLLists() {
+            const l1 = document.getElementById('mcml-list-1');
+            const l2 = document.getElementById('mcml-list-2');
+            l1.innerHTML = ''; l2.innerHTML = '';
+
+            mcmlList1.forEach(v => {
+                l1.innerHTML += `<span class="px-2 py-1 bg-teal-100 text-teal-900 rounded font-bold text-xs">${v}</span>`;
+            });
+            mcmlList2.forEach(v => {
+                l2.innerHTML += `<span class="px-2 py-1 bg-teal-100 text-teal-900 rounded font-bold text-xs">${v}</span>`;
+            });
+
+            const instr = document.getElementById('mcml-step-instruction');
+            if (mcmlStep === 1) instr.textContent = `Paso 1: Escribe los primeros múltiplos de ${mcmlA} (empezando por 0)`;
+            else if (mcmlStep === 2) instr.textContent = `Paso 2: Escribe los primeros múltiplos de ${mcmlB} (empezando por 0)`;
+            else instr.textContent = `Paso 3: Identifica el menor múltiplo común MAYOR QUE CERO (m.c.m. positivo)`;
+        }
+
+        function pressMCMLKey(n) { if (mcmlTyped.length < 3) mcmlTyped += n; updateMCMLDisplay(); }
+        function deleteMCMLKey() { mcmlTyped = mcmlTyped.slice(0, -1); updateMCMLDisplay(); }
+        function updateMCMLDisplay() {
+            const span = document.getElementById('mcml-typed-val');
+            if (mcmlStep === 1) span.textContent = mcmlTyped === "" ? `Múltiplo de ${mcmlA}...` : mcmlTyped;
+            else if (mcmlStep === 2) span.textContent = mcmlTyped === "" ? `Múltiplo de ${mcmlB}...` : mcmlTyped;
+            else span.textContent = mcmlTyped === "" ? "Escribe el m.c.m. (distinto de 0)..." : mcmlTyped;
+            span.className = mcmlTyped === "" ? "text-slate-400 text-sm sm:text-base" : "text-teal-600 font-black";
+        }
+
+        function submitMCMLAnswer() {
+            if (!mcmlTyped) return;
+            const val = parseInt(mcmlTyped);
+            const feedback = document.getElementById('mcml-feedback');
+
+            if (mcmlStep === 1) {
+                const expected = mcmlA * mcmlList1.length;
+                if (val === expected) {
+                    AudioEngine.play('correct');
+                    mcmlList1.push(val);
+                    renderMCMLLists();
+                    if (mcmlList1.length >= 5) {
+                        mcmlStep = 2;
+                        renderMCMLLists();
+                        feedback.className = "text-emerald-600 font-bold text-center";
+                        feedback.textContent = `¡Múltiplos de ${mcmlA} listados! Ahora los de ${mcmlB}.`;
+                    }
+                } else {
+                    AudioEngine.play('wrong');
+                    feedback.className = "text-rose-600 font-bold text-center";
+                    feedback.textContent = `Incorrecto. El siguiente múltiplo de ${mcmlA} es ${expected}.`;
+                }
+            } else if (mcmlStep === 2) {
+                const expected = mcmlB * mcmlList2.length;
+                if (val === expected) {
+                    AudioEngine.play('correct');
+                    mcmlList2.push(val);
+                    renderMCMLLists();
+                    if (mcmlList2.length >= 5) {
+                        mcmlStep = 3;
+                        renderMCMLLists();
+                        feedback.className = "text-emerald-600 font-bold text-center";
+                        feedback.textContent = `¡Múltiplos completados! Nota que 0 es común, pero el m.c.m. debe ser el menor común DISTINTO de 0.`;
+                    }
+                } else {
+                    AudioEngine.play('wrong');
+                    feedback.className = "text-rose-600 font-bold text-center";
+                    feedback.textContent = `Incorrecto. El siguiente múltiplo de ${mcmlB} es ${expected}.`;
+                }
+            } else if (mcmlStep === 3) {
+                if (val === 0) {
+                    AudioEngine.play('wrong');
+                    feedback.className = "text-amber-600 font-bold text-center";
+                    feedback.textContent = `Aunque 0 es un múltiplo común, por definición el m.c.m. es el MENOR MÚLTIPLO COMÚN POSITIVO (distinto de 0).`;
+                } else if (val === mcmlAns) {
+                    AudioEngine.play('correct');
+                    feedback.className = "text-emerald-600 font-bold text-center";
+                    feedback.textContent = `¡Excelente! m.c.m.(${mcmlA}, ${mcmlB}) = ${mcmlAns}`;
+                } else {
+                    AudioEngine.play('wrong');
+                    feedback.className = "text-rose-600 font-bold text-center";
+                    feedback.textContent = `Incorrecto. Revisa las dos listas y busca el primer coincidente mayor que 0 (${mcmlAns}).`;
+                }
+            }
+            mcmlTyped = "";
+            updateMCMLDisplay();
+        }
+
+        // ==========================================
+        // 5. MCD POR LISTA DE DIVISORES
+        // ==========================================
+        let mcdlA = 12, mcdlB = 18, mcdlList1 = [], mcdlList2 = [], mcdlStep = 1, mcdlAns = 6, mcdlTyped = "";
+
+        function generarEjercicioMCDListas() {
+            const pairs = [
+                {a: 12, b: 18, ans: 6},
+                {a: 16, b: 24, ans: 8},
+                {a: 20, b: 30, ans: 10},
+                {a: 15, b: 25, ans: 5},
+                {a: 18, b: 27, ans: 9},
+                {a: 24, b: 36, ans: 12}
+            ];
+            const item = pairs[Math.floor(Math.random() * pairs.length)];
+            mcdlA = item.a; mcdlB = item.b; mcdlAns = item.ans;
+            mcdlList1 = []; mcdlList2 = []; mcdlStep = 1; mcdlTyped = "";
+
+            document.getElementById('mcdl-target-text').textContent = `M.C.D.(${mcdlA}, ${mcdlB})`;
+            document.getElementById('mcdl-label-1').textContent = `Divisores de ${mcdlA}:`;
+            document.getElementById('mcdl-label-2').textContent = `Divisores de ${mcdlB}:`;
+
+            renderMCDLLists();
+            updateMCDLDisplay();
+            document.getElementById('mcdl-feedback').textContent = '';
+        }
+
+        function renderMCDLLists() {
+            const l1 = document.getElementById('mcdl-list-1');
+            const l2 = document.getElementById('mcdl-list-2');
+            l1.innerHTML = ''; l2.innerHTML = '';
+
+            mcdlList1.forEach(v => {
+                l1.innerHTML += `<span class="px-2 py-1 bg-blue-100 text-blue-900 rounded font-bold text-xs">${v}</span>`;
+            });
+            mcdlList2.forEach(v => {
+                l2.innerHTML += `<span class="px-2 py-1 bg-blue-100 text-blue-900 rounded font-bold text-xs">${v}</span>`;
+            });
+
+            const instr = document.getElementById('mcdl-step-instruction');
+            if (mcdlStep === 1) instr.textContent = `Paso 1: Escribe todos los divisores de ${mcdlA}`;
+            else if (mcdlStep === 2) instr.textContent = `Paso 2: Escribe todos los divisores de ${mcdlB}`;
+            else instr.textContent = `Paso 3: Identifica el mayor divisor común (M.C.D.)`;
+        }
+
+        function pressMCDLKey(n) { if (mcdlTyped.length < 3) mcdlTyped += n; updateMCDLDisplay(); }
+        function deleteMCDLKey() { mcdlTyped = mcdlTyped.slice(0, -1); updateMCDLDisplay(); }
+        function updateMCDLDisplay() {
+            const span = document.getElementById('mcdl-typed-val');
+            if (mcdlStep === 1) span.textContent = mcdlTyped === "" ? `Divisor de ${mcdlA}...` : mcdlTyped;
+            else if (mcdlStep === 2) span.textContent = mcdlTyped === "" ? `Divisor de ${mcdlB}...` : mcdlTyped;
+            else span.textContent = mcdlTyped === "" ? "Escribe el M.C.D. final..." : mcdlTyped;
+            span.className = mcdlTyped === "" ? "text-slate-400 text-sm sm:text-base" : "text-blue-600 font-black";
+        }
+
+        function submitMCDLAnswer() {
+            if (!mcdlTyped) return;
+            const val = parseInt(mcdlTyped);
+            const feedback = document.getElementById('mcdl-feedback');
+
+            if (mcdlStep === 1) {
+                if (mcdlA % val === 0 && !mcdlList1.includes(val)) {
+                    AudioEngine.play('correct');
+                    mcdlList1.push(val);
+                    mcdlList1.sort((a,b) => a-b);
+                    renderMCDLLists();
+
+                    let totalA = 0;
+                    for (let i=1;i<=mcdlA;i++) if (mcdlA%i===0) totalA++;
+
+                    if (mcdlList1.length === totalA) {
+                        mcdlStep = 2;
+                        renderMCDLLists();
+                        feedback.className = "text-emerald-600 font-bold text-center";
+                        feedback.textContent = `¡Divisores de ${mcdlA} completos! Ahora divisores de ${mcdlB}.`;
+                    }
+                } else {
+                    AudioEngine.play('wrong');
+                    feedback.className = "text-rose-600 font-bold text-center";
+                    feedback.textContent = `${val} no es un divisor nuevo para ${mcdlA}.`;
+                }
+            } else if (mcdlStep === 2) {
+                if (mcdlB % val === 0 && !mcdlList2.includes(val)) {
+                    AudioEngine.play('correct');
+                    mcdlList2.push(val);
+                    mcdlList2.sort((a,b) => a-b);
+                    renderMCDLLists();
+
+                    let totalB = 0;
+                    for (let i=1;i<=mcdlB;i++) if (mcdlB%i===0) totalB++;
+
+                    if (mcdlList2.length === totalB) {
+                        mcdlStep = 3;
+                        renderMCDLLists();
+                        feedback.className = "text-emerald-600 font-bold text-center";
+                        feedback.textContent = `¡Listas completas! Escribe el mayor divisor coincidente.`;
+                    }
+                } else {
+                    AudioEngine.play('wrong');
+                    feedback.className = "text-rose-600 font-bold text-center";
+                    feedback.textContent = `${val} no es un divisor nuevo para ${mcdlB}.`;
+                }
+            } else if (mcdlStep === 3) {
+                if (val === mcdlAns) {
+                    AudioEngine.play('correct');
+                    feedback.className = "text-emerald-600 font-bold text-center";
+                    feedback.textContent = `¡Excelente! M.C.D.(${mcdlA}, ${mcdlB}) = ${mcdlAns}`;
+                } else {
+                    AudioEngine.play('wrong');
+                    feedback.className = "text-rose-600 font-bold text-center";
+                    feedback.textContent = `Incorrecto. Revisa las dos listas y busca el mayor número común (${mcdlAns}).`;
+                }
+            }
+            mcdlTyped = "";
+            updateMCDLDisplay();
+        }
+
+        // ==========================================
+        // 6. DESCOMPOSICIÓN PRIMA CON ORDEN ESTRICTO
+        // ==========================================
+        let factNumber = 24, factCurrentValue = 24, factSteps = [];
+
+        function iniciarFactorizacion() {
+            const numbers = [12, 18, 24, 30, 36, 40, 48, 54, 60, 72];
+            factNumber = numbers[Math.floor(Math.random() * numbers.length)];
+            factCurrentValue = factNumber;
+            factSteps = [];
+
+            renderVerticalTable();
+            renderPrimeButtons();
+            document.getElementById('fact-feedback').textContent = '';
+            document.getElementById('fact-result-box').classList.add('hidden');
+        }
+
+        function getSmallestPrimeFactor(n) {
+            const primes = [2, 3, 5, 7, 11, 13];
+            for (let p of primes) {
+                if (n % p === 0) return p;
+            }
+            return n;
+        }
+
+        function renderVerticalTable() {
+            const table = document.getElementById('vertical-factor-table');
+            table.innerHTML = '';
+            let temp = factNumber;
+
+            factSteps.forEach(p => {
+                table.innerHTML += `
+                    <div class="flex justify-between border-b border-slate-300 py-1">
+                        <span class="text-slate-800 font-bold">${temp}</span>
+                        <span class="text-emerald-600 font-bold border-l-2 border-slate-800 pl-3">${p}</span>
+                    </div>
+                `;
+                temp /= p;
+            });
+
+            if (factCurrentValue > 1) {
+                table.innerHTML += `
+                    <div class="flex justify-between py-1">
+                        <span class="text-emerald-600 font-black animate-pulse">${factCurrentValue}</span>
+                        <span class="border-l-2 border-slate-800 pl-3 text-slate-300">?</span>
+                    </div>
+                `;
+            } else {
+                table.innerHTML += `
+                    <div class="flex justify-between py-1">
+                        <span class="text-emerald-600 font-bold">1</span>
+                        <span class="border-l-2 border-slate-800 pl-3 text-emerald-600"><i class="fas fa-check"></i></span>
+                    </div>
+                `;
+            }
+        }
+
+        function renderPrimeButtons() {
+            const primes = [2, 3, 5, 7, 11];
+            const container = document.getElementById('prime-selector-buttons');
+            container.innerHTML = '';
+            primes.forEach(p => {
+                const btn = document.createElement('button');
+                btn.className = "px-3.5 py-1.5 sm:px-4 sm:py-2 bg-emerald-100 hover:bg-emerald-600 hover:text-white text-emerald-800 font-black text-sm sm:text-base rounded-xl transition border border-emerald-300 shadow-sm";
+                btn.textContent = p;
+                btn.onclick = () => applyPrimeFactor(p);
+                container.appendChild(btn);
+            });
+        }
+
+        function applyPrimeFactor(p) {
+            if (factCurrentValue <= 1) return;
+
+            const smallestPrime = getSmallestPrimeFactor(factCurrentValue);
+            const feedback = document.getElementById('fact-feedback');
+
+            if (p < smallestPrime) {
+                AudioEngine.play('wrong');
+                feedback.className = "text-rose-600 font-bold";
+                feedback.textContent = `El número ${factCurrentValue} no es divisible por ${p}.`;
+            } else if (p > smallestPrime && factCurrentValue % p === 0) {
+                AudioEngine.play('wrong');
+                feedback.className = "text-amber-600 font-bold";
+                feedback.textContent = `¡Atención! Aunque ${p} divide a ${factCurrentValue}, debes agotar primero los primos menores (${smallestPrime}).`;
+            } else if (p === smallestPrime) {
+                AudioEngine.play('correct');
+                feedback.textContent = '';
+                factSteps.push(p);
+                factCurrentValue /= p;
+                renderVerticalTable();
+
+                if (factCurrentValue === 1) {
+                    const box = document.getElementById('fact-result-box');
+                    box.classList.remove('hidden');
+                    const mathStr = formatFactorExp(factSteps);
+                    document.getElementById('fact-final-math').innerHTML = `${factNumber} = ${mathStr}`;
+                }
+            } else {
+                AudioEngine.play('wrong');
+                feedback.className = "text-rose-600 font-bold";
+                feedback.textContent = `Divisor incorrecto para ${factCurrentValue}.`;
+            }
+        }
+
+        // ==========================================
+        // 7. MCM CON DESCOMPOSICIÓN INTERACTIVA PREVIA
+        // ==========================================
+        let mcmfA = 12, mcmfB = 18, mcmfCurA = 12, mcmfCurB = 18, mcmfStepsA = [], mcmfStepsB = [], mcmfStep = 1, mcmfAns = 36, mcmfTyped = "";
+
+        function iniciarMCMFactRound() {
+            const pairs = [
+                {a: 12, b: 18, ans: 36},
+                {a: 8, b: 12, ans: 24},
+                {a: 15, b: 20, ans: 60},
+                {a: 18, b: 24, ans: 72},
+                {a: 24, b: 36, ans: 72},
+                {a: 12, b: 20, ans: 60}
+            ];
+            const item = pairs[Math.floor(Math.random() * pairs.length)];
+            mcmfA = item.a; mcmfB = item.b; mcmfAns = item.ans;
+            mcmfCurA = mcmfA; mcmfCurB = mcmfB;
+            mcmfStepsA = []; mcmfStepsB = []; mcmfStep = 1; mcmfTyped = "";
+
+            document.getElementById('mcmf-target-pair').textContent = `m.c.m.(${mcmfA}, ${mcmfB})`;
+            document.getElementById('mcmf-num1-title').textContent = `Descomposición de ${mcmfA}`;
+            document.getElementById('mcmf-num2-title').textContent = `Descomposición de ${mcmfB}`;
+
+            document.getElementById('mcmf-decomp-expr-1').classList.add('hidden');
+            document.getElementById('mcmf-decomp-expr-2').classList.add('hidden');
+            document.getElementById('mcmf-summary-box').classList.add('hidden');
+
+            document.getElementById('mcmf-calc-section').classList.add('hidden');
+            document.getElementById('mcmf-numpad').classList.add('hidden');
+            document.getElementById('mcmf-primes-container').classList.remove('hidden');
+
+            renderMCMFTables();
+            renderMCMFPrimeButtons();
+            document.getElementById('mcmf-feedback').textContent = '';
+        }
+
+        function renderMCMFTables() {
+            const t1 = document.getElementById('mcmf-table-1');
+            const t2 = document.getElementById('mcmf-table-2');
+            t1.innerHTML = ''; t2.innerHTML = '';
+
+            let tempA = mcmfA;
+            mcmfStepsA.forEach(p => {
+                t1.innerHTML += `<div class="flex justify-between border-b py-0.5"><span class="font-bold">${tempA}</span><span class="text-purple-600 font-bold border-l pl-2">${p}</span></div>`;
+                tempA /= p;
+            });
+            if (mcmfCurA > 1) t1.innerHTML += `<div class="flex justify-between py-0.5"><span class="text-purple-600 font-bold animate-pulse">${mcmfCurA}</span><span class="text-slate-300">?</span></div>`;
+            else t1.innerHTML += `<div class="flex justify-between py-0.5"><span class="text-emerald-600 font-bold">1</span><span class="text-emerald-600">✓</span></div>`;
+
+            let tempB = mcmfB;
+            mcmfStepsB.forEach(p => {
+                t2.innerHTML += `<div class="flex justify-between border-b py-0.5"><span class="font-bold">${tempB}</span><span class="text-purple-600 font-bold border-l pl-2">${p}</span></div>`;
+                tempB /= p;
+            });
+            if (mcmfCurB > 1) t2.innerHTML += `<div class="flex justify-between py-0.5"><span class="text-purple-600 font-bold animate-pulse">${mcmfCurB}</span><span class="text-slate-300">?</span></div>`;
+            else t2.innerHTML += `<div class="flex justify-between py-0.5"><span class="text-emerald-600 font-bold">1</span><span class="text-emerald-600">✓</span></div>`;
+
+            const title = document.getElementById('mcmf-step-title');
+            if (mcmfStep === 1) title.textContent = `Paso 1: Descompón en primos el número ${mcmfA}`;
+            else if (mcmfStep === 2) title.textContent = `Paso 2: Descompón en primos el número ${mcmfB}`;
+            else title.textContent = `Paso 3: Calcula el m.c.m. con los factores al mayor exponente`;
+        }
+
+        function renderMCMFPrimeButtons() {
+            const primes = [2, 3, 5, 7, 11];
+            const container = document.getElementById('mcmf-primes-container');
+            container.innerHTML = '';
+            primes.forEach(p => {
+                const btn = document.createElement('button');
+                btn.className = "px-3 py-1.5 bg-purple-100 hover:bg-purple-600 hover:text-white text-purple-900 font-black rounded-lg text-xs sm:text-sm transition shadow-sm border border-purple-200";
+                btn.textContent = p;
+                btn.onclick = () => applyMCMFPrime(p);
+                container.appendChild(btn);
+            });
+        }
+
+        function applyMCMFPrime(p) {
+            const feedback = document.getElementById('mcmf-feedback');
+            if (mcmfStep === 1) {
+                const minP = getSmallestPrimeFactor(mcmfCurA);
+                if (p === minP) {
+                    AudioEngine.play('correct');
+                    mcmfStepsA.push(p);
+                    mcmfCurA /= p;
+                    renderMCMFTables();
+                    if (mcmfCurA === 1) {
+                        mcmfStep = 2;
+                        renderMCMFTables();
+                        const expr1 = document.getElementById('mcmf-decomp-expr-1');
+                        expr1.innerHTML = `${mcmfA} = ${formatFactorExp(mcmfStepsA)}`;
+                        expr1.classList.remove('hidden');
+
+                        feedback.className = "text-emerald-600 font-bold text-center";
+                        feedback.textContent = `¡Descomposición de ${mcmfA} lista! Ahora descompón ${mcmfB}.`;
+                    }
+                } else {
+                    AudioEngine.play('wrong');
+                    feedback.className = "text-rose-600 font-bold text-center";
+                    feedback.textContent = `Recuerda la regla del menor primo disponible (${minP}).`;
+                }
+            } else if (mcmfStep === 2) {
+                const minP = getSmallestPrimeFactor(mcmfCurB);
+                if (p === minP) {
+                    AudioEngine.play('correct');
+                    mcmfStepsB.push(p);
+                    mcmfCurB /= p;
+                    renderMCMFTables();
+                    if (mcmfCurB === 1) {
+                        mcmfStep = 3;
+                        renderMCMFTables();
+
+                        const expr2 = document.getElementById('mcmf-decomp-expr-2');
+                        expr2.innerHTML = `${mcmfB} = ${formatFactorExp(mcmfStepsB)}`;
+                        expr2.classList.remove('hidden');
+
+                        // Mostrar resumen de descomposición
+                        const summaryMath = document.getElementById('mcmf-summary-math');
+                        summaryMath.innerHTML = `<span>${mcmfA} = ${formatFactorExp(mcmfStepsA)}</span> <span>${mcmfB} = ${formatFactorExp(mcmfStepsB)}</span>`;
+                        document.getElementById('mcmf-summary-box').classList.remove('hidden');
+
+                        document.getElementById('mcmf-primes-container').classList.add('hidden');
+                        document.getElementById('mcmf-calc-section').classList.remove('hidden');
+                        document.getElementById('mcmf-numpad').classList.remove('hidden');
+                        feedback.className = "text-emerald-600 font-bold text-center";
+                        feedback.textContent = `¡Descomposiciones completas! Multiplica los factores comunes y no comunes al mayor exponente.`;
+                    }
+                } else {
+                    AudioEngine.play('wrong');
+                    feedback.className = "text-rose-600 font-bold text-center";
+                    feedback.textContent = `Recuerda la regla del menor primo disponible (${minP}).`;
+                }
+            }
+        }
+
+        function pressMCMFKey(n) { if (mcmfTyped.length < 3) mcmfTyped += n; updateMCMFDisplay(); }
+        function deleteMCMFKey() { mcmfTyped = mcmfTyped.slice(0, -1); updateMCMFDisplay(); }
+        function updateMCMFDisplay() {
+            const span = document.getElementById('mcmf-typed-val');
+            span.textContent = mcmfTyped === "" ? "m.c.m. = ?" : mcmfTyped;
+            span.className = mcmfTyped === "" ? "text-slate-400 text-sm sm:text-base" : "text-purple-600 font-black";
+        }
+
+        function submitMCMFAnswer() {
+            if (!mcmfTyped) return;
+            const feedback = document.getElementById('mcmf-feedback');
+            if (parseInt(mcmfTyped) === mcmfAns) {
+                AudioEngine.play('correct');
+                const formulaHtml = getMCMFormulaHtml(mcmfStepsA, mcmfStepsB);
+                feedback.className = "text-emerald-600 font-bold text-center";
+                feedback.innerHTML = `¡Excelente trabajo! m.c.m.(${mcmfA}, ${mcmfB}) = ${formulaHtml} = <strong>${mcmfAns}</strong>`;
+            } else {
+                AudioEngine.play('wrong');
+                feedback.className = "text-rose-600 font-bold text-center";
+                feedback.textContent = `Incorrecto. El m.c.m. correcto es ${mcmfAns}.`;
+            }
+            mcmfTyped = "";
+            updateMCMFDisplay();
+        }
+
+        // ==========================================
+        // 8. MCD CON DESCOMPOSICIÓN INTERACTIVA PREVIA
+        // ==========================================
+        let mcdfA = 24, mcdfB = 36, mcdfCurA = 24, mcdfCurB = 36, mcdfStepsA = [], mcdfStepsB = [], mcdfStep = 1, mcdfAns = 12, mcdfTyped = "";
+
+        function iniciarMCDFactRound() {
+            const pairs = [
+                {a: 24, b: 36, ans: 12},
+                {a: 18, b: 24, ans: 6},
+                {a: 30, b: 45, ans: 15},
+                {a: 16, b: 40, ans: 8},
+                {a: 12, b: 18, ans: 6},
+                {a: 20, b: 30, ans: 10}
+            ];
+            const item = pairs[Math.floor(Math.random() * pairs.length)];
+            mcdfA = item.a; mcdfB = item.b; mcdfAns = item.ans;
+            mcdfCurA = mcdfA; mcdfCurB = mcdfB;
+            mcdfStepsA = []; mcdfStepsB = []; mcdfStep = 1; mcdfTyped = "";
+
+            document.getElementById('mcdf-target-pair').textContent = `M.C.D.(${mcdfA}, ${mcdfB})`;
+            document.getElementById('mcdf-num1-title').textContent = `Descomposición de ${mcdfA}`;
+            document.getElementById('mcdf-num2-title').textContent = `Descomposición de ${mcdfB}`;
+
+            document.getElementById('mcdf-decomp-expr-1').classList.add('hidden');
+            document.getElementById('mcdf-decomp-expr-2').classList.add('hidden');
+            document.getElementById('mcdf-summary-box').classList.add('hidden');
+
+            document.getElementById('mcdf-calc-section').classList.add('hidden');
+            document.getElementById('mcdf-numpad').classList.add('hidden');
+            document.getElementById('mcdf-primes-container').classList.remove('hidden');
+
+            renderMCDFTables();
+            renderMCDFPrimeButtons();
+            document.getElementById('mcdf-feedback').textContent = '';
+        }
+
+        function renderMCDFTables() {
+            const t1 = document.getElementById('mcdf-table-1');
+            const t2 = document.getElementById('mcdf-table-2');
+            t1.innerHTML = ''; t2.innerHTML = '';
+
+            let tempA = mcdfA;
+            mcdfStepsA.forEach(p => {
+                t1.innerHTML += `<div class="flex justify-between border-b py-0.5"><span class="font-bold">${tempA}</span><span class="text-rose-600 font-bold border-l pl-2">${p}</span></div>`;
+                tempA /= p;
+            });
+            if (mcdfCurA > 1) t1.innerHTML += `<div class="flex justify-between py-0.5"><span class="text-rose-600 font-bold animate-pulse">${mcdfCurA}</span><span class="text-slate-300">?</span></div>`;
+            else t1.innerHTML += `<div class="flex justify-between py-0.5"><span class="text-emerald-600 font-bold">1</span><span class="text-emerald-600">✓</span></div>`;
+
+            let tempB = mcdfB;
+            mcdfStepsB.forEach(p => {
+                t2.innerHTML += `<div class="flex justify-between border-b py-0.5"><span class="font-bold">${tempB}</span><span class="text-rose-600 font-bold border-l pl-2">${p}</span></div>`;
+                tempB /= p;
+            });
+            if (mcdfCurB > 1) t2.innerHTML += `<div class="flex justify-between py-0.5"><span class="text-rose-600 font-bold animate-pulse">${mcdfCurB}</span><span class="text-slate-300">?</span></div>`;
+            else t2.innerHTML += `<div class="flex justify-between py-0.5"><span class="text-emerald-600 font-bold">1</span><span class="text-emerald-600">✓</span></div>`;
+
+            const title = document.getElementById('mcdf-step-title');
+            if (mcdfStep === 1) title.textContent = `Paso 1: Descompón en primos el número ${mcdfA}`;
+            else if (mcdfStep === 2) title.textContent = `Paso 2: Descompón en primos el número ${mcdfB}`;
+            else title.textContent = `Paso 3: Calcula el M.C.D. multiplicando factores comunes al menor exponente`;
+        }
+
+        function renderMCDFPrimeButtons() {
+            const primes = [2, 3, 5, 7, 11];
+            const container = document.getElementById('mcdf-primes-container');
+            container.innerHTML = '';
+            primes.forEach(p => {
+                const btn = document.createElement('button');
+                btn.className = "px-3 py-1.5 bg-rose-100 hover:bg-rose-600 hover:text-white text-rose-900 font-black rounded-lg text-xs sm:text-sm transition shadow-sm border border-rose-200";
+                btn.textContent = p;
+                btn.onclick = () => applyMCDFPrime(p);
+                container.appendChild(btn);
+            });
+        }
+
+        function applyMCDFPrime(p) {
+            const feedback = document.getElementById('mcdf-feedback');
+            if (mcdfStep === 1) {
+                const minP = getSmallestPrimeFactor(mcdfCurA);
+                if (p === minP) {
+                    AudioEngine.play('correct');
+                    mcdfStepsA.push(p);
+                    mcdfCurA /= p;
+                    renderMCDFTables();
+                    if (mcdfCurA === 1) {
+                        mcdfStep = 2;
+                        renderMCDFTables();
+                        const expr1 = document.getElementById('mcdf-decomp-expr-1');
+                        expr1.innerHTML = `${mcdfA} = ${formatFactorExp(mcdfStepsA)}`;
+                        expr1.classList.remove('hidden');
+
+                        feedback.className = "text-emerald-600 font-bold text-center";
+                        feedback.textContent = `¡Descomposición de ${mcdfA} lista! Ahora descompón ${mcdfB}.`;
+                    }
+                } else {
+                    AudioEngine.play('wrong');
+                    feedback.className = "text-rose-600 font-bold text-center";
+                    feedback.textContent = `Usa primero el número primo menor divisible (${minP}).`;
+                }
+            } else if (mcdfStep === 2) {
+                const minP = getSmallestPrimeFactor(mcdfCurB);
+                if (p === minP) {
+                    AudioEngine.play('correct');
+                    mcdfStepsB.push(p);
+                    mcdfCurB /= p;
+                    renderMCDFTables();
+                    if (mcdfCurB === 1) {
+                        mcdfStep = 3;
+                        renderMCDFTables();
+
+                        const expr2 = document.getElementById('mcdf-decomp-expr-2');
+                        expr2.innerHTML = `${mcdfB} = ${formatFactorExp(mcdfStepsB)}`;
+                        expr2.classList.remove('hidden');
+
+                        // Mostrar resumen de descomposición
+                        const summaryMath = document.getElementById('mcdf-summary-math');
+                        summaryMath.innerHTML = `<span>${mcdfA} = ${formatFactorExp(mcdfStepsA)}</span> <span>${mcdfB} = ${formatFactorExp(mcdfStepsB)}</span>`;
+                        document.getElementById('mcdf-summary-box').classList.remove('hidden');
+
+                        document.getElementById('mcdf-primes-container').classList.add('hidden');
+                        document.getElementById('mcdf-calc-section').classList.remove('hidden');
+                        document.getElementById('mcdf-numpad').classList.remove('hidden');
+                        feedback.className = "text-emerald-600 font-bold text-center";
+                        feedback.textContent = `¡Descomposiciones completas! Multiplica únicamente los factores comunes elevados al menor exponente.`;
+                    }
+                } else {
+                    AudioEngine.play('wrong');
+                    feedback.className = "text-rose-600 font-bold text-center";
+                    feedback.textContent = `Usa primero el número primo menor divisible (${minP}).`;
+                }
+            }
+        }
+
+        function pressMCDFKey(n) { if (mcdfTyped.length < 3) mcdfTyped += n; updateMCDFDisplay(); }
+        function deleteMCDFKey() { mcdfTyped = mcdfTyped.slice(0, -1); updateMCDFDisplay(); }
+        function updateMCDFDisplay() {
+            const span = document.getElementById('mcdf-typed-val');
+            span.textContent = mcdfTyped === "" ? "M.C.D. = ?" : mcdfTyped;
+            span.className = mcdfTyped === "" ? "text-slate-400 text-sm sm:text-base" : "text-rose-600 font-black";
+        }
+
+        function submitMCDFAnswer() {
+            if (!mcdfTyped) return;
+            const feedback = document.getElementById('mcdf-feedback');
+            if (parseInt(mcdfTyped) === mcdfAns) {
+                AudioEngine.play('correct');
+                const formulaHtml = getMCDFormulaHtml(mcdfStepsA, mcdfStepsB);
+                feedback.className = "text-emerald-600 font-bold text-center";
+                feedback.innerHTML = `¡Excelente trabajo! M.C.D.(${mcdfA}, ${mcdfB}) = ${formulaHtml} = <strong>${mcdfAns}</strong>`;
+            } else {
+                AudioEngine.play('wrong');
+                feedback.className = "text-rose-600 font-bold text-center";
+                feedback.textContent = `Incorrecto. El M.C.D. correcto es ${mcdfAns}.`;
+            }
+            mcdfTyped = "";
+            updateMCDFDisplay();
+        }
+
+        // Global Physical Keyboard Support
+        window.addEventListener('keydown', (e) => {
+            const activeView = document.querySelector('.game-view.active');
+            if (!activeView) return;
+
+            const id = activeView.id;
+            if (e.key >= '0' && e.key <= '9') {
+                if (id === 'game-divisores') pressDivKey(e.key);
+                if (id === 'game-generador-multiplos') pressGenMKey(e.key);
+                if (id === 'game-mcm-listas') pressMCMLKey(e.key);
+                if (id === 'game-mcd-listas') pressMCDLKey(e.key);
+                if (id === 'game-mcm-fact') pressMCMFKey(e.key);
+                if (id === 'game-mcd-fact') pressMCDFKey(e.key);
+            } else if (e.key === 'Backspace') {
+                if (id === 'game-divisores') deleteDivKey();
+                if (id === 'game-generador-multiplos') deleteGenMKey();
+                if (id === 'game-mcm-listas') deleteMCMLKey();
+                if (id === 'game-mcd-listas') deleteMCDLKey();
+                if (id === 'game-mcm-fact') deleteMCMFKey();
+                if (id === 'game-mcd-fact') deleteMCDFKey();
+            } else if (e.key === 'Enter') {
+                if (id === 'game-divisores') submitDivisorAnswer();
+                if (id === 'game-generador-multiplos') submitGenMAnswer();
+                if (id === 'game-mcm-listas') submitMCMLAnswer();
+                if (id === 'game-mcd-listas') submitMCDLAnswer();
+                if (id === 'game-mcm-fact') submitMCMFAnswer();
+                if (id === 'game-mcd-fact') submitMCDFAnswer();
+            }
+        });
+
+        // Particle Canvas
+        class ParticleSystem {
+            constructor() {
+                this.canvas = document.getElementById('particle-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                this.init();
+                this.animate();
+            }
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+            init() {
+                for (let i = 0; i < 35; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        r: Math.random() * 2 + 1,
+                        dx: (Math.random() - 0.5) * 0.5,
+                        dy: (Math.random() - 0.5) * 0.5,
+                        alpha: Math.random() * 0.4 + 0.1
+                    });
+                }
+            }
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.particles.forEach(p => {
+                    p.x += p.dx;
+                    p.y += p.dy;
+                    if (p.x < 0 || p.x > this.canvas.width) p.dx *= -1;
+                    if (p.y < 0 || p.y > this.canvas.height) p.dy *= -1;
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    this.ctx.fillStyle = `rgba(56, 189, 248, ${p.alpha})`;
+                    this.ctx.fill();
+                });
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        window.onload = () => {
+            new ParticleSystem();
+        };
+    </script>
+</body>
+</html>
