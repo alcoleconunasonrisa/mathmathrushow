@@ -1133,7 +1133,7 @@
 
                 if(selectedMinigame === 'rope') {
                     ropePosition += (p.team === 'red') ? -10.5 : 10.5;
-                    if(ropePosition <= -105 || ropePosition >= 105) endGame();
+                    //if(ropePosition <= -105 || ropePosition >= 105) endGame();
                 } else if(selectedMinigame === 'jar') {
                     jarWaterLevel += 1;
                     if(jarWaterLevel >= dynamicJarTarget) endGame();
