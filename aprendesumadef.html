@@ -746,7 +746,7 @@
         }
 
         #view-game5 .container-g5 {
-            width: 100%; max-width: 900px; min-height: 500px;
+            width: 100%; max-width: 900px; min-height: 520px;
             background: white; border-radius: 24px; padding: 15px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.3);
             display: flex; flex-direction: column; position: relative;
@@ -767,39 +767,13 @@
             font-size: 1rem; flex: 1;
         }
 
-        /* Control para selectores PC */
-        .pc-only-control {
-            display: none;
-        }
-
-        .pc-keyboard-selector {
-            align-items: center;
-            gap: 8px;
-            background: #f1f5f9;
-            padding: 6px 12px;
-            border-radius: 12px;
-            border: 1px solid #cbd5e1;
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: #334155;
-        }
-
-        .pc-keyboard-selector select {
-            padding: 4px 8px;
-            border-radius: 8px;
-            border: 1px solid #94a3b8;
-            background: white;
-            font-weight: bold;
-            cursor: pointer;
-            outline: none;
-        }
-
         #view-game5 .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
 
         #view-game5 .zona-operacion {
             flex: 1.8; overflow-y: auto; padding: 15px;
             border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
-            display: flex; justify-content: center; align-items: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: relative;
         }
 
         #view-game5 .zona-teclado {
@@ -808,46 +782,103 @@
             background: #fff; padding: 5px; border-left: 2px solid #eee;
         }
 
-        #view-game5 .tablero { font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: flex-end; }
-        
-        #view-game5 .fila { display: flex; height: 45px; justify-content: flex-end; align-items: center; }
-        #view-game5 .fila-linea { border-bottom: 4px solid #333; width: 100%; margin: 5px 0; }
+        .tablero { 
+            font-family: 'Courier New', monospace; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-end; 
+            position: relative;
+            padding: 15px 25px;
+            transition: all 0.3s;
+        }
 
-        #view-game5 .num, #view-game5 .celda {
+        .tablero.completado {
+            background: #f0fdf4;
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+            border: 2px solid #4ade80;
+        }
+
+        .fila { display: flex; height: 45px; justify-content: flex-end; align-items: center; position: relative; }
+        .fila-linea { border-bottom: 4px solid #333; width: 100%; margin: 5px 0; }
+
+        .num, .celda {
             width: 40px; height: 44px; line-height: 44px; text-align: center; 
             font-size: 1.8rem; font-weight: bold;
         }
 
-        #view-game5 .signo { font-size: 1.8rem; font-weight: bold; margin-right: 12px; }
+        .signo { font-size: 1.8rem; font-weight: bold; margin-right: 12px; }
 
-        #view-game5 .celda { border: 2px solid #ccc; border-radius: 6px; background: #fff; line-height: 40px; }
-        #view-game5 .celda.activa { border: 3px solid #00B4DB; background: #E0F7FA; }
-        #view-game5 .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
-        #view-game5 .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+        .celda { border: 2px solid #ccc; border-radius: 6px; background: #fff; line-height: 40px; }
+        .celda.activa { border: 3px solid #00B4DB; background: #E0F7FA; }
+        .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
+        .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
 
         #view-game5 .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 230px; }
         #view-game5 .tecla { padding: 12px 0; font-size: 1.3rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; color: #333; }
         #view-game5 .tecla:active { box-shadow: 0 2px #ccc; transform: translateY(2px); }
 
-        #view-game5 .pantalla { display: none; height: 100%; width: 100%; }
-        #view-game5 .pantalla.active { display: flex; flex-direction: column; }
+        .pantalla { display: none; height: 100%; width: 100%; }
+        .pantalla.active { display: flex; flex-direction: column; }
         
-        #view-game5 .btn-nivel { width: 100%; max-width: 320px; padding: 12px; margin: 6px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        .btn-nivel { width: 100%; max-width: 320px; padding: 12px; margin: 6px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem; }
 
-        #view-game5 #modal-victoria5 {
-            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
-            justify-content: center; align-items: center; border-radius: 24px; text-align: center; padding: 20px;
+        /* BANNER PEQUEÑO DE CELEBRACIÓN */
+        .celebration-banner {
+            display: none;
+            margin-top: 15px;
+            background: #ecfdf5;
+            border: 2px solid #10b981;
+            padding: 10px 20px;
+            border-radius: 15px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .celebration-banner.show {
+            display: flex;
+        }
+
+        .celebration-text {
+            color: #065f46;
+            font-weight: bold;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-next-inline {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-next-inline:hover {
+            background: #059669;
+            transform: scale(1.05);
         }
 
         @media (max-width: 700px) {
             #view-game5 .contenido-juego { flex-direction: column; }
             #view-game5 .zona-teclado { border-left: none; border-top: 2px solid #eee; }
             #view-game5 .num, #view-game5 .celda { width: 35px; height: 38px; font-size: 1.5rem; line-height: 36px; }
+            .celebration-banner { flex-direction: column; text-align: center; gap: 8px; }
         }
 
         /* ==========================================================================
-           GAME 6 STYLES (Aprendesuma - Sumas con Llevadas)
+           GAME 6 STYLES (Aprendesuma - Sumas con Llevadas Interactivas)
            ========================================================================== */
         #view-game6 {
             background: linear-gradient(135deg, #1e3c72, #2a5298);
@@ -860,7 +891,7 @@
         }
 
         #view-game6 .container-g6 {
-            width: 100%; max-width: 900px; min-height: 500px;
+            width: 100%; max-width: 900px; min-height: 520px;
             background: white; border-radius: 24px; padding: 15px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.3);
             display: flex; flex-direction: column; position: relative;
@@ -878,7 +909,8 @@
         #view-game6 .zona-operacion {
             flex: 1.8; overflow-y: auto; padding: 15px;
             border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
-            display: flex; justify-content: center; align-items: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: relative;
         }
 
         #view-game6 .zona-teclado {
@@ -887,42 +919,93 @@
             background: #fff; padding: 5px; border-left: 2px solid #eee;
         }
 
-        #view-game6 .tablero { font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: flex-end; }
-        
-        #view-game6 .fila { display: flex; height: 45px; justify-content: flex-end; align-items: center; }
-        #view-game6 .fila-linea { border-bottom: 4px solid #333; width: 100%; margin: 5px 0; }
-
-        #view-game6 .num, #view-game6 .celda {
-            width: 40px; height: 44px; line-height: 44px; text-align: center; 
-            font-size: 1.8rem; font-weight: bold;
+        .num-box {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
         }
 
-        #view-game6 .signo { font-size: 1.8rem; font-weight: bold; margin-right: 12px; }
-
-        #view-game6 .celda { border: 2px solid #ccc; border-radius: 6px; background: #fff; line-height: 40px; }
+        #view-game6 .celda {
+            width: 40px; height: 44px; line-height: 44px; text-align: center; 
+            font-size: 1.8rem; font-weight: bold; border: 2px solid #ccc; border-radius: 6px; background: #fff;
+        }
         #view-game6 .celda.activa { border: 3px solid #FF9800; background: #FFF3E0; }
+        #view-game6 .celda.esperando-llevada { border: 3px dashed #d97706; background: #fef3c7; animation: pulse 1.2s infinite; }
         #view-game6 .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
         #view-game6 .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Llevada Superior con formato '1+' (1 pequeño arriba a la izquierda) */
+        .llevada-top {
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            font-size: 0.75rem;
+            font-weight: 900;
+            color: #d97706;
+            background: #fef3c7;
+            border: 1.5px solid #f59e0b;
+            border-radius: 4px;
+            padding: 0 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
 
         #view-game6 .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 230px; }
         #view-game6 .tecla { padding: 12px 0; font-size: 1.3rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; color: #333; }
         #view-game6 .tecla:active { box-shadow: 0 2px #ccc; transform: translateY(2px); }
+
+        .btn-llevada-accion {
+            grid-column: span 3;
+            background: #f59e0b;
+            color: white;
+            font-weight: 900;
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 1rem;
+            border: none;
+            box-shadow: 0 4px #d97706;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            display: none; /* Oculto por defecto hasta que se necesite */
+        }
+        .btn-llevada-accion:active { transform: translateY(2px); box-shadow: 0 2px #d97706; }
 
         #view-game6 .pantalla { display: none; height: 100%; width: 100%; }
         #view-game6 .pantalla.active { display: flex; flex-direction: column; }
         
         #view-game6 .btn-nivel { width: 100%; max-width: 320px; padding: 12px; margin: 6px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem; }
 
-        #view-game6 #modal-victoria6 {
-            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
-            justify-content: center; align-items: center; border-radius: 24px; text-align: center; padding: 20px;
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 700px) {
             #view-game6 .contenido-juego { flex-direction: column; }
             #view-game6 .zona-teclado { border-left: none; border-top: 2px solid #eee; }
             #view-game6 .num, #view-game6 .celda { width: 35px; height: 38px; font-size: 1.5rem; line-height: 36px; }
+            .num-box { width: 38px; height: 40px; font-size: 1.5rem; }
         }
 
         /* Keyframes */
@@ -939,7 +1022,6 @@
     <!-- Main Navigation Header -->
     <header class="app-header">
         <div class="header-left">
-            <!-- Icono Casita a main-index.html -->
             <a href="main-index.html" class="btn-home-link" title="Ir al Menú Principal del Sitio">
                 <i class="fas fa-home"></i>
             </a>
@@ -1012,8 +1094,8 @@
                 <div class="card-game" onclick="showView('view-game6')">
                     <div>
                         <div class="card-icon" style="color: #e53935;"><i class="fas fa-brain"></i></div>
-                        <div class="card-title">Sumas con Llevadas</div>
-                        <div class="card-desc">El gran desafío de la suma tradicional por columnas de varias cifras con llevadas.</div>
+                        <div class="card-title">Sumas con Llevadas (Interactivo)</div>
+                        <div class="card-desc">Calcula primero la columna y pon la llevada '1+' despues de resolverla.</div>
                     </div>
                     <div class="card-btn">Jugar <i class="fas fa-arrow-right"></i></div>
                 </div>
@@ -1183,14 +1265,21 @@
                 <div id="g5-juego" class="pantalla">
                     <div class="header-game-bar">
                         <div id="g5-instruccion" class="instruccion">¡A sumar!</div>
-                        <div class="pc-keyboard-selector pc-only-control">                    
-                  </select>
-                        </div>
                     </div>
                     <div class="contenido-juego">
                         <div class="zona-operacion">
                             <div id="g5-tablero" class="tablero"></div>
+
+                            <!-- Banner de Celebración Pequeño -->
+                            <div id="g5-banner-celebracion" class="celebration-banner">
+                                <div class="celebration-text">
+                                    <i class="fas fa-trophy" style="color:#eab308; font-size:1.3rem;"></i>
+                                    <span>¡Excelente! Suma completada.</span>
+                                </div>
+                                <button class="btn-next-inline" onclick="g5_iniciar(g5_nivelActual)">Siguiente <i class="fas fa-arrow-right"></i></button>
+                            </div>
                         </div>
+
                         <div class="zona-teclado" id="g5-zona-teclado">
                             <div class="teclado">
                                 <button class="tecla" onclick="g5_entrada(1)">1</button>
@@ -1209,23 +1298,19 @@
                         </div>
                     </div>
                 </div>
-
-                <div id="modal-victoria5">
-                    <h2 style="font-size: 2.2rem; color: #43a047;">¡Buen trabajo! 🌟</h2>
-                    <p style="margin-top: 10px; color: #555;">Has resuelto la suma correctamente.</p>
-                    <button class="btn-nivel" style="background:#43a047; max-width: 250px; margin-top:20px;" onclick="g5_volverAJugarMismoNivel()">Jugar otra vez</button>
-                    <button class="btn-nivel" style="background:#0077b6; max-width: 250px;" onclick="g5_volverAlMenuNiveles()">Volver a Niveles</button>
-                </div>
             </div>
         </div>
 
         <!-- ==========================================
-             GAME 6: Aprendesuma - Sumas con Llevadas
+             GAME 6: Aprendesuma - Sumas con Llevadas (Interactivo)
              ========================================== -->
         <div id="view-game6" class="game-view">
             <div class="container-g6">
                 <div id="g6-menu" class="pantalla active" style="justify-content: center;">
-                    <h1 style="text-align:center; color:#1e3c72; margin-bottom:15px;">Suma con Llevadas</h1>
+                    <h1 style="text-align:center; color:#1e3c72; margin-bottom:15px;">Sumas con Llevadas (Interactivo)</h1>
+                    <p style="text-align:center; color:#64748b; margin-bottom:20px; font-size: 0.95rem;">
+                        Suma columna por columna. Si da 10 o más, escribe el resultado abajo y luego <b>pulsa '1+ Me Llevo Una'</b>.
+                    </p>
                     <button class="btn-nivel" style="background:#43a047" onclick="g6_iniciar(1)">Nivel 1: 2 Cifras</button>
                     <button class="btn-nivel" style="background:#fb8c00" onclick="g6_iniciar(2)">Nivel 2: 3 Cifras</button>
                     <button class="btn-nivel" style="background:#e53935" onclick="g6_iniciar(3)">Nivel 3: 4 Cifras</button>
@@ -1234,17 +1319,29 @@
 
                 <div id="g6-juego" class="pantalla">
                     <div class="header-game-bar">
-                        <div id="g6-instruccion" class="instruccion">¡A sumar!</div>
-                        <div class="pc-keyboard-selector pc-only-control">
-                            </select>
-                        </div>
+                        <div id="g6-instruccion" class="instruccion">Empieza sumando las unidades (derecha).</div>
                     </div>
                     <div class="contenido-juego">
-                        <div class="zona-operacion">
+                        <div class="zona-operacion" id="g6-scroll-area">
                             <div id="g6-tablero" class="tablero"></div>
+
+                            <!-- Banner de Celebración Pequeño -->
+                            <div id="g6-banner-celebracion" class="celebration-banner">
+                                <div class="celebration-text">
+                                    <i class="fas fa-star" style="color:#eab308; font-size:1.3rem;"></i>
+                                    <span>¡Fantástico! Suma resuelta perfectamente.</span>
+                                </div>
+                                <button class="btn-next-inline" onclick="g6_iniciar(g6_nivelActual)">Siguiente <i class="fas fa-arrow-right"></i></button>
+                            </div>
                         </div>
+
                         <div class="zona-teclado" id="g6-zona-teclado">
                             <div class="teclado">
+                                <!-- Botón Interactivo de Llevada (Se activa después de resolver la cifra) -->
+                                <button class="btn-llevada-accion" id="g6-btnLlevada" onclick="g6_colocarLlevadaUsuario()">
+                                    <i class="fas fa-plus-circle"></i> 1+ Me Llevo Una
+                                </button>
+
                                 <button class="tecla" onclick="g6_entrada(1)">1</button>
                                 <button class="tecla" onclick="g6_entrada(2)">2</button>
                                 <button class="tecla" onclick="g6_entrada(3)">3</button>
@@ -1261,12 +1358,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div id="modal-victoria6">
-                    <h2 style="font-size: 2.2rem; color: #43a047;">¡Sumado correctamente! 🏆</h2>
-                    <button class="btn-nivel" style="background:#43a047; max-width: 250px; margin-top:20px;" onclick="g6_volverAJugarMismoNivel()">Jugar otra vez</button>
-                    <button class="btn-nivel" style="background:#1e3c72; max-width: 250px;" onclick="g6_volverAlMenuNiveles()">Volver a Niveles</button>
-                </div>
             </div>
         </div>
 
@@ -1274,33 +1365,11 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // Detection Logic for PC vs Smartphone
         const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768 && 'ontouchstart' in window);
-        let keyboardInputMode = 'screen'; // 'screen' or 'physical'
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Display PC Keyboard Selector only if user is on PC
-            if (!isMobileDevice) {
-                document.querySelectorAll('.pc-only-control').forEach(el => {
-                    el.style.display = 'flex';
-                });
-            }
             showView('view-main-menu');
         });
-
-        function toggleKeyboardMode(mode) {
-            keyboardInputMode = mode;
-            const keyZone5 = document.getElementById('g5-zona-teclado');
-            const keyZone6 = document.getElementById('g6-zona-teclado');
-
-            if (mode === 'physical') {
-                if (keyZone5) keyZone5.style.display = 'none';
-                if (keyZone6) keyZone6.style.display = 'none';
-            } else {
-                if (keyZone5) keyZone5.style.display = 'flex';
-                if (keyZone6) keyZone6.style.display = 'flex';
-            }
-        }
 
         // Global Physical Keyboard Listener for PC
         document.addEventListener('keydown', (e) => {
@@ -1349,7 +1418,6 @@
             if (targetView) {
                 targetView.classList.add('active');
                 
-                // Initialize specific game if switched to it
                 if (viewId === 'view-game1') g1_initGame();
                 if (viewId === 'view-game2') g2_initGame();
                 if (viewId === 'view-game3') g3_initLevel();
@@ -1800,7 +1868,7 @@
             g4_initLevel();
         }
 
-        /* GAME 5 LOGIC */
+        /* GAME 5 LOGIC (Sumas sin Llevadas) */
         let g5_n1Str, g5_n2Str, g5_nivelActual = 1;
         let g5_valorObjetivo = "", g5_celdasActuales = [], g5_indexInput = 0;
 
@@ -1841,11 +1909,11 @@
 
             document.getElementById('g5-menu').classList.remove('active');
             document.getElementById('g5-juego').classList.add('active');
-            document.getElementById('modal-victoria5').style.display = 'none';
-            document.getElementById('g5-instruccion').textContent = "Suma columna por columna";
+            document.getElementById('g5-banner-celebracion').classList.remove('show');
             
             const tablero = document.getElementById('g5-tablero');
             tablero.innerHTML = '';
+            tablero.classList.remove('completado');
             
             tablero.appendChild(g5_crearFilaNumeros(g5_n1Str));
             const fila2 = g5_crearFilaNumeros(g5_n2Str);
@@ -1870,7 +1938,19 @@
             tablero.appendChild(filaRes);
             
             g5_indexInput = g5_celdasActuales.length - 1;
-            g5_celdasActuales[g5_indexInput].classList.add('activa');
+            g5_actualizarCursorG5();
+        }
+
+        function g5_actualizarCursorG5() {
+            if (g5_indexInput >= 0) {
+                g5_celdasActuales.forEach(c => c && c.classList.remove('activa'));
+                g5_celdasActuales[g5_indexInput].classList.add('activa');
+            } else {
+                g5_playSound('acierto');
+                document.getElementById('g5-tablero').classList.add('completado');
+                document.getElementById('g5-banner-celebracion').classList.add('show');
+                document.getElementById('g5-instruccion').textContent = "¡Suma completada con éxito!";
+            }
         }
 
         function g5_crearFilaNumeros(numStr) {
@@ -1893,20 +1973,12 @@
                 celda.textContent = n;
                 celda.className = 'celda correcta';
                 g5_indexInput--;
-                
-                if (g5_indexInput >= 0) {
-                    g5_celdasActuales[g5_indexInput].classList.add('activa');
-                } else {
-                    setTimeout(() => { 
-                        document.getElementById('modal-victoria5').style.display = 'flex'; 
-                        g5_playSound('acierto'); 
-                    }, 500);
-                }
+                g5_actualizarCursorG5();
             } else {
                 g5_playSound('error');
                 celda.classList.add('incorrecta');
                 celda.textContent = n;
-                setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
+                setTimeout(() => { celda.classList.remove('incorrecta'); if(!celda.classList.contains('correcta')) celda.textContent = ''; }, 400);
             }
         }
 
@@ -1916,21 +1988,21 @@
         }
 
         function g5_volverAlMenuNiveles() {
-            document.getElementById('modal-victoria5').style.display = 'none';
             document.getElementById('g5-juego').classList.remove('active');
             document.getElementById('g5-menu').classList.add('active');
         }
 
-        function g5_volverAJugarMismoNivel() { g5_iniciar(g5_nivelActual); }
-
-        /* GAME 6 LOGIC */
+        /* GAME 6 LOGIC (Sumas con Llevadas - Modo Interactivo Total) */
         let g6_n1, g6_n2, g6_nivelActual = 1;
         let g6_valorObjetivo = "", g6_celdasActuales = [], g6_indexInput = 0;
+        let g6_llevadasArriba = [];
+        let g6_llevadaAcumulada = 0;
+        let g6_esperandoLlevada = false; // Indica si ya se puso el número y ahora toca pulsar el botón de llevada
 
         const g6_nivelesConfig = {
-            1: { min: 10, max: 99 },
-            2: { min: 100, max: 999 },
-            3: { min: 1000, max: 9999 }
+            1: { min: 15, max: 88 },
+            2: { min: 120, max: 880 },
+            3: { min: 1200, max: 8800 }
         };
 
         function g6_playSound(tipo) {
@@ -1948,21 +2020,76 @@
         function g6_iniciar(n) {
             g6_nivelActual = n;
             const conf = g6_nivelesConfig[n];
-            g6_n1 = Math.floor(Math.random() * (conf.max - conf.min + 1)) + conf.min;
-            g6_n2 = Math.floor(Math.random() * (conf.max - conf.min + 1)) + conf.min;
             
+            let tieneLlevada = false;
+            let str1 = "", str2 = "";
+
+            while (!tieneLlevada) {
+                g6_n1 = Math.floor(Math.random() * (conf.max - conf.min + 1)) + conf.min;
+                g6_n2 = Math.floor(Math.random() * (conf.max - conf.min + 1)) + conf.min;
+                str1 = g6_n1.toString();
+                str2 = g6_n2.toString().padStart(str1.length, "0");
+
+                let carry = 0;
+                for (let i = str1.length - 1; i >= 0; i--) {
+                    let d1 = parseInt(str1[i]);
+                    let d2 = parseInt(str2[i]);
+                    let sum = d1 + d2 + carry;
+                    if (sum >= 10) {
+                        tieneLlevada = true;
+                        carry = 1;
+                    } else {
+                        carry = 0;
+                    }
+                }
+            }
+
+            let resultadoReal = g6_n1 + g6_n2;
+            let maxLen = Math.max(str1.length, str2.length, resultadoReal.toString().length);
+            str1 = g6_n1.toString().padStart(maxLen, "0");
+            str2 = g6_n2.toString().padStart(maxLen, "0");
+            g6_n1 = parseInt(str1);
+            g6_n2 = parseInt(str2);
             g6_valorObjetivo = (g6_n1 + g6_n2).toString();
-            
+
             document.getElementById('g6-menu').classList.remove('active');
             document.getElementById('g6-juego').classList.add('active');
-            document.getElementById('modal-victoria6').style.display = 'none';
-            document.getElementById('g6-instruccion').textContent = "Suma empezando por la derecha";
+            document.getElementById('g6-banner-celebracion').classList.remove('show');
             
             const tablero = document.getElementById('g6-tablero');
             tablero.innerHTML = '';
-            
-            tablero.appendChild(g6_crearFilaNumeros(g6_n1.toString()));
-            const fila2 = g6_crearFilaNumeros(g6_n2.toString());
+            tablero.classList.remove('completado');
+
+            // Fila sumando 1 (Arriba) con contenedores para las llevadas
+            const fila1 = document.createElement('div');
+            fila1.className = 'fila';
+            g6_llevadasArriba = [];
+
+            for (let i = 0; i < str1.length; i++) {
+                const box = document.createElement('div');
+                box.className = 'num-box';
+                box.textContent = str1[i];
+
+                const llevada = document.createElement('div');
+                llevada.className = 'llevada-top';
+                llevada.textContent = '1+';
+                llevada.style.display = 'none';
+                box.appendChild(llevada);
+                g6_llevadasArriba.push(llevada);
+
+                fila1.appendChild(box);
+            }
+            tablero.appendChild(fila1);
+
+            // Fila sumando 2 (Abajo)
+            const fila2 = document.createElement('div');
+            fila2.className = 'fila';
+            for (let i = 0; i < str2.length; i++) {
+                const box = document.createElement('div');
+                box.className = 'num-box';
+                box.textContent = str2[i];
+                fila2.appendChild(box);
+            }
             const signo = document.createElement('span');
             signo.className = 'signo'; signo.textContent = '+';
             fila2.prepend(signo);
@@ -1972,6 +2099,7 @@
             linea.className = 'fila-linea';
             tablero.appendChild(linea);
 
+            // Fila de Resultados
             const filaRes = document.createElement('div');
             filaRes.className = 'fila';
             g6_celdasActuales = [];
@@ -1984,53 +2112,101 @@
             tablero.appendChild(filaRes);
             
             g6_indexInput = g6_celdasActuales.length - 1;
-            g6_celdasActuales[g6_indexInput].classList.add('activa');
+            g6_llevadaAcumulada = 0;
+            g6_esperandoLlevada = false;
+            g6_evaluarEstadoColumnaSumas();
         }
 
-        function g6_crearFilaNumeros(numStr) {
-            const fila = document.createElement('div');
-            fila.className = 'fila';
-            for (let char of numStr) {
-                const n = document.createElement('div');
-                n.className = 'num'; n.textContent = char;
-                fila.appendChild(n);
+        function g6_evaluarEstadoColumnaSumas() {
+            if (g6_indexInput < 0) {
+                g6_playSound('acierto');
+                document.getElementById('g6-tablero').classList.add('completado');
+                document.getElementById('g6-banner-celebracion').classList.add('show');
+                document.getElementById('g6-instruccion').textContent = "¡Suma completada con éxito!";
+                document.getElementById('g6-btnLlevada').style.display = 'none';
+                return;
             }
-            return fila;
+
+            g6_celdasActuales.forEach(c => c && c.classList.remove('activa', 'esperando-llevada'));
+            g6_celdasActuales[g6_indexInput].classList.add('activa');
+
+            let str1 = g6_n1.toString().padStart(g6_celdasActuales.length, "0");
+            let str2 = g6_n2.toString().padStart(g6_celdasActuales.length, "0");
+            let d1 = parseInt(str1[g6_indexInput] || '0');
+            let d2 = parseInt(str2[g6_indexInput] || '0');
+
+            const inst = document.getElementById('g6-instruccion');
+            inst.textContent = `Suma la columna (${d1} + ${d2}${g6_llevadaAcumulada ? ' + ' + g6_llevadaAcumulada : ''}).`;
+            document.getElementById('g6-btnLlevada').style.display = 'none';
         }
 
         function g6_entrada(n) {
-            if (g6_indexInput < 0) return;
+            if (g6_indexInput < 0 || !g6_celdasActuales[g6_indexInput]) return;
+
+            // Si está esperando que pulse el botón de llevada porque dio >= 10
+            if (g6_esperandoLlevada) {
+                g6_playSound('error');
+                document.getElementById('g6-instruccion').textContent = "¡El resultado da 10 o más! Pulsa primero el botón '1+ Me Llevo Una'.";
+                return;
+            }
+
             const celda = g6_celdasActuales[g6_indexInput];
+            let objetivoStr = g6_valorObjetivo.padStart(g6_celdasActuales.length, "0");
             
-            if (n.toString() === g6_valorObjetivo[g6_indexInput]) {
+            if (n.toString() === objetivoStr[g6_indexInput]) {
                 g6_playSound('acierto');
                 celda.textContent = n;
                 celda.className = 'celda correcta';
-                g6_indexInput--;
-                
-                if (g6_indexInput >= 0) {
-                    g6_celdasActuales[g6_indexInput].classList.add('activa');
+
+                let str1 = g6_n1.toString().padStart(g6_celdasActuales.length, "0");
+                let str2 = g6_n2.toString().padStart(g6_celdasActuales.length, "0");
+                let d1 = parseInt(str1[g6_indexInput] || '0');
+                let d2 = parseInt(str2[g6_indexInput] || '0');
+                let sumaParcial = d1 + d2 + g6_llevadaAcumulada;
+
+                // Comprobamos si esta columna genera llevada y aún queda columna a la izquierda
+                if (sumaParcial >= 10 && g6_indexInput > 0) {
+                    g6_esperandoLlevada = true;
+                    celda.classList.remove('activa');
+                    document.getElementById('g6-instruccion').textContent = `¡Muy bien! Como da ${sumaParcial}, pulsa el botón '1+ Me Llevo Una'.`;
+                    document.getElementById('g6-btnLlevada').style.display = 'flex';
                 } else {
-                    setTimeout(() => { 
-                        document.getElementById('modal-victoria6').style.display = 'flex'; 
-                        g6_playSound('acierto'); 
-                    }, 500);
+                    g6_llevadaAcumulada = 0;
+                    g6_indexInput--;
+                    g6_evaluarEstadoColumnaSumas();
                 }
             } else {
                 g6_playSound('error');
                 celda.classList.add('incorrecta');
                 celda.textContent = n;
-                setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
+                setTimeout(() => { 
+                    celda.classList.remove('incorrecta'); 
+                    if (!celda.classList.contains('correcta')) celda.textContent = ''; 
+                }, 400);
             }
+        }
+
+        function g6_colocarLlevadaUsuario() {
+            if (!g6_esperandoLlevada || g6_indexInput - 1 < 0) return;
+
+            g6_playSound('acierto');
+            // Muestra '1+' arriba en la columna de la izquierda
+            g6_llevadasArriba[g6_indexInput - 1].style.display = 'flex';
+
+            g6_llevadaAcumulada = 1;
+            g6_esperandoLlevada = false;
+            document.getElementById('g6-btnLlevada').style.display = 'none';
+
+            g6_indexInput--;
+            g6_evaluarEstadoColumnaSumas();
         }
 
         function g6_borrar() {
             const c = g6_celdasActuales[g6_indexInput];
-            if(c && !c.classList.contains('correcta')) c.textContent = "";
+            if(c && !c.classList.contains('correcta') && !g6_esperandoLlevada) c.textContent = "";
         }
 
         function g6_volverAlMenuNiveles() {
-            document.getElementById('modal-victoria6').style.display = 'none';
             document.getElementById('g6-juego').classList.remove('active');
             document.getElementById('g6-menu').classList.add('active');
         }
