@@ -23,6 +23,8 @@
             --nav-bg: #1e293b;
             --nav-accent: #f43f5e;
             --secondary-accent: #38bdf8;
+            --primary-green: #2e7d32;
+            --primary-blue: #1e3c72;
         }
 
         body {
@@ -220,37 +222,6 @@
         .card-game:hover .card-btn {
             background: var(--nav-accent);
             color: white;
-        }
-
-        /* Controls / Indicators */
-        .pc-keyboard-indicator {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            padding: 6px 14px;
-            font-size: 0.85rem;
-            color: #cbd5e1;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
-        /* Responsive Top Bar */
-        @media (max-width: 600px) {
-            .app-header {
-                padding: 10px 12px;
-            }
-            .app-title {
-                font-size: 0.95rem;
-            }
-            .btn-menu-toggle {
-                padding: 6px 12px;
-                font-size: 0.85rem;
-            }
-            .menu-header h1 {
-                font-size: 1.8rem;
-            }
         }
 
         /* ==========================================================================
@@ -511,24 +482,17 @@
         #view-game2 .modal.show { transform: translate(-50%, -50%) scale(1); }
 
         /* ==========================================================================
-           GAME 3 STYLES (Restas con Ceros Obligatorios)
+           GAMES 3 & 4 SHARED & SPANISH CARRY STYLES
            ========================================================================== */
-        #view-game3 {
-            background: linear-gradient(135deg, #43a047, #1b5e20);
-            min-height: calc(100vh - 55px);
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-
-        #view-game3 .container-g3 {
-            width: 98%; max-width: 950px; min-height: 500px; max-height: 90vh;
+        .container-g3, .container-g4 {
+            width: 98%; max-width: 950px; min-height: 520px;
             background: white; border-radius: 24px; padding: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.3);
             display: flex; flex-direction: column; position: relative; color: #333;
         }
+
+        #view-game3 { background: linear-gradient(135deg, #43a047, #1b5e20); min-height: calc(100vh - 55px); padding: 10px; display: flex; justify-content: center; align-items: center; width: 100%; }
+        #view-game4 { background: linear-gradient(135deg, #1e3c72, #2a5298); min-height: calc(100vh - 55px); padding: 10px; display: flex; justify-content: center; align-items: center; width: 100%; }
 
         .header-game-bar {
             display: flex;
@@ -539,29 +503,60 @@
         }
 
         .instruccion {
-            background: #2e7d32; color: white; padding: 12px;
+            color: white; padding: 12px;
             border-radius: 12px; text-align: center;
             font-weight: bold; font-size: 1.1rem; flex: 1;
+            transition: all 0.3s;
         }
+        #view-game3 .instruccion { background: var(--primary-green); }
+        #view-game4 .instruccion { background: var(--primary-blue); }
 
-        #view-game3 .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
+        .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
 
-        #view-game3 .zona-operacion {
+        .zona-operacion {
             flex: 1.8; overflow-y: auto; padding: 15px;
             border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
-            display: flex; justify-content: center; align-items: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: relative;
         }
 
-        #view-game3 .zona-teclado {
+        .zona-teclado {
             flex: 1; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             background: #fff; padding: 5px; border-left: 2px solid #eee;
         }
 
-        .tablero { font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: flex-end; }
-        
-        .fila { display: flex; height: 50px; justify-content: flex-end; align-items: center; }
+        .tablero { 
+            font-family: 'Courier New', monospace; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-end; 
+            position: relative;
+            padding: 15px 25px;
+            transition: all 0.3s;
+        }
+
+        .tablero.completado {
+            background: #f0fdf4;
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+            border: 2px solid #4ade80;
+        }
+
+        .fila { display: flex; height: 55px; justify-content: flex-end; align-items: center; position: relative; }
         .fila-linea { border-bottom: 4px solid #333; width: 100%; margin: 5px 0; }
+
+        /* Box representation for digits & carry overs */
+        .num-box {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: bold;
+        }
 
         .num, .celda {
             width: 45px; height: 48px; line-height: 48px; text-align: center; 
@@ -570,84 +565,143 @@
 
         .signo { font-size: 2rem; font-weight: bold; margin-right: 15px; }
 
-        .celda { border: 2px solid #ccc; border-radius: 6px; background: #fff; line-height: 44px; }
-        .celda.activa { border: 3px solid #4CAF50; background: #E8F5E9; }
+        .celda { border: 2px solid #ccc; border-radius: 8px; background: #fff; line-height: 44px; }
+        .celda.activa { border: 3px solid #FF9800; background: #FFF3E0; }
+        .celda.esperando-llevada { border: 3px dashed #d97706; background: #fef3c7; animation: pulse 1.2s infinite; }
         .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
         .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* --- ESTILO LLEVADA ESPAÑOLA --- */
+        /* Llevada Superior (1 pequeño arriba a la izquierda) */
+        .llevada-top {
+            position: absolute;
+            top: -2px;
+            left: 2px;
+            font-size: 0.9rem;
+            font-weight: 900;
+            color: #d97706;
+            background: #fef3c7;
+            border: 1.5px solid #f59e0b;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Llevada Inferior (1 pequeño al lado abajo a la izquierda - Estilo Tradicional) */
+        .llevada-bottom {
+            position: absolute;
+            bottom: 2px;
+            left: 2px;
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: #dc2626;
+            background: #fee2e2;
+            border: 1.5px solid #f87171;
+            border-radius: 4px;
+            padding: 0 3px;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        /* BANNER PEQUEÑO DE CELEBRACIÓN (NO TAPA LA RESTA) */
+        .celebration-banner {
+            display: none;
+            margin-top: 15px;
+            background: #ecfdf5;
+            border: 2px solid #10b981;
+            padding: 10px 20px;
+            border-radius: 15px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .celebration-banner.show {
+            display: flex;
+        }
+
+        .celebration-text {
+            color: #065f46;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-next-inline {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-next-inline:hover {
+            background: #059669;
+            transform: scale(1.05);
+        }
 
         .teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 250px; }
         .tecla { padding: 15px 0; font-size: 1.4rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; color: #333; }
         .tecla:active { box-shadow: 0 2px #ccc; transform: translateY(2px); }
+
+        .btn-llevada-accion {
+            grid-column: span 3;
+            background: #f59e0b;
+            color: white;
+            font-weight: 900;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 1.1rem;
+            border: none;
+            box-shadow: 0 4px #d97706;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .btn-llevada-accion:active { transform: translateY(2px); box-shadow: 0 2px #d97706; }
 
         .pantalla { display: none; height: 100%; width: 100%; }
         .pantalla.active { display: flex; flex-direction: column; }
         
         .btn-nivel { width: 100%; max-width: 350px; padding: 12px; margin: 5px auto; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 1rem; }
 
-        #view-game3 #modal-victoria3 {
-            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
-            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 700px) {
-            #view-game3 .contenido-juego { flex-direction: column; }
-            #view-game3 .zona-teclado { border-left: none; border-top: 2px solid #eee; }
-            #view-game3 .num, #view-game3 .celda { width: 38px; height: 42px; font-size: 1.8rem; }
-        }
-
-        /* ==========================================================================
-           GAME 4 STYLES (Restas con Llevadas y Ceros)
-           ========================================================================== */
-        #view-game4 {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            min-height: calc(100vh - 55px);
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-
-        #view-game4 .container-g4 {
-            width: 98%; max-width: 950px; min-height: 500px; max-height: 90vh;
-            background: white; border-radius: 24px; padding: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            display: flex; flex-direction: column; position: relative; color: #333;
-        }
-
-        #view-game4 .instruccion {
-            background: #1e3c72; color: white; padding: 12px;
-            border-radius: 12px; text-align: center;
-            font-weight: bold; font-size: 1.1rem; flex: 1;
-        }
-
-        #view-game4 .contenido-juego { display: flex; flex: 1; gap: 15px; overflow: hidden; }
-
-        #view-game4 .zona-operacion {
-            flex: 1.8; overflow-y: auto; padding: 15px;
-            border: 2px solid #f0f0f0; border-radius: 15px; background: #fafafa;
-            display: flex; justify-content: center; align-items: center;
-        }
-
-        #view-game4 .zona-teclado {
-            flex: 1; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            background: #fff; padding: 5px; border-left: 2px solid #eee;
-        }
-
-        #view-game4 .celda.activa { border: 3px solid #FF9800; background: #FFF3E0; }
-
-        #view-game4 #modal-victoria4 {
-            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column;
-            justify-content: center; align-items: center; border-radius: 24px; text-align: center;
-        }
-
-        @media (max-width: 700px) {
-            #view-game4 .contenido-juego { flex-direction: column; }
-            #view-game4 .zona-teclado { border-left: none; border-top: 2px solid #eee; }
-            #view-game4 .num, #view-game4 .celda { width: 38px; height: 42px; font-size: 1.8rem; }
+            .contenido-juego { flex-direction: column; }
+            .zona-teclado { border-left: none; border-top: 2px solid #eee; }
+            .num, .celda { width: 38px; height: 42px; font-size: 1.6rem; }
+            .num-box { width: 40px; height: 42px; font-size: 1.7rem; }
+            .celebration-banner { flex-direction: column; text-align: center; gap: 8px; }
         }
 
         /* Animations */
@@ -685,12 +739,6 @@
                 <h1>Selecciona un Juego de Resta</h1>
                 <p>Elige la actividad que deseas practicar. Puedes usar el teclado físico o la pantalla.</p>
             </div>
-            
-            <div style="display: flex; justify-content: center; width: 100%;">
-                <div class="pc-keyboard-indicator">
-                   
-                </div>
-            </div>
 
             <div class="menu-grid">
                 
@@ -724,8 +772,8 @@
                 <div class="card-game" onclick="showView('view-game4')">
                     <div>
                         <div class="card-icon" style="color: #1e3c72;"><i class="fas fa-layer-group"></i></div>
-                        <div class="card-title">Restas con Llevadas y Ceros</div>
-                        <div class="card-desc">Desafío avanzado de restas tradicionales con llevadas en varias columnas, completando ceros cuando corresponda.</div>
+                        <div class="card-title">Restas con Llevadas (Modo Interactivo)</div>
+                        <div class="card-desc">Tú mismo pones la llevada '+1' en el momento exacto en que la columna lo necesita.</div>
                     </div>
                     <div class="card-btn">Jugar <i class="fas fa-arrow-right"></i></div>
                 </div>
@@ -765,7 +813,7 @@
         </div>
 
         <!-- ==========================================
-             GAME 2: Desactivador Numérico - Laboratorio
+             GAME 2: Desactivador Numérico - Gemas
              ========================================== -->
         <div id="view-game2" class="game-view">
             <div class="hud">
@@ -796,7 +844,7 @@
         </div>
 
         <!-- ==========================================
-             GAME 3: Restas sin Llevadas (con Ceros)
+             GAME 3: Restas sin Llevadas
              ========================================== -->
         <div id="view-game3" class="game-view">
             <div class="container-g3">
@@ -810,12 +858,22 @@
 
                 <div id="g3-juego" class="pantalla">
                     <div class="header-game-bar">
-                        <div id="g3-instruccion" class="instruccion">¡A restar! (Sin llevadas)</div>
+                        <div id="g3-instruccion" class="instruccion">Resta todas las columnas, incluso si el resultado es cero.</div>
                     </div>
                     <div class="contenido-juego">
                         <div class="zona-operacion" id="g3-scroll-area">
                             <div id="g3-tablero" class="tablero"></div>
+                            
+                            <!-- Banner Pequeño de Celebración -->
+                            <div id="g3-banner-celebracion" class="celebration-banner">
+                                <div class="celebration-text">
+                                    <i class="fas fa-trophy" style="color:#eab308; font-size:1.4rem;"></i>
+                                    <span>¡Excelente! Resta completada.</span>
+                                </div>
+                                <button class="btn-next-inline" onclick="g3_iniciar(g3_nivelActual)">Siguiente <i class="fas fa-arrow-right"></i></button>
+                            </div>
                         </div>
+
                         <div class="zona-teclado">
                             <div class="teclado">
                                 <button class="tecla" onclick="g3_entrada(1)">1</button>
@@ -834,22 +892,19 @@
                         </div>
                     </div>
                 </div>
-
-                <div id="modal-victoria3">
-                    <h2 style="font-size: 2.5rem; color: #43a047;">¡Resta completada! 🏆</h2>
-                    <button class="btn-nivel" style="background:#43a047; max-width: 250px; margin-top:20px;" onclick="g3_volverAJugarMismoNivel()">Jugar otra vez</button>
-                    <button class="btn-nivel" style="background:#1e3c72; max-width: 250px;" onclick="g3_volverAlMenuNiveles()">Volver a Niveles</button>
-                </div>
             </div>
         </div>
 
         <!-- ==========================================
-             GAME 4: Restas con Llevadas y Ceros
+             GAME 4: Restas con Llevadas (Modo Interactivo)
              ========================================== -->
         <div id="view-game4" class="game-view">
             <div class="container-g4">
                 <div id="g4-menu" class="pantalla active" style="justify-content: center;">
-                    <h1 style="text-align:center; color:#1e3c72; margin-bottom:15px;">Resta con Llevadas</h1>
+                    <h1 style="text-align:center; color:#1e3c72; margin-bottom:15px;">Resta con Llevadas (Modo Interactivo)</h1>
+                    <p style="text-align:center; color:#64748b; margin-bottom:20px; font-size: 0.95rem;">
+                        Pasa columna por columna. Si falta cantidad, <b>pulsa el botón de Llevada '+1'</b> para colocar los unos.
+                    </p>
                     <button class="btn-nivel" style="background:#43a047" onclick="g4_iniciar(1)">Nivel 1: 2 Cifras</button>
                     <button class="btn-nivel" style="background:#fb8c00" onclick="g4_iniciar(2)">Nivel 2: 3 Cifras</button>
                     <button class="btn-nivel" style="background:#e53935" onclick="g4_iniciar(3)">Nivel 3: 4 Cifras</button>
@@ -858,14 +913,29 @@
 
                 <div id="g4-juego" class="pantalla">
                     <div class="header-game-bar">
-                        <div id="g4-instruccion" class="instruccion">¡A restar!</div>
+                        <div id="g4-instruccion" class="instruccion">Empieza restando las unidades (derecha).</div>
                     </div>
                     <div class="contenido-juego">
                         <div class="zona-operacion" id="g4-scroll-area">
                             <div id="g4-tablero" class="tablero"></div>
+
+                            <!-- Banner Pequeño de Celebración -->
+                            <div id="g4-banner-celebracion" class="celebration-banner">
+                                <div class="celebration-text">
+                                    <i class="fas fa-star" style="color:#eab308; font-size:1.4rem;"></i>
+                                    <span>¡Fantástico! Resta resuelta a la perfección.</span>
+                                </div>
+                                <button class="btn-next-inline" onclick="g4_iniciar(g4_nivelActual)">Siguiente <i class="fas fa-arrow-right"></i></button>
+                            </div>
                         </div>
+
                         <div class="zona-teclado">
                             <div class="teclado">
+                                <!-- Botón de Llevada Interactivo -->
+                                <button class="btn-llevada-accion" id="g4-btnLlevada" onclick="g4_colocarLlevadaUsuario()">
+                                    <i class="fas fa-plus-circle"></i> +1 Me Llevo Una
+                                </button>
+                                
                                 <button class="tecla" onclick="g4_entrada(1)">1</button>
                                 <button class="tecla" onclick="g4_entrada(2)">2</button>
                                 <button class="tecla" onclick="g4_entrada(3)">3</button>
@@ -881,12 +951,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div id="modal-victoria4">
-                    <h2 style="font-size: 2.5rem; color: #43a047;">¡Resta completada! 🏆</h2>
-                    <button class="btn-nivel" style="background:#43a047; max-width: 250px; margin-top:20px;" onclick="g4_volverAJugarMismoNivel()">Jugar otra vez</button>
-                    <button class="btn-nivel" style="background:#1e3c72; max-width: 250px;" onclick="g4_volverAlMenuNiveles()">Volver a Niveles</button>
                 </div>
             </div>
         </div>
@@ -910,7 +974,6 @@
                 currentActiveView = viewId;
                 window.scrollTo(0, 0);
 
-                // Initialize specific game if needed
                 if (viewId === 'view-game1') g1_initGame();
                 if (viewId === 'view-game2') g2_initLevel();
                 if (viewId === 'view-game3') g3_volverAlMenuNiveles();
@@ -918,7 +981,7 @@
             }
         }
 
-        // PHYSICAL KEYBOARD LISTENER (PC) - Works on active game
+        // PHYSICAL KEYBOARD LISTENER
         document.addEventListener('keydown', function(e) {
             if (e.key >= '0' && e.key <= '9') {
                 const num = parseInt(e.key);
@@ -1180,11 +1243,11 @@
             
             document.getElementById('g3-menu').classList.remove('active');
             document.getElementById('g3-juego').classList.add('active');
-            document.getElementById('modal-victoria3').style.display = 'none';
-            document.getElementById('g3-instruccion').textContent = "Resta todas las columnas, incluso si el resultado es cero.";
+            document.getElementById('g3-banner-celebracion').classList.remove('show');
             
             const tablero = document.getElementById('g3-tablero');
             tablero.innerHTML = '';
+            tablero.classList.remove('completado');
             
             tablero.appendChild(g3_crearFilaNumeros(g3_n1.toString()));
             
@@ -1220,10 +1283,9 @@
                 g3_celdasActuales.forEach(c => c && c.classList.remove('activa'));
                 g3_celdasActuales[g3_indexInput].classList.add('activa');
             } else {
-                setTimeout(() => { 
-                    document.getElementById('modal-victoria3').style.display = 'flex'; 
-                    g2_playSound('success'); 
-                }, 500);
+                g2_playSound('success'); 
+                document.getElementById('g3-tablero').classList.add('completado');
+                document.getElementById('g3-banner-celebracion').classList.add('show');
             }
         }
 
@@ -1231,9 +1293,10 @@
             const fila = document.createElement('div');
             fila.className = 'fila';
             for (let char of numStr) {
-                const n = document.createElement('div');
-                n.className = 'num'; n.textContent = char;
-                fila.appendChild(n);
+                const box = document.createElement('div');
+                box.className = 'num-box';
+                box.textContent = char;
+                fila.appendChild(box);
             }
             return fila;
         }
@@ -1265,110 +1328,234 @@
         }
 
         function g3_volverAlMenuNiveles() {
-            document.getElementById('modal-victoria3').style.display = 'none';
             document.getElementById('g3-juego').classList.remove('active');
             document.getElementById('g3-menu').classList.add('active');
         }
 
-        function g3_volverAJugarMismoNivel() { g3_iniciar(g3_nivelActual); }
-
         /* ==========================================================================
-           GAME 4 LOGIC (Restas con Llevadas y Ceros)
+           GAME 4 LOGIC (Restas con Llevadas - Modo Interactivo Total)
            ========================================================================== */
         let g4_n1, g4_n2, g4_nivelActual = 1;
         let g4_valorObjetivo = "", g4_celdasActuales = [], g4_indexInput = 0;
+        let g4_llevadasArriba = [], g4_llevadasAbajo = [];
+        let g4_llevadaAcumulada = 0; // Llevada que se debe sumar al sustraendo actual
+        let g4_llevadaPuestaActual = false; // Indica si en la columna activa ya se ha puesto la llevada necesaria
 
         const g4_nivelesConfig = {
-            1: { min: 20, max: 99 },
-            2: { min: 200, max: 999 },
-            3: { min: 2000, max: 9999 }
+            1: { min: 21, max: 98 },
+            2: { min: 120, max: 980 },
+            3: { min: 1200, max: 9800 }
         };
 
         function g4_iniciar(n) {
             g4_nivelActual = n;
             const conf = g4_nivelesConfig[n];
             
-            let valA = Math.floor(Math.random() * (conf.max - conf.min + 1)) + conf.min;
-            let valB = Math.floor(Math.random() * (conf.max - conf.min + 1)) + conf.min;
-            g4_n1 = Math.max(valA, valB);
-            g4_n2 = Math.min(valA, valB);
-            if(g4_n1 === g4_n2) g4_n1 += 5;
+            let tieneLlevada = false;
+            let str1 = "", str2 = "";
+
+            while (!tieneLlevada) {
+                let valA = Math.floor(Math.random() * (conf.max - conf.min + 1)) + conf.min;
+                let valB = Math.floor(Math.random() * (valA - 10)) + 10;
+                str1 = valA.toString();
+                str2 = valB.toString().padStart(str1.length, "0");
+
+                let carry = 0;
+                for (let i = str1.length - 1; i >= 0; i--) {
+                    let d1 = parseInt(str1[i]);
+                    let d2 = parseInt(str2[i]) + carry;
+                    if (d1 < d2) {
+                        tieneLlevada = true;
+                        carry = 1;
+                    } else {
+                        carry = 0;
+                    }
+                }
+            }
+
+            g4_n1 = parseInt(str1);
+            g4_n2 = parseInt(str2);
 
             let resultado = g4_n1 - g4_n2;
-            let n1Str = g4_n1.toString();
-            
-            g4_valorObjetivo = resultado.toString().padStart(n1Str.length, "0");
+            g4_valorObjetivo = resultado.toString().padStart(str1.length, "0");
             
             document.getElementById('g4-menu').classList.remove('active');
             document.getElementById('g4-juego').classList.add('active');
-            document.getElementById('modal-victoria4').style.display = 'none';
-            document.getElementById('g4-instruccion').textContent = "Completa todas las columnas, incluso los ceros.";
+            document.getElementById('g4-banner-celebracion').classList.remove('show');
             
             const tablero = document.getElementById('g4-tablero');
             tablero.innerHTML = '';
-            
-            tablero.appendChild(g4_crearFilaNumeros(n1Str));
-            
-            const n2Str = g4_n2.toString().padStart(n1Str.length, "0");
-            const fila2 = g4_crearFilaNumeros(n2Str);
+            tablero.classList.remove('completado');
+
+            // Fila minuendo (Arriba)
+            const fila1 = document.createElement('div');
+            fila1.className = 'fila';
+            g4_llevadasArriba = [];
+
+            for (let i = 0; i < str1.length; i++) {
+                const box = document.createElement('div');
+                box.className = 'num-box';
+                box.textContent = str1[i];
+
+                const llevada = document.createElement('div');
+                llevada.className = 'llevada-top';
+                llevada.textContent = '1';
+                llevada.style.display = 'none';
+                box.appendChild(llevada);
+                g4_llevadasArriba.push(llevada);
+
+                fila1.appendChild(box);
+            }
+            tablero.appendChild(fila1);
+
+            // Fila sustraendo (Abajo)
+            const fila2 = document.createElement('div');
+            fila2.className = 'fila';
+            g4_llevadasAbajo = [];
+
+            for (let i = 0; i < str2.length; i++) {
+                const box = document.createElement('div');
+                box.className = 'num-box';
+                box.textContent = str2[i];
+
+                const llevada = document.createElement('div');
+                llevada.className = 'llevada-bottom';
+                llevada.textContent = '+1';
+                llevada.style.display = 'none';
+                box.appendChild(llevada);
+                g4_llevadasAbajo.push(llevada);
+
+                fila2.appendChild(box);
+            }
             const signo = document.createElement('span');
             signo.className = 'signo'; signo.textContent = '−';
             fila2.prepend(signo);
             tablero.appendChild(fila2);
-            
+
+            // Línea divisoria
             const linea = document.createElement('div');
             linea.className = 'fila-linea';
             tablero.appendChild(linea);
 
+            // Fila de Resultados
             const filaRes = document.createElement('div');
             filaRes.className = 'fila';
             g4_celdasActuales = [];
 
-            for (let i = 0; i < n1Str.length; i++) {
+            for (let i = 0; i < str1.length; i++) {
                 const c = document.createElement('div');
                 c.className = 'celda';
                 filaRes.appendChild(c);
                 g4_celdasActuales.push(c);
             }
             tablero.appendChild(filaRes);
-            
+
             g4_indexInput = g4_celdasActuales.length - 1;
-            g4_actualizarCursor();
+            g4_llevadaAcumulada = 0;
+            g4_evaluarEstadoColumna();
         }
 
-        function g4_actualizarCursor() {
-            if (g4_indexInput >= 0) {
-                g4_celdasActuales.forEach(c => c && c.classList.remove('activa'));
-                g4_celdasActuales[g4_indexInput].classList.add('activa');
+        // Evalúa la columna activa y guía al usuario sobre si debe o no poner llevada
+        function g4_evaluarEstadoColumna() {
+            if (g4_indexInput < 0) {
+                // Operación terminada
+                g2_playSound('success');
+                document.getElementById('g4-tablero').classList.add('completado');
+                document.getElementById('g4-banner-celebracion').classList.add('show');
+                document.getElementById('g4-instruccion').textContent = "¡Resta completada con éxito!";
+                document.getElementById('g4-btnLlevada').style.display = 'none';
+                return;
+            }
+
+            g4_celdasActuales.forEach(c => c && c.classList.remove('activa', 'esperando-llevada'));
+
+            let str1 = g4_n1.toString();
+            let str2 = g4_n2.toString().padStart(str1.length, "0");
+
+            let d1 = parseInt(str1[g4_indexInput]);
+            let d2 = parseInt(str2[g4_indexInput]) + g4_llevadaAcumulada;
+
+            const inst = document.getElementById('g4-instruccion');
+            const btnLlevada = document.getElementById('g4-btnLlevada');
+
+            if (d1 < d2) {
+                // Requiere llevada
+                g4_llevadaPuestaActual = false;
+                g4_celdasActuales[g4_indexInput].classList.add('esperando-llevada');
+                inst.textContent = `A ${d1} no le puedes restar ${d2}. ¡Añade la llevada '+1'!`;
+                btnLlevada.style.display = 'flex';
             } else {
-                setTimeout(() => { 
-                    document.getElementById('modal-victoria4').style.display = 'flex'; 
-                    g2_playSound('success'); 
-                }, 500);
+                // No requiere llevada
+                g4_llevadaPuestaActual = true;
+                g4_celdasActuales[g4_indexInput].classList.add('activa');
+                inst.textContent = `Resta la columna actual (${d1} - ${d2}).`;
+                btnLlevada.style.display = 'none';
             }
         }
 
-        function g4_crearFilaNumeros(numStr) {
-            const fila = document.createElement('div');
-            fila.className = 'fila';
-            for (let char of numStr) {
-                const n = document.createElement('div');
-                n.className = 'num'; n.textContent = char;
-                fila.appendChild(n);
+        function g4_colocarLlevadaUsuario() {
+            if (g4_indexInput < 0) return;
+
+            let str1 = g4_n1.toString();
+            let str2 = g4_n2.toString().padStart(str1.length, "0");
+            let d1 = parseInt(str1[g4_indexInput]);
+            let d2 = parseInt(str2[g4_indexInput]) + g4_llevadaAcumulada;
+
+            if (d1 < d2 && !g4_llevadaPuestaActual) {
+                g2_playSound('success');
+                // Coloca el 1 arriba en el minuendo
+                g4_llevadasArriba[g4_indexInput].style.display = 'flex';
+                
+                // Coloca el +1 en la columna siguiente del sustraendo (si hay columna a la izquierda)
+                if (g4_indexInput - 1 >= 0) {
+                    g4_llevadasAbajo[g4_indexInput - 1].style.display = 'block';
+                }
+
+                g4_llevadaPuestaActual = true;
+                
+                // Actualizar interfaz
+                const inst = document.getElementById('g4-instruccion');
+                const btnLlevada = document.getElementById('g4-btnLlevada');
+                inst.textContent = `¡Muy bien! Ahora resta ${d1 + 10} - ${d2}.`;
+                btnLlevada.style.display = 'none';
+
+                g4_celdasActuales[g4_indexInput].classList.remove('esperando-llevada');
+                g4_celdasActuales[g4_indexInput].classList.add('activa');
             }
-            return fila;
         }
 
         function g4_entrada(n) {
             if (g4_indexInput < 0 || !g4_celdasActuales[g4_indexInput]) return;
+
+            // Si la columna necesitaba llevada y aún no la ha puesto
+            if (!g4_llevadaPuestaActual) {
+                g2_playSound('error');
+                const inst = document.getElementById('g4-instruccion');
+                inst.textContent = "¡Primero debes pulsar el botón '+1 Me Llevo Una'!";
+                return;
+            }
+
             const celda = g4_celdasActuales[g4_indexInput];
             
             if (n.toString() === g4_valorObjetivo[g4_indexInput]) {
                 g2_playSound('success');
                 celda.textContent = n;
                 celda.className = 'celda correcta';
+
+                // Calcular si debemos pasar llevada a la columna de la izquierda
+                let str1 = g4_n1.toString();
+                let str2 = g4_n2.toString().padStart(str1.length, "0");
+                let d1 = parseInt(str1[g4_indexInput]);
+                let d2 = parseInt(str2[g4_indexInput]) + g4_llevadaAcumulada;
+
+                if (d1 < d2) {
+                    g4_llevadaAcumulada = 1;
+                } else {
+                    g4_llevadaAcumulada = 0;
+                }
+
                 g4_indexInput--;
-                g4_actualizarCursor();
+                g4_evaluarEstadoColumna();
             } else {
                 g2_playSound('error');
                 celda.classList.add('incorrecta');
@@ -1386,12 +1573,9 @@
         }
 
         function g4_volverAlMenuNiveles() {
-            document.getElementById('modal-victoria4').style.display = 'none';
             document.getElementById('g4-juego').classList.remove('active');
             document.getElementById('g4-menu').classList.add('active');
         }
-
-        function g4_volverAJugarMismoNivel() { g4_iniciar(g4_nivelActual); }
 
         // Initialize on load
         window.onload = function() {
