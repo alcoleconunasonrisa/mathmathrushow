@@ -124,7 +124,7 @@
             width: 100%;
             align-items: center;
             justify-content: flex-start;
-            padding: 10px;
+            padding: 15px;
         }
 
         /* Game Views */
@@ -134,7 +134,7 @@
             max-width: 1000px;
             flex: 1;
             animation: fadeIn 0.3s ease-in-out;
-            padding: 10px;
+            padding: 5px;
             box-sizing: border-box;
         }
 
@@ -337,90 +337,173 @@
         }
         .modal-overlay.show { transform: translate(-50%, -50%) scale(1); }
 
-        /* --- ESTILOS JUEGOS DE DIVISIÓN POR PASOS (3, 4, 5) --- */
+        /* --- ESTILOS MEJORADOS PARA JUEGOS DE DIVISIÓN POR PASOS (3, 4, 5) --- */
         .div-container {
             width: 100%; 
-            max-width: 950px; 
+            max-width: 980px; 
             background: white; 
             color: #333;
             border-radius: 24px; 
-            padding: 15px; 
+            padding: 20px; 
             display: flex; 
             flex-direction: column;
             position: relative; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
             box-sizing: border-box;
         }
+
         .instruccion-div {
-            background: #1a2980; 
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
             color: white; 
-            padding: 10px; 
-            border-radius: 12px;
+            padding: 12px 18px; 
+            border-radius: 14px;
             text-align: center; 
             margin-bottom: 15px; 
-            font-weight: bold; 
-            font-size: clamp(1rem, 3vw, 1.2rem);
+            font-weight: 900; 
+            font-size: clamp(1.05rem, 3.2vw, 1.25rem);
+            box-shadow: 0 4px 12px rgba(26, 41, 128, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
+
         .contenido-juego { 
             display: flex; 
             flex-direction: row;
             flex-wrap: wrap;
-            gap: 15px; 
+            gap: 20px; 
             width: 100%; 
-            justify-content: center;
+            justify-content: space-between;
+            align-items: flex-start;
         }
+
         .zona-operacion {
-            flex: 1 1 300px; 
-            max-height: 400px;
+            flex: 1 1 340px; 
+            max-height: 420px;
             overflow-y: auto; 
-            padding: 15px; 
-            border: 2px solid #f0f0f0;
-            border-radius: 15px; 
+            padding: 20px; 
+            border: 2px solid #e2e8f0;
+            border-radius: 18px; 
             background: #fafafa;
             display: flex;
             justify-content: center;
+            transition: all 0.3s;
         }
+
+        .tablero.completado {
+            background: #f0fdf4;
+            border-radius: 16px;
+            box-shadow: 0 0 25px rgba(74, 222, 128, 0.5);
+            border: 2px solid #4ade80;
+            padding: 10px;
+        }
+
+        .celebration-banner {
+            display: none;
+            margin-top: 15px;
+            background: #ecfdf5;
+            border: 2px solid #10b981;
+            padding: 12px 20px;
+            border-radius: 16px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2);
+        }
+        .celebration-banner.show { display: flex; }
+        .celebration-text {
+            color: #065f46;
+            font-weight: 900;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-next-inline {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        }
+        .btn-next-inline:hover { background: #059669; transform: scale(1.05); }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .zona-teclado {
-            flex: 0 0 auto; 
+            flex: 0 0 290px; 
             display: flex; 
             flex-direction: column; 
             justify-content: center;
             align-items: center; 
-            background: #fff; 
-            padding: 5px; 
+            background: #ffffff; 
+            padding: 10px; 
+            border: 2px solid #e2e8f0;
+            border-radius: 18px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
             margin: 0 auto;
         }
-        .tablero { display: flex; justify-content: flex-start; font-family: 'Courier New', monospace; overflow-x: auto; }
-        .division-grid { display: grid; grid-template-columns: auto auto; align-items: start; }
-        .area-izquierda { display: flex; flex-direction: column; padding-right: 15px; }
-        .fila { display: flex; height: 48px; justify-content: flex-start; align-items: center; }
-        .divisor-box { border-left: 4px solid #333; border-bottom: 4px solid #333; padding: 2px 12px; font-size: clamp(1.5rem, 5vw, 2rem); font-weight: bold; min-width: 60px; }
-        .cociente-box { padding: 5px 12px; font-size: clamp(1.5rem, 5vw, 2rem); font-weight: bold; display: flex; flex-wrap: wrap; }
+
+        .tablero { display: flex; justify-content: flex-start; font-family: 'Courier New', monospace; overflow-x: auto; width: 100%; }
+        .division-grid { display: grid; grid-template-columns: auto auto; align-items: start; width: 100%; }
+        .area-izquierda { display: flex; flex-direction: column; padding-right: 15px; width: 100%; }
+        .fila { display: flex; height: 50px; justify-content: flex-start; align-items: center; }
+        .divisor-box { border-left: 4px solid #333; border-bottom: 4px solid #333; padding: 2px 14px; font-size: clamp(1.5rem, 5vw, 2rem); font-weight: bold; min-width: 65px; background: #fff; }
+        .cociente-box { padding: 5px 14px; font-size: clamp(1.5rem, 5vw, 2rem); font-weight: bold; display: flex; flex-wrap: wrap; background: #fff; }
         
         .num, .celda { 
-            width: clamp(32px, 8vw, 42px); 
-            height: clamp(38px, 9vw, 48px); 
-            line-height: clamp(38px, 9vw, 48px); 
+            width: clamp(35px, 8vw, 44px); 
+            height: clamp(40px, 9vw, 50px); 
+            line-height: clamp(40px, 9vw, 50px); 
             text-align: center; 
             font-size: clamp(1.4rem, 4vw, 2rem); 
             font-weight: bold; 
-            margin: 0 1px; 
+            margin: 0 2px; 
         }
-        .celda { border: 2px solid #ccc; border-radius: 8px; background: #fff; line-height: clamp(34px, 8vw, 44px); }
-        .celda.activa { border: 3px solid #FF9800; background: #FFF3E0; box-shadow: 0 0 8px rgba(255,152,0,0.4); }
-        .celda.correcta { border: 2px solid #4CAF50; background: #E8F5E9; color: #2E7D32; }
-        .celda.incorrecta { border: 2px solid #f44336; background: #FFEBEE; animation: shake 0.3s; }
-        .bajada { color: #ef6c00; border-color: #ef6c00; }
-        .signo-resta { width: 24px; text-align: center; font-size: 1.5rem; color: #d32f2f; font-weight: bold; }
-        .fila-linea { border-bottom: 2px solid #333; margin: 2px 0 5px 0; align-self: flex-start; }
+        .celda { border: 2px solid #cbd5e1; border-radius: 8px; background: #fff; line-height: clamp(36px, 8vw, 46px); }
+        .celda.activa { border: 3px solid #f59e0b; background: #fef3c7; box-shadow: 0 0 10px rgba(245,158,11,0.4); }
+        .celda.correcta { border: 2px solid #4ade80; background: #f0fdf4; color: #166534; }
+        .celda.incorrecta { border: 2px solid #ef4444; background: #fef2f2; animation: shake 0.3s; }
+        .bajada { color: #d97706; border-color: #f59e0b; }
+        .signo-resta { width: 26px; text-align: center; font-size: 1.6rem; color: #dc2626; font-weight: bold; }
+        .fila-linea { border-bottom: 3px solid #333; margin: 3px 0 6px 0; align-self: flex-start; }
 
-        .teclado-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 260px; }
-        .tecla-div { padding: 12px 0; font-size: 1.4rem; border: none; border-radius: 12px; background: #f0f0f0; font-weight: bold; box-shadow: 0 4px #ccc; cursor: pointer; color: #333; }
-        .tecla-div:active { box-shadow: 0 1px #ccc; transform: translateY(3px); }
+        .teclado-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 10px; 
+            width: 100%; 
+            max-width: 270px; 
+        }
+        .tecla-div { 
+            padding: 14px 0; 
+            font-size: 1.5rem; 
+            border: none; 
+            border-radius: 14px; 
+            background: #f1f5f9; 
+            font-weight: 800; 
+            box-shadow: 0 5px 0 #cbd5e1; 
+            cursor: pointer; 
+            color: #1e293b;
+            transition: all 0.1s;
+        }
+        .tecla-div:active { box-shadow: 0 2px 0 #cbd5e1; transform: translateY(3px); }
 
         .pantalla-sub { display: none; height: 100%; width: 100%; flex-direction: column; justify-content: center; }
         .pantalla-sub.active { display: flex; }
-        .btn-nivel-sub { width: 100%; max-width: 400px; padding: 12px; margin: 5px auto; border: none; border-radius: 16px; color: white; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+        .btn-nivel-sub { width: 100%; max-width: 400px; padding: 14px; margin: 6px auto; border: none; border-radius: 16px; color: white; font-weight: bold; cursor: pointer; font-size: 1.15rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s;}
+        .btn-nivel-sub:hover { transform: scale(1.02); }
 
         /* --- ESTILOS JUEGO 6 (DIVISIONES x10, 100, 1000) --- */
         .game-wrapper-10 { 
@@ -433,8 +516,8 @@
             width: 100%; 
             color: #333; 
         }
-        .seccion-izquierda-10 { flex: 1 1 260px; display: flex; flex-direction: column; justify-content: center; }
-        .seccion-derecha-10 { flex: 0 0 auto; display: flex; justify-content: center; width: 100%; max-width: 280px; }
+        .seccion-izquierda-10 { flex: 1 1 280px; display: flex; flex-direction: column; justify-content: center; }
+        .seccion-derecha-10 { flex: 0 0 auto; display: flex; justify-content: center; width: 100%; max-width: 290px; }
         
         .operacion-horizontal { 
             font-size: clamp(2rem, 6vw, 3rem); 
@@ -460,12 +543,18 @@
         }
         .placeholder { color: #cbd5e1; font-size: clamp(1.2rem, 4vw, 1.6rem); }
         .teclado-10 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; background: #f1f5f9; padding: 15px; border-radius: 20px; }
-        .tecla-10 { height: 50px; font-size: 1.5rem; border: none; border-radius: 12px; background: #fff; color: #334155; font-weight: 700; cursor: pointer; box-shadow: 0 4px 0 #cbd5e1; display: flex; align-items: center; justify-content: center; }
+        .tecla-10 { height: 54px; font-size: 1.6rem; border: none; border-radius: 12px; background: #fff; color: #334155; font-weight: 700; cursor: pointer; box-shadow: 0 4px 0 #cbd5e1; display: flex; align-items: center; justify-content: center; }
         .tecla-10:active { transform: translateY(2px); box-shadow: 0 1px 0 #cbd5e1; }
-        .tecla-check { grid-column: span 3; background: #ef4444; color: white; height: 50px; font-size: 1.2rem; margin-top: 5px; box-shadow: 0 4px 0 #b91c1c; }
+        .tecla-check { grid-column: span 3; background: #ef4444; color: white; height: 52px; font-size: 1.25rem; margin-top: 5px; box-shadow: 0 4px 0 #b91c1c; }
 
         @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-6px);} 75% {transform: translateX(6px);} }
         .incorrecto { animation: shake 0.4s; color: #ef4444 !important; border-color: #ef4444 !important; }
+
+        @media (max-width: 768px) {
+            .contenido-juego { flex-direction: column; align-items: center; }
+            .zona-teclado { width: 100%; max-width: 320px; }
+            .teclado-grid { max-width: 300px; }
+        }
     </style>
 </head>
 <body>
@@ -592,10 +681,10 @@
                 </div>
 
                 <div id="g3-juego" class="pantalla-sub">
-                    <div id="g3-instruccion" class="instruccion-div">¡Prepárate!</div>
+                    <div id="g3-instruccion" class="instruccion-div"><i class="fas fa-info-circle"></i> <span>¡Prepárate!</span></div>
                     <div class="contenido-juego">
                         <div class="zona-operacion" id="g3-scroll-area">
-                            <div class="tablero">
+                            <div class="tablero" id="g3-tablero">
                                 <div class="division-grid">
                                     <div class="area-izquierda" id="g3-bloque-izquierdo"></div>
                                     <div class="area-derecha">
@@ -618,17 +707,19 @@
                                 <button class="tecla-div" onclick="g3_entrada(9)">9</button>
                                 <button class="tecla-div" style="background:#ffcdd2" onclick="g3_borrar()">C</button>
                                 <button class="tecla-div" onclick="g3_entrada(0)">0</button>
-                                <button class="tecla-div" style="background:#eee" onclick="g3_volverAlMenuNiveles()">🏠</button>
+                                <button class="tecla-div" style="background:#e2e8f0" onclick="g3_volverAlMenuNiveles()">🏠</button>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="modal-overlay" id="g3-modal-victoria">
-                    <h2 style="font-size: 2rem; color: #43a047;">¡Excelente! 🏆</h2>
-                    <p id="g3-feedback-victoria" style="font-size: 1.1rem; color: #666; margin: 15px 0;"></p>
-                    <button class="btn-action" onclick="g3_volverAJugarMismoNivel()">🔄 Jugar otra vez</button>
-                    <button class="btn-action" style="background:#1a2980; margin-top:10px;" onclick="g3_volverAlMenuNiveles()">Volver al Menú</button>
+                    <!-- Banner de Celebración Inferior -->
+                    <div id="g3-banner-celebracion" class="celebration-banner">
+                        <div class="celebration-text">
+                            <i class="fas fa-trophy" style="color:#eab308; font-size:1.4rem;"></i>
+                            <span>¡Excelente! División completada correctamente.</span>
+                        </div>
+                        <button class="btn-next-inline" onclick="g3_iniciar(g3_nivelActual)">Siguiente <i class="fas fa-arrow-right"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -646,10 +737,10 @@
                 </div>
 
                 <div id="g4-juego" class="pantalla-sub">
-                    <div id="g4-instruccion" class="instruccion-div" style="background:#1e3c72">¡A dividir!</div>
+                    <div id="g4-instruccion" class="instruccion-div" style="background:linear-gradient(135deg, #1e3c72, #2a5298)"><i class="fas fa-info-circle"></i> <span>¡A dividir!</span></div>
                     <div class="contenido-juego">
                         <div class="zona-operacion" id="g4-scroll-area">
-                            <div class="tablero">
+                            <div class="tablero" id="g4-tablero">
                                 <div class="division-grid">
                                     <div class="area-izquierda" id="g4-bloque-izquierdo"></div>
                                     <div class="area-derecha">
@@ -672,16 +763,19 @@
                                 <button class="tecla-div" onclick="g4_entrada(9)">9</button>
                                 <button class="tecla-div" style="background:#ffcdd2" onclick="g4_borrar()">C</button>
                                 <button class="tecla-div" onclick="g4_entrada(0)">0</button>
-                                <button class="tecla-div" style="background:#eee" onclick="g4_volverAlMenuNiveles()">🏠</button>
+                                <button class="tecla-div" style="background:#e2e8f0" onclick="g4_volverAlMenuNiveles()">🏠</button>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="modal-overlay" id="g4-modal-victoria">
-                    <h2 style="font-size: 2rem; color: #43a047;">¡Perfecto! 🏆</h2>
-                    <button class="btn-action" style="margin-top:20px;" onclick="g4_volverAJugarMismoNivel()">Jugar otra vez</button>
-                    <button class="btn-action" style="background:#1e3c72; margin-top:10px;" onclick="g4_volverAlMenuNiveles()">Volver al Menú</button>
+                    <!-- Banner de Celebración Inferior -->
+                    <div id="g4-banner-celebracion" class="celebration-banner">
+                        <div class="celebration-text">
+                            <i class="fas fa-star" style="color:#eab308; font-size:1.4rem;"></i>
+                            <span>¡Perfecto! Has resuelto la división de dos cifras.</span>
+                        </div>
+                        <button class="btn-next-inline" onclick="g4_iniciar(g4_nivelActual)">Siguiente <i class="fas fa-arrow-right"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -700,10 +794,10 @@
                 </div>
 
                 <div id="g5-juego" class="pantalla-sub">
-                    <div id="g5-instruccion" class="instruccion-div" style="background:#203a43">¡A dividir!</div>
+                    <div id="g5-instruccion" class="instruccion-div" style="background:linear-gradient(135deg, #203a43, #0f2027)"><i class="fas fa-info-circle"></i> <span>¡A dividir!</span></div>
                     <div class="contenido-juego">
                         <div class="zona-operacion" id="g5-scroll-area">
-                            <div class="tablero">
+                            <div class="tablero" id="g5-tablero">
                                 <div class="division-grid">
                                     <div class="area-izquierda" id="g5-bloque-izquierdo"></div>
                                     <div class="area-derecha">
@@ -726,17 +820,19 @@
                                 <button class="tecla-div" onclick="g5_entrada(9)">9</button>
                                 <button class="tecla-div" style="background:#ffcdd2" onclick="g5_borrar()">C</button>
                                 <button class="tecla-div" onclick="g5_entrada(0)">0</button>
-                                <button class="tecla-div" style="background:#eee" onclick="g5_volverAlMenuNiveles()">🏠</button>
+                                <button class="tecla-div" style="background:#e2e8f0" onclick="g5_volverAlMenuNiveles()">🏠</button>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="modal-overlay" id="g5-modal-victoria">
-                    <h2 style="font-size: 2rem; color: #43a047;">¡Increíble! 🏆</h2>
-                    <p id="g5-feedback-final" style="font-size: 1.3rem; margin: 15px 0; color:#333;"></p>
-                    <button class="btn-action" onclick="g5_volverAJugarMismoNivel()">Siguiente división</button>
-                    <button class="btn-action" style="background:#1e3c72; margin-top:10px;" onclick="g5_volverAlMenuNiveles()">Cambiar Nivel</button>
+                    <!-- Banner de Celebración Inferior -->
+                    <div id="g5-banner-celebracion" class="celebration-banner">
+                        <div class="celebration-text">
+                            <i class="fas fa-crown" style="color:#eab308; font-size:1.4rem;"></i>
+                            <span>¡Increíble! Dominas la división avanzada.</span>
+                        </div>
+                        <button class="btn-next-inline" onclick="g5_iniciar(g5_nivelActual)">Siguiente <i class="fas fa-arrow-right"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -753,7 +849,7 @@
                 </div>
 
                 <div id="g6-juego" class="pantalla-sub">
-                    <div id="g6-instruccion" class="instruccion-div" style="background:#fff0f0; color:#721e1e; border:1px solid #ffd0d0;">Divide: quita ceros o mueve la coma</div>
+                    <div id="g6-instruccion" class="instruccion-div" style="background:#fff0f0; color:#721e1e; border:1px solid #ffd0d0;"><i class="fas fa-info-circle"></i> <span>Divide: quita ceros o mueve la coma</span></div>
                     
                     <div class="game-wrapper-10">
                         <div class="seccion-izquierda-10">
@@ -779,13 +875,15 @@
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="modal-overlay" id="g6-modal-victoria">
-                    <div style="font-size: 3rem; margin-bottom: 5px;">🌟</div>
-                    <h2 style="color: #ef4444; font-size: 2rem; margin-bottom: 10px;">¡Muy bien!</h2>
-                    <div id="g6-mensaje-final" style="margin-bottom: 20px; font-size: 1.4rem; color: #334155;"></div>
-                    <button class="btn-action" style="background:#10b981;" onclick="g6_siguiente()">Siguiente ejercicio</button>
+                    <!-- Banner de Celebración Inferior -->
+                    <div id="g6-banner-celebracion" class="celebration-banner" style="margin-top:20px;">
+                        <div class="celebration-text">
+                            <i class="fas fa-star" style="color:#eab308; font-size:1.4rem;"></i>
+                            <span id="g6-mensaje-final">¡Muy bien!</span>
+                        </div>
+                        <button class="btn-next-inline" onclick="g6_siguiente()">Siguiente <i class="fas fa-arrow-right"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -803,7 +901,6 @@
             if (targetView) {
                 targetView.classList.add('active');
                 
-                // Inicializar juego correspondiente
                 if(gameId === 'game-lab-div') g1_initMission();
                 if(gameId === 'game-fact-mult') g2_initMission();
                 if(gameId === 'game-div-pro') g3_volverAlMenuNiveles();
@@ -837,9 +934,7 @@
                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
                 osc.start(); 
                 osc.stop(audioCtx.currentTime + 0.15);
-            } catch(e) {
-                // Fallback si la API de audio no es soportada
-            }
+            } catch(e) {}
         }
 
         /* =====================================================================
@@ -853,54 +948,52 @@
 
             const key = event.key;
 
-            // Manejo del Juego 3 (División Pro)
             if (activeView.id === 'game-div-pro') {
                 const subJuego = document.getElementById('g3-juego');
                 if (subJuego && subJuego.classList.contains('active')) {
-                    if (key >= '0' && key <= '9') {
-                        g3_entrada(parseInt(key, 10));
-                    } else if (key === 'Backspace' || key === 'Delete') {
-                        g3_borrar();
+                    if (key >= '0' && key <= '9') g3_entrada(parseInt(key, 10));
+                    else if (key === 'Backspace' || key === 'Delete') g3_borrar();
+                    else if (key === 'Enter') {
+                        const banner = document.getElementById('g3-banner-celebracion');
+                        if (banner.classList.contains('show')) g3_iniciar(g3_nivelActual);
                     }
                 }
             }
 
-            // Manejo del Juego 4 (División 2 Cifras)
             if (activeView.id === 'game-div-2c') {
                 const subJuego = document.getElementById('g4-juego');
                 if (subJuego && subJuego.classList.contains('active')) {
-                    if (key >= '0' && key <= '9') {
-                        g4_entrada(parseInt(key, 10));
-                    } else if (key === 'Backspace' || key === 'Delete') {
-                        g4_borrar();
+                    if (key >= '0' && key <= '9') g4_entrada(parseInt(key, 10));
+                    else if (key === 'Backspace' || key === 'Delete') g4_borrar();
+                    else if (key === 'Enter') {
+                        const banner = document.getElementById('g4-banner-celebracion');
+                        if (banner.classList.contains('show')) g4_iniciar(g4_nivelActual);
                     }
                 }
             }
 
-            // Manejo del Juego 5 (División Maestra)
             if (activeView.id === 'game-div-mister') {
                 const subJuego = document.getElementById('g5-juego');
                 if (subJuego && subJuego.classList.contains('active')) {
-                    if (key >= '0' && key <= '9') {
-                        g5_entrada(parseInt(key, 10));
-                    } else if (key === 'Backspace' || key === 'Delete') {
-                        g5_borrar();
+                    if (key >= '0' && key <= '9') g5_entrada(parseInt(key, 10));
+                    else if (key === 'Backspace' || key === 'Delete') g5_borrar();
+                    else if (key === 'Enter') {
+                        const banner = document.getElementById('g5-banner-celebracion');
+                        if (banner.classList.contains('show')) g5_iniciar(g5_nivelActual);
                     }
                 }
             }
 
-            // Manejo del Juego 6 (División x10, 100, 1000)
             if (activeView.id === 'game-div-10') {
                 const subJuego = document.getElementById('g6-juego');
                 if (subJuego && subJuego.classList.contains('active')) {
-                    if (key >= '0' && key <= '9') {
-                        g6_inputNum(parseInt(key, 10));
-                    } else if (key === ',' || key === '.') {
-                        g6_inputNum(',');
-                    } else if (key === 'Backspace' || key === 'Delete') {
-                        g6_borrar();
-                    } else if (key === 'Enter') {
-                        g6_validar();
+                    if (key >= '0' && key <= '9') g6_inputNum(parseInt(key, 10));
+                    else if (key === ',' || key === '.') g6_inputNum(',');
+                    else if (key === 'Backspace' || key === 'Delete') g6_borrar();
+                    else if (key === 'Enter') {
+                        const banner = document.getElementById('g6-banner-celebracion');
+                        if (banner.classList.contains('show')) g6_siguiente();
+                        else g6_validar();
                     }
                 }
             }
@@ -972,8 +1065,7 @@
             const endDrag = (e) => {
                 const point = e.changedTouches ? e.changedTouches[0] : e;
                 el.classList.remove('dragging');
-                el.style.left = ''; 
-                el.style.top = '';
+                el.style.left = ''; el.style.top = '';
 
                 const jars = document.querySelectorAll('#g1-jarsArea .jar');
                 const source = document.getElementById('g1-gemSource');
@@ -1111,8 +1203,7 @@
             const endDrag = (e) => {
                 const point = e.changedTouches ? e.changedTouches[0] : e;
                 el.classList.remove('dragging');
-                el.style.left = ''; 
-                el.style.top = '';
+                el.style.left = ''; el.style.top = '';
 
                 const jars = document.querySelectorAll('#g2-jarsArea .jar');
                 const source = document.getElementById('g2-gemSource');
@@ -1182,7 +1273,7 @@
 
 
         /* ---------------------------------------------------------------------
-           LÓGICA JUEGO 3: DIVISIÓN PRO
+           LÓGICA JUEGO 3: DIVISIÓN PRO (1 Cifra)
            --------------------------------------------------------------------- */
         let g3_dividendo, g3_divisor, g3_cifras = [];
         let g3_cursorCifra = 0, g3_restoActual = "", g3_valorAdividir = "", g3_fase = "", g3_indexInput = 0, g3_celdasActuales = [], g3_valorObjetivo = "";
@@ -1227,7 +1318,8 @@
             
             document.getElementById('g3-menu').classList.remove('active');
             document.getElementById('g3-juego').classList.add('active');
-            document.getElementById('g3-modal-victoria').classList.remove('show');
+            document.getElementById('g3-banner-celebracion').classList.remove('show');
+            document.getElementById('g3-tablero').classList.remove('completado');
             document.getElementById('g3-divisor-display').textContent = g3_divisor;
             document.getElementById('g3-cociente-display').innerHTML = '';
             
@@ -1242,10 +1334,11 @@
         function g3_siguienteTurno() {
             if (g3_cursorCifra >= g3_cifras.length) {
                 setTimeout(() => {
-                    document.getElementById('g3-feedback-victoria').textContent = `¡Has resuelto ${g3_dividendo} ÷ ${g3_divisor}!`;
-                    document.getElementById('g3-modal-victoria').classList.add('show');
                     playSoundCommon('acierto');
-                }, 500);
+                    document.getElementById('g3-tablero').classList.add('completado');
+                    document.getElementById('g3-banner-celebracion').classList.add('show');
+                    document.getElementById('g3-instruccion').innerHTML = `<i class="fas fa-check-circle"></i> <span>¡División completada con éxito!</span>`;
+                }, 400);
                 return;
             }
             if (g3_cursorCifra === 0) {
@@ -1261,7 +1354,7 @@
                 g3_fase = "BAJAR";
                 const cifraABajar = g3_cifras[g3_cursorCifra];
                 g3_marcar(g3_cursorCifra);
-                document.getElementById('g3-instruccion').textContent = `Baja el ${cifraABajar}`;
+                document.getElementById('g3-instruccion').innerHTML = `<i class="fas fa-arrow-down"></i> <span>Fase: Baja el número ${cifraABajar}</span>`;
                 const filas = document.querySelectorAll('#g3-bloque-izquierdo .fila');
                 const ultimaFilaResto = filas[filas.length - 1];
                 const c = document.createElement('div');
@@ -1279,7 +1372,7 @@
 
         function g3_marcar(i) {
             const el = document.getElementById(`g3-d-${i}`);
-            if(el) { el.style.color = "#FF9800"; el.style.borderTop = "5px solid #FF9800"; }
+            if(el) { el.style.color = "#f59e0b"; el.style.borderTop = "5px solid #f59e0b"; }
         }
 
         function g3_prepararCociente() {
@@ -1287,7 +1380,7 @@
             let num = parseInt(g3_valorAdividir);
             g3_valorObjetivo = Math.floor(num / g3_divisor).toString();
             g3_indexInput = 0; g3_celdasActuales = [];
-            document.getElementById('g3-instruccion').textContent = `¿Cuántas veces cabe ${g3_divisor} en ${num}?`;
+            document.getElementById('g3-instruccion').innerHTML = `<i class="fas fa-calculator"></i> <span>Fase: ¿Cuántas veces cabe ${g3_divisor} en ${num}?</span>`;
             const caja = document.getElementById('g3-cociente-display');
             const c = document.createElement('div');
             c.className = 'celda activa';
@@ -1299,8 +1392,10 @@
             g3_fase = "RESTO";
             const resto = (parseInt(g3_valorAdividir) % g3_divisor).toString();
             g3_valorObjetivo = resto;
-            g3_indexInput = 0; g3_celdasActuales = [];
-            document.getElementById('g3-instruccion').textContent = `¿Cuánto sobra?`;
+            g3_indexInput = resto.length - 1; // Entrada de derecha a izquierda
+            g3_celdasActuales = [];
+            document.getElementById('g3-instruccion').innerHTML = `<i class="fas fa-minus-circle"></i> <span>Fase: Escribe el resto (de derecha a izquierda)</span>`;
+            
             const area = document.getElementById('g3-bloque-izquierdo');
             const filaResto = document.createElement('div');
             filaResto.className = 'fila';
@@ -1314,29 +1409,41 @@
                 g3_celdasActuales.push(c);
             }
             area.appendChild(filaResto);
-            g3_celdasActuales[0].classList.add('activa');
+            g3_celdasActuales[g3_indexInput].classList.add('activa');
             g3_restoActual = resto;
             g3_autoScroll();
         }
 
         function g3_entrada(n) {
-            if (g3_indexInput >= g3_celdasActuales.length) return;
+            if (g3_indexInput < 0 || g3_indexInput >= g3_celdasActuales.length) return;
             const celda = g3_celdasActuales[g3_indexInput];
-            celda.textContent = n;
+            
             if (n.toString() === g3_valorObjetivo[g3_indexInput]) {
                 playSoundCommon('acierto');
+                celda.textContent = n;
                 celda.className = 'celda correcta';
-                g3_indexInput++;
-                if (g3_indexInput < g3_celdasActuales.length) g3_celdasActuales[g3_indexInput].classList.add('activa');
-                else {
-                    if (g3_fase === "COCIENTE") setTimeout(g3_prepararResto, 500);
-                    else if (g3_fase === "RESTO") setTimeout(g3_siguienteTurno, 500);
-                    else if (g3_fase === "BAJAR") setTimeout(g3_prepararCociente, 500);
+                
+                if (g3_fase === "RESTO") {
+                    g3_indexInput--;
+                    if (g3_indexInput >= 0) {
+                        g3_celdasActuales[g3_indexInput].classList.add('activa');
+                    } else {
+                        setTimeout(g3_siguienteTurno, 500);
+                    }
+                } else {
+                    g3_indexInput++;
+                    if (g3_indexInput < g3_celdasActuales.length) {
+                        g3_celdasActuales[g3_indexInput].classList.add('activa');
+                    } else {
+                        if (g3_fase === "COCIENTE") setTimeout(g3_prepararResto, 500);
+                        else if (g3_fase === "BAJAR") setTimeout(g3_prepararCociente, 500);
+                    }
                 }
             } else {
                 playSoundCommon('error');
                 celda.classList.add('incorrecta');
-                setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
+                celda.textContent = n;
+                setTimeout(() => { celda.classList.remove('incorrecta'); if(!celda.classList.contains('correcta')) celda.textContent = ''; }, 400);
             }
         }
 
@@ -1344,7 +1451,6 @@
         function g3_autoScroll() { const s = document.getElementById('g3-scroll-area'); s.scrollTop = s.scrollHeight; }
 
         function g3_volverAlMenuNiveles() {
-            document.getElementById('g3-modal-victoria').classList.remove('show');
             document.getElementById('g3-juego').classList.remove('active');
             document.getElementById('g3-menu').classList.add('active');
         }
@@ -1353,7 +1459,7 @@
 
 
         /* ---------------------------------------------------------------------
-           LÓGICA JUEGO 4: DIVISIÓN 2 CIFRAS
+           LÓGICA JUEGO 4: DIVISIÓN 2 CIFRAS (COCIENTE A MANDAR POR USUARIO)
            --------------------------------------------------------------------- */
         let g4_dividendo, g4_divisor, g4_cifras = [];
         let g4_cursorCifra = 0, g4_restoActual = "", g4_valorAdividir = "", g4_fase = "", g4_indexInput = 0, g4_celdasActuales = [], g4_valorObjetivo = "";
@@ -1381,7 +1487,8 @@
             
             document.getElementById('g4-menu').classList.remove('active');
             document.getElementById('g4-juego').classList.add('active');
-            document.getElementById('g4-modal-victoria').classList.remove('show');
+            document.getElementById('g4-banner-celebracion').classList.remove('show');
+            document.getElementById('g4-tablero').classList.remove('completado');
             document.getElementById('g4-divisor-display').textContent = g4_divisor;
             document.getElementById('g4-cociente-display').innerHTML = '';
             
@@ -1395,7 +1502,12 @@
 
         function g4_siguienteTurno() {
             if (g4_cursorCifra >= g4_cifras.length) {
-                setTimeout(() => { document.getElementById('g4-modal-victoria').classList.add('show'); playSoundCommon('acierto'); }, 500);
+                setTimeout(() => { 
+                    playSoundCommon('acierto');
+                    document.getElementById('g4-tablero').classList.add('completado');
+                    document.getElementById('g4-banner-celebracion').classList.add('show');
+                    document.getElementById('g4-instruccion').innerHTML = `<i class="fas fa-check-circle"></i> <span>¡División de dos cifras completada!</span>`;
+                }, 400);
                 return;
             }
             if (g4_cursorCifra === 0) {
@@ -1411,7 +1523,7 @@
             } else {
                 g4_fase = "BAJAR";
                 const cifra = g4_cifras[g4_cursorCifra]; g4_marcar(g4_cursorCifra);
-                document.getElementById('g4-instruccion').textContent = `Baja el ${cifra}`;
+                document.getElementById('g4-instruccion').innerHTML = `<i class="fas fa-arrow-down"></i> <span>Fase: Baja el número ${cifra}</span>`;
                 const area = document.getElementById('g4-bloque-izquierdo');
                 const filas = area.getElementsByClassName('fila');
                 const ultimaFila = filas[filas.length-1];
@@ -1429,8 +1541,10 @@
             g4_fase = "COCIENTE";
             let q = Math.floor(parseInt(g4_valorAdividir) / g4_divisor);
             g4_valorObjetivo = q.toString();
-            document.getElementById('g4-instruccion').textContent = `¿${g4_divisor} en ${g4_valorAdividir}?`;
-            const c = g4_crearCelda(g4_valorObjetivo, true);
+            document.getElementById('g4-instruccion').innerHTML = `<i class="fas fa-calculator"></i> <span>Fase: ¿Cuántas veces cabe ${g4_divisor} en ${g4_valorAdividir}?</span>`;
+            
+            // Se crea la celda VACÍA para que el usuario ponga el cociente
+            const c = g4_crearCelda("", true);
             document.getElementById('g4-cociente-display').appendChild(c);
             g4_celdasActuales = [c]; g4_indexInput = 0;
         }
@@ -1440,7 +1554,7 @@
             const producto = (parseInt(g4_valorObjetivo) * g4_divisor).toString();
             const valObjPrevio = g4_valorObjetivo;
             g4_valorObjetivo = producto;
-            document.getElementById('g4-instruccion').textContent = `${valObjPrevio} × ${g4_divisor} = ${producto}`;
+            document.getElementById('g4-instruccion').innerHTML = `<i class="fas fa-times"></i> <span>Fase: Multiplica ${valObjPrevio} × ${g4_divisor} = ${producto} (de derecha a izquierda)</span>`;
             
             const area = document.getElementById('g4-bloque-izquierdo');
             const filaProd = document.createElement('div');
@@ -1452,7 +1566,7 @@
             
             g4_celdasActuales = [];
             for(let i=0; i<producto.length; i++) {
-                const c = g4_crearCelda(producto[i]);
+                const c = g4_crearCelda("");
                 filaProd.appendChild(c);
                 g4_celdasActuales.push(c);
             }
@@ -1460,12 +1574,13 @@
             
             const linea = document.createElement('div');
             linea.className = 'fila-linea';
-            linea.style.marginLeft = (espaciosNecesarios * 34 + 24) + "px";
-            linea.style.width = (producto.length * 34) + "px";
+            linea.style.marginLeft = (espaciosNecesarios * 36 + 26) + "px";
+            linea.style.width = (producto.length * 36) + "px";
             area.appendChild(linea);
 
-            g4_celdasActuales[0].classList.add('activa');
-            g4_indexInput = 0;
+            // Entrada de derecha a izquierda
+            g4_indexInput = g4_celdasActuales.length - 1;
+            g4_celdasActuales[g4_indexInput].classList.add('activa');
             g4_autoScroll();
         }
 
@@ -1475,7 +1590,7 @@
             g4_restoActual = resto;
             g4_valorObjetivo = resto;
             
-            document.getElementById('g4-instruccion').textContent = `¿Cuánto sobra?`;
+            document.getElementById('g4-instruccion').innerHTML = `<i class="fas fa-minus"></i> <span>Fase: Haz la resta y escribe el resultado (de derecha a izquierda)</span>`;
             const area = document.getElementById('g4-bloque-izquierdo');
             const filaResta = document.createElement('div');
             filaResta.className = 'fila';
@@ -1486,41 +1601,56 @@
 
             g4_celdasActuales = [];
             for(let i=0; i<resto.length; i++) {
-                const c = g4_crearCelda(resto[i]);
+                const c = g4_crearCelda("");
                 filaResta.appendChild(c);
                 g4_celdasActuales.push(c);
             }
             area.appendChild(filaResta);
-            g4_celdasActuales[0].classList.add('activa');
-            g4_indexInput = 0;
+            
+            // Entrada de derecha a izquierda
+            g4_indexInput = g4_celdasActuales.length - 1;
+            g4_celdasActuales[g4_indexInput].classList.add('activa');
             g4_autoScroll();
         }
 
         function g4_entrada(n) {
-            if (g4_indexInput >= g4_celdasActuales.length) return;
+            if (g4_indexInput < 0 || g4_indexInput >= g4_celdasActuales.length) return;
             const celda = g4_celdasActuales[g4_indexInput];
-            celda.textContent = n;
+            
             if (n.toString() === g4_valorObjetivo[g4_indexInput]) {
                 playSoundCommon('acierto');
+                celda.textContent = n;
                 celda.className = 'celda correcta';
-                g4_indexInput++;
-                if (g4_indexInput < g4_celdasActuales.length) g4_celdasActuales[g4_indexInput].classList.add('activa');
-                else {
-                    if (g4_fase === "COCIENTE") setTimeout(g4_prepararMultiplicacion, 500);
-                    else if (g4_fase === "MULTIPLICAR") setTimeout(g4_prepararRestaFinal, 500);
-                    else if (g4_fase === "RESTA_PASO") setTimeout(g4_siguienteTurno, 500);
-                    else if (g4_fase === "BAJAR") setTimeout(g4_prepararCociente, 500);
+                
+                if (g4_fase === "MULTIPLICAR" || g4_fase === "RESTA_PASO") {
+                    g4_indexInput--;
+                    if (g4_indexInput >= 0) {
+                        g4_celdasActuales[g4_indexInput].classList.add('activa');
+                    } else {
+                        if (g4_fase === "MULTIPLICAR") setTimeout(g4_prepararRestaFinal, 500);
+                        else if (g4_fase === "RESTA_PASO") setTimeout(g4_siguienteTurno, 500);
+                    }
+                } else {
+                    g4_indexInput++;
+                    if (g4_indexInput < g4_celdasActuales.length) {
+                        g4_celdasActuales[g4_indexInput].classList.add('activa');
+                    } else {
+                        if (g4_fase === "COCIENTE") setTimeout(g4_prepararMultiplicacion, 500);
+                        else if (g4_fase === "BAJAR") setTimeout(g4_prepararCociente, 500);
+                    }
                 }
             } else {
                 playSoundCommon('error');
                 celda.classList.add('incorrecta');
-                setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
+                celda.textContent = n;
+                setTimeout(() => { celda.classList.remove('incorrecta'); if(!celda.classList.contains('correcta')) celda.textContent = ''; }, 400);
             }
         }
 
         function g4_crearCelda(res, activa=false) {
             const c = document.createElement('div');
             c.className = 'celda' + (activa ? ' activa' : '');
+            c.textContent = res;
             return c;
         }
 
@@ -1531,14 +1661,13 @@
 
         function g4_marcar(i) {
             const el = document.getElementById(`g4-d-${i}`);
-            if(el) { el.style.color = "#FF9800"; el.style.borderTop = "4px solid #FF9800"; }
+            if(el) { el.style.color = "#f59e0b"; el.style.borderTop = "4px solid #f59e0b"; }
         }
 
         function g4_borrar() { const c = g4_celdasActuales[g4_indexInput]; if(c && !c.classList.contains('correcta')) c.textContent = ""; }
         function g4_autoScroll() { const s = document.getElementById('g4-scroll-area'); s.scrollTop = s.scrollHeight; }
 
         function g4_volverAlMenuNiveles() {
-            document.getElementById('g4-modal-victoria').classList.remove('show');
             document.getElementById('g4-juego').classList.remove('active');
             document.getElementById('g4-menu').classList.add('active');
         }
@@ -1578,7 +1707,8 @@
             
             document.getElementById('g5-menu').classList.remove('active');
             document.getElementById('g5-juego').classList.add('active');
-            document.getElementById('g5-modal-victoria').classList.remove('show');
+            document.getElementById('g5-banner-celebracion').classList.remove('show');
+            document.getElementById('g5-tablero').classList.remove('completado');
             document.getElementById('g5-divisor-display').textContent = g5_divisor;
             document.getElementById('g5-cociente-display').innerHTML = '';
             
@@ -1593,10 +1723,11 @@
         function g5_siguienteTurno() {
             if (g5_cursorCifra >= g5_cifras.length) {
                 setTimeout(() => { 
-                    document.getElementById('g5-feedback-final').textContent = `${g5_dividendo} ÷ ${g5_divisor}`;
-                    document.getElementById('g5-modal-victoria').classList.add('show'); 
                     playSoundCommon('acierto'); 
-                }, 500);
+                    document.getElementById('g5-tablero').classList.add('completado');
+                    document.getElementById('g5-banner-celebracion').classList.add('show');
+                    document.getElementById('g5-instruccion').innerHTML = `<i class="fas fa-crown"></i> <span>¡División Maestra completada!</span>`;
+                }, 400);
                 return;
             }
 
@@ -1614,7 +1745,7 @@
             } else {
                 g5_fase = "BAJAR";
                 const cifra = g5_cifras[g5_cursorCifra]; g5_marcar(g5_cursorCifra);
-                document.getElementById('g5-instruccion').textContent = `Baja el ${cifra}`;
+                document.getElementById('g5-instruccion').innerHTML = `<i class="fas fa-arrow-down"></i> <span>Fase: Baja el número ${cifra}</span>`;
                 const area = document.getElementById('g5-bloque-izquierdo');
                 const filas = area.getElementsByClassName('fila');
                 const ultimaFila = filas[filas.length-1];
@@ -1631,7 +1762,7 @@
             g5_fase = "COCIENTE";
             let q = Math.floor(parseInt(g5_valorAdividir) / g5_divisor);
             g5_valorObjetivo = q.toString();
-            document.getElementById('g5-instruccion').textContent = `¿Cuántas veces cabe ${g5_divisor} en ${g5_valorAdividir}?`;
+            document.getElementById('g5-instruccion').innerHTML = `<i class="fas fa-calculator"></i> <span>Fase: ¿Cuántas veces cabe ${g5_divisor} en ${g5_valorAdividir}?</span>`;
             const c = g5_crearCelda("", true);
             document.getElementById('g5-cociente-display').appendChild(c);
             g5_celdasActuales = [c]; g5_indexInput = 0;
@@ -1647,7 +1778,7 @@
             g5_restoActual = restoNum.toString(); 
             g5_valorObjetivo = restoStr; 
             
-            document.getElementById('g5-instruccion').textContent = `¿Cuánto sobra?`;
+            document.getElementById('g5-instruccion').innerHTML = `<i class="fas fa-minus-circle"></i> <span>Fase: Escribe el resto (de derecha a izquierda)</span>`;
             const area = document.getElementById('g5-bloque-izquierdo');
             const filaResta = document.createElement('div');
             filaResta.className = 'fila';
@@ -1663,6 +1794,7 @@
             }
             area.appendChild(filaResta);
             
+            // Entrada de derecha a izquierda
             g5_indexInput = g5_celdasActuales.length - 1;
             g5_celdasActuales[g5_indexInput].classList.add('activa');
             g5_autoScroll();
@@ -1715,14 +1847,13 @@
 
         function g5_marcar(i) {
             const el = document.getElementById(`g5-d-${i}`);
-            if(el) { el.style.color = "#FF9800"; el.style.borderTop = "4px solid #FF9800"; }
+            if(el) { el.style.color = "#f59e0b"; el.style.borderTop = "4px solid #f59e0b"; }
         }
 
         function g5_borrar() { const c = g5_celdasActuales[g5_indexInput]; if(c && !c.classList.contains('correcta')) c.textContent = ""; }
         function g5_autoScroll() { const s = document.getElementById('g5-scroll-area'); s.scrollTop = s.scrollHeight; }
 
         function g5_volverAlMenuNiveles() {
-            document.getElementById('g5-modal-victoria').classList.remove('show');
             document.getElementById('g5-juego').classList.remove('active');
             document.getElementById('g5-menu').classList.add('active');
         }
@@ -1747,7 +1878,7 @@
             const display = document.getElementById('g6-input-res');
             display.innerHTML = '<span class="placeholder">¿Resultado?</span>';
             display.classList.remove('incorrecto');
-            document.getElementById('g6-modal-victoria').classList.remove('show');
+            document.getElementById('g6-banner-celebracion').classList.remove('show');
 
             const potencias = [10, 100, 1000];
             g6_n2 = potencias[Math.floor(Math.random() * potencias.length)];
@@ -1796,8 +1927,8 @@
 
                 if (userNorm === correctNorm) {
                     playSoundCommon('acierto');
-                    document.getElementById('g6-mensaje-final').innerHTML = `${g6_n1} : ${g6_n2} = <br><strong>${g6_resCorrecto}</strong>`;
-                    document.getElementById('g6-modal-victoria').classList.add('show');
+                    document.getElementById('g6-mensaje-final').innerHTML = `¡Muy bien!<br><strong>${g6_n1} : ${g6_n2} = ${g6_resCorrecto}</strong>`;
+                    document.getElementById('g6-banner-celebracion').classList.add('show');
                 } else {
                     playSoundCommon('error');
                     display.classList.add('incorrecto');
@@ -1809,7 +1940,7 @@
         function g6_siguiente() { g6_generar(); }
 
         function g6_volverAlMenuNiveles() {
-            document.getElementById('g6-modal-victoria').classList.remove('show');
+            document.getElementById('g6-banner-celebracion').classList.remove('show');
             document.getElementById('g6-juego').classList.remove('active');
             document.getElementById('g6-menu').classList.add('active');
         }
