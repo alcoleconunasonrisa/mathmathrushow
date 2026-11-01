@@ -581,6 +581,17 @@
                     <option value="300">⏱️ 5 Minutos</option>
                 </select>
             </div>
+
+            <!-- Nuevo selector de aciertos por alumno para la Jarra -->
+            <div class="form-group" id="jar-target-group" style="margin-top: 15px;">
+                <label>🫙 Aciertos requeridos por alumno (Modo Jarra):</label>
+                <select id="select-jar-target">
+                    <option value="10">🎯 10 Aciertos por alumno</option>
+                    <option value="15">🎯 15 Aciertos por alumno</option>
+                    <option value="20" selected>🎯 20 Aciertos por alumno</option>
+                    <option value="25">🎯 25 Aciertos por alumno</option>
+                </select>
+            </div>
             
             <button class="btn" id="btnCreateGame" style="display:none;" onclick="createRoom()">GENERAR SALA Y QR 🚀</button>
             <button class="btn btn-secondary" style="margin-top: 10px;" onclick="showScreen('screen-home')">⬅️ VOLVER AL INICIO</button>
@@ -708,6 +719,7 @@
         let opType = "sum_facil";
         let selectedTable = "all";
         let gameTime = 60;
+        let jarTargetPerUser = 20; // Nueva variable global para la jarra
         let timerInterval = null;
         
         let peer = null;
@@ -752,6 +764,12 @@
             selectedMinigame = type;
             document.querySelectorAll('.minigame-card').forEach(c => c.classList.remove('selected'));
             document.getElementById('game-' + type).classList.add('selected');
+
+            // Mostrar u ocultar el selector de aciertos de la jarra según corresponda
+            const jarTargetGroup = document.getElementById('jar-target-group');
+            if(jarTargetGroup) {
+                jarTargetGroup.style.display = (type === 'jar') ? 'block' : 'none';
+            }
 
             // Mantener oculto el selector manual ya que los equipos se asignan de forma automática y alternativa
             const teamGroup = document.getElementById('team-selector-group');
@@ -838,6 +856,7 @@
         function createRoom() {
             roomPin = Math.floor(100000 + Math.random() * 900000).toString();
             gameTime = parseInt(document.getElementById('select-time').value, 10);
+            jarTargetPerUser = parseInt(document.getElementById('select-jar-target').value, 10);
 
             document.getElementById('display-pin').innerText = roomPin;
 
@@ -1028,11 +1047,10 @@
             }
         }
 
-        /* --- LÓGICA Y CÁLCULO DINÁMICO DE META PARA LA JARRA --- */
+        /* --- LÓGICA Y CÁLCULO DE META PARA LA JARRA --- */
         function recalculateJarTarget() {
             const numPlayers = Math.max(Object.keys(players).length, 1);
-            const durationMinutes = gameTime / 60;
-            dynamicJarTarget = Math.max(10, Math.round(20 * durationMinutes * numPlayers));
+            dynamicJarTarget = numPlayers * jarTargetPerUser;
         }
 
         function startGame() {
@@ -1363,7 +1381,7 @@
 
             ctx.fillStyle = "#a0aec0";
             ctx.font = "600 16px var(--font-family)";
-            ctx.fillText(`(Calculado dinámicamente: 20 gotas / min / alumno)`, w / 2, 75);
+            ctx.fillText(`(Meta fija seleccionada: ${jarTargetPerUser} aciertos / alumno)`, w / 2, 75);
         }
 
         /* MODO MARATÓN */
