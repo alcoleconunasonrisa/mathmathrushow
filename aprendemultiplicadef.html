@@ -150,8 +150,10 @@
         .g34-fila-llevadas { height: 32px; margin-bottom: 2px; }
         .g34-fila-linea { border-bottom: 4px solid #333; width: 100%; margin: 6px 0; }
         .g34-num, .g34-celda { width: 42px; height: 44px; line-height: 44px; text-align: center; font-size: 1.8rem; font-weight: bold; position: relative; }
-        .g34-llevada-box { width: 42px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 900; color: var(--carry-color); background: #fff7ed; border: 1.5px dashed var(--carry-color); border-radius: 6px; transition: all 0.2s ease; }
+        .g34-llevada-box { width: 42px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 900; color: var(--carry-color); background: #fff7ed; border: 1.5px dashed var(--carry-color); border-radius: 6px; transition: all 0.2s ease; cursor: pointer; }
         .g34-llevada-box.activa { background: #ffedd5; border-color: #ea580c; transform: scale(1.15); box-shadow: 0 0 8px rgba(234, 88, 12, 0.4); animation: pulse 1s infinite alternate; }
+        .g34-llevada-box.correcta { background: #f0fdf4; border: 1.5px solid #22c55e; color: #15803d; }
+        .g34-llevada-box.incorrecta { border: 2px solid #ef4444; background: #fef2f2; animation: shake 0.3s; }
         @keyframes pulse { from { transform: scale(1.05); } to { transform: scale(1.18); } }
         .g34-signo { font-size: 1.8rem; font-weight: bold; margin-right: 12px; }
         .g34-celda { border: 2px solid #cbd5e1; border-radius: 8px; background: #fff; line-height: 40px; cursor: pointer; transition: all 0.15s; }
@@ -159,6 +161,7 @@
         .g34-celda.correcta { border: 2px solid #22c55e; background: #f0fdf4; color: #15803d; }
         .g34-celda.incorrecta { border: 2px solid #ef4444; background: #fef2f2; animation: shake 0.3s; }
         .g34-celda.desactivada { background: #f1f5f9; border-color: #e2e8f0; color: #94a3b8; }
+        .g34-celda.cero-x { color: #ef4444 !important; background: #fef2f2 !important; border-color: #fca5a5 !important; font-weight: 900; }
         .g34-teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 260px; }
         .g34-tecla { padding: 14px 0; font-size: 1.4rem; border: none; border-radius: 12px; background: #f1f5f9; color: #1e293b; font-weight: bold; box-shadow: 0 4px #cbd5e1; cursor: pointer; transition: all 0.1s; }
         .g34-tecla:active { box-shadow: 0 1px #cbd5e1; transform: translateY(3px); }
@@ -167,7 +170,6 @@
         .g34-btn-nivel { width: 100%; max-width: 380px; padding: 14px; margin: 6px auto; border: none; border-radius: 14px; color: white; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
         .g34-btn-nivel:hover { transform: translateY(-2px); filter: brightness(1.05); }
         
-        /* Modal de victoria flotante en la esquina inferior derecha para ver la cuenta completa */
         .g34-modal-victoria { 
             display: none; 
             position: absolute; 
@@ -322,7 +324,7 @@
                     <div>
                         <div class="card-icon">🔢</div>
                         <div class="card-title">Multiplicación 1 Cifra (con Llevadas)</div>
-                        <div class="card-desc">Practica paso a paso con asistente visual de llevadas dinámicas sobre cada columna.</div>
+                        <div class="card-desc">Practica paso a paso poniendo primero la unidad y luego indicando la llevada.</div>
                     </div>
                     <div class="card-btn">Jugar <i class="fas fa-arrow-right"></i></div>
                 </div>
@@ -332,7 +334,7 @@
                     <div>
                         <div class="card-icon">✖️</div>
                         <div class="card-title">Multiplicación 2 y 3 Cifras (PRO)</div>
-                        <div class="card-desc">Multiplica números grandes (ej. 123.456 × 349) con ceros intermedios y llevadas.</div>
+                        <div class="card-desc">Multiplica números grandes (ej. 123.456 × 349) con ceros intermedios y llevadas guiadas.</div>
                     </div>
                     <div class="card-btn">Jugar <i class="fas fa-arrow-right"></i></div>
                 </div>
@@ -793,8 +795,10 @@
         /* ===================================================================
            GAME 3 LOGIC (1 Cifra con Llevadas)
            =================================================================== */
-        let g3_factor1, g3_factor2, g3_nivelActual = 1, g3_valorObjetivo = "", g3_celdasActuales = [], g3_indexInput = 0, g3_llevadas = [];
+        let g3_factor1, g3_factor2, g3_nivelActual = 1, g3_valorObjetivo = "", g3_celdasActuales = [], g3_colIndex = 0, g3_llevadasCalculadas = [];
+        let g3_esperandoLlevada = false, g3_carryPosActual = -1;
         const g3_nivelesConfig = { 1: { min1: 12, max1: 99, min2: 2, max2: 5 }, 2: { min1: 24, max1: 99, min2: 6, max2: 9 }, 3: { min1: 125, max1: 999, min2: 4, max2: 9 } };
+
         function g3_iniciar(n) {
             g3_nivelActual = n; const conf = g3_nivelesConfig[n];
             g3_factor1 = Math.floor(Math.random() * (conf.max1 - conf.min1 + 1)) + conf.min1;
@@ -802,11 +806,15 @@
             document.getElementById('g3_menu').classList.remove('active'); document.getElementById('g3_juego').classList.add('active');
             document.getElementById('g3_modal-victoria').style.display = 'none';
             const tablero = document.getElementById('g3_tablero'); tablero.innerHTML = '';
-            const strF1 = g3_factor1.toString(); let carry = 0; g3_llevadas = new Array(strF1.length).fill(0);
+            const strF1 = g3_factor1.toString(); 
+
+            let carry = 0; g3_llevadasCalculadas = new Array(strF1.length).fill(0);
             for (let i = strF1.length - 1; i >= 0; i--) {
-                let prod = parseInt(strF1[i]) * g3_factor2 + carry; carry = Math.floor(prod / 10);
-                if (i > 0) g3_llevadas[i - 1] = carry;
+                let prod = parseInt(strF1[i]) * g3_factor2 + carry; 
+                carry = Math.floor(prod / 10);
+                if (i > 0) g3_llevadasCalculadas[i - 1] = carry;
             }
+
             const filaLlevadas = document.createElement('div'); filaLlevadas.className = 'g34-fila g34-fila-llevadas';
             for (let i = 0; i < strF1.length; i++) {
                 const box = document.createElement('div'); box.className = 'g34-llevada-box'; box.id = `g3_carry_${i}`;
@@ -818,60 +826,138 @@
             const signo = document.createElement('span'); signo.className = 'g34-signo'; signo.textContent = '×';
             fila2.prepend(signo); tablero.appendChild(fila2);
             const linea = document.createElement('div'); linea.className = 'g34-fila-linea'; tablero.appendChild(linea);
+
             g3_valorObjetivo = (g3_factor1 * g3_factor2).toString();
-            document.getElementById('g3_instruccion').textContent = `Multiplica ${g3_factor1} × ${g3_factor2}`;
-            g3_crearFilaCeldas(g3_valorObjetivo.length); g3_actualizarLlevadaUI();
+            g3_crearFilaCeldas(g3_valorObjetivo.length); 
+            g3_esperandoLlevada = false;
+            g3_colIndex = strF1.length - 1;
+            g3_prepararPasoColumna();
         }
-        function g3_actualizarLlevadaUI() {
-            document.querySelectorAll('#g3_tablero .g34-llevada-box').forEach(b => { b.textContent = ''; b.classList.remove('activa'); });
-            const strF1 = g3_factor1.toString();
-            let stepIndex = (strF1.length - 1) - ((g3_valorObjetivo.length - 1) - g3_indexInput);
-            if (stepIndex >= 0 && stepIndex < strF1.length && g3_llevadas[stepIndex] > 0) {
-                const box = document.getElementById(`g3_carry_${stepIndex}`);
-                if (box) { box.textContent = g3_llevadas[stepIndex]; box.classList.add('activa'); }
+
+        function g3_prepararPasoColumna() {
+            document.querySelectorAll('#g3_tablero .g34-celda, #g3_tablero .g34-llevada-box').forEach(el => el.classList.remove('activa'));
+            if (g3_colIndex < 0) {
+                let primeraIncompleta = g3_celdasActuales.findIndex(c => !c.classList.contains('correcta'));
+                if (primeraIncompleta !== -1) {
+                    g3_celdasActuales[primeraIncompleta].classList.add('activa');
+                    document.getElementById('g3_instruccion').textContent = `Escribe la última cifra sobrante a la izquierda`;
+                    return;
+                }
+                document.querySelectorAll('#g3_tablero .g34-celda').forEach(c => c.classList.remove('activa'));
+                document.getElementById('g3_modal-victoria').style.display = 'flex';
+                return;
+            }
+            let cellIdx = g3_celdasActuales.length - 1 - ((g3_factor1.toString().length - 1) - g3_colIndex);
+            if (cellIdx >= 0 && cellIdx < g3_celdasActuales.length) {
+                g3_celdasActuales[cellIdx].classList.add('activa');
+                let d1 = parseInt(g3_factor1.toString()[g3_colIndex]);
+                document.getElementById('g3_instruccion').textContent = `Multiplica ${d1} × ${g3_factor2}: Escribe la unidad abajo`;
             }
         }
+
         function g3_crearFilaNumeros(numStr) {
             const fila = document.createElement('div'); fila.className = 'g34-fila';
             for (let char of numStr) { const n = document.createElement('div'); n.className = 'g34-num'; n.textContent = char; fila.appendChild(n); }
             return fila;
         }
+
         function g3_crearFilaCeldas(cantidad) {
             const fila = document.createElement('div'); fila.className = 'g34-fila'; g3_celdasActuales = [];
             for (let i = 0; i < cantidad; i++) { const c = document.createElement('div'); c.className = 'g34-celda'; fila.appendChild(c); g3_celdasActuales.push(c); }
             document.getElementById('g3_tablero').appendChild(fila);
-            g3_indexInput = g3_celdasActuales.length - 1; g3_celdasActuales[g3_indexInput].classList.add('activa');
         }
+
         function g3_entrada(n) {
-            if (g3_indexInput < 0) return;
-            const celda = g3_celdasActuales[g3_indexInput];
-            if (n.toString() === g3_valorObjetivo[g3_indexInput]) {
-                celda.textContent = n; celda.className = 'g34-celda correcta'; g3_indexInput--;
-                if (g3_indexInput >= 0) { g3_celdasActuales[g3_indexInput].classList.add('activa'); g3_actualizarLlevadaUI(); }
-                else { 
-                    document.querySelectorAll('#g3_tablero .g34-celda').forEach(c => c.classList.remove('activa'));
-                    document.getElementById('g3_modal-victoria').style.display = 'flex'; 
+            if (g3_esperandoLlevada) {
+                let esperada = g3_llevadasCalculadas[g3_carryPosActual];
+                const box = document.getElementById(`g3_carry_${g3_carryPosActual}`);
+                if (n === esperada) {
+                    box.textContent = n;
+                    box.className = 'g34-llevada-box correcta';
+                    g3_esperandoLlevada = false;
+                    g3_colIndex--;
+                    g3_prepararPasoColumna();
+                } else {
+                    box.classList.add('incorrecta'); box.textContent = n;
+                    setTimeout(() => { box.classList.remove('incorrecta'); box.textContent = ''; }, 400);
                 }
+                return;
+            }
+
+            let cellIdx;
+            if (g3_colIndex >= 0) {
+                cellIdx = g3_celdasActuales.length - 1 - ((g3_factor1.toString().length - 1) - g3_colIndex);
+            } else {
+                cellIdx = g3_celdasActuales.findIndex(c => !c.classList.contains('correcta'));
+            }
+
+            if (cellIdx < 0 || cellIdx >= g3_celdasActuales.length) return;
+            const celda = g3_celdasActuales[cellIdx];
+
+            if (n.toString() === g3_valorObjetivo[cellIdx]) {
+                celda.textContent = n; celda.className = 'g34-celda correcta';
+                
+                if (g3_colIndex >= 0) {
+                    let strF1 = g3_factor1.toString();
+                    let d1 = parseInt(strF1[g3_colIndex]);
+                    let carryPrev = (g3_colIndex < strF1.length - 1) ? g3_llevadasCalculadas[g3_colIndex] : 0;
+                    let llevadaGen = Math.floor((d1 * g3_factor2 + carryPrev) / 10);
+
+                    if (g3_colIndex > 0 && llevadaGen > 0) {
+                        g3_esperandoLlevada = true;
+                        g3_carryPosActual = g3_colIndex - 1;
+                        const box = document.getElementById(`g3_carry_${g3_carryPosActual}`);
+                        if (box && !box.classList.contains('correcta')) {
+                            celda.classList.remove('activa');
+                            box.classList.add('activa');
+                            document.getElementById('g3_instruccion').textContent = `¿Cuánto te llevas para la siguiente columna? Escríbelo arriba.`;
+                            return;
+                        }
+                    }
+                    g3_colIndex--;
+                }
+                g3_prepararPasoColumna();
             } else {
                 celda.classList.add('incorrecta'); celda.textContent = n;
                 setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
             }
         }
-        function g3_borrar() { const c = g3_celdasActuales[g3_indexInput]; if(c && !c.classList.contains('correcta')) c.textContent = ""; }
+
+        function g3_borrar() { 
+            if (g3_esperandoLlevada) {
+                const box = document.getElementById(`g3_carry_${g3_carryPosActual}`);
+                if (box && !box.classList.contains('correcta')) box.textContent = "";
+            } else {
+                let cellIdx;
+                if (g3_colIndex >= 0) {
+                    cellIdx = g3_celdasActuales.length - 1 - ((g3_factor1.toString().length - 1) - g3_colIndex);
+                } else {
+                    cellIdx = g3_celdasActuales.findIndex(c => !c.classList.contains('correcta'));
+                }
+                if (cellIdx >= 0 && cellIdx < g3_celdasActuales.length) {
+                    const c = g3_celdasActuales[cellIdx]; 
+                    if (c && !c.classList.contains('correcta')) c.textContent = ""; 
+                }
+            }
+        }
         function g3_volverAlMenuNiveles() { document.getElementById('g3_modal-victoria').style.display = 'none'; document.getElementById('g3_juego').classList.remove('active'); document.getElementById('g3_menu').classList.add('active'); }
         function g3_volverAJugarMismoNivel() { g3_iniciar(g3_nivelActual); }
 
         /* ===================================================================
-           GAME 4 LOGIC (Multiplicación 2 y 3 Cifras PRO)
+           GAME 4 LOGIC (Multiplicación 2 y 3 Cifras PRO - Cero Intermedio Corregido con X y 0)
            =================================================================== */
-        let g4_factor1, g4_factor2, g4_fase = "", g4_celdasActuales = [], g4_indexInput = 0, g4_llevadasPaso = [];
+        let g4_factor1, g4_factor2, g4_nivelActual = 1, g4_fase = "", g4_celdasActuales = [], g4_colIndex = 0, g4_llevadasCalculadas = [], g4_valorObjetivo = "";
+        let g4_esperandoLlevada = false, g4_carryPosActual = -1;
         const g4_nivelesConfig = { 1: { min1: 12, max1: 50, min2: 11, max2: 15 }, 2: { min1: 52, max1: 350, min2: 12, max2: 35 }, 3: { min1: 120, max1: 999, min2: 25, max2: 99 } };
+
         function formatNumberDots(num) { return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+
         function g4_iniciar(n) {
             g4_nivelActual = n; const conf = g4_nivelesConfig[n];
             if (n === 4) { g4_factor1 = Math.floor(Math.random() * 8999) + 1000; g4_factor2 = (Math.floor(Math.random() * 9) + 1) * 100 + (Math.floor(Math.random() * 9) + 1); }
             else if (n === 5) { g4_factor1 = Math.floor(Math.random() * 899999) + 100000; g4_factor2 = Math.floor(Math.random() * 899) + 100; }
             else { g4_factor1 = Math.floor(Math.random() * (conf.max1 - conf.min1 + 1)) + conf.min1; g4_factor2 = Math.floor(Math.random() * (conf.max2 - conf.min2 + 1)) + conf.min2; }
+            
             document.getElementById('g4_menu').classList.remove('active'); document.getElementById('g4_juego').classList.add('active');
             document.getElementById('g4_modal-victoria').style.display = 'none';
             const tablero = document.getElementById('g4_tablero'); tablero.innerHTML = '';
@@ -889,73 +975,131 @@
             const linea = document.createElement('div'); linea.className = 'g4_linea g34-fila-linea'; tablero.appendChild(linea);
             g4_prepararUnidades();
         }
-        function g4_calcularLlevadasPaso(d2) {
-            const strF1 = g4_factor1.toString(); let carry = 0; g4_llevadasPaso = new Array(strF1.length).fill(0);
+
+        function g4_limpiarLlevadasFila() {
+            document.querySelectorAll('#g4_tablero .g34-llevada-box').forEach(b => {
+                b.textContent = '';
+                b.className = 'g34-llevada-box';
+            });
+        }
+
+        function g4_calcularLlevadasFactor(d2) {
+            const strF1 = g4_factor1.toString(); let carry = 0; g4_llevadasCalculadas = new Array(strF1.length).fill(0);
             for (let i = strF1.length - 1; i >= 0; i--) {
                 let prod = parseInt(strF1[i]) * d2 + carry; carry = Math.floor(prod / 10);
-                if (i > 0) g4_llevadasPaso[i - 1] = carry;
+                if (i > 0) g4_llevadasCalculadas[i - 1] = carry;
             }
         }
-        function g4_actualizarLlevadaUI() {
-            document.querySelectorAll('#g4_tablero .g34-llevada-box').forEach(b => { b.textContent = ''; b.classList.remove('activa'); });
-            if (g4_fase === "SUMA") return;
-            const strF1 = g4_factor1.toString();
-            let stepIndex = (strF1.length - 1) - ((g4_valorObjetivo.length - 1) - g4_indexInput);
-            if (stepIndex >= 0 && stepIndex < strF1.length && g4_llevadasPaso[stepIndex] > 0) {
-                const box = document.getElementById(`g4_carry_${stepIndex}`);
-                if (box) { box.textContent = g4_llevadasPaso[stepIndex]; box.classList.add('activa'); }
+
+        function g4_prepararPasoColumna(factorMultiplier) {
+            document.querySelectorAll('#g4_tablero .g34-celda, #g4_tablero .g34-llevada-box').forEach(el => el.classList.remove('activa'));
+            if (g4_fase === "SUMA") {
+                g4_esperandoLlevada = false;
+                if (g4_colIndex >= 0 && g4_colIndex < g4_celdasActuales.length) g4_celdasActuales[g4_colIndex].classList.add('activa');
+                return;
+            }
+            let shift = (g4_fase === "DECENAS") ? 1 : ((g4_fase === "CENTENAS" || g4_fase === "CENTENAS_DIRECTAS") ? 2 : 0);
+            
+            if (g4_colIndex < 0) {
+                let primeraIncompleta = g4_celdasActuales.findIndex((c, idx) => idx < g4_celdasActuales.length - shift && !c.classList.contains('correcta'));
+                if (primeraIncompleta !== -1) {
+                    g4_celdasActuales[primeraIncompleta].classList.add('activa');
+                    document.getElementById('g4_instruccion').textContent = `Escribe la cifra sobrante a la izquierda`;
+                    return;
+                }
+                g4_avanzarFase();
+                return;
+            }
+
+            let cellIdx = g4_celdasActuales.length - 1 - shift - ((g4_factor1.toString().length - 1) - g4_colIndex);
+            
+            if (cellIdx >= 0 && cellIdx < g4_celdasActuales.length) {
+                g4_celdasActuales[cellIdx].classList.add('activa');
+                let d1 = parseInt(g4_factor1.toString()[g4_colIndex]);
+                document.getElementById('g4_instruccion').textContent = `Multiplica ${d1} × ${factorMultiplier}: Escribe la unidad abajo`;
             }
         }
+
+        function g4_avanzarFase() {
+            if (g4_fase === "UNIDADES") setTimeout(g4_prepararDecenas, 500);
+            else if (g4_fase === "DECENAS") {
+                if (g4_nivelActual === 5) setTimeout(g4_prepararCentenas, 500);
+                else setTimeout(g4_prepararSuma, 500);
+            }
+            else if (g4_fase === "CENTENAS_DIRECTAS") setTimeout(g4_prepararSuma, 500);
+            else if (g4_fase === "CENTENAS") setTimeout(g4_prepararSuma, 500);
+            else if (g4_fase === "SUMA") {
+                document.querySelectorAll('#g4_tablero .g34-celda').forEach(c => c.classList.remove('activa'));
+                document.getElementById('g4_resumen_final').innerText = `${formatNumberDots(g4_factor1)} × ${formatNumberDots(g4_factor2)} = ${formatNumberDots(g4_factor1 * g4_factor2)}`;
+                document.getElementById('g4_modal-victoria').style.display = 'flex';
+            }
+        }
+
         function g4_prepararUnidades() {
-            g4_fase = "UNIDADES"; const u2 = g4_factor2 % 10; g4_calcularLlevadasPaso(u2);
+            g4_limpiarLlevadasFila();
+            g4_esperandoLlevada = false;
+            g4_fase = "UNIDADES"; const u2 = g4_factor2 % 10; g4_calcularLlevadasFactor(u2);
             g4_valorObjetivo = (g4_factor1 * u2).toString();
-            document.getElementById('g4_instruccion').textContent = `1º PASO: Multiplica ${formatNumberDots(g4_factor1)} × ${u2}`;
-            g4_crearFilaCeldas(g4_valorObjetivo.length); g4_actualizarLlevadaUI();
+            g4_crearFilaCeldas(g4_valorObjetivo.length);
+            g4_colIndex = g4_factor1.toString().length - 1;
+            g4_prepararPasoColumna(u2);
         }
+
         function g4_prepararDecenas() {
+            g4_limpiarLlevadasFila();
+            g4_esperandoLlevada = false;
             g4_fase = "DECENAS"; const d2 = Math.floor((g4_factor2 % 100) / 10);
             if (d2 === 0) {
                 const c2 = Math.floor(g4_factor2 / 100);
                 const resCentena = g4_factor1 * c2;
-                g4_valorObjetivo = resCentena.toString() + "0";
-                document.getElementById('g4_instruccion').textContent = `Decena es 0: Se coloca X y 0, y se multiplica por la centena ${c2}`;
-                g4_calcularLlevadasPaso(c2);
-                g4_crearFilaCeldas(g4_valorObjetivo.length + 1);
+                g4_valorObjetivo = resCentena.toString() + "00";
+                g4_calcularLlevadasFactor(c2);
+                g4_crearFilaCeldas(g4_valorObjetivo.length);
                 const len = g4_celdasActuales.length;
+                
+                // X roja en las unidades y 0 en las decenas
                 g4_celdasActuales[len - 1].textContent = "X";
-                g4_celdasActuales[len - 1].style.color = "red";
-                g4_celdasActuales[len - 1].className = 'g34-celda correcta';
+                g4_celdasActuales[len - 1].className = 'g34-celda correcta desactivada cero-x';
                 g4_celdasActuales[len - 2].textContent = "0";
-                g4_celdasActuales[len - 2].className = 'g34-celda correcta';
+                g4_celdasActuales[len - 2].className = 'g34-celda correcta desactivada';
+                
                 g4_fase = "CENTENAS_DIRECTAS";
-                g4_indexInput = len - 3;
-                g4_celdasActuales[g4_indexInput].classList.add('activa');
+                g4_colIndex = g4_factor1.toString().length - 1;
+                g4_prepararPasoColumna(c2);
                 return;
             }
-            g4_calcularLlevadasPaso(d2); g4_valorObjetivo = (g4_factor1 * d2).toString();
-            document.getElementById('g4_instruccion').textContent = `2º PASO: Multiplica ${formatNumberDots(g4_factor1)} × ${d2} (Decenas)`;
+            g4_calcularLlevadasFactor(d2); g4_valorObjetivo = (g4_factor1 * d2).toString();
             g4_crearFilaCeldas(g4_valorObjetivo.length + 1);
             const ultimoIndex = g4_celdasActuales.length - 1;
             g4_celdasActuales[ultimoIndex].textContent = "0"; g4_celdasActuales[ultimoIndex].className = 'g34-celda correcta desactivada';
-            g4_indexInput = ultimoIndex - 1; g4_celdasActuales[g4_indexInput].classList.add('activa'); g4_actualizarLlevadaUI();
+            g4_colIndex = g4_factor1.toString().length - 1;
+            g4_prepararPasoColumna(d2);
         }
+
         function g4_prepararCentenas() {
-            g4_fase = "CENTENAS"; const c2 = Math.floor(g4_factor2 / 100); g4_calcularLlevadasPaso(c2);
+            g4_limpiarLlevadasFila();
+            g4_esperandoLlevada = false;
+            g4_fase = "CENTENAS"; const c2 = Math.floor(g4_factor2 / 100); g4_calcularLlevadasFactor(c2);
             g4_valorObjetivo = (g4_factor1 * c2).toString();
-            document.getElementById('g4_instruccion').textContent = `3º PASO: Multiplica ${formatNumberDots(g4_factor1)} × ${c2} (Centenas)`;
             g4_crearFilaCeldas(g4_valorObjetivo.length + 2);
             const len = g4_celdasActuales.length;
             g4_celdasActuales[len - 1].textContent = "0"; g4_celdasActuales[len - 1].className = 'g34-celda correcta desactivada';
             g4_celdasActuales[len - 2].textContent = "0"; g4_celdasActuales[len - 2].className = 'g34-celda correcta desactivada';
-            g4_indexInput = len - 3; g4_celdasActuales[g4_indexInput].classList.add('activa'); g4_actualizarLlevadaUI();
+            g4_colIndex = g4_factor1.toString().length - 1;
+            g4_prepararPasoColumna(c2);
         }
+
         function g4_prepararSuma() {
-            g4_fase = "SUMA"; g4_actualizarLlevadaUI();
+            g4_limpiarLlevadasFila();
+            g4_fase = "SUMA"; g4_esperandoLlevada = false;
             const linea = document.createElement('div'); linea.className = 'g34-fila-linea'; document.getElementById('g4_tablero').appendChild(linea);
             g4_valorObjetivo = (g4_factor1 * g4_factor2).toString();
             document.getElementById('g4_instruccion').textContent = `PASO FINAL: Suma los productos parciales`;
             g4_crearFilaCeldas(g4_valorObjetivo.length);
+            g4_colIndex = g4_celdasActuales.length - 1;
+            g4_celdasActuales[g4_colIndex].classList.add('activa');
         }
+
         function g4_crearFilaNumerosFormatted(num) {
             const fila = document.createElement('div'); fila.className = 'g34-fila';
             const numStr = num.toString();
@@ -964,41 +1108,118 @@
             }
             return fila;
         }
+
         function g4_crearFilaCeldas(cantidad) {
             const fila = document.createElement('div'); fila.className = 'g34-fila'; g4_celdasActuales = [];
             for (let i = 0; i < cantidad; i++) { const c = document.createElement('div'); c.className = 'g34-celda'; fila.appendChild(c); g4_celdasActuales.push(c); }
             document.getElementById('g4_tablero').appendChild(fila);
-            g4_indexInput = g4_celdasActuales.length - 1; g4_celdasActuales[g4_indexInput].classList.add('activa');
         }
+
         function g4_entrada(n) {
-            if (g4_indexInput < 0) return;
-            const celda = g4_celdasActuales[g4_indexInput];
-            let targetChar = "";
-            if (g4_fase === "CENTENAS_DIRECTAS") {
-                let subObj = g4_valorObjetivo.substring(0, g4_valorObjetivo.length - 1);
-                targetChar = subObj[g4_indexInput];
-            } else {
-                targetChar = g4_valorObjetivo[g4_indexInput];
+            let mult = (g4_fase === "UNIDADES") ? (g4_factor2 % 10) :
+                       ((g4_fase === "DECENAS") ? Math.floor((g4_factor2 % 100) / 10) :
+                       ((g4_fase === "CENTENAS_DIRECTAS" || g4_fase === "CENTENAS") ? Math.floor(g4_factor2 / 100) : 1));
+
+            if (g4_esperandoLlevada) {
+                let esperada = g4_llevadasCalculadas[g4_carryPosActual];
+                const box = document.getElementById(`g4_carry_${g4_carryPosActual}`);
+                if (n === esperada) {
+                    box.textContent = n;
+                    box.className = 'g34-llevada-box correcta';
+                    g4_esperandoLlevada = false;
+                    g4_colIndex--;
+                    g4_prepararPasoColumna(mult);
+                } else {
+                    box.classList.add('incorrecta'); box.textContent = n;
+                    setTimeout(() => { box.classList.remove('incorrecta'); box.textContent = ''; }, 400);
+                }
+                return;
             }
-            if (n.toString() === targetChar) {
-                celda.textContent = n; celda.className = 'g34-celda correcta'; g4_indexInput--;
-                if (g4_indexInput >= 0) { g4_celdasActuales[g4_indexInput].classList.add('activa'); g4_actualizarLlevadaUI(); }
-                else {
-                    if (g4_fase === "UNIDADES") setTimeout(g4_prepararDecenas, 600);
-                    else if (g4_fase === "DECENAS" || g4_fase === "CENTENAS_DIRECTAS") setTimeout(g4_prepararSuma, 600);
-                    else if (g4_fase === "CENTENAS") setTimeout(g4_prepararSuma, 600);
-                    else if (g4_fase === "SUMA") {
+
+            if (g4_fase === "SUMA") {
+                if (g4_colIndex < 0) return;
+                const celda = g4_celdasActuales[g4_colIndex];
+                let targetChar = g4_valorObjetivo[g4_colIndex];
+                if (n.toString() === targetChar) {
+                    celda.textContent = n; celda.className = 'g34-celda correcta'; g4_colIndex--;
+                    if (g4_colIndex >= 0) {
+                        g4_celdasActuales[g4_colIndex].classList.add('activa');
+                    } else {
                         document.querySelectorAll('#g4_tablero .g34-celda').forEach(c => c.classList.remove('activa'));
                         document.getElementById('g4_resumen_final').innerText = `${formatNumberDots(g4_factor1)} × ${formatNumberDots(g4_factor2)} = ${formatNumberDots(g4_factor1 * g4_factor2)}`;
                         document.getElementById('g4_modal-victoria').style.display = 'flex';
                     }
+                } else {
+                    celda.classList.add('incorrecta'); celda.textContent = n;
+                    setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
                 }
+                return;
+            }
+
+            let shift = (g4_fase === "DECENAS") ? 1 : ((g4_fase === "CENTENAS" || g4_fase === "CENTENAS_DIRECTAS") ? 2 : 0);
+            let cellIdx;
+            if (g4_colIndex >= 0) {
+                cellIdx = g4_celdasActuales.length - 1 - shift - ((g4_factor1.toString().length - 1) - g4_colIndex);
+            } else {
+                cellIdx = g4_celdasActuales.findIndex((c, idx) => idx < g4_celdasActuales.length - shift && !c.classList.contains('correcta'));
+            }
+
+            if (cellIdx < 0 || cellIdx >= g4_celdasActuales.length) return;
+            const celda = g4_celdasActuales[cellIdx];
+
+            let targetChar = g4_valorObjetivo[cellIdx];
+            if (n.toString() === targetChar) {
+                celda.textContent = n; celda.className = 'g34-celda correcta';
+                
+                if (g4_colIndex >= 0) {
+                    let strF1 = g4_factor1.toString();
+                    let d1 = parseInt(strF1[g4_colIndex]);
+                    let carryPrev = (g4_colIndex < strF1.length - 1) ? g4_llevadasCalculadas[g4_colIndex] : 0;
+                    let llevadaGen = Math.floor((d1 * mult + carryPrev) / 10);
+
+                    if (g4_colIndex > 0 && llevadaGen > 0) {
+                        g4_esperandoLlevada = true;
+                        g4_carryPosActual = g4_colIndex - 1;
+                        const box = document.getElementById(`g4_carry_${g4_carryPosActual}`);
+                        if (box && !box.classList.contains('correcta')) {
+                            celda.classList.remove('activa');
+                            box.classList.add('activa');
+                            document.getElementById('g4_instruccion').textContent = `¿Cuánto te llevas para la siguiente columna? Escríbelo arriba.`;
+                            return;
+                        }
+                    }
+                    g4_colIndex--;
+                }
+                g4_prepararPasoColumna(mult);
             } else {
                 celda.classList.add('incorrecta'); celda.textContent = n;
                 setTimeout(() => { celda.classList.remove('incorrecta'); celda.textContent = ''; }, 400);
             }
         }
-        function g4_borrar() { const c = g4_celdasActuales[g4_indexInput]; if(c && !c.classList.contains('correcta')) c.textContent = ""; }
+
+        function g4_borrar() {
+            if (g4_esperandoLlevada) {
+                const box = document.getElementById(`g4_carry_${g4_carryPosActual}`);
+                if (box && !box.classList.contains('correcta')) box.textContent = "";
+            } else if (g4_fase === "SUMA") {
+                if (g4_colIndex >= 0 && g4_colIndex < g4_celdasActuales.length) {
+                    const c = g4_celdasActuales[g4_colIndex];
+                    if (c && !c.classList.contains('correcta')) c.textContent = "";
+                }
+            } else {
+                let shift = (g4_fase === "DECENAS") ? 1 : ((g4_fase === "CENTENAS" || g4_fase === "CENTENAS_DIRECTAS") ? 2 : 0);
+                let cellIdx;
+                if (g4_colIndex >= 0) {
+                    cellIdx = g4_celdasActuales.length - 1 - shift - ((g4_factor1.toString().length - 1) - g4_colIndex);
+                } else {
+                    cellIdx = g4_celdasActuales.findIndex((c, idx) => idx < g4_celdasActuales.length - shift && !c.classList.contains('correcta'));
+                }
+                if (cellIdx >= 0 && cellIdx < g4_celdasActuales.length) {
+                    const c = g4_celdasActuales[cellIdx];
+                    if (c && !c.classList.contains('correcta')) c.textContent = "";
+                }
+            }
+        }
         function g4_volverAlMenuNiveles() { document.getElementById('g4_modal-victoria').style.display = 'none'; document.getElementById('g4_juego').classList.remove('active'); document.getElementById('g4_menu').classList.add('active'); }
         function g4_volverAJugarMismoNivel() { g4_iniciar(g4_nivelActual); }
 
